@@ -1,0 +1,1569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Handwritten Notes - Comprehensive B-Trees & AVL Trees</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts for Authentic Handwriting -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Kalam:wght@400;700&family=Patrick+Hand&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../notebook.css">
+</head>
+<body class="bg-slate-200 min-h-screen py-8 px-2 md:px-6 font-notes-body">
+
+  <header class="sticky top-0 z-50 bg-[#FAF6EE] shadow-md border-b-2 border-amber-200 px-4 py-3 no-print">
+    <div class="max-w-4xl mx-auto flex flex-col md:flex-row justify-between items-center gap-3">
+      <div class="flex items-center space-x-3">
+        <span class="text-3xl font-bold text-inkBlue tracking-wide font-heading">📖 Unit II: B-Trees & AVL Trees</span>
+        <span class="bg-amber-100 text-inkRed text-sm font-bold px-3 py-1 rounded-full border border-amber-300 font-sans">Data Structures</span>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <nav class="max-w-4xl mx-auto mt-3 flex flex-wrap gap-1 border-t border-amber-200 pt-2 text-base md:text-lg">
+      <button onclick="switchTab('fundamentals')" id="tab-fundamentals" class="nav-tab px-3 py-1.5 rounded-t-lg font-bold bg-amber-200 text-inkBlue border-b-2 border-inkBlue">
+        1. B-Tree Fundamentals
+      </button>
+      <button onclick="switchTab('order3')" id="tab-order3" class="nav-tab px-3 py-1.5 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
+        2. Order-3 Insertion
+      </button>
+      <button onclick="switchTab('order45')" id="tab-order45" class="nav-tab px-3 py-1.5 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
+        3. Order-4/5 Insertion
+      </button>
+      <button onclick="switchTab('deletion')" id="tab-deletion" class="nav-tab px-3 py-1.5 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
+        4. Deletion Dry-Run
+      </button>
+      <button onclick="switchTab('applications')" id="tab-applications" class="nav-tab px-3 py-1.5 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
+        5. Applications
+      </button>
+    </nav>
+  </header>
+
+  <!-- NOTEBOOK CONTAINER -->
+  <div class="max-w-4xl mx-auto">
+
+    <!-- SECTION 1: FUNDAMENTALS -->
+    <section id="sec-fundamentals" class="tab-content block">
+      <!-- PAGE 1: FUNDAMENTALS & FORMULAS -->
+      <div class="notebook-page rounded-lg p-6 sm:p-10 pl-16 sm:pl-20 border border-amber-100 min-h-[1050px]">
+      <div class="binder-holes">
+        <div class="hole"></div><div class="hole"></div><div class="hole"></div>
+        <div class="hole"></div><div class="hole"></div><div class="hole"></div>
+        <div class="hole"></div><div class="hole"></div><div class="hole"></div>
+      </div>
+
+      <div class="flex justify-between items-center border-b-2 border-red-300 pb-2 mb-6">
+        <div>
+          <span class="text-xs text-slate-400 font-sans">Subject: ADSA / Data Structures</span>
+          <h2 class="text-3xl font-bold ink-red font-heading tracking-wide">Unit-II: B-Trees & AVL Trees</h2>
+        </div>
+        <div class="text-right font-sans text-xs text-slate-400">
+          <span>Page: 01</span>
+        </div>
+      </div>
+
+      <div class="space-y-4 ink-blue">
+        <h3 class="text-2xl font-bold ink-red font-heading pen-underline">1. Core B-Tree Rules & Definitions</h3>
+        <p>
+          A <span class="highlighter text-slate-900 font-bold">B-Tree of order m</span> is a multi-way, self-balancing search tree designed to optimize read and write operations on secondary memory disks.
+        </p>
+
+        <div class="note-box p-4 my-3 space-y-2">
+          <h4 class="text-xl font-bold ink-purple font-heading">📌 Exact Mathematical Capacity Formulas:</h4>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-base">
+            <div class="bg-white p-3 rounded border border-blue-200">
+              <span class="font-bold ink-red">Child Pointer Limits:</span>
+              <ul class="list-disc pl-4 space-y-1">
+                <li>Max Children = <span class="font-bold">m</span></li>
+                <li>Min Children (internal) = <span class="font-bold">⌈m / 2⌉</span></li>
+                <li>Root Min Children = <span class="font-bold">2</span> (if non-leaf)</li>
+              </ul>
+            </div>
+            <div class="bg-white p-3 rounded border border-blue-200">
+              <span class="font-bold ink-red">Key Capacity Limits:</span>
+              <ul class="list-disc pl-4 space-y-1">
+                <li>Max Keys per node = <span class="font-bold">m - 1</span></li>
+                <li>Min Keys per node = <span class="font-bold">⌈m / 2⌉ - 1</span></li>
+                <li>Root Min Keys = <span class="font-bold">1</span></li>
+              </ul>
+            </div>
+          </div>
+          <p class="text-xs text-slate-600 italic mt-2">⭐ Important: Every single leaf node in a B-Tree must exist on the EXACT same level (Perfect Height Balance).</p>
+        </div>
+
+        <h3 class="text-2xl font-bold ink-red font-heading pen-underline mt-4">2. Comparison Table Across Orders</h3>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse border border-blue-300 bg-white/90 text-sm">
+            <thead>
+              <tr class="bg-blue-100 ink-purple font-heading text-base">
+                <th class="border border-blue-300 p-2">Order (m)</th>
+                <th class="border border-blue-300 p-2">Max Keys (m - 1)</th>
+                <th class="border border-blue-300 p-2">Min Keys (⌈m/2⌉ - 1)</th>
+                <th class="border border-blue-300 p-2">Max Children (m)</th>
+                <th class="border border-blue-300 p-2">Min Children (⌈m/2⌉)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="border border-blue-300 p-2 font-bold text-red-600">Order 3 (2-3 Tree)</td>
+                <td class="border border-blue-300 p-2">2 keys</td>
+                <td class="border border-blue-300 p-2">1 key</td>
+                <td class="border border-blue-300 p-2">3 children</td>
+                <td class="border border-blue-300 p-2">2 children</td>
+              </tr>
+              <tr class="bg-slate-50">
+                <td class="border border-blue-300 p-2 font-bold text-blue-700">Order 4 (2-3-4 Tree)</td>
+                <td class="border border-blue-300 p-2">3 keys</td>
+                <td class="border border-blue-300 p-2">1 key</td>
+                <td class="border border-blue-300 p-2">4 children</td>
+                <td class="border border-blue-300 p-2">2 children</td>
+              </tr>
+              <tr>
+                <td class="border border-blue-300 p-2 font-bold text-emerald-700">Order 5</td>
+                <td class="border border-blue-300 p-2">4 keys</td>
+                <td class="border border-blue-300 p-2">2 keys</td>
+                <td class="border border-blue-300 p-2">5 children</td>
+                <td class="border border-blue-300 p-2">3 children</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 class="text-2xl font-bold ink-red font-heading pen-underline mt-4">3. Summary of Core Operations</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+          <div class="bg-amber-50 p-3 rounded-lg border border-amber-300">
+            <span class="font-bold ink-purple">Insertion Operation Flow:</span>
+            <ol class="list-decimal pl-5 space-y-1 mt-1 text-slate-800">
+              <li>Traverse down to find the correct <span class="font-bold">leaf node</span>.</li>
+              <li>Insert key in sorted order.</li>
+              <li>If keys &gt; m - 1 (Overflow), find the <span class="highlighter">Median Key</span>.</li>
+              <li>Promote median key up to parent. Split remaining keys into left & right children.</li>
+            </ol>
+          </div>
+          <div class="bg-rose-50 p-3 rounded-lg border border-rose-300">
+            <span class="font-bold ink-red">Deletion Operation Flow:</span>
+            <ol class="list-decimal pl-5 space-y-1 mt-1 text-slate-800">
+              <li>Locate key in leaf or internal node.</li>
+              <li>If internal, swap with <span class="font-bold">Inorder Predecessor/Successor</span>.</li>
+              <li>Delete from leaf node.</li>
+              <li>If keys &lt; Min Keys (Underflow), <span class="font-bold text-purple-700">Borrow</span> from rich sibling OR <span class="font-bold text-red-700">Merge</span> with sibling + parent key.</li>
+            </ol>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    </section>
+
+    <!-- SECTION 2: ORDER-3 INSERTION -->
+    <section id="sec-order3" class="tab-content hidden">
+      <!-- PAGE 2: INDIVIDUAL STEPS - ORDER-3 B-TREE INSERTION (KEYS 1 TO 11) -->
+      <div class="notebook-page rounded-lg p-6 sm:p-10 pl-16 sm:pl-20 border border-amber-100 min-h-[1050px]">
+      <div class="binder-holes">
+        <div class="hole"></div><div class="hole"></div><div class="hole"></div>
+        <div class="hole"></div><div class="hole"></div><div class="hole"></div>
+        <div class="hole"></div><div class="hole"></div><div class="hole"></div>
+      </div>
+
+      <div class="flex justify-between items-center border-b-2 border-red-300 pb-2 mb-6">
+        <h2 class="text-3xl font-bold ink-red font-heading">4. Order-3 B-Tree Insertion (Individual Steps 1 to 11)</h2>
+        <span class="font-sans text-xs text-slate-400">Page: 02</span>
+      </div>
+
+      <div class="space-y-4 ink-blue">
+        <p class="text-sm"><b>Order m = 3:</b> Max Keys per node = 2, Min Keys = 1. Every single step below is drawn as a complete, full tree diagram!</p>
+
+        <div class="space-y-3 text-xs sm:text-sm">
+
+          <!-- Step 1 -->
+          <div class="bg-white p-2.5 rounded-lg border border-slate-300 shadow-sm flex flex-col md:flex-row items-center justify-between gap-3">
+            <div class="flex-1">
+              <span class="font-bold text-red-600 font-sans uppercase">Step 1: Insert Key 1</span>
+              <p class="text-slate-600">Initial tree is empty. Key 1 is placed inside the root leaf node.</p>
+            </div>
+            <svg width="120" height="35" class="shrink-0">
+              <rect x="35" y="5" width="50" height="24" rx="4" fill="#fef08a" stroke="#1e3a8a" stroke-width="2"/>
+              <text x="60" y="21" text-anchor="middle" font-weight="bold" fill="#1e3a8a">1</text>
+            </svg>
+          </div>
+
+          <!-- Step 2 -->
+          <div class="bg-white p-2.5 rounded-lg border border-slate-300 shadow-sm flex flex-col md:flex-row items-center justify-between gap-3">
+            <div class="flex-1">
+              <span class="font-bold text-red-600 font-sans uppercase">Step 2: Insert Key 2</span>
+              <p class="text-slate-600">Key 2 goes into the same node in sorted order. Node capacity is 2 keys (No overflow).</p>
+            </div>
+            <svg width="140" height="35" class="shrink-0">
+              <rect x="35" y="5" width="70" height="24" rx="4" fill="#fef08a" stroke="#1e3a8a" stroke-width="2"/>
+              <text x="70" y="21" text-anchor="middle" font-weight="bold" fill="#1e3a8a">1 | 2</text>
+            </svg>
+          </div>
+
+          <!-- Step 3 -->
+          <div class="bg-white p-2.5 rounded-lg border border-slate-300 shadow-sm flex flex-col md:flex-row items-center justify-between gap-3">
+            <div class="flex-1">
+              <span class="font-bold text-red-600 font-sans uppercase">Step 3: Insert Key 3 (Overflow & Split)</span>
+              <p class="text-slate-600">Node becomes `[1 | 2 | 3]` (3 keys &gt; 2). Median key <span class="font-bold text-purple-700">'2'</span> is promoted UP to create a new root.</p>
+            </div>
+            <svg width="160" height="65" class="shrink-0">
+              <rect x="65" y="5" width="30" height="20" rx="3" fill="#fef08a" stroke="#1e3a8a" stroke-width="2"/>
+              <text x="80" y="19" text-anchor="middle" font-weight="bold" fill="#1e3a8a">2</text>
+              <line x1="70" y1="25" x2="40" y2="40" stroke="#1e3a8a" stroke-width="1.5"/>
+              <line x1="90" y1="25" x2="120" y2="40" stroke="#1e3a8a" stroke-width="1.5"/>
+              <rect x="25" y="40" width="30" height="20" rx="3" fill="#fff" stroke="#1e3a8a" stroke-width="1.5"/><text x="40" y="54" text-anchor="middle">1</text>
+              <rect x="105" y="40" width="30" height="20" rx="3" fill="#fff" stroke="#1e3a8a" stroke-width="1.5"/><text x="120" y="54" text-anchor="middle">3</text>
+            </svg>
+          </div>
+
+          <!-- Step 4 -->
+          <div class="bg-white p-2.5 rounded-lg border border-slate-300 shadow-sm flex flex-col md:flex-row items-center justify-between gap-3">
+            <div class="flex-1">
+              <span class="font-bold text-red-600 font-sans uppercase">Step 4: Insert Key 4</span>
+              <p class="text-slate-600">4 &gt; 2, goes to right leaf `[3]`. Right leaf becomes `[3 | 4]` (Capacity 2, no split needed).</p>
+            </div>
+            <svg width="180" height="65" class="shrink-0">
+              <rect x="75" y="5" width="30" height="20" rx="3" fill="#fef08a" stroke="#1e3a8a" stroke-width="2"/>
+              <text x="90" y="19" text-anchor="middle" font-weight="bold" fill="#1e3a8a">2</text>
+              <line x1="80" y1="25" x2="40" y2="40" stroke="#1e3a8a" stroke-width="1.5"/>
+              <line x1="100" y1="25" x2="137" y2="40" stroke="#1e3a8a" stroke-width="1.5"/>
+              <rect x="25" y="40" width="30" height="20" rx="3" fill="#fff" stroke="#1e3a8a" stroke-width="1.5"/><text x="40" y="54" text-anchor="middle">1</text>
+              <rect x="115" y="40" width="45" height="20" rx="3" fill="#fff" stroke="#1e3a8a" stroke-width="1.5"/><text x="137" y="54" text-anchor="middle">3 | 4</text>
+            </svg>
+          </div>
+
+          <!-- Step 5 -->
+          <div class="bg-white p-2.5 rounded-lg border border-slate-300 shadow-sm flex flex-col md:flex-row items-center justify-between gap-3">
+            <div class="flex-1">
+              <span class="font-bold text-red-600 font-sans uppercase">Step 5: Insert Key 5 (Leaf Split)</span>
+              <p class="text-slate-600">Right leaf becomes `[3 | 4 | 5]` (Overflow). Median key <span class="font-bold text-purple-700">'4'</span> moves UP into root `[2]`, making root `[2 | 4]`.</p>
+            </div>
+            <svg width="220" height="65" class="shrink-0">
+              <rect x="85" y="5" width="50" height="20" rx="3" fill="#fef08a" stroke="#1e3a8a" stroke-width="2"/>
+              <text x="110" y="19" text-anchor="middle" font-weight="bold" fill="#1e3a8a">2 | 4</text>
+              <line x1="90" y1="25" x2="30" y2="40" stroke="#1e3a8a" stroke-width="1.5"/>
+              <line x1="110" y1="25" x2="110" y2="40" stroke="#1e3a8a" stroke-width="1.5"/>
+              <line x1="130" y1="25" x2="190" y2="40" stroke="#1e3a8a" stroke-width="1.5"/>
+              <rect x="15" y="40" width="30" height="20" rx="2" fill="#fff" stroke="#1e3a8a" stroke-width="1.5"/><text x="30" y="54" text-anchor="middle">1</text>
+              <rect x="95" y="40" width="30" height="20" rx="2" fill="#fff" stroke="#1e3a8a" stroke-width="1.5"/><text x="110" y="54" text-anchor="middle">3</text>
+              <rect x="175" y="40" width="30" height="20" rx="2" fill="#fff" stroke="#1e3a8a" stroke-width="1.5"/><text x="190" y="54" text-anchor="middle">5</text>
+            </svg>
+          </div>
+
+          <!-- Step 6 -->
+          <div class="bg-white p-2.5 rounded-lg border border-slate-300 shadow-sm flex flex-col md:flex-row items-center justify-between gap-3">
+            <div class="flex-1">
+              <span class="font-bold text-red-600 font-sans uppercase">Step 6: Insert Key 6</span>
+              <p class="text-slate-600">6 &gt; 4, inserted into rightmost leaf `[5]`, making it `[5 | 6]` (Capacity 2, no split).</p>
+            </div>
+            <svg width="240" height="65" class="shrink-0">
+              <rect x="95" y="5" width="50" height="20" rx="3" fill="#fef08a" stroke="#1e3a8a" stroke-width="2"/>
+              <text x="120" y="19" text-anchor="middle" font-weight="bold" fill="#1e3a8a">2 | 4</text>
+              <line x1="100" y1="25" x2="30" y2="40" stroke="#1e3a8a" stroke-width="1.5"/>
+              <line x1="120" y1="25" x2="110" y2="40" stroke="#1e3a8a" stroke-width="1.5"/>
+              <line x1="140" y1="25" x2="197" y2="40" stroke="#1e3a8a" stroke-width="1.5"/>
+              <rect x="15" y="40" width="30" height="20" rx="2" fill="#fff" stroke="#1e3a8a" stroke-width="1.5"/><text x="30" y="54" text-anchor="middle">1</text>
+              <rect x="95" y="40" width="30" height="20" rx="2" fill="#fff" stroke="#1e3a8a" stroke-width="1.5"/><text x="110" y="54" text-anchor="middle">3</text>
+              <rect x="175" y="40" width="45" height="20" rx="2" fill="#fff" stroke="#1e3a8a" stroke-width="1.5"/><text x="197" y="54" text-anchor="middle">5 | 6</text>
+            </svg>
+          </div>
+
+          <!-- Step 7 -->
+          <div class="bg-white p-2.5 rounded-lg border border-slate-300 shadow-sm flex flex-col md:flex-row items-center justify-between gap-3">
+            <div class="flex-1">
+              <span class="font-bold text-red-600 font-sans uppercase">Step 7: Insert Key 7 (Cascading Root Split)</span>
+              <p class="text-slate-600">
+                Leaf `[5 | 6 | 7]` splits at '6'. '6' moves up to root `[2 | 4 | 6]` (Overflow!). Root splits at <span class="font-bold text-purple-700">'4'</span> to form a full 3-level tree!
+              </p>
+            </div>
+            <svg width="260" height="85" class="shrink-0">
+              <rect x="115" y="5" width="30" height="18" rx="3" fill="#fef08a" stroke="#1e3a8a" stroke-width="2"/>
+              <text x="130" y="18" text-anchor="middle" font-weight="bold" fill="#1e3a8a">4</text>
+              <line x1="120" y1="23" x2="70" y2="33" stroke="#1e3a8a" stroke-width="1.5"/>
+              <line x1="140" y1="23" x2="190" y2="33" stroke="#1e3a8a" stroke-width="1.5"/>
+              <rect x="55" y="33" width="30" height="16" rx="2" fill="#e0f2fe" stroke="#1e3a8a" stroke-width="1.5"/><text x="70" y="45" text-anchor="middle">2</text>
+              <rect x="175" y="33" width="30" height="16" rx="2" fill="#e0f2fe" stroke="#1e3a8a" stroke-width="1.5"/><text x="190" y="45" text-anchor="middle">6</text>
+              <line x1="60" y1="49" x2="22" y2="60" stroke="#1e3a8a" stroke-width="1"/>
+              <line x1="80" y1="49" x2="97" y2="60" stroke="#1e3a8a" stroke-width="1"/>
+              <line x1="180" y1="49" x2="162" y2="60" stroke="#1e3a8a" stroke-width="1"/>
+              <line x1="200" y1="49" x2="237" y2="60" stroke="#1e3a8a" stroke-width="1"/>
+              <rect x="10" y="60" width="25" height="16" rx="2" fill="#fff" stroke="#1e3a8a" stroke-width="1.5"/><text x="22" y="72" font-size="10" text-anchor="middle">1</text>
+              <rect x="85" y="60" width="25" height="16" rx="2" fill="#fff" stroke="#1e3a8a" stroke-width="1.5"/><text x="97" y="72" font-size="10" text-anchor="middle">3</text>
+              <rect x="150" y="60" width="25" height="16" rx="2" fill="#fff" stroke="#1e3a8a" stroke-width="1.5"/><text x="162" y="72" font-size="10" text-anchor="middle">5</text>
+              <rect x="225" y="60" width="25" height="16" rx="2" fill="#fff" stroke="#1e3a8a" stroke-width="1.5"/><text x="237" y="72" font-size="10" text-anchor="middle">7</text>
+            </svg>
+          </div>
+
+          <!-- Step 8 -->
+          <div class="bg-white p-2.5 rounded-lg border border-slate-300 shadow-sm flex flex-col md:flex-row items-center justify-between gap-3">
+            <div class="flex-1">
+              <span class="font-bold text-red-600 font-sans uppercase">Step 8: Insert Key 8</span>
+              <p class="text-slate-600">8 &gt; 7, added to rightmost leaf `[7]`, turning it into `[7 | 8]`.</p>
+            </div>
+            <svg width="280" height="85" class="shrink-0">
+              <rect x="125" y="5" width="30" height="18" rx="3" fill="#fef08a" stroke="#1e3a8a" stroke-width="2"/>
+              <text x="140" y="18" text-anchor="middle" font-weight="bold" fill="#1e3a8a">4</text>
+              <line x1="130" y1="23" x2="70" y2="33" stroke="#1e3a8a" stroke-width="1.5"/>
+              <line x1="150" y1="23" x2="200" y2="33" stroke="#1e3a8a" stroke-width="1.5"/>
+              <rect x="55" y="33" width="30" height="16" rx="2" fill="#e0f2fe" stroke="#1e3a8a" stroke-width="1.5"/><text x="70" y="45" text-anchor="middle">2</text>
+              <rect x="185" y="33" width="30" height="16" rx="2" fill="#e0f2fe" stroke="#1e3a8a" stroke-width="1.5"/><text x="200" y="45" text-anchor="middle">6</text>
+              <line x1="60" y1="49" x2="22" y2="60" stroke="#1e3a8a" stroke-width="1"/>
+              <line x1="80" y1="49" x2="97" y2="60" stroke="#1e3a8a" stroke-width="1"/>
+              <line x1="190" y1="49" x2="162" y2="60" stroke="#1e3a8a" stroke-width="1"/>
+              <line x1="210" y1="49" x2="240" y2="60" stroke="#1e3a8a" stroke-width="1"/>
+              <rect x="10" y="60" width="25" height="16" rx="2" fill="#fff" stroke="#1e3a8a" stroke-width="1.5"/><text x="22" y="72" font-size="10" text-anchor="middle">1</text>
+              <rect x="85" y="60" width="25" height="16" rx="2" fill="#fff" stroke="#1e3a8a" stroke-width="1.5"/><text x="97" y="72" font-size="10" text-anchor="middle">3</text>
+              <rect x="150" y="60" width="25" height="16" rx="2" fill="#fff" stroke="#1e3a8a" stroke-width="1.5"/><text x="162" y="72" font-size="10" text-anchor="middle">5</text>
+              <rect x="220" y="60" width="40" height="16" rx="2" fill="#fff" stroke="#1e3a8a" stroke-width="1.5"/><text x="240" y="72" font-size="10" text-anchor="middle">7 | 8</text>
+            </svg>
+          </div>
+
+          <!-- Step 9 -->
+          <div class="bg-white p-2.5 rounded-lg border border-slate-300 shadow-sm flex flex-col md:flex-row items-center justify-between gap-3">
+            <div class="flex-1">
+              <span class="font-bold text-red-600 font-sans uppercase">Step 9: Insert Key 9 (Leaf Split)</span>
+              <p class="text-slate-600">Leaf `[7 | 8 | 9]` overflows. Median <span class="font-bold text-purple-700">'8'</span> moves UP to internal node `[6]`, making it `[6 | 8]`.</p>
+            </div>
+            <svg width="300" height="85" class="shrink-0">
+              <rect x="135" y="5" width="30" height="18" rx="3" fill="#fef08a" stroke="#1e3a8a" stroke-width="2"/>
+              <text x="150" y="18" text-anchor="middle" font-weight="bold" fill="#1e3a8a">4</text>
+              <line x1="140" y1="23" x2="60" y2="33" stroke="#1e3a8a" stroke-width="1.5"/>
+              <line x1="160" y1="23" x2="210" y2="33" stroke="#1e3a8a" stroke-width="1.5"/>
+              <rect x="45" y="33" width="30" height="16" rx="2" fill="#e0f2fe" stroke="#1e3a8a" stroke-width="1.5"/><text x="60" y="45" text-anchor="middle">2</text>
+              <rect x="185" y="33" width="50" height="16" rx="2" fill="#e0f2fe" stroke="#1e3a8a" stroke-width="1.5"/><text x="210" y="45" text-anchor="middle">6 | 8</text>
+              <line x1="50" y1="49" x2="16" y2="60" stroke="#1e3a8a" stroke-width="1"/>
+              <line x1="70" y1="49" x2="81" y2="60" stroke="#1e3a8a" stroke-width="1"/>
+              <line x1="195" y1="49" x2="151" y2="60" stroke="#1e3a8a" stroke-width="1"/>
+              <line x1="210" y1="49" x2="206" y2="60" stroke="#1e3a8a" stroke-width="1"/>
+              <line x1="225" y1="49" x2="261" y2="60" stroke="#1e3a8a" stroke-width="1"/>
+              <rect x="5" y="60" width="22" height="16" rx="2" fill="#fff" stroke="#1e3a8a" stroke-width="1.5"/><text x="16" y="72" font-size="9" text-anchor="middle">1</text>
+              <rect x="70" y="60" width="22" height="16" rx="2" fill="#fff" stroke="#1e3a8a" stroke-width="1.5"/><text x="81" y="72" font-size="9" text-anchor="middle">3</text>
+              <rect x="140" y="60" width="22" height="16" rx="2" fill="#fff" stroke="#1e3a8a" stroke-width="1.5"/><text x="151" y="72" font-size="9" text-anchor="middle">5</text>
+              <rect x="195" y="60" width="22" height="16" rx="2" fill="#fff" stroke="#1e3a8a" stroke-width="1.5"/><text x="206" y="72" font-size="9" text-anchor="middle">7</text>
+              <rect x="250" y="60" width="22" height="16" rx="2" fill="#fff" stroke="#1e3a8a" stroke-width="1.5"/><text x="261" y="72" font-size="9" text-anchor="middle">9</text>
+            </svg>
+          </div>
+
+          <!-- Step 10 -->
+          <div class="bg-white p-2.5 rounded-lg border border-slate-300 shadow-sm flex flex-col md:flex-row items-center justify-between gap-3">
+            <div class="flex-1">
+              <span class="font-bold text-red-600 font-sans uppercase">Step 10: Insert Key 10</span>
+              <p class="text-slate-600">10 &gt; 9, added to rightmost leaf `[9]`, becoming `[9 | 10]`.</p>
+            </div>
+            <svg width="320" height="85" class="shrink-0">
+              <rect x="145" y="5" width="30" height="18" rx="3" fill="#fef08a" stroke="#1e3a8a" stroke-width="2"/>
+              <text x="160" y="18" text-anchor="middle" font-weight="bold" fill="#1e3a8a">4</text>
+              <line x1="150" y1="23" x2="60" y2="33" stroke="#1e3a8a" stroke-width="1.5"/>
+              <line x1="170" y1="23" x2="220" y2="33" stroke="#1e3a8a" stroke-width="1.5"/>
+              <rect x="45" y="33" width="30" height="16" rx="2" fill="#e0f2fe" stroke="#1e3a8a" stroke-width="1.5"/><text x="60" y="45" text-anchor="middle">2</text>
+              <rect x="195" y="33" width="50" height="16" rx="2" fill="#e0f2fe" stroke="#1e3a8a" stroke-width="1.5"/><text x="220" y="45" text-anchor="middle">6 | 8</text>
+              <line x1="50" y1="49" x2="16" y2="60" stroke="#1e3a8a" stroke-width="1"/>
+              <line x1="70" y1="49" x2="81" y2="60" stroke="#1e3a8a" stroke-width="1"/>
+              <line x1="205" y1="49" x2="151" y2="60" stroke="#1e3a8a" stroke-width="1"/>
+              <line x1="220" y1="49" x2="201" y2="60" stroke="#1e3a8a" stroke-width="1"/>
+              <line x1="235" y1="49" x2="264" y2="60" stroke="#1e3a8a" stroke-width="1"/>
+              <rect x="5" y="60" width="22" height="16" rx="2" fill="#fff" stroke="#1e3a8a" stroke-width="1.5"/><text x="16" y="72" font-size="9" text-anchor="middle">1</text>
+              <rect x="70" y="60" width="22" height="16" rx="2" fill="#fff" stroke="#1e3a8a" stroke-width="1.5"/><text x="81" y="72" font-size="9" text-anchor="middle">3</text>
+              <rect x="140" y="60" width="22" height="16" rx="2" fill="#fff" stroke="#1e3a8a" stroke-width="1.5"/><text x="151" y="72" font-size="9" text-anchor="middle">5</text>
+              <rect x="190" y="60" width="22" height="16" rx="2" fill="#fff" stroke="#1e3a8a" stroke-width="1.5"/><text x="201" y="72" font-size="9" text-anchor="middle">7</text>
+              <rect x="245" y="60" width="38" height="16" rx="2" fill="#fff" stroke="#1e3a8a" stroke-width="1.5"/><text x="264" y="72" font-size="9" text-anchor="middle">9 | 10</text>
+            </svg>
+          </div>
+
+          <!-- Step 11 -->
+          <div class="bg-white p-2.5 rounded-lg border border-slate-300 shadow-sm flex flex-col md:flex-row items-center justify-between gap-3">
+            <div class="flex-1">
+              <span class="font-bold text-red-600 font-sans uppercase">Step 11: Insert Key 11 (Final State)</span>
+              <p class="text-slate-600">Leaf `[9 | 10 | 11]` splits at '10'. '10' pushes to `[6 | 8]` → `[6 | 8 | 10]` overflows! Median <span class="font-bold text-purple-700">'8'</span> moves up to top root `[4]`, creating root `[4 | 8]`.</p>
+            </div>
+            <svg width="340" height="85" class="shrink-0">
+              <rect x="145" y="5" width="50" height="18" rx="3" fill="#fef08a" stroke="#1e3a8a" stroke-width="2"/>
+              <text x="170" y="18" text-anchor="middle" font-weight="bold" fill="#1e3a8a">4 | 8</text>
+              <line x1="150" y1="23" x2="57" y2="33" stroke="#1e3a8a" stroke-width="1.5"/>
+              <line x1="170" y1="23" x2="167" y2="33" stroke="#1e3a8a" stroke-width="1.5"/>
+              <line x1="190" y1="23" x2="277" y2="33" stroke="#1e3a8a" stroke-width="1.5"/>
+              <rect x="45" y="33" width="25" height="16" rx="2" fill="#e0f2fe" stroke="#1e3a8a" stroke-width="1.5"/><text x="57" y="45" text-anchor="middle">2</text>
+              <rect x="155" y="33" width="25" height="16" rx="2" fill="#e0f2fe" stroke="#1e3a8a" stroke-width="1.5"/><text x="167" y="45" text-anchor="middle">6</text>
+              <rect x="265" y="33" width="25" height="16" rx="2" fill="#e0f2fe" stroke="#1e3a8a" stroke-width="1.5"/><text x="277" y="45" text-anchor="middle">10</text>
+              <line x1="50" y1="49" x2="15" y2="60" stroke="#1e3a8a" stroke-width="1"/>
+              <line x1="65" y1="49" x2="75" y2="60" stroke="#1e3a8a" stroke-width="1"/>
+              <line x1="160" y1="49" x2="135" y2="60" stroke="#1e3a8a" stroke-width="1"/>
+              <line x1="175" y1="49" x2="185" y2="60" stroke="#1e3a8a" stroke-width="1"/>
+              <line x1="270" y1="49" x2="245" y2="60" stroke="#1e3a8a" stroke-width="1"/>
+              <line x1="285" y1="49" x2="307" y2="60" stroke="#1e3a8a" stroke-width="1"/>
+              <rect x="5" y="60" width="20" height="16" rx="2" fill="#fff" stroke="#1e3a8a" stroke-width="1.5"/><text x="15" y="72" font-size="9" text-anchor="middle">1</text>
+              <rect x="65" y="60" width="20" height="16" rx="2" fill="#fff" stroke="#1e3a8a" stroke-width="1.5"/><text x="75" y="72" font-size="9" text-anchor="middle">3</text>
+              <rect x="125" y="60" width="20" height="16" rx="2" fill="#fff" stroke="#1e3a8a" stroke-width="1.5"/><text x="135" y="72" font-size="9" text-anchor="middle">5</text>
+              <rect x="175" y="60" width="20" height="16" rx="2" fill="#fff" stroke="#1e3a8a" stroke-width="1.5"/><text x="185" y="72" font-size="9" text-anchor="middle">7</text>
+              <rect x="235" y="60" width="20" height="16" rx="2" fill="#fff" stroke="#1e3a8a" stroke-width="1.5"/><text x="245" y="72" font-size="9" text-anchor="middle">9</text>
+              <rect x="295" y="60" width="25" height="16" rx="2" fill="#fff" stroke="#1e3a8a" stroke-width="1.5"/><text x="307" y="72" font-size="9" text-anchor="middle">11</text>
+            </svg>
+          </div>
+
+        </div>
+      </div>
+    </div>
+    </section>
+
+    <!-- SECTION 3: ORDER-4/5 INSERTION -->
+    <section id="sec-order45" class="tab-content hidden">
+      <!-- PAGE 3: INDIVIDUAL STEPS - ORDER-4 & ORDER-5 B-TREES -->
+      <div class="notebook-page rounded-lg p-6 sm:p-10 pl-16 sm:pl-20 border border-amber-100 min-h-[1050px]">
+      <div class="binder-holes">
+        <div class="hole"></div><div class="hole"></div><div class="hole"></div>
+        <div class="hole"></div><div class="hole"></div><div class="hole"></div>
+        <div class="hole"></div><div class="hole"></div><div class="hole"></div>
+      </div>
+
+      <div class="flex justify-between items-center border-b-2 border-red-300 pb-2 mb-6">
+        <h2 class="text-3xl font-bold ink-red font-heading">5. Order-4 & Order-5 Insertion (Individual Steps)</h2>
+        <span class="font-sans text-xs text-slate-400">Page: 03</span>
+      </div>
+
+      <div class="space-y-6 ink-blue">
+
+        <!-- Order-4 Insertion Section -->
+        <div>
+          <h3 class="text-2xl font-bold ink-purple font-heading pen-underline mb-2">A. Order-4 B-Tree (Max Keys = 3) Individual Step-by-Step SVGs</h3>
+
+          <div class="space-y-2.5 text-xs sm:text-sm">
+            
+            <!-- Step 1 -->
+            <div class="bg-white p-2 rounded border border-slate-300 flex justify-between items-center">
+              <div><span class="font-bold text-red-600">Step 1: Insert 1</span> → Key 1 is placed in root leaf node.</div>
+              <svg width="80" height="30" class="shrink-0">
+                <rect x="20" y="4" width="40" height="20" rx="3" fill="#fef08a" stroke="#1e3a8a" stroke-width="1.5"/>
+                <text x="40" y="18" text-anchor="middle" font-weight="bold">1</text>
+              </svg>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="bg-white p-2 rounded border border-slate-300 flex justify-between items-center">
+              <div><span class="font-bold text-red-600">Step 2: Insert 2</span> → Node becomes `[ 1 | 2 ]`.</div>
+              <svg width="100" height="30" class="shrink-0">
+                <rect x="20" y="4" width="60" height="20" rx="3" fill="#fef08a" stroke="#1e3a8a" stroke-width="1.5"/>
+                <text x="50" y="18" text-anchor="middle" font-weight="bold">1 | 2</text>
+              </svg>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="bg-white p-2 rounded border border-slate-300 flex justify-between items-center">
+              <div><span class="font-bold text-red-600">Step 3: Insert 3</span> → Node becomes `[ 1 | 2 | 3 ]` (Full capacity 3 keys).</div>
+              <svg width="120" height="30" class="shrink-0">
+                <rect x="20" y="4" width="80" height="20" rx="3" fill="#fef08a" stroke="#1e3a8a" stroke-width="1.5"/>
+                <text x="60" y="18" text-anchor="middle" font-weight="bold">1 | 2 | 3</text>
+              </svg>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="bg-white p-2.5 rounded border border-slate-300 flex justify-between items-center">
+              <div>
+                <span class="font-bold text-red-600">Step 4: Insert 4 (Overflow!)</span>
+                <p class="text-slate-600">`[1 | 2 | 3 | 4]` has 4 keys (&gt; 3). Median key <span class="font-bold text-purple-700">'3'</span> pushes UP to form root!</p>
+              </div>
+              <svg width="110" height="50" class="shrink-0">
+                <rect x="40" y="4" width="30" height="16" rx="3" fill="#fef08a" stroke="#1e3a8a"/><text x="55" y="16" text-anchor="middle" font-weight="bold">3</text>
+                <line x1="45" y1="20" x2="25" y2="32" stroke="#1e3a8a"/><line x1="65" y1="20" x2="85" y2="32" stroke="#1e3a8a"/>
+                <rect x="5" y="32" width="40" height="16" rx="2" fill="#fff" stroke="#1e3a8a"/><text x="25" y="44" text-anchor="middle">1 | 2</text>
+                <rect x="70" y="32" width="30" height="16" rx="2" fill="#fff" stroke="#1e3a8a"/><text x="85" y="44" text-anchor="middle">4</text>
+              </svg>
+            </div>
+
+            <!-- Step 5 -->
+            <div class="bg-white p-2 rounded border border-slate-300 flex justify-between items-center">
+              <div><span class="font-bold text-red-600">Step 5: Insert 5</span> → Right leaf becomes `[ 4 | 5 ]`. Root remains `[ 3 ]`.</div>
+              <svg width="120" height="50" class="shrink-0">
+                <rect x="45" y="4" width="30" height="16" rx="3" fill="#fef08a" stroke="#1e3a8a"/><text x="60" y="16" text-anchor="middle" font-weight="bold">3</text>
+                <line x1="50" y1="20" x2="25" y2="32" stroke="#1e3a8a"/><line x1="70" y1="20" x2="95" y2="32" stroke="#1e3a8a"/>
+                <rect x="5" y="32" width="40" height="16" rx="2" fill="#fff" stroke="#1e3a8a"/><text x="25" y="44" text-anchor="middle">1 | 2</text>
+                <rect x="75" y="32" width="40" height="16" rx="2" fill="#fff" stroke="#1e3a8a"/><text x="95" y="44" text-anchor="middle">4 | 5</text>
+              </svg>
+            </div>
+
+            <!-- Step 6 -->
+            <div class="bg-white p-2 rounded border border-slate-300 flex justify-between items-center">
+              <div><span class="font-bold text-red-600">Step 6: Insert 6</span> → Right leaf becomes `[ 4 | 5 | 6 ]`. Root remains `[ 3 ]`.</div>
+              <svg width="130" height="50" class="shrink-0">
+                <rect x="45" y="4" width="30" height="16" rx="3" fill="#fef08a" stroke="#1e3a8a"/><text x="60" y="16" text-anchor="middle" font-weight="bold">3</text>
+                <line x1="50" y1="20" x2="25" y2="32" stroke="#1e3a8a"/><line x1="70" y1="20" x2="100" y2="32" stroke="#1e3a8a"/>
+                <rect x="5" y="32" width="40" height="16" rx="2" fill="#fff" stroke="#1e3a8a"/><text x="25" y="44" text-anchor="middle">1 | 2</text>
+                <rect x="75" y="32" width="50" height="16" rx="2" fill="#fff" stroke="#1e3a8a"/><text x="100" y="44" text-anchor="middle">4|5|6</text>
+              </svg>
+            </div>
+
+            <!-- Step 7 -->
+            <div class="bg-white p-2.5 rounded border border-slate-300 flex justify-between items-center">
+              <div>
+                <span class="font-bold text-red-600">Step 7: Insert 7 (Leaf Split)</span>
+                <p class="text-slate-600">Right leaf `[4 | 5 | 6 | 7]` overflows. Median key <span class="font-bold text-purple-700">'6'</span> moves UP to root `[3]`, making root `[ 3 | 6 ]`.</p>
+              </div>
+              <svg width="140" height="50" class="shrink-0">
+                <rect x="45" y="4" width="50" height="16" rx="3" fill="#fef08a" stroke="#1e3a8a"/><text x="70" y="16" text-anchor="middle" font-weight="bold">3 | 6</text>
+                <line x1="50" y1="20" x2="20" y2="32" stroke="#1e3a8a"/><line x1="70" y1="20" x2="70" y2="32" stroke="#1e3a8a"/><line x1="90" y1="20" x2="120" y2="32" stroke="#1e3a8a"/>
+                <rect x="5" y="32" width="30" height="16" rx="2" fill="#fff" stroke="#1e3a8a"/><text x="20" y="44" text-anchor="middle">1 | 2</text>
+                <rect x="55" y="32" width="30" height="16" rx="2" fill="#fff" stroke="#1e3a8a"/><text x="70" y="44" text-anchor="middle">4 | 5</text>
+                <rect x="105" y="32" width="30" height="16" rx="2" fill="#fff" stroke="#1e3a8a"/><text x="120" y="44" text-anchor="middle">7</text>
+              </svg>
+            </div>
+
+            <!-- Step 8 -->
+            <div class="bg-white p-2 rounded border border-slate-300 flex justify-between items-center">
+              <div><span class="font-bold text-red-600">Step 8: Insert 8</span> → Rightmost leaf becomes `[ 7 | 8 ]`.</div>
+              <svg width="150" height="50" class="shrink-0">
+                <rect x="50" y="4" width="50" height="16" rx="3" fill="#fef08a" stroke="#1e3a8a"/><text x="75" y="16" text-anchor="middle" font-weight="bold">3 | 6</text>
+                <line x1="55" y1="20" x2="20" y2="32" stroke="#1e3a8a"/><line x1="75" y1="20" x2="75" y2="32" stroke="#1e3a8a"/><line x1="95" y1="20" x2="125" y2="32" stroke="#1e3a8a"/>
+                <rect x="5" y="32" width="30" height="16" rx="2" fill="#fff" stroke="#1e3a8a"/><text x="20" y="44" text-anchor="middle">1 | 2</text>
+                <rect x="60" y="32" width="30" height="16" rx="2" fill="#fff" stroke="#1e3a8a"/><text x="75" y="44" text-anchor="middle">4 | 5</text>
+                <rect x="105" y="32" width="40" height="16" rx="2" fill="#fff" stroke="#1e3a8a"/><text x="125" y="44" text-anchor="middle">7 | 8</text>
+              </svg>
+            </div>
+
+            <!-- Step 9 -->
+            <div class="bg-white p-2 rounded border border-slate-300 flex justify-between items-center">
+              <div><span class="font-bold text-red-600">Step 9: Insert 9</span> → Rightmost leaf becomes `[ 7 | 8 | 9 ]`.</div>
+              <svg width="160" height="50" class="shrink-0">
+                <rect x="50" y="4" width="50" height="16" rx="3" fill="#fef08a" stroke="#1e3a8a"/><text x="75" y="16" text-anchor="middle" font-weight="bold">3 | 6</text>
+                <line x1="55" y1="20" x2="20" y2="32" stroke="#1e3a8a"/><line x1="75" y1="20" x2="75" y2="32" stroke="#1e3a8a"/><line x1="95" y1="20" x2="130" y2="32" stroke="#1e3a8a"/>
+                <rect x="5" y="32" width="30" height="16" rx="2" fill="#fff" stroke="#1e3a8a"/><text x="20" y="44" text-anchor="middle">1 | 2</text>
+                <rect x="60" y="32" width="30" height="16" rx="2" fill="#fff" stroke="#1e3a8a"/><text x="75" y="44" text-anchor="middle">4 | 5</text>
+                <rect x="105" y="32" width="50" height="16" rx="2" fill="#fff" stroke="#1e3a8a"/><text x="130" y="44" text-anchor="middle">7|8|9</text>
+              </svg>
+            </div>
+
+            <!-- Step 10 -->
+            <div class="bg-white p-2.5 rounded border border-slate-300 flex justify-between items-center">
+              <div>
+                <span class="font-bold text-red-600">Step 10: Insert 10 (Final Tree State)</span>
+                <p class="text-slate-600">Leaf `[7 | 8 | 9 | 10]` overflows. Median '9' moves to root → `[ 3 | 6 | 9 ]`.</p>
+              </div>
+              <svg width="220" height="50" class="shrink-0">
+                <rect x="75" y="4" width="70" height="16" rx="3" fill="#fef08a" stroke="#1e3a8a"/><text x="110" y="16" text-anchor="middle" font-weight="bold">3 | 6 | 9</text>
+                <line x1="80" y1="20" x2="25" y2="32" stroke="#1e3a8a"/><line x1="100" y1="20" x2="80" y2="32" stroke="#1e3a8a"/>
+                <line x1="120" y1="20" x2="135" y2="32" stroke="#1e3a8a"/><line x1="140" y1="20" x2="190" y2="32" stroke="#1e3a8a"/>
+                <rect x="5" y="32" width="40" height="16" rx="2" fill="#fff" stroke="#1e3a8a"/><text x="25" y="44" text-anchor="middle">1 | 2</text>
+                <rect x="60" y="32" width="40" height="16" rx="2" fill="#fff" stroke="#1e3a8a"/><text x="80" y="44" text-anchor="middle">4 | 5</text>
+                <rect x="115" y="32" width="40" height="16" rx="2" fill="#fff" stroke="#1e3a8a"/><text x="135" y="44" text-anchor="middle">7 | 8</text>
+                <rect x="175" y="32" width="30" height="16" rx="2" fill="#fff" stroke="#1e3a8a"/><text x="190" y="44" text-anchor="middle">10</text>
+              </svg>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Order-5 Insertion Section -->
+        <div>
+          <h3 class="text-2xl font-bold ink-purple font-heading pen-underline mb-2">B. Order-5 B-Tree (Max Keys = 4) Key Rule Steps</h3>
+          <div class="bg-amber-50 p-3 rounded-lg border border-amber-300 text-xs sm:text-sm space-y-2">
+            <p><b>Max Keys per node = 4</b> | <b>Min Keys per non-root node = 2</b> (⌈5/2⌉ - 1)</p>
+            <ul class="list-disc pl-5 space-y-1">
+              <li><b>Step 1 to 4:</b> Keys 1, 2, 3, 4 fit inside a single node: `[ 1 | 2 | 3 | 4 ]`. No split required.</li>
+              <li><b>Step 5:</b> Inserting 5 creates overflow `[ 1 | 2 | 3 | 4 | 5 ]`. Median key is <span class="font-bold text-purple-700">'3'</span>.</li>
+              <li>'3' moves UP to root, leaving left child `[1 | 2]` and right child `[4 | 5]`. (Both children have exactly 2 keys, fulfilling min key rule!).</li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    </section>
+
+    <!-- SECTION 4: DELETION DRY-RUN -->
+    <section id="sec-deletion" class="tab-content hidden">
+      <!-- PAGE 4: DELETION THEORY & INITIAL STATE -->
+      <div class="notebook-page rounded-lg p-6 sm:p-10 pl-16 sm:pl-20 border border-amber-100 min-h-[1050px]">
+      <div class="binder-holes">
+        <div class="hole"></div><div class="hole"></div><div class="hole"></div>
+        <div class="hole"></div><div class="hole"></div><div class="hole"></div>
+        <div class="hole"></div><div class="hole"></div><div class="hole"></div>
+      </div>
+
+      <div class="flex justify-between items-center border-b-2 border-red-300 pb-2 mb-6">
+        <h2 class="text-3xl font-bold ink-red font-heading">6. Exhaustive Deletion Dry-Run (Initial Setup & Rules)</h2>
+        <span class="font-sans text-xs text-slate-400">Page: 04</span>
+      </div>
+
+      <div class="space-y-4 ink-blue">
+        <p class="text-sm">
+          Deleting a key from a B-Tree must preserve all fundamental rules: <b>ascending order</b>, <b>min key bounds</b>, and <b>perfect leaf height</b>.
+        </p>
+
+        <!-- Rules Box -->
+        <div class="note-box p-3 space-y-2 text-xs sm:text-sm">
+          <h4 class="text-lg font-bold ink-purple font-heading">📌 Exact Order-5 Deletion Bounds:</h4>
+          <ul class="list-disc pl-5 space-y-1">
+            <li><b>Order m = 5:</b> Min Keys per non-root node = <b>⌈5/2⌉ - 1 = 2 keys</b>. Max Keys = <b>4 keys</b>.</li>
+            <li>If a node has <b>≥ 3 keys</b>, deleting a key is direct and immediate (no underflow).</li>
+            <li>If a node has <b>2 keys</b> (Minimum), removing a key leaves <b>1 key</b> (<b>UNDERFLOW!</b>). Rebalancing is required via <span class="font-bold text-purple-700">Borrowing (Rotation)</span> or <span class="font-bold text-red-700">Merging</span>.</li>
+          </ul>
+        </div>
+
+        <!-- Initial Full Tree Visual -->
+        <div class="bg-white p-3 rounded-lg border-2 border-slate-300 shadow-sm text-center my-3">
+          <span class="text-xs font-bold text-slate-700 block mb-2 uppercase tracking-wide">Starting Initial B-Tree (Order 5) Before Any Deletions:</span>
+          
+          <div class="overflow-x-auto py-2">
+            <svg width="680" height="110" class="mx-auto">
+              <!-- Level 0: Root -->
+              <rect x="315" y="5" width="50" height="22" rx="4" fill="#fef08a" stroke="#1e3a8a" stroke-width="2"/>
+              <text x="340" y="21" text-anchor="middle" font-weight="bold" fill="#1e3a8a" font-size="13">30</text>
+
+              <!-- Lines from Root to Internal Level 1 -->
+              <line x1="320" y1="27" x2="180" y2="45" stroke="#1e3a8a" stroke-width="1.5"/>
+              <line x1="360" y1="27" x2="500" y2="45" stroke="#1e3a8a" stroke-width="1.5"/>
+
+              <!-- Level 1: Internal Nodes -->
+              <rect x="140" y="45" width="80" height="22" rx="4" fill="#e0f2fe" stroke="#1e3a8a" stroke-width="2"/>
+              <text x="180" y="61" text-anchor="middle" font-weight="bold" fill="#1e3a8a" font-size="12">12 | 20</text>
+
+              <rect x="460" y="45" width="80" height="22" rx="4" fill="#e0f2fe" stroke="#1e3a8a" stroke-width="2"/>
+              <text x="500" y="61" text-anchor="middle" font-weight="bold" fill="#1e3a8a" font-size="12">40 | 55</text>
+
+              <!-- Lines from Internal to Leaves -->
+              <line x1="145" y1="67" x2="60" y2="85" stroke="#1e3a8a" stroke-width="1"/>
+              <line x1="180" y1="67" x2="180" y2="85" stroke="#1e3a8a" stroke-width="1"/>
+              <line x1="215" y1="67" x2="300" y2="85" stroke="#1e3a8a" stroke-width="1"/>
+
+              <line x1="465" y1="67" x2="410" y2="85" stroke="#1e3a8a" stroke-width="1"/>
+              <line x1="500" y1="67" x2="510" y2="85" stroke="#1e3a8a" stroke-width="1"/>
+              <line x1="535" y1="67" x2="610" y2="85" stroke="#1e3a8a" stroke-width="1"/>
+
+              <!-- Level 2: Leaf Nodes -->
+              <rect x="10" y="85" width="100" height="20" rx="3" fill="#ffffff" stroke="#1e3a8a"/><text x="60" y="99" text-anchor="middle" font-size="11">3 | 7 | 9 | 11</text>
+              <rect x="135" y="85" width="90" height="20" rx="3" fill="#ffffff" stroke="#1e3a8a"/><text x="180" y="99" text-anchor="middle" font-size="11">15 | 19</text>
+              <rect x="250" y="85" width="100" height="20" rx="3" fill="#ffffff" stroke="#1e3a8a"/><text x="300" y="99" text-anchor="middle" font-size="11">22 | 25 | 28</text>
+
+              <rect x="365" y="85" width="90" height="20" rx="3" fill="#ffffff" stroke="#1e3a8a"/><text x="410" y="99" text-anchor="middle" font-size="11">35 | 38</text>
+              <rect x="465" y="85" width="90" height="20" rx="3" fill="#ffffff" stroke="#1e3a8a"/><text x="510" y="99" text-anchor="middle" font-size="11">45 | 47</text>
+              <rect x="565" y="85" width="100" height="20" rx="3" fill="#ffffff" stroke="#1e3a8a"/><text x="615" y="99" text-anchor="middle" font-size="11">65 | 78 | 80</text>
+            </svg>
+          </div>
+          <p class="text-xs text-slate-500 italic mt-1">We will perform 4 distinct deletions on this tree with BEFORE and AFTER diagrams for each step!</p>
+        </div>
+
+        <!-- Deletion Classification Summary -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs sm:text-sm">
+          <div class="bg-emerald-50 p-3 rounded-lg border border-emerald-300">
+            <span class="font-bold text-emerald-800">1. Leaf Node Deletion:</span>
+            <ul class="list-disc pl-4 mt-1 space-y-1">
+              <li><b>Case 1A:</b> Keys &gt; Min Keys → Direct Delete.</li>
+              <li><b>Case 1B:</b> Keys = Min Keys → Borrow from rich sibling via rotation.</li>
+              <li><b>Case 1C:</b> Sibling also minimum → Merge node + sibling + parent key.</li>
+            </ul>
+          </div>
+          <div class="bg-purple-50 p-3 rounded-lg border border-purple-300">
+            <span class="font-bold text-purple-900">2. Internal / Root Node Deletion:</span>
+            <ul class="list-disc pl-4 mt-1 space-y-1">
+              <li><b>Case 2:</b> Replace key with <b>Inorder Predecessor</b> (max in left subtree) or <b>Inorder Successor</b> (min in right subtree).</li>
+              <li>Then recursively delete predecessor/successor key from the leaf node.</li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- PAGE 5: DELETION DRY-RUN STEPS 1 & 2 (BEFORE & AFTER DIAGRAMS) -->
+    <div class="notebook-page rounded-lg p-6 sm:p-10 pl-16 sm:pl-20 border border-amber-100 min-h-[1050px]">
+      <div class="binder-holes">
+        <div class="hole"></div><div class="hole"></div><div class="hole"></div>
+        <div class="hole"></div><div class="hole"></div><div class="hole"></div>
+        <div class="hole"></div><div class="hole"></div><div class="hole"></div>
+      </div>
+
+      <div class="flex justify-between items-center border-b-2 border-red-300 pb-2 mb-6">
+        <h2 class="text-3xl font-bold ink-red font-heading">6. Deletion Dry-Run (Steps 1 & 2: Full Tree Before vs After)</h2>
+        <span class="font-sans text-xs text-slate-400">Page: 05</span>
+      </div>
+
+      <div class="space-y-6 ink-blue">
+
+        <!-- DELETION STEP 1 -->
+        <div class="bg-white p-3.5 rounded-lg border-2 border-emerald-400 shadow-sm space-y-3">
+          <div class="flex justify-between items-center border-b pb-1">
+            <span class="font-bold text-emerald-800 font-sans uppercase text-sm">Step 1: Delete Key '22' (Simple Leaf Deletion)</span>
+            <span class="bg-emerald-100 text-emerald-800 text-xs px-2 py-0.5 rounded font-bold">Case 1A</span>
+          </div>
+
+          <!-- BEFORE DIAGRAM STEP 1 (ENTIRE TREE) -->
+          <div class="bg-red-50/50 p-2 rounded border border-red-200 text-center">
+            <span class="text-xs font-bold text-red-700 block mb-1 uppercase tracking-wide">ENTIRE TREE BEFORE Deleting Key '22':</span>
+            <div class="overflow-x-auto py-1">
+              <svg viewBox="0 0 680 115" class="w-full max-w-[680px] mx-auto">
+                <!-- Level 0: Root -->
+                <rect x="315" y="5" width="50" height="22" rx="4" fill="#fef08a" stroke="#1e3a8a" stroke-width="2"/>
+                <text x="340" y="21" text-anchor="middle" font-weight="bold" fill="#1e3a8a" font-size="13">30</text>
+                <line x1="320" y1="27" x2="180" y2="45" stroke="#1e3a8a" stroke-width="1.5"/>
+                <line x1="360" y1="27" x2="500" y2="45" stroke="#1e3a8a" stroke-width="1.5"/>
+
+                <!-- Level 1: Internal -->
+                <rect x="140" y="45" width="80" height="22" rx="4" fill="#e0f2fe" stroke="#1e3a8a" stroke-width="2"/>
+                <text x="180" y="61" text-anchor="middle" font-weight="bold" fill="#1e3a8a" font-size="12">12 | 20</text>
+                <rect x="460" y="45" width="80" height="22" rx="4" fill="#e0f2fe" stroke="#1e3a8a" stroke-width="2"/>
+                <text x="500" y="61" text-anchor="middle" font-weight="bold" fill="#1e3a8a" font-size="12">40 | 55</text>
+
+                <!-- Lines to Leaves -->
+                <line x1="145" y1="67" x2="60" y2="85" stroke="#1e3a8a" stroke-width="1"/>
+                <line x1="180" y1="67" x2="180" y2="85" stroke="#1e3a8a" stroke-width="1"/>
+                <line x1="215" y1="67" x2="300" y2="85" stroke="#1e3a8a" stroke-width="1"/>
+                <line x1="465" y1="67" x2="410" y2="85" stroke="#1e3a8a" stroke-width="1"/>
+                <line x1="500" y1="67" x2="510" y2="85" stroke="#1e3a8a" stroke-width="1"/>
+                <line x1="535" y1="67" x2="610" y2="85" stroke="#1e3a8a" stroke-width="1"/>
+
+                <!-- Level 2: Leaves -->
+                <rect x="10" y="85" width="100" height="20" rx="3" fill="#ffffff" stroke="#1e3a8a"/><text x="60" y="99" text-anchor="middle" font-size="11">3 | 7 | 9 | 11</text>
+                <rect x="135" y="85" width="90" height="20" rx="3" fill="#ffffff" stroke="#1e3a8a"/><text x="180" y="99" text-anchor="middle" font-size="11">15 | 19</text>
+                <!-- Target leaf in red -->
+                <rect x="250" y="85" width="100" height="20" rx="3" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/><text x="300" y="99" text-anchor="middle" font-size="11" font-weight="bold" fill="#dc2626">22 (Target) | 25 | 28</text>
+
+                <rect x="365" y="85" width="90" height="20" rx="3" fill="#ffffff" stroke="#1e3a8a"/><text x="410" y="99" text-anchor="middle" font-size="11">35 | 38</text>
+                <rect x="465" y="85" width="90" height="20" rx="3" fill="#ffffff" stroke="#1e3a8a"/><text x="510" y="99" text-anchor="middle" font-size="11">45 | 47</text>
+                <rect x="565" y="85" width="100" height="20" rx="3" fill="#ffffff" stroke="#1e3a8a"/><text x="615" y="99" text-anchor="middle" font-size="11">65 | 78 | 80</text>
+              </svg>
+            </div>
+          </div>
+
+          <!-- DETAILED STEP EXPLANATION -->
+          <div class="bg-amber-50/70 p-2.5 rounded border border-amber-200 text-xs sm:text-sm space-y-1">
+            <span class="font-bold text-slate-800 block">Detailed Step-by-Step Procedure:</span>
+            <ol class="list-decimal pl-5 space-y-0.5 text-slate-700">
+              <li><b>Locate Key:</b> Search target key <b>22</b>. It is located inside leaf node <code class="bg-white px-1 border rounded">[ 22 | 25 | 28 ]</code>.</li>
+              <li><b>Check Capacity:</b> Node contains <b>3 keys</b> (`22`, `25`, `28`).</li>
+              <li><b>Minimum Key Condition:</b> For Order-5 B-Tree, Min Keys required = <b>⌈5/2⌉ - 1 = 2 keys</b>.</li>
+              <li><b>Evaluate Removal:</b> Removing `22` leaves <b>2 keys</b> (`25` and `28`). Since 2 ≥ Min Keys (2), <b>NO UNDERFLOW</b> occurs!</li>
+              <li><b>Action:</b> Directly delete `22` from the leaf array. No tree rotations or merging required.</li>
+            </ol>
+          </div>
+
+          <!-- AFTER DIAGRAM STEP 1 (ENTIRE TREE) -->
+          <div class="bg-emerald-50/50 p-2 rounded border border-emerald-200 text-center">
+            <span class="text-xs font-bold text-emerald-800 block mb-1 uppercase tracking-wide">ENTIRE TREE AFTER Deleting Key '22':</span>
+            <div class="overflow-x-auto py-1">
+              <svg viewBox="0 0 680 115" class="w-full max-w-[680px] mx-auto">
+                <rect x="315" y="5" width="50" height="22" rx="4" fill="#fef08a" stroke="#1e3a8a" stroke-width="2"/>
+                <text x="340" y="21" text-anchor="middle" font-weight="bold" fill="#1e3a8a" font-size="13">30</text>
+                <line x1="320" y1="27" x2="180" y2="45" stroke="#1e3a8a" stroke-width="1.5"/>
+                <line x1="360" y1="27" x2="500" y2="45" stroke="#1e3a8a" stroke-width="1.5"/>
+
+                <rect x="140" y="45" width="80" height="22" rx="4" fill="#e0f2fe" stroke="#1e3a8a" stroke-width="2"/>
+                <text x="180" y="61" text-anchor="middle" font-weight="bold" fill="#1e3a8a" font-size="12">12 | 20</text>
+                <rect x="460" y="45" width="80" height="22" rx="4" fill="#e0f2fe" stroke="#1e3a8a" stroke-width="2"/>
+                <text x="500" y="61" text-anchor="middle" font-weight="bold" fill="#1e3a8a" font-size="12">40 | 55</text>
+
+                <line x1="145" y1="67" x2="60" y2="85" stroke="#1e3a8a" stroke-width="1"/>
+                <line x1="180" y1="67" x2="180" y2="85" stroke="#1e3a8a" stroke-width="1"/>
+                <line x1="215" y1="67" x2="295" y2="85" stroke="#1e3a8a" stroke-width="1"/>
+                <line x1="465" y1="67" x2="410" y2="85" stroke="#1e3a8a" stroke-width="1"/>
+                <line x1="500" y1="67" x2="510" y2="85" stroke="#1e3a8a" stroke-width="1"/>
+                <line x1="535" y1="67" x2="610" y2="85" stroke="#1e3a8a" stroke-width="1"/>
+
+                <rect x="10" y="85" width="100" height="20" rx="3" fill="#ffffff" stroke="#1e3a8a"/><text x="60" y="99" text-anchor="middle" font-size="11">3 | 7 | 9 | 11</text>
+                <rect x="135" y="85" width="90" height="20" rx="3" fill="#ffffff" stroke="#1e3a8a"/><text x="180" y="99" text-anchor="middle" font-size="11">15 | 19</text>
+                <!-- Modified leaf in green -->
+                <rect x="250" y="85" width="90" height="20" rx="3" fill="#dcfce7" stroke="#15803d" stroke-width="2"/><text x="295" y="99" text-anchor="middle" font-size="11" font-weight="bold" fill="#15803d">25 | 28  ✓</text>
+
+                <rect x="365" y="85" width="90" height="20" rx="3" fill="#ffffff" stroke="#1e3a8a"/><text x="410" y="99" text-anchor="middle" font-size="11">35 | 38</text>
+                <rect x="465" y="85" width="90" height="20" rx="3" fill="#ffffff" stroke="#1e3a8a"/><text x="510" y="99" text-anchor="middle" font-size="11">45 | 47</text>
+                <rect x="565" y="85" width="100" height="20" rx="3" fill="#ffffff" stroke="#1e3a8a"/><text x="615" y="99" text-anchor="middle" font-size="11">65 | 78 | 80</text>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- DELETION STEP 2 -->
+        <div class="bg-white p-3.5 rounded-lg border-2 border-blue-400 shadow-sm space-y-3">
+          <div class="flex justify-between items-center border-b pb-1">
+            <span class="font-bold text-blue-900 font-sans uppercase text-sm">Step 2: Delete Key '15' (Underflow -&gt; Borrow from Rich Sibling)</span>
+            <span class="bg-blue-100 text-blue-900 text-xs px-2 py-0.5 rounded font-bold">Case 1B (Rotation)</span>
+          </div>
+
+          <!-- BEFORE DIAGRAM STEP 2 (ENTIRE TREE) -->
+          <div class="bg-red-50/50 p-2 rounded border border-red-200 text-center">
+            <span class="text-xs font-bold text-red-700 block mb-1 uppercase tracking-wide">ENTIRE TREE BEFORE Deleting Key '15':</span>
+            <div class="overflow-x-auto py-1">
+              <svg viewBox="0 0 680 115" class="w-full max-w-[680px] mx-auto">
+                <rect x="315" y="5" width="50" height="22" rx="4" fill="#fef08a" stroke="#1e3a8a" stroke-width="2"/>
+                <text x="340" y="21" text-anchor="middle" font-weight="bold" fill="#1e3a8a" font-size="13">30</text>
+                <line x1="320" y1="27" x2="180" y2="45" stroke="#1e3a8a" stroke-width="1.5"/>
+                <line x1="360" y1="27" x2="500" y2="45" stroke="#1e3a8a" stroke-width="1.5"/>
+
+                <rect x="140" y="45" width="80" height="22" rx="4" fill="#e0f2fe" stroke="#1e3a8a" stroke-width="2"/>
+                <text x="180" y="61" text-anchor="middle" font-weight="bold" fill="#1e3a8a" font-size="12">12 | 20</text>
+                <rect x="460" y="45" width="80" height="22" rx="4" fill="#e0f2fe" stroke="#1e3a8a" stroke-width="2"/>
+                <text x="500" y="61" text-anchor="middle" font-weight="bold" fill="#1e3a8a" font-size="12">40 | 55</text>
+
+                <line x1="145" y1="67" x2="60" y2="85" stroke="#1e3a8a" stroke-width="1"/>
+                <line x1="180" y1="67" x2="180" y2="85" stroke="#1e3a8a" stroke-width="1"/>
+                <line x1="215" y1="67" x2="295" y2="85" stroke="#1e3a8a" stroke-width="1"/>
+                <line x1="465" y1="67" x2="410" y2="85" stroke="#1e3a8a" stroke-width="1"/>
+                <line x1="500" y1="67" x2="510" y2="85" stroke="#1e3a8a" stroke-width="1"/>
+                <line x1="535" y1="67" x2="610" y2="85" stroke="#1e3a8a" stroke-width="1"/>
+
+                <!-- Sibling highlighted yellow -->
+                <rect x="10" y="85" width="100" height="20" rx="3" fill="#fef08a" stroke="#1e3a8a" stroke-width="2"/><text x="60" y="99" text-anchor="middle" font-size="10" font-weight="bold">3|7|9|11 (Rich)</text>
+                <!-- Target in red -->
+                <rect x="135" y="85" width="90" height="20" rx="3" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/><text x="180" y="99" text-anchor="middle" font-size="11" font-weight="bold" fill="#dc2626">15 (Target) | 19</text>
+                <rect x="250" y="85" width="90" height="20" rx="3" fill="#ffffff" stroke="#1e3a8a"/><text x="295" y="99" text-anchor="middle" font-size="11">25 | 28</text>
+
+                <rect x="365" y="85" width="90" height="20" rx="3" fill="#ffffff" stroke="#1e3a8a"/><text x="410" y="99" text-anchor="middle" font-size="11">35 | 38</text>
+                <rect x="465" y="85" width="90" height="20" rx="3" fill="#ffffff" stroke="#1e3a8a"/><text x="510" y="99" text-anchor="middle" font-size="11">45 | 47</text>
+                <rect x="565" y="85" width="100" height="20" rx="3" fill="#ffffff" stroke="#1e3a8a"/><text x="615" y="99" text-anchor="middle" font-size="11">65 | 78 | 80</text>
+              </svg>
+            </div>
+          </div>
+
+          <!-- DETAILED STEP EXPLANATION -->
+          <div class="bg-amber-50/70 p-2.5 rounded border border-amber-200 text-xs sm:text-sm space-y-1">
+            <span class="font-bold text-slate-800 block">Detailed Step-by-Step Procedure:</span>
+            <ol class="list-decimal pl-5 space-y-0.5 text-slate-700">
+              <li><b>Locate Key:</b> Search target key <b>15</b> in leaf node <code class="bg-white px-1 border rounded">[ 15 | 19 ]</code>.</li>
+              <li><b>Evaluate Removal:</b> Node has 2 keys. Removing `15` leaves <b>1 key</b> (`19`). Since 1 &lt; Min Keys (2), an <b>UNDERFLOW</b> occurs!</li>
+              <li><b>Check Siblings:</b> Left sibling <code class="bg-white px-1 border rounded">[ 3 | 7 | 9 | 11 ]</code> has <b>4 keys</b> (&gt; 2 keys). It is a <b>Rich Sibling</b> capable of lending a key.</li>
+              <li><b>Execute Rotation (Borrowing):</b>
+                <br>• Move separating parent key <b>'12'</b> DOWN into underflowing leaf <code class="bg-white px-1 border rounded">[ 19 ]</code> → becomes <code class="bg-white px-1 border rounded">[ 12 | 19 ]</code>.
+                <br>• Move maximum key <b>'11'</b> from left sibling UP into parent node to replace `12` → parent becomes <code class="bg-white px-1 border rounded">[ 11 | 20 ]</code>.
+                <br>• Left sibling retains 3 keys: <code class="bg-white px-1 border rounded">[ 3 | 7 | 9 ]</code> (satisfied ≥ 2).
+              </li>
+            </ol>
+          </div>
+
+          <!-- AFTER DIAGRAM STEP 2 (ENTIRE TREE) -->
+          <div class="bg-blue-50/50 p-2 rounded border border-blue-200 text-center">
+            <span class="text-xs font-bold text-blue-900 block mb-1 uppercase tracking-wide">ENTIRE TREE AFTER Deleting Key '15' (Post Rotation):</span>
+            <div class="overflow-x-auto py-1">
+              <svg viewBox="0 0 680 115" class="w-full max-w-[680px] mx-auto">
+                <rect x="315" y="5" width="50" height="22" rx="4" fill="#fef08a" stroke="#1e3a8a" stroke-width="2"/>
+                <text x="340" y="21" text-anchor="middle" font-weight="bold" fill="#1e3a8a" font-size="13">30</text>
+                <line x1="320" y1="27" x2="180" y2="45" stroke="#1e3a8a" stroke-width="1.5"/>
+                <line x1="360" y1="27" x2="500" y2="45" stroke="#1e3a8a" stroke-width="1.5"/>
+
+                <!-- Parent updated -->
+                <rect x="140" y="45" width="80" height="22" rx="4" fill="#fef08a" stroke="#1e3a8a" stroke-width="2"/>
+                <text x="180" y="61" text-anchor="middle" font-weight="bold" fill="#1e3a8a" font-size="12">11 | 20</text>
+                <rect x="460" y="45" width="80" height="22" rx="4" fill="#e0f2fe" stroke="#1e3a8a" stroke-width="2"/>
+                <text x="500" y="61" text-anchor="middle" font-weight="bold" fill="#1e3a8a" font-size="12">40 | 55</text>
+
+                <line x1="145" y1="67" x2="55" y2="85" stroke="#1e3a8a" stroke-width="1"/>
+                <line x1="180" y1="67" x2="180" y2="85" stroke="#1e3a8a" stroke-width="1"/>
+                <line x1="215" y1="67" x2="295" y2="85" stroke="#1e3a8a" stroke-width="1"/>
+                <line x1="465" y1="67" x2="410" y2="85" stroke="#1e3a8a" stroke-width="1"/>
+                <line x1="500" y1="67" x2="510" y2="85" stroke="#1e3a8a" stroke-width="1"/>
+                <line x1="535" y1="67" x2="610" y2="85" stroke="#1e3a8a" stroke-width="1"/>
+
+                <rect x="10" y="85" width="90" height="20" rx="3" fill="#ffffff" stroke="#1e3a8a"/><text x="55" y="99" text-anchor="middle" font-size="11">3 | 7 | 9</text>
+                <!-- Target leaf updated green -->
+                <rect x="135" y="85" width="90" height="20" rx="3" fill="#dcfce7" stroke="#15803d" stroke-width="2"/><text x="180" y="99" text-anchor="middle" font-size="11" font-weight="bold" fill="#15803d">12 | 19  ✓</text>
+                <rect x="250" y="85" width="90" height="20" rx="3" fill="#ffffff" stroke="#1e3a8a"/><text x="295" y="99" text-anchor="middle" font-size="11">25 | 28</text>
+
+                <rect x="365" y="85" width="90" height="20" rx="3" fill="#ffffff" stroke="#1e3a8a"/><text x="410" y="99" text-anchor="middle" font-size="11">35 | 38</text>
+                <rect x="465" y="85" width="90" height="20" rx="3" fill="#ffffff" stroke="#1e3a8a"/><text x="510" y="99" text-anchor="middle" font-size="11">45 | 47</text>
+                <rect x="565" y="85" width="100" height="20" rx="3" fill="#ffffff" stroke="#1e3a8a"/><text x="615" y="99" text-anchor="middle" font-size="11">65 | 78 | 80</text>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- PAGE 6: DELETION DRY-RUN STEPS 3 & 4 (BEFORE & AFTER DIAGRAMS) -->
+    <div class="notebook-page rounded-lg p-6 sm:p-10 pl-16 sm:pl-20 border border-amber-100 min-h-[1050px]">
+      <div class="binder-holes">
+        <div class="hole"></div><div class="hole"></div><div class="hole"></div>
+        <div class="hole"></div><div class="hole"></div><div class="hole"></div>
+        <div class="hole"></div><div class="hole"></div><div class="hole"></div>
+      </div>
+
+      <div class="flex justify-between items-center border-b-2 border-red-300 pb-2 mb-6">
+        <h2 class="text-3xl font-bold ink-red font-heading">6. Deletion Dry-Run (Steps 3 & 4: Full Tree Before vs After)</h2>
+        <span class="font-sans text-xs text-slate-400">Page: 06</span>
+      </div>
+
+      <div class="space-y-6 ink-blue">
+
+        <!-- DELETION STEP 3 -->
+        <div class="bg-white p-3.5 rounded-lg border-2 border-blue-400 shadow-sm space-y-3">
+          <div class="flex justify-between items-center border-b pb-1">
+            <span class="font-bold text-blue-900 font-sans uppercase text-sm">Step 3: Delete Key '19' (Underflow -&gt; Borrow from Left Sibling)</span>
+            <span class="bg-blue-100 text-blue-900 text-xs px-2 py-0.5 rounded font-bold">Case 1B (Rotation)</span>
+          </div>
+
+          <!-- BEFORE DIAGRAM STEP 3 (ENTIRE TREE) -->
+          <div class="bg-red-50/50 p-2 rounded border border-red-200 text-center">
+            <span class="text-xs font-bold text-red-700 block mb-1 uppercase tracking-wide">ENTIRE TREE BEFORE Deleting Key '19':</span>
+            <div class="overflow-x-auto py-1">
+              <svg viewBox="0 0 680 115" class="w-full max-w-[680px] mx-auto">
+                <rect x="315" y="5" width="50" height="22" rx="4" fill="#fef08a" stroke="#1e3a8a" stroke-width="2"/>
+                <text x="340" y="21" text-anchor="middle" font-weight="bold" fill="#1e3a8a" font-size="13">30</text>
+                <line x1="320" y1="27" x2="180" y2="45" stroke="#1e3a8a" stroke-width="1.5"/>
+                <line x1="360" y1="27" x2="500" y2="45" stroke="#1e3a8a" stroke-width="1.5"/>
+
+                <rect x="140" y="45" width="80" height="22" rx="4" fill="#e0f2fe" stroke="#1e3a8a" stroke-width="2"/>
+                <text x="180" y="61" text-anchor="middle" font-weight="bold" fill="#1e3a8a" font-size="12">11 | 20</text>
+                <rect x="460" y="45" width="80" height="22" rx="4" fill="#e0f2fe" stroke="#1e3a8a" stroke-width="2"/>
+                <text x="500" y="61" text-anchor="middle" font-weight="bold" fill="#1e3a8a" font-size="12">40 | 55</text>
+
+                <line x1="145" y1="67" x2="55" y2="85" stroke="#1e3a8a" stroke-width="1"/>
+                <line x1="180" y1="67" x2="180" y2="85" stroke="#1e3a8a" stroke-width="1"/>
+                <line x1="215" y1="67" x2="295" y2="85" stroke="#1e3a8a" stroke-width="1"/>
+                <line x1="465" y1="67" x2="410" y2="85" stroke="#1e3a8a" stroke-width="1"/>
+                <line x1="500" y1="67" x2="510" y2="85" stroke="#1e3a8a" stroke-width="1"/>
+                <line x1="535" y1="67" x2="610" y2="85" stroke="#1e3a8a" stroke-width="1"/>
+
+                <!-- Rich Sibling highlighted yellow -->
+                <rect x="10" y="85" width="90" height="20" rx="3" fill="#fef08a" stroke="#1e3a8a" stroke-width="2"/><text x="55" y="99" text-anchor="middle" font-size="10" font-weight="bold">3|7|9 (3 keys: Rich)</text>
+                <!-- Target in red -->
+                <rect x="135" y="85" width="90" height="20" rx="3" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/><text x="180" y="99" text-anchor="middle" font-size="11" font-weight="bold" fill="#dc2626">12 | 19 (Target)</text>
+                <rect x="250" y="85" width="90" height="20" rx="3" fill="#ffffff" stroke="#1e3a8a"/><text x="295" y="99" text-anchor="middle" font-size="11">25 | 28</text>
+
+                <rect x="365" y="85" width="90" height="20" rx="3" fill="#ffffff" stroke="#1e3a8a"/><text x="410" y="99" text-anchor="middle" font-size="11">35 | 38</text>
+                <rect x="465" y="85" width="90" height="20" rx="3" fill="#ffffff" stroke="#1e3a8a"/><text x="510" y="99" text-anchor="middle" font-size="11">45 | 47</text>
+                <rect x="565" y="85" width="100" height="20" rx="3" fill="#ffffff" stroke="#1e3a8a"/><text x="615" y="99" text-anchor="middle" font-size="11">65 | 78 | 80</text>
+              </svg>
+            </div>
+          </div>
+
+          <!-- DETAILED STEP EXPLANATION -->
+          <div class="bg-amber-50/70 p-2.5 rounded border border-amber-200 text-xs sm:text-sm space-y-1">
+            <span class="font-bold text-slate-800 block">Detailed Step-by-Step Procedure:</span>
+            <ol class="list-decimal pl-5 space-y-0.5 text-slate-700">
+              <li><b>Locate Key:</b> Search key <b>19</b> in leaf node <code class="bg-white px-1 border rounded">[ 12 | 19 ]</code>.</li>
+              <li><b>Evaluate Removal:</b> Removing `19` leaves only <b>1 key</b> (`12`) → <b>UNDERFLOW</b>.</li>
+              <li><b>Check Siblings:</b> Left sibling <code class="bg-white px-1 border rounded">[ 3 | 7 | 9 ]</code> has <b>3 keys</b> (&gt; Min 2 keys). It is a <b>Rich Sibling</b> capable of lending a key!</li>
+              <li><b>Execute Rotation (Borrowing):</b>
+                <br>• Move separating parent key <b>'11'</b> DOWN into underflowing leaf <code class="bg-white px-1 border rounded">[12]</code> → becomes <code class="bg-white px-1 border rounded">[ 11 | 12 ]</code>.
+                <br>• Move maximum key <b>'9'</b> from left sibling UP into parent node to replace `11` → parent becomes <code class="bg-white px-1 border rounded">[ 9 | 20 ]</code>.
+                <br>• Left sibling retains 2 keys: <code class="bg-white px-1 border rounded">[ 3 | 7 ]</code> (satisfied ≥ 2).
+              </li>
+            </ol>
+          </div>
+
+          <!-- AFTER DIAGRAM STEP 3 (ENTIRE TREE) -->
+          <div class="bg-blue-50/50 p-2 rounded border border-blue-200 text-center">
+            <span class="text-xs font-bold text-blue-900 block mb-1 uppercase tracking-wide">ENTIRE TREE AFTER Deleting Key '19' (Post Rotation):</span>
+            <div class="overflow-x-auto py-1">
+              <svg viewBox="0 0 680 115" class="w-full max-w-[680px] mx-auto">
+                <rect x="315" y="5" width="50" height="22" rx="4" fill="#fef08a" stroke="#1e3a8a" stroke-width="2"/>
+                <text x="340" y="21" text-anchor="middle" font-weight="bold" fill="#1e3a8a" font-size="13">30</text>
+                <line x1="320" y1="27" x2="180" y2="45" stroke="#1e3a8a" stroke-width="1.5"/>
+                <line x1="360" y1="27" x2="500" y2="45" stroke="#1e3a8a" stroke-width="1.5"/>
+
+                <!-- Parent updated to [9 | 20] -->
+                <rect x="140" y="45" width="80" height="22" rx="4" fill="#fef08a" stroke="#1e3a8a" stroke-width="2"/>
+                <text x="180" y="61" text-anchor="middle" font-weight="bold" fill="#1e3a8a" font-size="12">9 | 20</text>
+                <rect x="460" y="45" width="80" height="22" rx="4" fill="#e0f2fe" stroke="#1e3a8a" stroke-width="2"/>
+                <text x="500" y="61" text-anchor="middle" font-weight="bold" fill="#1e3a8a" font-size="12">40 | 55</text>
+
+                <line x1="145" y1="67" x2="55" y2="85" stroke="#1e3a8a" stroke-width="1"/>
+                <line x1="180" y1="67" x2="180" y2="85" stroke="#1e3a8a" stroke-width="1"/>
+                <line x1="215" y1="67" x2="295" y2="85" stroke="#1e3a8a" stroke-width="1"/>
+                <line x1="465" y1="67" x2="410" y2="85" stroke="#1e3a8a" stroke-width="1"/>
+                <line x1="500" y1="67" x2="510" y2="85" stroke="#1e3a8a" stroke-width="1"/>
+                <line x1="535" y1="67" x2="610" y2="85" stroke="#1e3a8a" stroke-width="1"/>
+
+                <rect x="10" y="85" width="90" height="20" rx="3" fill="#ffffff" stroke="#1e3a8a"/><text x="55" y="99" text-anchor="middle" font-size="11">3 | 7</text>
+                <!-- Target leaf updated green -->
+                <rect x="135" y="85" width="90" height="20" rx="3" fill="#dcfce7" stroke="#15803d" stroke-width="2"/><text x="180" y="99" text-anchor="middle" font-size="11" font-weight="bold" fill="#15803d">11 | 12  ✓</text>
+                <rect x="250" y="85" width="90" height="20" rx="3" fill="#ffffff" stroke="#1e3a8a"/><text x="295" y="99" text-anchor="middle" font-size="11">25 | 28</text>
+
+                <rect x="365" y="85" width="90" height="20" rx="3" fill="#ffffff" stroke="#1e3a8a"/><text x="410" y="99" text-anchor="middle" font-size="11">35 | 38</text>
+                <rect x="465" y="85" width="90" height="20" rx="3" fill="#ffffff" stroke="#1e3a8a"/><text x="510" y="99" text-anchor="middle" font-size="11">45 | 47</text>
+                <rect x="565" y="85" width="100" height="20" rx="3" fill="#ffffff" stroke="#1e3a8a"/><text x="615" y="99" text-anchor="middle" font-size="11">65 | 78 | 80</text>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- DELETION STEP 4 -->
+        <div class="bg-white p-3.5 rounded-lg border-2 border-purple-400 shadow-sm space-y-4">
+          <div class="flex justify-between items-center border-b pb-1">
+            <span class="font-bold text-purple-900 font-sans uppercase text-sm">Step 4: Delete Key '30' (Multi-Stage Internal Replacement & Merging)</span>
+            <span class="bg-purple-100 text-purple-900 text-xs px-2 py-0.5 rounded font-bold">Case 2 + Case 1C (4 Sub-Diagrams)</span>
+          </div>
+
+          <p class="text-xs text-slate-600 italic">
+            Deleting an internal root key involves several intermediate transformations. Every stage below is drawn as a full tree diagram!
+          </p>
+
+          <!-- PHASE 4.1: INITIAL TREE BEFORE SWAP -->
+          <div class="bg-red-50/50 p-2 rounded border border-red-200 text-center space-y-1">
+            <div class="flex justify-between items-center px-1">
+              <span class="text-xs font-bold text-red-700 font-sans uppercase">Phase 4.1: Identify Target Key '30' & Inorder Predecessor '28'</span>
+              <span class="text-[10px] bg-red-100 text-red-800 px-1.5 py-0.5 rounded font-mono">Stage 1 of 4</span>
+            </div>
+            <div class="overflow-x-auto py-1">
+              <svg viewBox="0 0 680 115" class="w-full max-w-[680px] mx-auto">
+                <!-- Target Root red -->
+                <rect x="305" y="5" width="70" height="22" rx="4" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+                <text x="340" y="21" text-anchor="middle" font-weight="bold" fill="#dc2626" font-size="12">30 (Target)</text>
+                <line x1="320" y1="27" x2="180" y2="45" stroke="#1e3a8a" stroke-width="1.5"/>
+                <line x1="360" y1="27" x2="500" y2="45" stroke="#1e3a8a" stroke-width="1.5"/>
+
+                <rect x="140" y="45" width="80" height="22" rx="4" fill="#e0f2fe" stroke="#1e3a8a" stroke-width="2"/>
+                <text x="180" y="61" text-anchor="middle" font-weight="bold" fill="#1e3a8a" font-size="12">9 | 20</text>
+                <rect x="460" y="45" width="80" height="22" rx="4" fill="#e0f2fe" stroke="#1e3a8a" stroke-width="2"/>
+                <text x="500" y="61" text-anchor="middle" font-weight="bold" fill="#1e3a8a" font-size="12">40 | 55</text>
+
+                <line x1="145" y1="67" x2="55" y2="85" stroke="#1e3a8a" stroke-width="1"/>
+                <line x1="180" y1="67" x2="180" y2="85" stroke="#1e3a8a" stroke-width="1"/>
+                <line x1="215" y1="67" x2="295" y2="85" stroke="#1e3a8a" stroke-width="1"/>
+                <line x1="465" y1="67" x2="410" y2="85" stroke="#1e3a8a" stroke-width="1"/>
+                <line x1="500" y1="67" x2="510" y2="85" stroke="#1e3a8a" stroke-width="1"/>
+                <line x1="535" y1="67" x2="610" y2="85" stroke="#1e3a8a" stroke-width="1"/>
+
+                <rect x="10" y="85" width="90" height="20" rx="3" fill="#ffffff" stroke="#1e3a8a"/><text x="55" y="99" text-anchor="middle" font-size="11">3 | 7</text>
+                <rect x="135" y="85" width="90" height="20" rx="3" fill="#ffffff" stroke="#1e3a8a"/><text x="180" y="99" text-anchor="middle" font-size="11">11 | 12</text>
+                <!-- Predecessor highlighted yellow -->
+                <rect x="250" y="85" width="110" height="20" rx="3" fill="#fef08a" stroke="#1e3a8a" stroke-width="2"/><text x="305" y="99" text-anchor="middle" font-size="10" font-weight="bold">25 | 28 (Predecessor)</text>
+
+                <rect x="365" y="85" width="90" height="20" rx="3" fill="#ffffff" stroke="#1e3a8a"/><text x="410" y="99" text-anchor="middle" font-size="11">35 | 38</text>
+                <rect x="465" y="85" width="90" height="20" rx="3" fill="#ffffff" stroke="#1e3a8a"/><text x="510" y="99" text-anchor="middle" font-size="11">45 | 47</text>
+                <rect x="565" y="85" width="100" height="20" rx="3" fill="#ffffff" stroke="#1e3a8a"/><text x="615" y="99" text-anchor="middle" font-size="11">65 | 78 | 80</text>
+              </svg>
+            </div>
+            <p class="text-[11px] text-slate-700 text-left bg-white p-1.5 rounded border border-red-200">
+              <b>Explanation:</b> Target key <b>30</b> is located in the Root node (internal). To delete internal key 30, we search its left subtree for the <b>Inorder Predecessor</b> (maximum key in left subtree), which is key <b>28</b> inside leaf node <code>[25 | 28]</code>.
+            </p>
+          </div>
+
+          <!-- PHASE 4.2: SWAP ROOT & LEAF UNDERFLOW -->
+          <div class="bg-amber-50/60 p-2 rounded border border-amber-300 text-center space-y-1">
+            <div class="flex justify-between items-center px-1">
+              <span class="text-xs font-bold text-amber-800 font-sans uppercase">Phase 4.2: Swap Root with Predecessor '28' & Delete '30' (Underflow Occurs!)</span>
+              <span class="text-[10px] bg-amber-200 text-amber-900 px-1.5 py-0.5 rounded font-mono">Stage 2 of 4</span>
+            </div>
+            <div class="overflow-x-auto py-1">
+              <svg viewBox="0 0 680 115" class="w-full max-w-[680px] mx-auto">
+                <!-- Root updated yellow -->
+                <rect x="315" y="5" width="50" height="22" rx="4" fill="#fef08a" stroke="#1e3a8a" stroke-width="2"/>
+                <text x="340" y="21" text-anchor="middle" font-weight="bold" fill="#1e3a8a" font-size="13">28</text>
+                <line x1="320" y1="27" x2="180" y2="45" stroke="#1e3a8a" stroke-width="1.5"/>
+                <line x1="360" y1="27" x2="500" y2="45" stroke="#1e3a8a" stroke-width="1.5"/>
+
+                <rect x="140" y="45" width="80" height="22" rx="4" fill="#e0f2fe" stroke="#1e3a8a" stroke-width="2"/>
+                <text x="180" y="61" text-anchor="middle" font-weight="bold" fill="#1e3a8a" font-size="12">9 | 20</text>
+                <rect x="460" y="45" width="80" height="22" rx="4" fill="#e0f2fe" stroke="#1e3a8a" stroke-width="2"/>
+                <text x="500" y="61" text-anchor="middle" font-weight="bold" fill="#1e3a8a" font-size="12">40 | 55</text>
+
+                <line x1="145" y1="67" x2="55" y2="85" stroke="#1e3a8a" stroke-width="1"/>
+                <line x1="180" y1="67" x2="180" y2="85" stroke="#1e3a8a" stroke-width="1"/>
+                <line x1="215" y1="67" x2="285" y2="85" stroke="#1e3a8a" stroke-width="1"/>
+                <line x1="465" y1="67" x2="410" y2="85" stroke="#1e3a8a" stroke-width="1"/>
+                <line x1="500" y1="67" x2="510" y2="85" stroke="#1e3a8a" stroke-width="1"/>
+                <line x1="535" y1="67" x2="610" y2="85" stroke="#1e3a8a" stroke-width="1"/>
+
+                <rect x="10" y="85" width="90" height="20" rx="3" fill="#ffffff" stroke="#1e3a8a"/><text x="55" y="99" text-anchor="middle" font-size="11">3 | 7</text>
+                <rect x="135" y="85" width="90" height="20" rx="3" fill="#ffffff" stroke="#1e3a8a"/><text x="180" y="99" text-anchor="middle" font-size="11">11 | 12</text>
+                <!-- Underflowing Leaf in red -->
+                <rect x="250" y="85" width="70" height="20" rx="3" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/><text x="285" y="99" text-anchor="middle" font-size="11" font-weight="bold" fill="#dc2626">25 (Underflow)</text>
+
+                <rect x="365" y="85" width="90" height="20" rx="3" fill="#ffffff" stroke="#1e3a8a"/><text x="410" y="99" text-anchor="middle" font-size="11">35 | 38</text>
+                <rect x="465" y="85" width="90" height="20" rx="3" fill="#ffffff" stroke="#1e3a8a"/><text x="510" y="99" text-anchor="middle" font-size="11">45 | 47</text>
+                <rect x="565" y="85" width="100" height="20" rx="3" fill="#ffffff" stroke="#1e3a8a"/><text x="615" y="99" text-anchor="middle" font-size="11">65 | 78 | 80</text>
+              </svg>
+            </div>
+            <p class="text-[11px] text-slate-700 text-left bg-white p-1.5 rounded border border-amber-300">
+              <b>Explanation:</b> We swap root key 30 with 28. Root becomes <b>28</b>. Next, target key 30 is deleted from leaf <code>[25 | 30]</code>. The leaf now contains only <b>[25]</b> (1 key). Since 1 key &lt; Min Keys required (2), an <b>UNDERFLOW</b> is triggered in leaf <code>[25]</code>!
+            </p>
+          </div>
+
+          <!-- PHASE 4.3: SIBS CHECK & PARENT KEY PULL DOWN -->
+          <div class="bg-blue-50/60 p-2 rounded border border-blue-300 text-center space-y-1">
+            <div class="flex justify-between items-center px-1">
+              <span class="text-xs font-bold text-blue-900 font-sans uppercase">Phase 4.3: Check Siblings & Pull Down Separating Parent Key '20'</span>
+              <span class="text-[10px] bg-blue-200 text-blue-900 px-1.5 py-0.5 rounded font-mono">Stage 3 of 4</span>
+            </div>
+            <div class="overflow-x-auto py-1">
+              <svg viewBox="0 0 680 115" class="w-full max-w-[680px] mx-auto">
+                <rect x="315" y="5" width="50" height="22" rx="4" fill="#fef08a" stroke="#1e3a8a" stroke-width="2"/>
+                <text x="340" y="21" text-anchor="middle" font-weight="bold" fill="#1e3a8a" font-size="13">28</text>
+                <line x1="320" y1="27" x2="180" y2="45" stroke="#1e3a8a" stroke-width="1.5"/>
+                <line x1="360" y1="27" x2="500" y2="45" stroke="#1e3a8a" stroke-width="1.5"/>
+
+                <!-- Parent Node: '20' highlighted in red being pulled down -->
+                <rect x="140" y="45" width="80" height="22" rx="4" fill="#fef08a" stroke="#dc2626" stroke-width="2"/>
+                <text x="180" y="61" text-anchor="middle" font-weight="bold" fill="#dc2626" font-size="12">9 | 20 (Pull ↓)</text>
+                <rect x="460" y="45" width="80" height="22" rx="4" fill="#e0f2fe" stroke="#1e3a8a" stroke-width="2"/>
+                <text x="500" y="61" text-anchor="middle" font-weight="bold" fill="#1e3a8a" font-size="12">40 | 55</text>
+
+                <line x1="145" y1="67" x2="55" y2="85" stroke="#1e3a8a" stroke-width="1"/>
+                <line x1="180" y1="67" x2="180" y2="85" stroke="#1e3a8a" stroke-width="1"/>
+                <line x1="215" y1="67" x2="285" y2="85" stroke="#1e3a8a" stroke-width="1"/>
+                <line x1="465" y1="67" x2="410" y2="85" stroke="#1e3a8a" stroke-width="1"/>
+                <line x1="500" y1="67" x2="510" y2="85" stroke="#1e3a8a" stroke-width="1"/>
+                <line x1="535" y1="67" x2="610" y2="85" stroke="#1e3a8a" stroke-width="1"/>
+
+                <rect x="10" y="85" width="90" height="20" rx="3" fill="#ffffff" stroke="#1e3a8a"/><text x="55" y="99" text-anchor="middle" font-size="11">3 | 7</text>
+                <!-- Sibling highlighted yellow (Min capacity = 2 keys) -->
+                <rect x="135" y="85" width="90" height="20" rx="3" fill="#fef08a" stroke="#1e3a8a" stroke-width="2"/><text x="180" y="99" text-anchor="middle" font-size="10" font-weight="bold">11|12 (Min: Cant Borrow)</text>
+                <rect x="250" y="85" width="70" height="20" rx="3" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/><text x="285" y="99" text-anchor="middle" font-size="11" font-weight="bold" fill="#dc2626">25</text>
+
+                <rect x="365" y="85" width="90" height="20" rx="3" fill="#ffffff" stroke="#1e3a8a"/><text x="410" y="99" text-anchor="middle" font-size="11">35 | 38</text>
+                <rect x="465" y="85" width="90" height="20" rx="3" fill="#ffffff" stroke="#1e3a8a"/><text x="510" y="99" text-anchor="middle" font-size="11">45 | 47</text>
+                <rect x="565" y="85" width="100" height="20" rx="3" fill="#ffffff" stroke="#1e3a8a"/><text x="615" y="99" text-anchor="middle" font-size="11">65 | 78 | 80</text>
+              </svg>
+            </div>
+            <p class="text-[11px] text-slate-700 text-left bg-white p-1.5 rounded border border-blue-300">
+              <b>Explanation:</b> To fix underflow in leaf <code>[25]</code>, we check adjacent sibling <code>[11 | 12]</code>. Sibling has exactly <b>2 keys</b> (Minimum limit). Borrowing is impossible! Therefore, we must perform a <b>MERGE</b>: We pull down separating parent key <b>'20'</b> from internal node <code>[9 | 20]</code> to combine with the sibling and leaf.
+            </p>
+          </div>
+
+          <!-- PHASE 4.4: MERGE COMPLETE & FINAL TREE -->
+          <div class="bg-purple-50/60 p-2 rounded border border-purple-300 text-center space-y-1">
+            <div class="flex justify-between items-center px-1">
+              <span class="text-xs font-bold text-purple-900 font-sans uppercase">Phase 4.4: Merge Sibling + Parent Key + Leaf (Final Restored B-Tree)</span>
+              <span class="text-[10px] bg-purple-200 text-purple-900 px-1.5 py-0.5 rounded font-mono">Stage 4 of 4</span>
+            </div>
+            <div class="overflow-x-auto py-1">
+              <svg viewBox="0 0 680 115" class="w-full max-w-[680px] mx-auto">
+                <!-- Root updated green -->
+                <rect x="315" y="5" width="50" height="22" rx="4" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+                <text x="340" y="21" text-anchor="middle" font-weight="bold" fill="#15803d" font-size="13">28  ✓</text>
+                <line x1="320" y1="27" x2="180" y2="45" stroke="#1e3a8a" stroke-width="1.5"/>
+                <line x1="360" y1="27" x2="500" y2="45" stroke="#1e3a8a" stroke-width="1.5"/>
+
+                <!-- Internal parent updated to [9] -->
+                <rect x="155" y="45" width="50" height="22" rx="4" fill="#e0f2fe" stroke="#1e3a8a" stroke-width="2"/>
+                <text x="180" y="61" text-anchor="middle" font-weight="bold" fill="#1e3a8a" font-size="12">9</text>
+                <rect x="460" y="45" width="80" height="22" rx="4" fill="#e0f2fe" stroke="#1e3a8a" stroke-width="2"/>
+                <text x="500" y="61" text-anchor="middle" font-weight="bold" fill="#1e3a8a" font-size="12">40 | 55</text>
+
+                <line x1="165" y1="67" x2="80" y2="85" stroke="#1e3a8a" stroke-width="1.5"/>
+                <line x1="195" y1="67" x2="260" y2="85" stroke="#1e3a8a" stroke-width="1.5"/>
+
+                <line x1="465" y1="67" x2="410" y2="85" stroke="#1e3a8a" stroke-width="1"/>
+                <line x1="500" y1="67" x2="510" y2="85" stroke="#1e3a8a" stroke-width="1"/>
+                <line x1="535" y1="67" x2="610" y2="85" stroke="#1e3a8a" stroke-width="1"/>
+
+                <rect x="30" y="85" width="100" height="20" rx="3" fill="#ffffff" stroke="#1e3a8a"/><text x="80" y="99" text-anchor="middle" font-size="11">3 | 7</text>
+                <!-- Merged Leaf in green/purple -->
+                <rect x="180" y="85" width="160" height="20" rx="3" fill="#dcfce7" stroke="#15803d" stroke-width="2"/><text x="260" y="99" text-anchor="middle" font-size="11" font-weight="bold" fill="#15803d">Merged: [11 | 12 | 20 | 25]  ✓</text>
+
+                <rect x="365" y="85" width="90" height="20" rx="3" fill="#ffffff" stroke="#1e3a8a"/><text x="410" y="99" text-anchor="middle" font-size="11">35 | 38</text>
+                <rect x="465" y="85" width="90" height="20" rx="3" fill="#ffffff" stroke="#1e3a8a"/><text x="510" y="99" text-anchor="middle" font-size="11">45 | 47</text>
+                <rect x="565" y="85" width="100" height="20" rx="3" fill="#ffffff" stroke="#1e3a8a"/><text x="615" y="99" text-anchor="middle" font-size="11">65 | 78 | 80</text>
+              </svg>
+            </div>
+            <p class="text-[11px] text-slate-700 text-left bg-white p-1.5 rounded border border-purple-300">
+              <b>Explanation:</b> Sibling <code>[11 | 12]</code> + pulled parent key <code>'20'</code> + leaf <code>[25]</code> merge into a single leaf <b>[11 | 12 | 20 | 25]</b> (4 keys $\le$ Max 4 keys). Internal parent node drops key 20 and retains <b>[9]</b>. Height balance and all B-Tree properties are completely restored!
+            </p>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+    </section>
+
+    <!-- SECTION 5: APPLICATIONS -->
+    <section id="sec-applications" class="tab-content hidden">
+      <!-- PAGE 7: DETAILED REAL-WORLD APPLICATIONS & ARCHITECTURE -->
+      <div class="notebook-page rounded-lg p-6 sm:p-10 pl-16 sm:pl-20 border border-amber-100 min-h-[1050px]">
+      <div class="binder-holes">
+        <div class="hole"></div><div class="hole"></div><div class="hole"></div>
+        <div class="hole"></div><div class="hole"></div><div class="hole"></div>
+        <div class="hole"></div><div class="hole"></div><div class="hole"></div>
+      </div>
+
+      <div class="flex justify-between items-center border-b-2 border-red-300 pb-2 mb-6">
+        <h2 class="text-3xl font-bold ink-red font-heading">7. Deep Dive: Real-World System Applications</h2>
+        <span class="font-sans text-xs text-slate-400">Page: 07</span>
+      </div>
+
+      <div class="space-y-6 ink-blue">
+
+        <p class="text-sm">
+          Understanding <span class="highlighter text-slate-900 font-bold">why and where</span> B-Trees and AVL Trees are deployed in modern software architecture is essential for computer science and database system design.
+        </p>
+
+        <!-- SECTION 1: B-TREE APPLICATIONS -->
+        <div class="space-y-3">
+          <h3 class="text-2xl font-bold ink-red font-heading pen-underline">A. B-Tree & B+ Tree Applications (Secondary Storage / Disks)</h3>
+          
+          <div class="note-box p-3 text-xs sm:text-sm bg-blue-50/80 border-blue-400 space-y-2">
+            <span class="font-bold ink-purple text-base">💡 Core Hardware Reason for B-Trees in Disk Storage:</span>
+            <p class="text-slate-700">
+              Disks read and write data in fixed-size blocks (pages), typically <b>4 KB to 16 KB</b>. A Binary Search Tree requires 1 disk seek per node access (extremely slow due to mechanical/bus latency). A B-Tree node matches disk page size exactly—storing hundreds of keys per node—enabling high fan-out and reducing total tree height to just <b>3 or 4 levels</b> for millions of records!
+            </p>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs sm:text-sm">
+            <!-- App 1: Databases -->
+            <div class="bg-white p-3 rounded-lg border border-slate-300 shadow-sm space-y-1">
+              <span class="font-bold text-red-600 font-sans uppercase text-xs block">1. Database Indexing Engines</span>
+              <p class="text-slate-700">
+                • <b>MySQL (InnoDB Storage Engine):</b> Uses B+ Tree indexes for primary keys (clustered index) and secondary keys.
+                <br>• <b>PostgreSQL & SQLite:</b> Implement B-Tree indexes as the default index type for fast <code>SELECT</code> queries.
+                <br>• <b>Oracle DB & MS SQL Server:</b> Rely on multi-level B-Trees to handle multi-terabyte table indexing.
+              </p>
+            </div>
+
+            <!-- App 2: File Systems -->
+            <div class="bg-white p-3 rounded-lg border border-slate-300 shadow-sm space-y-1">
+              <span class="font-bold text-red-600 font-sans uppercase text-xs block">2. File System Storage & Extent Mapping</span>
+              <p class="text-slate-700">
+                • <b>NTFS (Windows):</b> Uses B-Trees in the Master File Table (MFT) for fast file directory lookups.
+                <br>• <b>ext4 & Btrfs (Linux):</b> Uses extent trees (B-Tree variant) to track physical disk blocks assigned to large files.
+                <br>• <b>APFS & HFS+ (Apple macOS/iOS):</b> Uses B-Trees for catalog files and path metadata.
+              </p>
+            </div>
+
+            <!-- App 3: OS & Memory -->
+            <div class="bg-white p-3 rounded-lg border border-slate-300 shadow-sm space-y-1">
+              <span class="font-bold text-red-600 font-sans uppercase text-xs block">3. Operating System Virtual Memory</span>
+              <p class="text-slate-700">
+                • <b>Virtual Memory Page Tables:</b> OS kernels use multi-level tree structures inspired by B-Trees to map virtual memory addresses to physical RAM frames.
+                <br>• <b>Disk Block Allocators:</b> Efficiently manage free and occupied contiguous disk blocks.
+              </p>
+            </div>
+
+            <!-- App 4: Networking & Routers -->
+            <div class="bg-white p-3 rounded-lg border border-slate-300 shadow-sm space-y-1">
+              <span class="font-bold text-red-600 font-sans uppercase text-xs block">4. Networking, Routers & DNS</span>
+              <p class="text-slate-700">
+                • <b>Router IP Lookup Tables:</b> High-speed edge routers index CIDR IP address prefix masks using multi-way trees for sub-millisecond packet routing.
+                <br>• <b>DNS Servers:</b> Domain name resolution caches use B-Tree lookups for rapid URL-to-IP resolution.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION 2: AVL TREE APPLICATIONS -->
+        <div class="space-y-3 pt-2">
+          <h3 class="text-2xl font-bold ink-purple font-heading pen-underline">B. AVL Tree Applications (Strict In-Memory Balance)</h3>
+
+          <div class="note-box p-3 text-xs sm:text-sm bg-purple-50/80 border-purple-400 space-y-1">
+            <span class="font-bold ink-red text-base">💡 Core Hardware Reason for AVL Trees in RAM:</span>
+            <p class="text-slate-700">
+              In RAM (Main Memory), pointer dereferencing is fast, but depth matters. AVL Trees enforce strict height balancing (Height Difference $\le 1$), guaranteeing worst-case search time of <b>1.44 log₂ N</b>. They are superior when read operations (searches) far outnumber write operations (insertions/deletions).
+            </p>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs sm:text-sm">
+            <div class="bg-white p-3 rounded-lg border border-slate-300 shadow-sm space-y-1">
+              <span class="font-bold text-purple-800 font-sans uppercase text-xs block">1. In-Memory Dictionaries & Sets</span>
+              <p class="text-slate-700">
+                • Used in standard programming language runtime libraries to implement fast associative containers (e.g., in-memory key-value maps, ordered sets).
+              </p>
+            </div>
+
+            <div class="bg-white p-3 rounded-lg border border-slate-300 shadow-sm space-y-1">
+              <span class="font-bold text-purple-800 font-sans uppercase text-xs block">2. Real-Time Games & Physics Engines</span>
+              <p class="text-slate-700">
+                • <b>Spatial Indexing & Hitboxes:</b> Tracks 2D/3D active game entities and collision bounding volumes where rendering frame rates demand strict upper-bound lookup guarantees.
+              </p>
+            </div>
+
+            <div class="bg-white p-3 rounded-lg border border-slate-300 shadow-sm space-y-1">
+              <span class="font-bold text-purple-800 font-sans uppercase text-xs block">3. Compiler Symbol Tables</span>
+              <p class="text-slate-700">
+                • Compilers use AVL Trees during semantic analysis to track nested variable scopes, type signatures, and function declarations with predictable performance.
+              </p>
+            </div>
+
+            <div class="bg-white p-3 rounded-lg border border-slate-300 shadow-sm space-y-1">
+              <span class="font-bold text-purple-800 font-sans uppercase text-xs block">4. Read-Heavy In-Memory Caches</span>
+              <p class="text-slate-700">
+                • Preferred in memory-resident cache systems where items are populated once and searched millions of times per second without performance jitter.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION 3: ARCHITECTURAL COMPARISON SUMMARY -->
+        <div class="pt-2">
+          <h3 class="text-2xl font-bold ink-green font-heading pen-underline mb-2">C. Architectural Choice Summary Matrix</h3>
+          
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse border border-blue-300 bg-white/90 text-xs sm:text-sm">
+              <thead>
+                <tr class="bg-blue-100 ink-purple font-heading text-sm">
+                  <th class="border border-blue-300 p-2">Feature / Metric</th>
+                  <th class="border border-blue-300 p-2 text-blue-800">B-Tree / B+ Tree</th>
+                  <th class="border border-blue-300 p-2 text-purple-800">AVL Tree</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="border border-blue-300 p-2 font-bold">Primary Storage Medium</td>
+                  <td class="border border-blue-300 p-2">Secondary Storage (HDD / SSD / Flash)</td>
+                  <td class="border border-blue-300 p-2">Main Memory (RAM)</td>
+                </tr>
+                <tr class="bg-slate-50">
+                  <td class="border border-blue-300 p-2 font-bold">Node Capacity</td>
+                  <td class="border border-blue-300 p-2">Multiple keys per node (matches disk page)</td>
+                  <td class="border border-blue-300 p-2">Exactly 1 key per node</td>
+                </tr>
+                <tr>
+                  <td class="border border-blue-300 p-2 font-bold">Height / Tree Depth</td>
+                  <td class="border border-blue-300 p-2">Very small (3 to 5 levels for millions of keys)</td>
+                  <td class="border border-blue-300 p-2">Deeper ($\approx 1.44 \log_2 N$)</td>
+                </tr>
+                <tr class="bg-slate-50">
+                  <td class="border border-blue-300 p-2 font-bold">Optimal Workload</td>
+                  <td class="border border-blue-300 p-2">Block I/O, range queries, massive disk databases</td>
+                  <td class="border border-blue-300 p-2">Frequent searches, fast in-memory lookups</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    </section>
+
+  </div>
+
+  <script>
+        let isCleanFont = false;
+        const activeCanvases = [];
+        
+        let currentTab = 'fundamentals';
+        function switchTab(tabId) {
+            currentTab = tabId;
+            document.querySelectorAll('.tab-content').forEach(sec => {
+                sec.classList.remove('block');
+                sec.classList.add('hidden');
+            });
+            document.getElementById('sec-' + tabId).classList.remove('hidden');
+            document.getElementById('sec-' + tabId).classList.add('block');
+            
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('bg-amber-200', 'text-inkBlue', 'border-b-2', 'border-inkBlue');
+                tab.classList.add('text-gray-600', 'hover:text-inkBlue');
+            });
+            const activeTab = document.getElementById('tab-' + tabId);
+            if (activeTab) {
+                activeTab.classList.remove('text-gray-600', 'hover:text-inkBlue');
+                activeTab.classList.add('bg-amber-200', 'text-inkBlue', 'border-b-2', 'border-inkBlue');
+            }
+            
+            // Redraw compiled canvases when switching tab to ensure proper sizing
+            activeCanvases.forEach(item => {
+                drawCanvasFromCommands(item.canvas, item.commands, item.width, item.height);
+            });
+        }
+
+        window.onresize = () => {
+            activeCanvases.forEach(item => {
+                drawCanvasFromCommands(item.canvas, item.commands, item.width, item.height);
+            });
+        };
+
+        function toggleStyleMode() {
+            isCleanFont = !isCleanFont;
+            const body = document.body;
+            const styleBtnText = document.getElementById('styleBtnText');
+            if(isCleanFont) {
+                body.classList.add('font-clean');
+                if (styleBtnText) styleBtnText.innerText = "Switch to Handwritten Font";
+            } else {
+                body.classList.remove('font-clean');
+                if (styleBtnText) styleBtnText.innerText = "Switch to Clean Print Font";
+            }
+            // Redraw all compiled canvases
+            activeCanvases.forEach(item => {
+                drawCanvasFromCommands(item.canvas, item.commands, item.width, item.height);
+            });
+        }
+
+        function drawCanvasFromCommands(canvas, commands, width, height) {
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            
+            // Clear
+            ctx.save();
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.restore();
+            
+            ctx.save();
+            ctx.scale(dpr, dpr);
+
+            commands.forEach(cmd => {
+                ctx.save();
+                
+                // Styles
+                const fill = cmd.fill || 'none';
+                const stroke = cmd.stroke || 'none';
+                const strokeWidth = cmd.strokeWidth || 1;
+                
+                ctx.fillStyle = fill === 'none' ? 'transparent' : fill;
+                ctx.strokeStyle = stroke === 'none' ? 'transparent' : stroke;
+                ctx.lineWidth = strokeWidth;
+                
+                if (cmd.dash) {
+                    ctx.setLineDash(cmd.dash);
+                }
+
+                if (cmd.type === 'rect') {
+                    ctx.beginPath();
+                    if (cmd.rx > 0) {
+                        ctx.roundRect(cmd.x, cmd.y, cmd.w, cmd.h, cmd.rx);
+                    } else {
+                        ctx.rect(cmd.x, cmd.y, cmd.w, cmd.h);
+                    }
+                    if (fill !== 'none') ctx.fill();
+                    if (stroke !== 'none') ctx.stroke();
+                } else if (cmd.type === 'circle') {
+                    ctx.beginPath();
+                    ctx.arc(cmd.cx, cmd.cy, cmd.r, 0, 2 * Math.PI);
+                    if (fill !== 'none') ctx.fill();
+                    if (stroke !== 'none') ctx.stroke();
+                } else if (cmd.type === 'line') {
+                    ctx.beginPath();
+                    ctx.moveTo(cmd.x1, cmd.y1);
+                    ctx.lineTo(cmd.x2, cmd.y2);
+                    if (stroke !== 'none') ctx.stroke();
+                } else if (cmd.type === 'text') {
+                    const fontName = isCleanFont ? 'Inter, sans-serif' : 'Kalam, Caveat, cursive';
+                    ctx.font = `${cmd.fontWeight} ${cmd.fontSize} ${fontName}`;
+                    ctx.textAlign = cmd.textAnchor === 'middle' ? 'center' : (cmd.textAnchor === 'end' ? 'right' : 'left');
+                    ctx.textBaseline = 'middle';
+                    
+                    let fillStyle = cmd.fill;
+                    if (fillStyle === 'none' || !fillStyle) {
+                        fillStyle = '#1e3a8a';
+                    }
+                    ctx.fillStyle = fillStyle;
+                    ctx.fillText(cmd.text, cmd.x, cmd.y);
+                } else if (cmd.type === 'path') {
+                    ctx.beginPath();
+                    let numIdx = 0;
+                    cmd.pathCmds.forEach(item => {
+                        const args = cmd.pathNums[numIdx++];
+                        if (item.toUpperCase() === 'M') {
+                            ctx.moveTo(args[0], args[1]);
+                        } else if (item.toUpperCase() === 'Q') {
+                            ctx.quadraticCurveTo(args[0], args[1], args[2], args[3]);
+                        } else if (item.toUpperCase() === 'L') {
+                            ctx.lineTo(args[0], args[1]);
+                        }
+                    });
+                    if (fill !== 'none') ctx.fill();
+                    if (stroke !== 'none') ctx.stroke();
+                } else if (cmd.type === 'polygon') {
+                    if (cmd.points.length >= 2) {
+                        ctx.beginPath();
+                        ctx.moveTo(cmd.points[0], cmd.points[1]);
+                        for (let p = 2; p < cmd.points.length; p += 2) {
+                            ctx.lineTo(cmd.points[p], cmd.points[p+1]);
+                        }
+                        ctx.closePath();
+                        if (fill !== 'none') ctx.fill();
+                        if (stroke !== 'none') ctx.stroke();
+                    }
+                }
+                ctx.restore();
+            });
+            ctx.restore();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const svgs = document.querySelectorAll('svg');
+            svgs.forEach((svg, idx) => {
+                if (svg.classList.contains('h-4') || svg.classList.contains('w-4') || svg.classList.contains('no-convert')) return;
+
+                const width = parseFloat(svg.getAttribute('width') || svg.viewBox.baseVal.width || 300);
+                const height = parseFloat(svg.getAttribute('height') || svg.viewBox.baseVal.height || 150);
+
+                const canvas = document.createElement('canvas');
+                canvas.className = svg.className.baseVal + " shadow-sm cursor-pointer mx-auto block";
+                canvas.style.cssText = svg.style.cssText;
+                if (svg.style.width) canvas.style.width = svg.style.width;
+                if (svg.style.height) canvas.style.height = svg.style.height;
+
+                // Scale canvas size
+                const dpr = window.devicePixelRatio || 1;
+                canvas.width = width * dpr;
+                canvas.height = height * dpr;
+                canvas.style.width = `${width}px`;
+                canvas.style.height = `${height}px`;
+
+                // Compile commands
+                const commands = [];
+                Array.from(svg.children).forEach(child => {
+                    const tagName = child.tagName.toLowerCase();
+                    const fill = child.getAttribute('fill') || 'none';
+                    const stroke = child.getAttribute('stroke') || 'none';
+                    const strokeWidthAttr = child.getAttribute('stroke-width');
+                    const strokeWidth = strokeWidthAttr ? parseFloat(strokeWidthAttr) : 1;
+                    const dashAttr = child.getAttribute('stroke-dasharray');
+                    const dash = dashAttr ? dashAttr.split(/[\s,]+/).map(Number) : null;
+
+                    const baseCmd = { fill, stroke, strokeWidth, dash };
+
+                    if (tagName === 'rect') {
+                        commands.push({
+                            ...baseCmd,
+                            type: 'rect',
+                            x: parseFloat(child.getAttribute('x') || 0),
+                            y: parseFloat(child.getAttribute('y') || 0),
+                            w: parseFloat(child.getAttribute('width') || 0),
+                            h: parseFloat(child.getAttribute('height') || 0),
+                            rx: parseFloat(child.getAttribute('rx') || 0)
+                        });
+                    } else if (tagName === 'circle') {
+                        commands.push({
+                            ...baseCmd,
+                            type: 'circle',
+                            cx: parseFloat(child.getAttribute('cx') || 0),
+                            cy: parseFloat(child.getAttribute('cy') || 0),
+                            r: parseFloat(child.getAttribute('r') || 0)
+                        });
+                    } else if (tagName === 'line') {
+                        commands.push({
+                            ...baseCmd,
+                            type: 'line',
+                            x1: parseFloat(child.getAttribute('x1') || 0),
+                            y1: parseFloat(child.getAttribute('y1') || 0),
+                            x2: parseFloat(child.getAttribute('x2') || 0),
+                            y2: parseFloat(child.getAttribute('y2') || 0)
+                        });
+                    } else if (tagName === 'text') {
+                        commands.push({
+                            ...baseCmd,
+                            type: 'text',
+                            x: parseFloat(child.getAttribute('x') || 0),
+                            y: parseFloat(child.getAttribute('y') || 0),
+                            textAnchor: child.getAttribute('text-anchor') || 'start',
+                            fontSize: child.getAttribute('font-size') || '14px',
+                            fontWeight: child.getAttribute('font-weight') || 'normal',
+                            text: child.textContent || ''
+                        });
+                    } else if (tagName === 'path') {
+                        const d = child.getAttribute('d') || '';
+                        const pathCmds = d.match(/[a-df-z]/gi) || [];
+                        const pathNums = d.split(/[a-df-z]/gi).slice(1).map(s => s.trim().split(/[\s,]+/).map(Number));
+                        commands.push({
+                            ...baseCmd,
+                            type: 'path',
+                            pathCmds,
+                            pathNums
+                        });
+                    } else if (tagName === 'polygon') {
+                        const pointsAttr = child.getAttribute('points') || '';
+                        const points = pointsAttr.trim().split(/[\s,]+/).map(Number);
+                        commands.push({
+                            ...baseCmd,
+                            type: 'polygon',
+                            points
+                        });
+                    }
+                });
+
+                activeCanvases.push({ canvas, commands, width, height });
+                
+                // Draw initial state
+                drawCanvasFromCommands(canvas, commands, width, height);
+
+                // Replace SVG
+                svg.parentNode.replaceChild(canvas, svg);
+            });
+        });
+  </script>
+</body>
+</html>

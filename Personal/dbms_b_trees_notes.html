@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit II: B-Trees & B+ Trees in Databases - Lecture Notes</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts for Handwriting & Print -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Kalam:wght@300;400;700&family=Patrick+Hand&family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        notebookPaper: '#FAF6EE',
+                        inkBlue: '#1A365D',
+                        inkRed: '#9B2C2C',
+                        pencilGray: '#4A5568',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Shared Notebook Styles -->
+    <link rel="stylesheet" href="../notebook.css">
+</head>
+
+<body class="font-notes-body text-2xl text-slate-800 antialiased transition-all duration-300">
+
+    <!-- Header Navigation Bar -->
+    <header class="sticky top-0 z-50 bg-[#FAF6EE] shadow-md border-b-2 border-amber-200 px-4 py-3 no-print">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-3">
+            <div class="flex items-center space-x-3">
+                <span class="text-3xl font-bold text-inkBlue tracking-wide">📖 Unit II: B-Trees & B+ Trees in
+                    DBMS</span>
+                <span
+                    class="bg-amber-100 text-inkRed text-sm font-bold px-3 py-1 rounded-full border border-amber-300 font-sans">Database
+                    Indexing</span>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <nav class="max-w-6xl mx-auto mt-3 flex flex-wrap gap-1 border-t border-amber-200 pt-2 text-base md:text-lg">
+            <button onclick="switchTab('disk-structure')" id="tab-disk-structure"
+                class="nav-tab px-3 py-1.5 rounded-t-lg font-bold bg-amber-200 text-inkBlue border-b-2 border-inkBlue">
+                1. Disk Structure
+            </button>
+            <button onclick="switchTab('indexing-basics')" id="tab-indexing-basics"
+                class="nav-tab px-3 py-1.5 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
+                2. Indexing & Blocks
+            </button>
+            <button onclick="switchTab('multi-level-indexing')" id="tab-multi-level-indexing"
+                class="nav-tab px-3 py-1.5 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
+                3. Multi-Level Indexing
+            </button>
+            <button onclick="switchTab('m-way-search-trees')" id="tab-m-way-search-trees"
+                class="nav-tab px-3 py-1.5 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
+                4. M-Way Search Trees
+            </button>
+            <button onclick="switchTab('b-and-bplus-trees')" id="tab-b-and-bplus-trees"
+                class="nav-tab px-3 py-1.5 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
+                5. B & B+ Trees
+            </button>
+        </nav>
+    </header>
+
+    <!-- Main Notebook Container -->
+    <main
+        class="max-w-6xl mx-auto flex relative bg-notebookPaper rounded-xl shadow-2xl overflow-hidden min-h-[1000px] border border-amber-200 my-8">
+
+        <!-- Left Binder Column (Spiral Rings) -->
+        <div
+            class="w-10 sm:w-16 bg-amber-50 border-r-2 border-amber-200 flex flex-col items-center py-8 select-none shrink-0 no-print space-y-6 z-10 shadow-[inset_-5px_0_10px_rgba(0,0,0,0.05)]">
+            <script>
+                for (let i = 0; i < 45; i++) document.write('<div class="spiral-ring"></div>');
+            </script>
+        </div>
+
+        <!-- Notebook Content Area -->
+        <div class="flex-1 lined-paper p-4 sm:p-8 notebook-margin sm:pl-8 overflow-hidden z-0">
+
+            <!-- SECTION 1: DISK STRUCTURE -->
+            <section id="sec-disk-structure" class="tab-content block space-y-8">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                        Disk Structure & Hardware Mechanics</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 1</span>
+                </div>
+
+                <div class="space-y-4">
+                    <p>
+                        To understand why database indexing and trees are required, we must look at how data is stored
+                        physically on the hard disk. A physical hard disk is structured like a platter that spins on a
+                        central spindle.
+                    </p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 my-6">
+                        <div class="bg-amber-50/50 p-6 rounded-lg border border-amber-200 shadow-sm space-y-3">
+                            <h3 class="text-3xl font-bold text-inkRed underline">Core Hardware Terms:</h3>
+                            <ul class="list-disc list-inside space-y-2">
+                                <li><strong>Tracks:</strong> Concentric logical circles on a platter. They are numbered
+                                    Track 0, Track 1, Track 2, etc.</li>
+                                <li><strong>Sectors:</strong> Logical wedge-shaped slices that partition the disk.</li>
+                                <li><strong>Blocks:</strong> The intersection of a Track and a Sector. A block is the
+                                    smallest unit of read/write transfer between the disk and memory.</li>
+                                <li><strong>Block Size:</strong> Typically assumed to be <span class="highlighter">512
+                                        bytes</span> for standard database design, but can be larger (e.g., 4KB).</li>
+                                <li><strong>Offsets:</strong> The address of an individual byte inside a block, starting
+                                    at 0 and ending at 511.</li>
+                            </ul>
+                        </div>
+
+                        <div class="flex flex-col items-center">
+                            <span class="text-lg text-pencilGray font-bold mb-2">Interactive Platter Diagram (Hover to
+                                inspect):</span>
+                            <canvas id="disk-canvas" width="400" height="350"
+                                class="border border-slate-300 rounded bg-white shadow"></canvas>
+                            <span id="disk-hover-status" class="text-sm font-sans mt-2 text-inkRed font-bold">Hover over
+                                sectors/tracks to read block coordinates.</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-blue-50/50 border-2 border-dashed border-blue-400 p-4 rounded-lg my-4">
+                        <h4 class="text-2xl font-bold text-inkBlue">Block Addressing Formula:</h4>
+                        <p class="mt-2 text-xl">
+                            Any byte on the physical disk is uniquely addressable using three components:
+                        </p>
+                        <p
+                            class="font-sans font-bold text-2xl text-center bg-white border border-blue-300 py-2 my-2 rounded">
+                            Byte Address = [Track Number] + [Sector Number] + [Byte Offset]
+                        </p>
+                        <p class="text-lg text-pencilGray">
+                            * Note: Hardware reads are always block-level. Even if you want to read just 1 byte at a
+                            specific offset, the entire 512-byte block must be loaded into main memory (RAM).
+                        </p>
+                    </div>
+
+                    <div class="space-y-2">
+                        <h3 class="text-3xl font-bold text-inkBlue mt-6">RAM (Main Memory) vs. Hard Disk (Secondary
+                            Storage):</h3>
+                        <p>
+                            A database program cannot access records directly from the disk. When a query is run, the
+                            relevant blocks must be brought from secondary storage into main memory (RAM) where the CPU
+                            can process them. If changes are made, the memory buffer must be flushed/written back to the
+                            disk blocks.
+                        </p>
+                        <p class="bg-amber-100/50 p-3 rounded border border-amber-300 mt-2 text-xl font-bold">
+                            💡 Concept Definition: Organizing data inside the Main Memory (RAM) for active program
+                            execution is the study of <strong>Data Structures</strong>. Organizing data on the disk
+                            efficiently to minimize disk block accesses is the study of <strong>Database Management
+                                Systems (DBMS)</strong>.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 2: INDEXING BASICS -->
+            <section id="sec-indexing-basics" class="tab-content hidden space-y-8">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                        Database Indexing & Block access Math</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 2</span>
+                </div>
+
+                <div class="space-y-4">
+                    <p>
+                        Let us analyze why we need indexing and how much search time is reduced by calculating the exact
+                        number of block accesses.
+                    </p>
+
+                    <div class="space-y-3 bg-white/70 p-6 rounded-lg border border-slate-300 shadow-sm">
+                        <h3 class="text-3xl font-bold text-inkBlue">Example Scenario (Without Indexing):</h3>
+                        <ul class="list-disc list-inside space-y-2 text-xl">
+                            <li><strong>Database Table:</strong> Employee Table with 100 rows (records).</li>
+                            <li><strong>Record Size:</strong> Each row takes <span class="highlighter">128 bytes</span>
+                                (Employee ID = 10B, Name = 50B, Dept = 10B, etc.).</li>
+                            <li><strong>Block Size:</strong> 512 bytes.</li>
+                        </ul>
+
+                        <div class="border-t border-slate-200 pt-3 mt-3">
+                            <p class="font-bold text-inkRed">Calculations:</p>
+                            <ol class="list-decimal list-inside space-y-1">
+                                <li><strong>Records per Block:</strong> 512 bytes / 128 bytes = <span
+                                        class="font-sans font-bold">4 records/block</span>.</li>
+                                <li><strong>Total Blocks Needed:</strong> 100 records / 4 records per block = <span
+                                        class="font-sans font-bold">25 blocks</span>.</li>
+                                <li><strong>Access Time:</strong> Searching for a random record (e.g. employee ID = 42)
+                                    requires sequentially scanning the table block-by-block. At worst, you must access
+                                    all <span class="highlighter font-sans">25 blocks</span>.</li>
+                            </ol>
+                        </div>
+                    </div>
+
+                    <div class="my-6">
+                        <span class="text-lg text-pencilGray font-bold block mb-2 text-center">Block Partitioning:
+                            Records (128B) vs. Index Entries (16B)</span>
+                        <div class="flex justify-center">
+                            <canvas id="block-canvas" width="600" height="200"
+                                class="border border-slate-300 bg-white rounded shadow"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3 bg-amber-50/50 p-6 rounded-lg border border-amber-200 shadow-sm">
+                        <h3 class="text-3xl font-bold text-inkRed">Example Scenario (With Indexing):</h3>
+                        <p>
+                            We create a <strong>Dense Index</strong>. Each index entry contains:
+                            <span
+                                class="bg-white border border-amber-300 font-sans font-bold text-xl px-2 py-0.5 rounded ml-2">Employee
+                                ID (Key = 10B) + Record Pointer (Pointer = 6B) = 16 bytes</span>.
+                        </p>
+
+                        <div class="border-t border-amber-200 pt-3 mt-3">
+                            <p class="font-bold text-inkBlue">Calculations:</p>
+                            <ol class="list-decimal list-inside space-y-1">
+                                <li><strong>Index Entries per Block:</strong> 512 bytes / 16 bytes = <span
+                                        class="font-sans font-bold">32 entries/block</span>.</li>
+                                <li><strong>Total Index Blocks Needed:</strong> 100 entries / 32 entries per block =
+                                    <span class="font-sans font-bold">4 blocks</span> (3.125 blocks, rounded up).</li>
+                                <li><strong>Access Time:</strong> To search for a record, we read the index blocks.
+                                    Since the index fits in 4 blocks, we read at most <span
+                                        class="font-sans font-bold">4 blocks</span> to find the index entry, retrieve
+                                    the record pointer, and then perform <span class="font-sans font-bold">1 block
+                                        access</span> to retrieve the actual row.</li>
+                                <li class="text-inkBlue font-bold"><strong>Total Blocks Accessed:</strong> 4 Index
+                                    Blocks + 1 Data Block = <span class="highlighter font-sans text-2xl">5 block
+                                        accesses</span> (compared to 25 accesses without indexing!).</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 3: MULTI-LEVEL INDEXING -->
+            <section id="sec-multi-level-indexing" class="tab-content hidden space-y-8">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                        Multi-Level Indexing & Index Scaling</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 3</span>
+                </div>
+
+                <div class="space-y-4">
+                    <p>
+                        As databases scale, index files grow. For example, if a table has 10,000 records, the dense
+                        index file would require:
+                    </p>
+                    <p
+                        class="text-center font-sans font-bold bg-white border border-slate-300 py-1.5 my-2 rounded max-w-md mx-auto">
+                        10,000 / 32 = 313 index blocks!
+                    </p>
+                    <p>
+                        Searching through 313 index blocks sequentially is slow. To solve this, we build a **Multi-Level
+                        Index** (adding a higher-level sparse index on top of the first-level index).
+                    </p>
+
+                    <div class="bg-amber-50/50 p-6 rounded-lg border border-amber-200 my-4 space-y-4">
+                        <h3 class="text-3xl font-bold text-inkRed underline">Sparse High-Level Indexing Rules:</h3>
+                        <p>
+                            Instead of creating an entry for every single row, a higher-level index contains only one
+                            entry per *block* of the lower-level index.
+                        </p>
+                        <ul class="list-disc list-inside space-y-2 pl-4">
+                            <li><strong>Level 1 Index (Dense):</strong> Has 10,000 entries (takes 313 blocks).</li>
+                            <li><strong>Level 2 Index (Sparse):</strong> Stores the starting key value of each of the
+                                313 blocks. It only needs <span class="font-bold">313 entries</span>.</li>
+                            <li><strong>Level 2 Blocks:</strong> 313 entries / 32 entries per block = <span
+                                    class="font-sans font-bold">10 blocks</span>.</li>
+                            <li><strong>Level 3 Index (Sparse):</strong> Stores the starting key of each of the 10
+                                blocks (10 entries). It easily fits in <span class="font-sans font-bold">1 block</span>!
+                            </li>
+                        </ul>
+                        <div class="border-t border-amber-200 pt-3 mt-3">
+                            <p class="font-bold text-inkBlue">Total Block Accesses for search:</p>
+                            <p
+                                class="font-sans font-bold bg-white inline-block px-3 py-1 rounded border border-amber-300 shadow-sm mt-1">
+                                1 (Level 3 Block) + 1 (Level 2 Block) + 1 (Level 1 Block) + 1 (Data Block) = 4 Block
+                                Accesses total!
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <h3 class="text-3xl font-bold text-inkBlue mt-6">Self-Managing Hierarchical Trees:</h3>
+                        <p>
+                            Manually updating multi-level indices when records are inserted or deleted is highly
+                            complex. If database size increases, we must automatically add index levels. If records are
+                            deleted, we should reduce them.
+                        </p>
+                        <p class="bg-blue-100/50 p-4 rounded border border-blue-300 mt-2">
+                            💡 **The Goal:** We need a **self-managing, self-balancing multi-level indexing structure**
+                            that automatically handles insertions, deletions, block splitting, and merges dynamically.
+                            This directly leads to the invention of B-Trees and B+ Trees!
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 4: M-WAY SEARCH TREES -->
+            <section id="sec-m-way-search-trees" class="tab-content hidden space-y-8">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                        M-Way Search Trees & Index Nodes</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 4</span>
+                </div>
+
+                <div class="space-y-4">
+                    <p>
+                        Before studying B-Trees, we look at their predecessor: the **M-Way Search Tree**. While a Binary
+                        Search Tree (BST) allows only 1 key and at most 2 children per node, an M-Way tree allows
+                        multiple keys and children.
+                    </p>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 my-6">
+                        <div class="space-y-3">
+                            <h3 class="text-3xl font-bold text-inkRed underline">M-Way Search Tree Rules:</h3>
+                            <ul class="list-disc list-inside space-y-2 text-xl">
+                                <li>Each node has at most <span class="font-sans font-bold">M children</span>.</li>
+                                <li>Each node contains at most <span class="font-sans font-bold">M - 1 sorted
+                                        keys</span>.</li>
+                                <li>Subtrees are split by key bounds:
+                                    <ul class="list-circle list-inside pl-6 space-y-1 mt-1 text-lg">
+                                        <li>Left child contains keys $&lt; K_1$.</li>
+                                        <li>Middle child contains keys between $K_1$ and $K_2$.</li>
+                                        <li>Right child contains keys $&gt; K_2$.</li>
+                                    </ul>
+                                </li>
+                                <li>M is the <strong>degree</strong> of the tree.</li>
+                            </ul>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <span class="text-lg text-pencilGray font-bold mb-2">Structure of a 4-Way Node (3 Keys + 4
+                                Child Pointers):</span>
+                            <canvas id="mway-canvas" width="450" height="150"
+                                class="border border-slate-300 rounded bg-white shadow"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="bg-amber-50/50 p-6 rounded-lg border border-amber-200">
+                        <h3 class="text-3xl font-bold text-inkBlue underline mb-2">The Unbalanced Height Problem:</h3>
+                        <p>
+                            In standard M-Way search trees, there is **no rule** stating how full a node must be. If
+                            keys are inserted sequentially (e.g. 10, 20, 30, 40), we can end up creating long linear
+                            chains of nodes with single keys, resulting in a height of $H = N$. This defeats the purpose
+                            of indexing and degrades performance back to linear search.
+                        </p>
+                        <p class="mt-2 font-bold text-inkRed">
+                            🚨 Solution: We must impose strict height-balancing and node-filling rules. A B-Tree is
+                            simply an M-Way Search Tree governed by balancing rules.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 5: B-TREES & B+ TREES -->
+            <section id="sec-b-and-bplus-trees" class="tab-content hidden space-y-8">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                        B-Trees vs. B+ Trees</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 5</span>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="bg-amber-50/50 p-6 rounded-lg border border-amber-200 space-y-2 shadow-sm">
+                        <h3 class="text-3xl font-bold text-inkRed underline mb-2">Defining Rules of B-Trees:</h3>
+                        <ol class="list-decimal list-inside space-y-2">
+                            <li><strong>Minimum Children:</strong> Every node (except the root) must contain at least
+                                <span class="font-sans font-bold">&lceil;M/2&rceil;</span> child pointers. This ensures
+                                the tree is always at least half-full.</li>
+                            <li><strong>Root Node:</strong> The root must have at least 2 children (unless it is a
+                                leaf).</li>
+                            <li><strong>Leaf Uniformity:</strong> All leaf nodes must be at the exact same depth level.
+                            </li>
+                            <li><strong>Bottom-Up Growth:</strong> Unlike BSTs, B-Trees grow from the bottom up. When a
+                                node overflows ($keys &gt; M-1$), it splits, and the median key is pushed up to the
+                                parent.</li>
+                        </ol>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 my-6">
+                        <div class="space-y-3">
+                            <h3 class="text-3xl font-bold text-inkBlue underline">Key Differences: B-Tree vs B+ Tree
+                            </h3>
+                            <table class="w-full border-collapse border border-slate-300 text-lg">
+                                <thead>
+                                    <tr class="bg-amber-100/50">
+                                        <th class="border border-slate-300 p-2">Feature</th>
+                                        <th class="border border-slate-300 p-2 text-inkBlue">B-Tree</th>
+                                        <th class="border border-slate-300 p-2 text-inkRed">B+ Tree</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="border border-slate-300 p-2 font-bold">Record Pointers</td>
+                                        <td class="border border-slate-300 p-2">Stored at all levels next to keys.</td>
+                                        <td class="border border-slate-300 p-2">Stored **only** in leaf nodes.</td>
+                                    </tr>
+                                    <tr class="bg-slate-50/50">
+                                        <td class="border border-slate-300 p-2 font-bold">Key Duplication</td>
+                                        <td class="border border-slate-300 p-2">All keys are unique.</td>
+                                        <td class="border border-slate-300 p-2">Inner keys are duplicated in leaves.
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="border border-slate-300 p-2 font-bold">Leaf Linking</td>
+                                        <td class="border border-slate-300 p-2">Leaf nodes are independent.</td>
+                                        <td class="border border-slate-300 p-2">Leaves are linked like a Linked List.
+                                        </td>
+                                    </tr>
+                                    <tr class="bg-slate-50/50">
+                                        <td class="border border-slate-300 p-2 font-bold">Index Type</td>
+                                        <td class="border border-slate-300 p-2">Mixed index model.</td>
+                                        <td class="border border-slate-300 p-2">Dense leaves, sparse inner levels.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <span class="text-lg text-pencilGray font-bold mb-2">Visual Node Comparison (Pointers
+                                locations):</span>
+                            <canvas id="comparison-canvas" width="450" height="280"
+                                class="border border-slate-300 rounded bg-white shadow"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="border-t-2 border-dashed border-slate-300 pt-6">
+                        <h3 class="text-3xl font-bold text-inkBlue mb-4">Interactive B-Tree Insertion Simulator:</h3>
+                        <p class="mb-4">
+                            Type a key and click "Insert" to build a 4-Way B-Tree. If a node reaches 4 keys, it splits,
+                            and the median key moves up to form the parent node.
+                        </p>
+
+                        <div
+                            class="bg-white p-4 rounded-lg border border-slate-300 shadow-sm flex flex-col items-center">
+                            <div class="flex gap-2 mb-4 w-full max-w-sm justify-center">
+                                <input type="number" id="insert-key-input" placeholder="Key (e.g. 20)"
+                                    class="border-2 border-amber-300 rounded px-3 py-1 font-sans text-lg focus:outline-none focus:border-inkBlue w-36">
+                                <button onclick="handleSimulatorInsert()"
+                                    class="bg-inkBlue text-white hover:bg-slate-700 font-bold px-4 py-1.5 rounded transition shadow">Insert
+                                    Key</button>
+                                <button onclick="resetSimulator()"
+                                    class="bg-inkRed text-white hover:bg-red-800 font-bold px-4 py-1.5 rounded transition shadow">Reset</button>
+                            </div>
+                            <canvas id="split-canvas" width="650" height="250"
+                                class="border border-slate-200 rounded bg-slate-50/50 max-w-full"></canvas>
+                            <div id="sim-status" class="mt-2 text-sm font-sans font-bold text-pencilGray">Simulator
+                                Status: Empty tree. Degree = 4 (Max 3 keys per node).</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Visual Drawings Javascript Code -->
+    <script>
+        // Tab switching logic
+        let currentTab = 'disk-structure';
+        function switchTab(tabId) {
+            currentTab = tabId;
+            document.querySelectorAll('.tab-content').forEach(sec => {
+                sec.classList.remove('block');
+                sec.classList.add('hidden');
+            });
+            document.getElementById('sec-' + tabId).classList.remove('hidden');
+            document.getElementById('sec-' + tabId).classList.add('block');
+
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('bg-amber-200', 'text-inkBlue', 'border-b-2', 'border-inkBlue');
+                tab.classList.add('text-gray-600', 'hover:text-inkBlue');
+            });
+
+            const activeTab = document.getElementById('tab-' + tabId);
+            if (activeTab) {
+                activeTab.classList.remove('text-gray-600', 'hover:text-inkBlue');
+                activeTab.classList.add('bg-amber-200', 'text-inkBlue', 'border-b-2', 'border-inkBlue');
+            }
+
+            // Redraw active tab canvas elements
+            setTimeout(() => {
+                drawDiskPlatter();
+                drawBlockLayout();
+                drawMwayNode();
+                drawComparisonDiagram();
+                drawBTreeSimulation();
+            }, 50);
+        }
+
+        window.onresize = () => {
+            drawDiskPlatter();
+            drawBlockLayout();
+            drawMwayNode();
+            drawComparisonDiagram();
+            drawBTreeSimulation();
+        };
+
+        // -------------------------------------------------------------
+        // 1. Disk Platter Canvas
+        // -------------------------------------------------------------
+        const diskCanvas = document.getElementById('disk-canvas');
+        const diskStatus = document.getElementById('disk-hover-status');
+        let diskMouseX = -1;
+        let diskMouseY = -1;
+
+        if (diskCanvas) {
+            diskCanvas.addEventListener('mousemove', (e) => {
+                const rect = diskCanvas.getBoundingClientRect();
+                diskMouseX = e.clientX - rect.left;
+                diskMouseY = e.clientY - rect.top;
+                drawDiskPlatter();
+            });
+            diskCanvas.addEventListener('mouseleave', () => {
+                diskMouseX = -1;
+                diskMouseY = -1;
+                diskStatus.innerText = "Hover over sectors/tracks to read block coordinates.";
+                drawDiskPlatter();
+            });
+        }
+
+        function drawDiskPlatter() {
+            if (!diskCanvas) return;
+            const ctx = diskCanvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+
+            // Adjust coordinates for screen DPI
+            const w = diskCanvas.width;
+            const h = diskCanvas.height;
+
+            ctx.clearRect(0, 0, w, h);
+
+            const cx = w / 2;
+            const cy = h / 2 - 10;
+            const maxRadius = Math.min(w, h) / 2 - 30;
+
+            // Track radii definition
+            const tracks = [maxRadius * 0.4, maxRadius * 0.6, maxRadius * 0.8, maxRadius];
+            const sectorCount = 6;
+
+            // Spindle circle drawing
+            ctx.beginPath();
+            ctx.arc(cx, cy, 15, 0, Math.PI * 2);
+            ctx.fillStyle = '#64748b';
+            ctx.fill();
+            ctx.stroke();
+
+            // Hover logic calculations
+            let hoveredTrack = -1;
+            let hoveredSector = -1;
+
+            if (diskMouseX !== -1 && diskMouseY !== -1) {
+                const dx = diskMouseX - cx;
+                const dy = diskMouseY - cy;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                let angle = Math.atan2(dy, dx);
+                if (angle < 0) angle += Math.PI * 2;
+
+                // Track check
+                for (let i = 0; i < tracks.length; i++) {
+                    const innerR = i === 0 ? 15 : tracks[i - 1];
+                    const outerR = tracks[i];
+                    if (dist >= innerR && dist <= outerR) {
+                        hoveredTrack = i;
+                        break;
+                    }
+                }
+
+                // Sector check
+                if (hoveredTrack !== -1) {
+                    const secAngle = (Math.PI * 2) / sectorCount;
+                    hoveredSector = Math.floor(angle / secAngle);
+                }
+            }
+
+            // Update UI status text
+            if (hoveredTrack !== -1 && hoveredSector !== -1) {
+                diskStatus.innerText = `🔍 BLOCK IDENTIFIED: Track ${hoveredTrack}, Sector ${hoveredSector}`;
+            }
+
+            // Draw platter concentric sectors & tracks
+            for (let t = 0; t < tracks.length; t++) {
+                const outerR = tracks[t];
+                const innerR = t === 0 ? 15 : tracks[t - 1];
+
+                for (let s = 0; s < sectorCount; s++) {
+                    const startAngle = (s * Math.PI * 2) / sectorCount;
+                    const endAngle = ((s + 1) * Math.PI * 2) / sectorCount;
+
+                    ctx.beginPath();
+                    ctx.arc(cx, cy, outerR, startAngle, endAngle);
+                    ctx.arc(cx, cy, innerR, endAngle, startAngle, true);
+                    ctx.closePath();
+
+                    if (t === hoveredTrack && s === hoveredSector) {
+                        ctx.fillStyle = '#fef08a'; // Highlight block
+                    } else {
+                        ctx.fillStyle = (t + s) % 2 === 0 ? '#fafaf9' : '#f5f5f4';
+                    }
+                    ctx.fill();
+                    ctx.strokeStyle = '#cbd5e1';
+                    ctx.stroke();
+                }
+            }
+
+            // Label tracks
+            ctx.fillStyle = '#9b2c2c';
+            ctx.font = 'bold 12px Kalam';
+            for (let t = 0; t < tracks.length; t++) {
+                ctx.fillText(`Tr ${t}`, cx + tracks[t] - 25, cy - 4);
+            }
+
+            // Draw spindle line header
+            ctx.strokeStyle = '#4a5568';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(cx, cy);
+            ctx.lineTo(w - 60, h - 60);
+            ctx.stroke();
+
+            ctx.fillStyle = '#1e3a8a';
+            ctx.beginPath();
+            ctx.arc(w - 60, h - 60, 6, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // -------------------------------------------------------------
+        // 2. Block Layout Canvas
+        // -------------------------------------------------------------
+        function drawBlockLayout() {
+            const canvas = document.getElementById('block-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Left Container (Records: 4 * 128B)
+            ctx.strokeStyle = '#1e3a8a';
+            ctx.lineWidth = 2.5;
+            ctx.strokeRect(20, 40, 240, 120);
+            ctx.fillStyle = '#eff6ff';
+            ctx.fillRect(20, 40, 240, 120);
+
+            ctx.fillStyle = '#1e3a8a';
+            ctx.font = 'bold 16px Kalam';
+            ctx.fillText("Data Block: 512 Bytes (Unindexed)", 20, 30);
+
+            for (let i = 0; i < 4; i++) {
+                const x = 20 + i * 60;
+                ctx.strokeRect(x, 40, 60, 120);
+                ctx.fillStyle = '#1a365d';
+                ctx.font = 'bold 12px Inter';
+                ctx.fillText(`Rec ${i}`, x + 15, 90);
+                ctx.font = '10px Inter';
+                ctx.fillText(`128 B`, x + 18, 110);
+            }
+
+            // Right Container (Indices: 32 * 16B)
+            ctx.strokeStyle = '#9b2c2c';
+            ctx.strokeRect(320, 40, 260, 120);
+            ctx.fillStyle = '#fef2f2';
+            ctx.fillRect(320, 40, 260, 120);
+
+            ctx.fillStyle = '#9b2c2c';
+            ctx.font = 'bold 16px Kalam';
+            ctx.fillText("Index Block: 512 Bytes (Dense)", 320, 30);
+
+            const itemWidth = 32.5;
+            const itemHeight = 30;
+            for (let row = 0; row < 4; row++) {
+                for (let col = 0; col < 8; col++) {
+                    const idx = row * 8 + col;
+                    const x = 320 + col * itemWidth;
+                    const y = 40 + row * itemHeight;
+                    ctx.strokeRect(x, y, itemWidth, itemHeight);
+                    ctx.fillStyle = '#4a5568';
+                    ctx.font = 'bold 9px Inter';
+                    ctx.fillText(`K+P`, x + 7, y + 15);
+                    ctx.font = '7px Inter';
+                    ctx.fillText(`16B`, x + 9, y + 26);
+                }
+            }
+        }
+
+        // -------------------------------------------------------------
+        // 3. M-Way Search Node Layout
+        // -------------------------------------------------------------
+        function drawMwayNode() {
+            const canvas = document.getElementById('mway-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Frame container
+            const startX = 35;
+            const startY = 40;
+            const cellW = 55;
+            const cellH = 60;
+
+            ctx.strokeStyle = '#1e3a8a';
+            ctx.lineWidth = 2.5;
+
+            // Drawing the structured compartments
+            const comps = [
+                { type: 'ptr', txt: 'P 0' },
+                { type: 'key', txt: 'Key 1' },
+                { type: 'rec', txt: 'Rec 1' },
+                { type: 'ptr', txt: 'P 1' },
+                { type: 'key', txt: 'Key 2' },
+                { type: 'rec', txt: 'Rec 2' },
+                { type: 'ptr', txt: 'P 2' }
+            ];
+
+            comps.forEach((comp, idx) => {
+                const x = startX + idx * cellW;
+                ctx.strokeRect(x, startY, cellW, cellH);
+
+                if (comp.type === 'ptr') {
+                    ctx.fillStyle = '#f8fafc';
+                    ctx.fillRect(x, startY, cellW, cellH);
+                    ctx.fillStyle = '#475569';
+                    ctx.font = 'bold 14px Kalam';
+                    ctx.fillText(comp.txt, x + 16, startY + 35);
+
+                    // Pointer arrow line
+                    ctx.strokeStyle = '#94a3b8';
+                    ctx.beginPath();
+                    ctx.arc(x + cellW / 2, startY + cellH / 2, 4, 0, Math.PI * 2);
+                    ctx.fillStyle = '#64748b';
+                    ctx.fill();
+
+                    ctx.beginPath();
+                    ctx.moveTo(x + cellW / 2, startY + cellH / 2);
+                    ctx.lineTo(x + cellW / 2, startY + cellH + 20);
+                    ctx.stroke();
+                } else if (comp.type === 'key') {
+                    ctx.fillStyle = '#e0f2fe';
+                    ctx.fillRect(x, startY, cellW, cellH);
+                    ctx.fillStyle = '#0369a1';
+                    ctx.font = 'bold 13px Inter';
+                    ctx.fillText(comp.txt, x + 8, startY + 35);
+                } else {
+                    ctx.fillStyle = '#fee2e2';
+                    ctx.fillRect(x, startY, cellW, cellH);
+                    ctx.fillStyle = '#b91c1c';
+                    ctx.font = 'bold 12px Inter';
+                    ctx.fillText(comp.txt, x + 10, startY + 35);
+
+                    // Arrow to database file record
+                    ctx.strokeStyle = '#b91c1c';
+                    ctx.beginPath();
+                    ctx.moveTo(x + cellW / 2, startY + cellH / 2);
+                    ctx.lineTo(x + cellW / 2 + 20, startY - 20);
+                    ctx.stroke();
+                }
+            });
+
+            ctx.fillStyle = '#1e3a8a';
+            ctx.font = 'bold 15px Kalam';
+            ctx.fillText("4-Way Index Search Node Layout (M=4, Keys=3, Child-pointers=4)", startX, 25);
+        }
+
+        // -------------------------------------------------------------
+        // 4. B-Tree vs B+ Tree Node Comparison
+        // -------------------------------------------------------------
+        function drawComparisonDiagram() {
+            const canvas = document.getElementById('comparison-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            ctx.font = 'bold 16px Kalam';
+
+            // 1. B-Tree Segment
+            ctx.fillStyle = '#1e3a8a';
+            ctx.fillText("B-Tree (Intermediate Node):", 20, 30);
+
+            ctx.strokeStyle = '#1e3a8a';
+            ctx.lineWidth = 2;
+            const bx = 20, by = 45;
+            const cellW = 40;
+            for (let i = 0; i < 5; i++) {
+                ctx.strokeRect(bx + i * cellW, by, cellW, 50);
+                ctx.fillStyle = i % 2 === 0 ? '#f1f5f9' : '#e0f2fe';
+                ctx.fillRect(bx + i * cellW, by, cellW, 50);
+            }
+            // Add labels
+            ctx.fillStyle = '#475569'; ctx.font = '12px Inter';
+            ctx.fillText("P0", bx + 12, by + 30);
+            ctx.fillText("P1", bx + 92, by + 30);
+            ctx.fillText("P2", bx + 172, by + 30);
+            ctx.fillStyle = '#0369a1'; ctx.font = 'bold 12px Inter';
+            ctx.fillText("K1", bx + 52, by + 22);
+            ctx.fillText("K2", bx + 132, by + 22);
+
+            // Record pointers indicators in B-tree node
+            ctx.fillStyle = '#b91c1c'; ctx.font = 'bold 9px Inter';
+            ctx.fillText("Rec*", bx + 50, by + 40);
+            ctx.fillText("Rec*", bx + 130, by + 40);
+
+            // 2. B+ Tree Segment
+            ctx.fillStyle = '#9b2c2c'; ctx.font = 'bold 16px Kalam';
+            ctx.fillText("B+ Tree (Intermediate Node):", 20, 140);
+
+            const bpx = 20, bpy = 155;
+            for (let i = 0; i < 5; i++) {
+                ctx.strokeRect(bpx + i * cellW, bpy, cellW, 50);
+                ctx.fillStyle = i % 2 === 0 ? '#f8fafc' : '#fee2e2';
+                ctx.fillRect(bpx + i * cellW, bpy, cellW, 50);
+            }
+            ctx.fillStyle = '#475569'; ctx.font = '12px Inter';
+            ctx.fillText("P0", bpx + 12, bpy + 30);
+            ctx.fillText("P1", bpx + 92, bpy + 30);
+            ctx.fillText("P2", bpx + 172, bpy + 30);
+            ctx.fillStyle = '#b91c1c'; ctx.font = 'bold 12px Inter';
+            ctx.fillText("K1", bpx + 52, bpy + 30);
+            ctx.fillText("K2", bpx + 132, bpy + 30);
+
+            // Annotations details box
+            ctx.fillStyle = '#fef3c7';
+            ctx.fillRect(240, 45, 190, 160);
+            ctx.strokeStyle = '#d97706';
+            ctx.strokeRect(240, 45, 190, 160);
+
+            ctx.fillStyle = '#d97706';
+            ctx.font = 'bold 12px Inter';
+            ctx.fillText("📌 KEY TAKEAWAY:", 250, 65);
+            ctx.fillStyle = '#1e293b';
+            ctx.font = '11px Inter';
+            ctx.fillText("- B-Tree stores record", 250, 85);
+            ctx.fillText("  pointers at all levels.", 250, 100);
+            ctx.fillText("- B+ Tree stores pointers", 250, 120);
+            ctx.fillText("  ONLY at the leaf level.", 250, 135);
+            ctx.fillText("- This allows B+ Tree inner", 250, 155);
+            ctx.fillText("  nodes to store more keys,", 250, 170);
+            ctx.fillText("  increasing degree branching.", 250, 185);
+
+            // Draw link pointer between leaves in B+ Tree bottom
+            ctx.strokeStyle = '#059669';
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            ctx.moveTo(20, 250);
+            ctx.lineTo(120, 250);
+            ctx.moveTo(120, 250);
+            ctx.lineTo(110, 245);
+            ctx.moveTo(120, 250);
+            ctx.lineTo(110, 255);
+            ctx.stroke();
+
+            ctx.fillStyle = '#059669';
+            ctx.font = 'bold 13px Kalam';
+            ctx.fillText("Sequential Leaf Linked Chain Pointer", 135, 255);
+        }
+
+        // -------------------------------------------------------------
+        // 5. B-Tree Bottom-Up Split Visualizer
+        // -------------------------------------------------------------
+        class BTreeNode {
+            constructor(isLeaf = true) {
+                this.isLeaf = isLeaf;
+                this.keys = [];
+                this.children = [];
+            }
+        }
+
+        class BTree {
+            constructor(degree = 4) {
+                this.degree = degree; // max children = 4, max keys = 3
+                this.root = new BTreeNode(true);
+            }
+
+            insert(key) {
+                const root = this.root;
+                if (root.keys.length === this.degree - 1) {
+                    // Root is full, split it
+                    const newRoot = new BTreeNode(false);
+                    newRoot.children.push(root);
+                    this.splitChild(newRoot, 0, root);
+                    this.root = newRoot;
+                    this.insertNonFull(newRoot, key);
+                } else {
+                    this.insertNonFull(root, key);
+                }
+            }
+
+            insertNonFull(node, key) {
+                let i = node.keys.length - 1;
+                if (node.isLeaf) {
+                    // Check duplicate
+                    if (node.keys.includes(key)) return;
+                    node.keys.push(key);
+                    node.keys.sort((a, b) => a - b);
+                } else {
+                    while (i >= 0 && key < node.keys[i]) {
+                        i--;
+                    }
+                    i++;
+                    let child = node.children[i];
+                    if (child.keys.length === this.degree - 1) {
+                        this.splitChild(node, i, child);
+                        if (key > node.keys[i]) {
+                            i++;
+                        }
+                    }
+                    this.insertNonFull(node.children[i], key);
+                }
+            }
+
+            splitChild(parent, index, child) {
+                const degree = this.degree;
+                const medianIdx = Math.floor((degree - 1) / 2); // e.g. for M=4, median is 1 (keys index 0, 1, 2)
+                const promotedKey = child.keys[medianIdx];
+
+                const sibling = new BTreeNode(child.isLeaf);
+
+                // Partition keys
+                sibling.keys = child.keys.slice(medianIdx + 1);
+                child.keys = child.keys.slice(0, medianIdx);
+
+                // Partition children pointers
+                if (!child.isLeaf) {
+                    sibling.children = child.children.slice(medianIdx + 1);
+                    child.children = child.children.slice(0, medianIdx + 1);
+                }
+
+                // Insert key and child pointer to parent node
+                parent.keys.splice(index, 0, promotedKey);
+                parent.children.splice(index + 1, 0, sibling);
+            }
+        }
+
+        const simTree = new BTree(4);
+        // Load default initial key inserts
+        [10, 20, 30].forEach(k => simTree.insert(k));
+
+        function handleSimulatorInsert() {
+            const input = document.getElementById('insert-key-input');
+            const status = document.getElementById('sim-status');
+            if (!input) return;
+            const val = parseInt(input.value);
+            if (isNaN(val)) {
+                alert("Please enter a valid numeric key.");
+                return;
+            }
+
+            simTree.insert(val);
+            input.value = '';
+            status.innerText = `Inserted Key: ${val} successfully. Node split triggered if keys exceeded 3.`;
+            drawBTreeSimulation();
+        }
+
+        function resetSimulator() {
+            simTree.root = new BTreeNode(true);
+            [10, 20, 30].forEach(k => simTree.insert(k));
+            document.getElementById('sim-status').innerText = "Simulator reset to initial state (10, 20, 30).";
+            drawBTreeSimulation();
+        }
+
+        function drawBTreeSimulation() {
+            const canvas = document.getElementById('split-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Build visual positions for nodes recursively
+            const nodeWidths = [];
+
+            // Basic layout structure
+            function getTreeDepth(node) {
+                if (node.isLeaf) return 1;
+                return 1 + getTreeDepth(node.children[0]);
+            }
+
+            const depth = getTreeDepth(simTree.root);
+
+            // Recursive draw helper
+            function drawNode(node, x, y, dx) {
+                const nodeKeysText = node.keys.join(" | ");
+                const boxW = Math.max(70, node.keys.length * 28 + 10);
+                const boxH = 32;
+
+                // Draw node block
+                ctx.strokeStyle = '#1e3a8a';
+                ctx.lineWidth = 2.5;
+                ctx.fillStyle = '#eff6ff';
+                ctx.fillRect(x - boxW / 2, y, boxW, boxH);
+                ctx.strokeRect(x - boxW / 2, y, boxW, boxH);
+
+                ctx.fillStyle = '#1a365d';
+                ctx.font = 'bold 15px Inter';
+                ctx.textAlign = 'center';
+                ctx.fillText(nodeKeysText, x, y + 21);
+
+                if (!node.isLeaf) {
+                    const childCount = node.children.length;
+                    const spacing = dx;
+                    const startChildX = x - ((childCount - 1) * spacing) / 2;
+
+                    for (let i = 0; i < childCount; i++) {
+                        const childX = startChildX + i * spacing;
+                        const childY = y + 80;
+
+                        // Draw child connection pointer line
+                        ctx.strokeStyle = '#64748b';
+                        ctx.lineWidth = 1.5;
+                        ctx.beginPath();
+                        ctx.moveTo(x - boxW / 2 + (i * (boxW / childCount)) + (boxW / (2 * childCount)), y + boxH);
+                        ctx.lineTo(childX, childY);
+                        ctx.stroke();
+
+                        drawNode(node.children[i], childX, childY, dx / 2.3);
+                    }
+                }
+            }
+
+            ctx.textAlign = 'center';
+            drawNode(simTree.root, canvas.width / 2, 35, 190);
+        }
+
+        // Initialize all diagrams on window load
+        window.onload = () => {
+            switchTab('disk-structure');
+        };
+    </script>
+</body>
+
+</html>

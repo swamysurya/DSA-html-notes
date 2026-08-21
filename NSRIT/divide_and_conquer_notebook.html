@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Divide and Conquer - Lecture Notes</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts for Handwriting & Print -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Kalam:wght@300;400;700&family=Patrick+Hand&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        notebookPaper: '#FAF6EE',
+                        inkBlue: '#1A365D',
+                        inkRed: '#9B2C2C',
+                        pencilGray: '#4A5568',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Shared Notebook Styles -->
+    <link rel="stylesheet" href="../notebook.css">
+</head>
+
+<body class="font-notes-body text-2xl text-slate-800 antialiased transition-all duration-300">
+
+    <!-- Header Navigation Bar -->
+    <header class="sticky top-0 z-50 bg-[#FAF6EE] shadow-md border-b-2 border-amber-200 px-4 py-3 no-print">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-3">
+            <div class="flex items-center space-x-3">
+                <span class="text-3xl font-bold text-inkBlue tracking-wide">📖 Part III: Divide and Conquer</span>
+                <span class="bg-amber-100 text-inkRed text-sm font-bold px-3 py-1 rounded-full border border-amber-300 font-sans">Design Paradigms</span>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <nav class="max-w-6xl mx-auto mt-3 flex flex-wrap gap-1 border-t border-amber-200 pt-2 text-base md:text-lg">
+            <button onclick="switchTab('general-method')" id="tab-general-method" class="nav-tab px-3 py-1.5 rounded-t-lg font-bold bg-amber-200 text-inkBlue border-b-2 border-inkBlue">
+                1. General Method
+            </button>
+            <button onclick="switchTab('merge-sort')" id="tab-merge-sort" class="nav-tab px-3 py-1.5 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
+                2. Merge Sort
+            </button>
+            <button onclick="switchTab('quick-sort')" id="tab-quick-sort" class="nav-tab px-3 py-1.5 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
+                3. Quick Sort
+            </button>
+            <button onclick="switchTab('strassen')" id="tab-strassen" class="nav-tab px-3 py-1.5 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
+                4. Strassen's Matrix
+            </button>
+            <button onclick="switchTab('convex-hull')" id="tab-convex-hull" class="nav-tab px-3 py-1.5 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
+                5. Convex Hull
+            </button>
+        </nav>
+    </header>
+
+    <!-- Main Notebook Container -->
+    <main class="max-w-6xl mx-auto flex relative bg-notebookPaper rounded-xl shadow-2xl overflow-hidden min-h-[1000px] border border-amber-200 my-8">
+        
+        <!-- Left Binder Column (Spiral Rings) -->
+        <div class="w-10 sm:w-16 bg-amber-50 border-r-2 border-amber-200 flex flex-col items-center py-8 select-none shrink-0 no-print space-y-6 z-10 shadow-[inset_-5px_0_10px_rgba(0,0,0,0.05)]">
+            <script>
+                for(let i=0; i<45; i++) document.write('<div class="spiral-ring"></div>');
+            </script>
+        </div>
+
+        <!-- Notebook Content Area -->
+        <div class="flex-1 lined-paper p-4 sm:p-8 notebook-margin sm:pl-8 overflow-hidden z-0">
+
+            <!-- SECTION 1: GENERAL METHOD & AVL TREES -->
+            <section id="sec-general-method" class="tab-content block space-y-8">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">Divide & Conquer Method & AVL Trees</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 1</span>
+                </div>
+
+                <div class="space-y-4">
+                    <h3 class="text-3xl font-bold text-inkRed underline">General Method Concept:</h3>
+                    <p>
+                        Divide and Conquer is a fundamental algorithm design paradigm. It works by:
+                    </p>
+                    <ul class="list-disc list-inside space-y-2 ml-4">
+                        <li><strong>Divide:</strong> The main problem is broken down into smaller, similar sub-problems.</li>
+                        <li><strong>Conquer:</strong> The sub-problems are solved recursively. If they are small enough, they are solved directly (base case).</li>
+                        <li><strong>Combine:</strong> The solutions of all sub-problems are merged back together to formulate the final answer.</li>
+                    </ul>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 my-6">
+                        <div class="bg-amber-50/50 p-6 rounded-lg border border-amber-200 space-y-3">
+                            <h4 class="text-2xl font-bold text-inkBlue">Algorithm Structure:</h4>
+                            <pre class="font-sans text-lg bg-white p-3 rounded border border-slate-300">
+DAC(p) {
+    if (small(p)) {
+        return S(p); // Solve directly
+    } else {
+        divide p into p1, p2, ..., pn
+        Apply DAC(p1), DAC(p2), ...
+        return Combine(DAC(p1), DAC(p2), ...)
+    }
+}</pre>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <span class="text-lg text-pencilGray font-bold mb-2">Recursive Partitioning Flow:</span>
+                            <canvas id="dac-canvas" width="400" height="230" class="border border-slate-300 rounded bg-white shadow"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="border-t-2 border-dashed border-slate-300 pt-6 space-y-4">
+                        <h3 class="text-3xl font-bold text-inkRed underline">Dry Run Example: Building an AVL Tree</h3>
+                        <p>
+                            To maintain balance in binary search structures, AVL trees recalculate balance factors upon inserts. Below is the dry run for inserting:
+                            <span class="bg-white border border-slate-300 font-sans font-bold px-2 py-0.5 rounded">50, 30, 70, 25, 35, 62, 75</span>.
+                        </p>
+                        
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 my-4">
+                            <div class="space-y-2 text-xl bg-slate-50/60 p-4 rounded border border-slate-300">
+                                <ol class="list-decimal list-inside space-y-2">
+                                    <li><strong>Insert 50:</strong> Root node created (BF = 0).</li>
+                                    <li><strong>Insert 30:</strong> Left child of 50. BF of 50 becomes $1 - 0 = 1$.</li>
+                                    <li><strong>Insert 70:</strong> Right child of 50. BF of 50 becomes 0.</li>
+                                    <li><strong>Insert 25:</strong> Left child of 30. BF of 50 becomes $2 - 1 = 1$.</li>
+                                    <li><strong>Insert 35:</strong> Right child of 30. Tree remains balanced.</li>
+                                    <li><strong>Insert 62:</strong> Left child of 70. BF of 50 becomes $2 - 2 = 0$.</li>
+                                    <li><strong>Insert 75:</strong> Right child of 70. Balanced leaf level reached.</li>
+                                </ol>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <span class="text-lg text-pencilGray font-bold mb-2">Final AVL Tree Structure (BF shown inside):</span>
+                                <canvas id="avl-canvas" width="400" height="240" class="border border-slate-300 rounded bg-white shadow"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 2: MERGE SORT -->
+            <section id="sec-merge-sort" class="tab-content hidden space-y-8">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">Merge Sort Sort & Division Tree</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 2</span>
+                </div>
+
+                <div class="space-y-4">
+                    <p>
+                        Merge sort is a recursive algorithm that repeatedly divides a list in half until individual elements are isolated, then merges them back in sorted order.
+                    </p>
+
+                    <div class="bg-amber-50/50 p-6 rounded-lg border border-amber-200 my-4 space-y-3">
+                        <h3 class="text-2xl font-bold text-inkBlue">Algorithm Definition:</h3>
+                        <pre class="font-sans text-lg bg-white p-3 rounded border border-slate-300">
+Algorithm MergeSort(l, h) {
+    if (l < h) {
+        mid = (l + h) / 2;
+        MergeSort(l, mid);
+        MergeSort(mid + 1, h);
+        Merge(l, mid, h);
+    }
+}</pre>
+                    </div>
+
+                    <div class="space-y-4 pt-4 border-t border-dashed border-slate-300">
+                        <h3 class="text-3xl font-bold text-inkRed underline">Dry Run Example:</h3>
+                        <p>
+                            Sorting the array: <span class="bg-white border border-slate-300 font-sans font-bold px-2 py-0.5 rounded">[29, 13, 27, 25, 36, 54, 98, 20, 42]</span>.
+                        </p>
+                        <div class="flex flex-col items-center">
+                            <span class="text-lg text-pencilGray font-bold mb-2">Recursive Splitting & Merging Tree:</span>
+                            <canvas id="merge-canvas" width="650" height="320" class="border border-slate-300 bg-white rounded shadow max-w-full"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 3: QUICK SORT -->
+            <section id="sec-quick-sort" class="tab-content hidden space-y-8">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">Quick Sort & Partitioning Simulator</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 3</span>
+                </div>
+
+                <div class="space-y-4">
+                    <p>
+                        Quick Sort operates by selecting a pivot element and partitioning the array so that elements smaller than the pivot go to the left, and elements larger go to the right.
+                    </p>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 my-4">
+                        <div class="bg-amber-50/50 p-6 rounded-lg border border-amber-200 space-y-2">
+                            <h4 class="text-2xl font-bold text-inkRed">Quick Sort Algorithm:</h4>
+                            <pre class="font-sans text-base bg-white p-3 rounded border border-slate-300">
+QuickSort(A, i, j) {
+    if (i < j) {
+        p = Partition(A, i, j);
+        QuickSort(A, i, p - 1);
+        QuickSort(A, p + 1, j);
+    }
+}</pre>
+                        </div>
+                        <div class="bg-blue-50/40 p-6 rounded-lg border border-blue-200 space-y-2">
+                            <h4 class="text-2xl font-bold text-inkBlue">Partition Logic:</h4>
+                            <pre class="font-sans text-xs bg-white p-3 rounded border border-slate-300">
+Partition(A, l, h) {
+    pivot = A[l];
+    i = l; j = h;
+    while (i < j) {
+        while (A[i] <= pivot && i < h) i++;
+        while (A[j] > pivot) j--;
+        if (i < j) swap(A[i], A[j]);
+    }
+    swap(A[l], A[j]);
+    return j;
+}</pre>
+                        </div>
+                    </div>
+
+                    <div class="border-t-2 border-dashed border-slate-300 pt-6">
+                        <h3 class="text-3xl font-bold text-inkBlue mb-4">Interactive Partition Pointer Stepper:</h3>
+                        <p class="mb-4">
+                            Click "Step" to witness how index pointers $i$ and $j$ increment and decrement against the pivot. Swap actions are triggered when both pointers stall on partition violations.
+                        </p>
+                        
+                        <div class="bg-white p-4 rounded-lg border border-slate-300 shadow-sm flex flex-col items-center">
+                            <div class="flex gap-2 mb-4">
+                                <button onclick="stepQuickSort()" class="bg-inkBlue text-white hover:bg-slate-700 font-bold px-4 py-1.5 rounded transition shadow">Step Partition</button>
+                                <button onclick="resetQuickSort()" class="bg-inkRed text-white hover:bg-red-800 font-bold px-4 py-1.5 rounded transition shadow">Reset</button>
+                            </div>
+                            <canvas id="quick-canvas" width="600" height="200" class="border border-slate-200 rounded bg-slate-50/50 max-w-full"></canvas>
+                            <div id="quick-status" class="mt-2 text-sm font-sans font-bold text-pencilGray">Press Step to start partitioning. Pivot = 30.</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 4: STRASSEN'S MATRIX MULTIPLICATION -->
+            <section id="sec-strassen" class="tab-content hidden space-y-8">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">Strassen's Matrix Multiplication</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 4</span>
+                </div>
+
+                <div class="space-y-4">
+                    <p>
+                        Standard matrix multiplication requires $O(n^3)$ operations. Strassen's algorithm uses divide-and-conquer block partitions to reduce multiplications from 8 to 7, resulting in a time complexity of $O(n^{\log_2 7}) \approx O(n^{2.81})$.
+                    </p>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 my-4">
+                        <div class="bg-amber-50/50 p-6 rounded-lg border border-amber-200 space-y-3 text-lg">
+                            <h3 class="text-2xl font-bold text-inkRed underline">Strassen's Formulas:</h3>
+                            <ul class="list-disc list-inside space-y-1">
+                                <li>$P = (A_{11} + A_{22})(B_{11} + B_{22})$</li>
+                                <li>$Q = (A_{21} + A_{22})B_{11}$</li>
+                                <li>$R = A_{11}(B_{12} - B_{22})$</li>
+                                <li>$S = A_{22}(B_{21} - B_{11})$</li>
+                                <li>$T = (A_{11} + A_{12})B_{22}$</li>
+                                <li>$U = (A_{21} - A_{11})(B_{11} + B_{12})$</li>
+                                <li>$V = (A_{12} - A_{22})(B_{21} + B_{22})$</li>
+                            </ul>
+                            <div class="border-t border-amber-200 pt-2 mt-2">
+                                <p class="font-bold">Formulating Results:</p>
+                                <li>$C_{11} = P + S - T + V$</li>
+                                <li>$C_{12} = R + T$</li>
+                                <li>$C_{21} = Q + S$</li>
+                                <li>$C_{22} = P + R - Q + U$</li>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white p-6 rounded-lg border border-slate-300 shadow-sm flex flex-col items-center">
+                            <span class="text-lg text-pencilGray font-bold mb-3">Interactive Matrix Solver (Edit values to compute):</span>
+                            
+                            <div class="flex items-center gap-4 text-sm font-sans mb-4">
+                                <div>
+                                    <span class="font-bold block mb-1">Matrix A:</span>
+                                    <div class="grid grid-cols-2 gap-1 w-24">
+                                        <input type="number" id="ma-11" value="1" class="border border-slate-300 w-10 text-center rounded p-0.5">
+                                        <input type="number" id="ma-12" value="2" class="border border-slate-300 w-10 text-center rounded p-0.5">
+                                        <input type="number" id="ma-21" value="3" class="border border-slate-300 w-10 text-center rounded p-0.5">
+                                        <input type="number" id="ma-22" value="4" class="border border-slate-300 w-10 text-center rounded p-0.5">
+                                    </div>
+                                </div>
+                                <div class="text-xl font-bold">×</div>
+                                <div>
+                                    <span class="font-bold block mb-1">Matrix B:</span>
+                                    <div class="grid grid-cols-2 gap-1 w-24">
+                                        <input type="number" id="mb-11" value="2" class="border border-slate-300 w-10 text-center rounded p-0.5">
+                                        <input type="number" id="mb-12" value="2" class="border border-slate-300 w-10 text-center rounded p-0.5">
+                                        <input type="number" id="mb-21" value="3" class="border border-slate-300 w-10 text-center rounded p-0.5">
+                                        <input type="number" id="mb-22" value="1" class="border border-slate-300 w-10 text-center rounded p-0.5">
+                                    </div>
+                                </div>
+                                <button onclick="calculateStrassen()" class="bg-inkBlue text-white font-bold py-1.5 px-3 rounded shadow hover:bg-slate-700 transition">Solve</button>
+                            </div>
+                            
+                            <canvas id="strassen-canvas" width="450" height="150" class="border border-slate-200 rounded bg-slate-50/50 max-w-full"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 5: CONVEX HULL -->
+            <section id="sec-convex-hull" class="tab-content hidden space-y-8">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">Convex Hull - Divide & Conquer</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 5</span>
+                </div>
+
+                <div class="space-y-4">
+                    <p>
+                        The Convex Hull of a set of 2D points is the smallest convex polygon enclosing all points. The divide and conquer approach splits the points, recursively computes the hulls of left and right halves, and merges them using **upper and lower tangents**.
+                    </p>
+
+                    <div class="bg-amber-50/50 p-6 rounded-lg border border-amber-200">
+                        <h3 class="text-3xl font-bold text-inkBlue mb-2">tangent Merging & Base Cases:</h3>
+                        <ul class="list-disc list-inside space-y-1">
+                            <li><strong>Tangent Finding:</strong> Tangents are segments connecting left hull A and right hull B without intersecting either interior.</li>
+                            <li><strong>Brute Force Base Case:</strong> Small sets of points ($\le 5$) are solved directly using brute-force algorithms to prevent infinite tangent-matching loops when merging small pairs.</li>
+                        </ul>
+                    </div>
+
+                    <div class="border-t-2 border-dashed border-slate-300 pt-6">
+                        <h3 class="text-3xl font-bold text-inkRed mb-4">Interactive Convex Hull Sandbox:</h3>
+                        <p class="mb-4">
+                            Click anywhere inside the gray workspace canvas to add coordinates. The Divide-and-Conquer Convex Hull algorithm will automatically compute and draw the enclosing boundary line.
+                        </p>
+                        
+                        <div class="bg-white p-4 rounded-lg border border-slate-300 shadow-sm flex flex-col items-center">
+                            <div class="mb-4 flex gap-4">
+                                <button onclick="clearHullPoints()" class="bg-inkRed text-white font-bold py-1.5 px-4 rounded shadow hover:bg-red-800 transition">Clear Points</button>
+                                <span class="text-sm font-sans mt-2 text-pencilGray font-bold" id="hull-status">Click inside workspace to plot. Points count: 0</span>
+                            </div>
+                            <canvas id="hull-canvas" width="600" height="300" class="border border-slate-300 rounded bg-slate-50 cursor-crosshair"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Visual Drawings Javascript Code -->
+    <script>
+        // Tab switching logic
+        let currentTab = 'general-method';
+        function switchTab(tabId) {
+            currentTab = tabId;
+            document.querySelectorAll('.tab-content').forEach(sec => {
+                sec.classList.remove('block');
+                sec.classList.add('hidden');
+            });
+            document.getElementById('sec-' + tabId).classList.remove('hidden');
+            document.getElementById('sec-' + tabId).classList.add('block');
+            
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('bg-amber-200', 'text-inkBlue', 'border-b-2', 'border-inkBlue');
+                tab.classList.add('text-gray-600', 'hover:text-inkBlue');
+            });
+            
+            const activeTab = document.getElementById('tab-' + tabId);
+            if(activeTab) {
+                activeTab.classList.remove('text-gray-600', 'hover:text-inkBlue');
+                activeTab.classList.add('bg-amber-200', 'text-inkBlue', 'border-b-2', 'border-inkBlue');
+            }
+            
+            // Redraw active tab canvas elements
+            setTimeout(() => {
+                drawDacFlow();
+                drawAvlTree();
+                drawMergeSortTree();
+                drawQuickSortStepper();
+                calculateStrassen();
+                drawConvexHull();
+            }, 50);
+        }
+
+        window.onresize = () => {
+            drawDacFlow();
+            drawAvlTree();
+            drawMergeSortTree();
+            drawQuickSortStepper();
+            calculateStrassen();
+            drawConvexHull();
+        };
+
+        // -------------------------------------------------------------
+        // 1. DAC Process Flow Canvas
+        // -------------------------------------------------------------
+        function drawDacFlow() {
+            const canvas = document.getElementById('dac-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.font = 'bold 13px Inter';
+            ctx.lineWidth = 1.5;
+            
+            // Problem box
+            ctx.strokeStyle = '#1e3a8a';
+            ctx.fillStyle = '#eff6ff';
+            ctx.strokeRect(140, 15, 120, 30);
+            ctx.fillRect(140, 15, 120, 30);
+            ctx.fillStyle = '#1a365d';
+            ctx.textAlign = 'center';
+            ctx.fillText("Problem (Size N)", 200, 35);
+            
+            // Sub-problems
+            ctx.strokeStyle = '#1e3a8a';
+            ctx.fillStyle = '#eff6ff';
+            ctx.strokeRect(40, 85, 110, 30);
+            ctx.fillRect(40, 85, 110, 30);
+            ctx.strokeRect(250, 85, 110, 30);
+            ctx.fillRect(250, 85, 110, 30);
+            ctx.fillStyle = '#1a365d';
+            ctx.fillText("Sub-prob 1 (N/2)", 95, 105);
+            ctx.fillText("Sub-prob 2 (N/2)", 305, 105);
+            
+            // Solutions
+            ctx.strokeStyle = '#059669';
+            ctx.fillStyle = '#ecfdf5';
+            ctx.strokeRect(40, 145, 110, 30);
+            ctx.fillRect(40, 145, 110, 30);
+            ctx.strokeRect(250, 145, 110, 30);
+            ctx.fillRect(250, 145, 110, 30);
+            ctx.fillStyle = '#065f46';
+            ctx.fillText("Solution 1", 95, 165);
+            ctx.fillText("Solution 2", 305, 165);
+            
+            // Combined Solution
+            ctx.strokeStyle = '#059669';
+            ctx.fillStyle = '#ecfdf5';
+            ctx.strokeRect(140, 195, 120, 30);
+            ctx.fillRect(140, 195, 120, 30);
+            ctx.fillStyle = '#065f46';
+            ctx.fillText("Final Solution", 200, 215);
+            
+            // Arrow lines
+            ctx.strokeStyle = '#475569';
+            ctx.beginPath();
+            ctx.moveTo(200, 45); ctx.lineTo(95, 85);
+            ctx.moveTo(200, 45); ctx.lineTo(305, 85);
+            // solve step
+            ctx.moveTo(95, 115); ctx.lineTo(95, 145);
+            ctx.moveTo(305, 115); ctx.lineTo(305, 145);
+            // combine step
+            ctx.moveTo(95, 175); ctx.lineTo(200, 195);
+            ctx.moveTo(305, 175); ctx.lineTo(200, 195);
+            ctx.stroke();
+            
+            // Side annotation labels
+            ctx.fillStyle = '#b91c1c';
+            ctx.font = 'italic 11px Kalam';
+            ctx.fillText("Divide", 240, 65);
+            ctx.fillText("Conquer", 145, 133);
+            ctx.fillText("Combine", 245, 185);
+        }
+
+        // -------------------------------------------------------------
+        // 1.5. AVL Balance Tree Canvas
+        // -------------------------------------------------------------
+        function drawAvlTree() {
+            const canvas = document.getElementById('avl-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Define nodes coordinates
+            const nodes = [
+                { k: '50', x: 200, y: 35, bf: '0' },
+                { k: '30', x: 110, y: 95, bf: '0' },
+                { k: '70', x: 290, y: 95, bf: '0' },
+                { k: '25', x: 60, y: 165, bf: '0' },
+                { k: '35', x: 160, y: 165, bf: '0' },
+                { k: '62', x: 240, y: 165, bf: '0' },
+                { k: '75', x: 340, y: 165, bf: '0' }
+            ];
+            
+            ctx.strokeStyle = '#64748b';
+            ctx.lineWidth = 2;
+            
+            // Draw connections
+            ctx.beginPath();
+            ctx.moveTo(200, 35); ctx.lineTo(110, 95);
+            ctx.moveTo(200, 35); ctx.lineTo(290, 95);
+            ctx.moveTo(110, 95); ctx.lineTo(60, 165);
+            ctx.moveTo(110, 95); ctx.lineTo(160, 165);
+            ctx.moveTo(290, 95); ctx.lineTo(240, 165);
+            ctx.moveTo(290, 95); ctx.lineTo(340, 165);
+            ctx.stroke();
+            
+            // Draw node balls
+            nodes.forEach(n => {
+                ctx.fillStyle = '#eff6ff';
+                ctx.strokeStyle = '#1e3a8a';
+                ctx.beginPath();
+                ctx.arc(n.x, n.y, 20, 0, Math.PI*2);
+                ctx.fill();
+                ctx.stroke();
+                
+                ctx.fillStyle = '#1a365d';
+                ctx.font = 'bold 13px Inter';
+                ctx.textAlign = 'center';
+                ctx.fillText(n.k, n.x, n.y + 5);
+                
+                // Balance factors
+                ctx.fillStyle = '#b91c1c';
+                ctx.font = 'italic 10px Kalam';
+                ctx.fillText(`BF:${n.bf}`, n.x + 28, n.y - 12);
+            });
+        }
+
+        // -------------------------------------------------------------
+        // 2. Merge Sort Split Tree Canvas
+        // -------------------------------------------------------------
+        function drawMergeSortTree() {
+            const canvas = document.getElementById('merge-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.lineWidth = 1.5;
+            ctx.textAlign = 'center';
+            ctx.font = 'bold 11px Inter';
+            
+            // Draw splits blocks level by level
+            // Level 0: [29, 13, 27, 25, 36, 54, 98, 20, 42]
+            ctx.strokeStyle = '#1e3a8a'; ctx.fillStyle = '#eff6ff';
+            ctx.strokeRect(175, 10, 300, 24); ctx.fillRect(175, 10, 300, 24);
+            ctx.fillStyle = '#1a365d';
+            ctx.fillText("[29, 13, 27, 25, 36, 54, 98, 20, 42]", 325, 26);
+            
+            // Level 1: Left [29, 13, 27, 25, 36] and Right [54, 98, 20, 42]
+            ctx.strokeStyle = '#1e3a8a'; ctx.fillStyle = '#eff6ff';
+            ctx.strokeRect(60, 60, 180, 24); ctx.fillRect(60, 60, 180, 24);
+            ctx.strokeRect(410, 60, 180, 24); ctx.fillRect(410, 60, 180, 24);
+            ctx.fillStyle = '#1a365d';
+            ctx.fillText("[29, 13, 27, 25, 36]", 150, 76);
+            ctx.fillText("[54, 98, 20, 42]", 500, 76);
+            
+            // Level 2: LeftSplits [29, 13, 27], [25, 36]  RightSplits [54, 98], [20, 42]
+            ctx.strokeRect(20, 110, 100, 24); ctx.fillRect(20, 110, 100, 24);
+            ctx.strokeRect(170, 110, 80, 24); ctx.fillRect(170, 110, 80, 24);
+            ctx.strokeRect(380, 110, 80, 24); ctx.fillRect(380, 110, 80, 24);
+            ctx.strokeRect(510, 110, 80, 24); ctx.fillRect(510, 110, 80, 24);
+            ctx.fillStyle = '#1a365d';
+            ctx.fillText("[29, 13, 27]", 70, 126);
+            ctx.fillText("[25, 36]", 210, 126);
+            ctx.fillText("[54, 98]", 420, 126);
+            ctx.fillText("[20, 42]", 550, 126);
+
+            // Level 3: Deep leaf splits
+            ctx.fillStyle = '#f8fafc';
+            ctx.strokeRect(10, 160, 30, 22); ctx.fillRect(10, 160, 30, 22);
+            ctx.strokeRect(50, 160, 30, 22); ctx.fillRect(50, 160, 30, 22);
+            ctx.strokeRect(95, 160, 30, 22); ctx.fillRect(95, 160, 30, 22);
+            ctx.fillStyle = '#475569';
+            ctx.fillText("29", 25, 175);
+            ctx.fillText("13", 65, 175);
+            ctx.fillText("27", 110, 175);
+            
+            // Connection splits lines
+            ctx.strokeStyle = '#94a3b8';
+            ctx.beginPath();
+            ctx.moveTo(325, 34); ctx.lineTo(150, 60);
+            ctx.moveTo(325, 34); ctx.lineTo(500, 60);
+            ctx.moveTo(150, 84); ctx.lineTo(70, 110);
+            ctx.moveTo(150, 84); ctx.lineTo(210, 110);
+            ctx.moveTo(500, 84); ctx.lineTo(420, 110);
+            ctx.moveTo(500, 84); ctx.lineTo(550, 110);
+            
+            ctx.moveTo(70, 134); ctx.lineTo(25, 160);
+            ctx.moveTo(70, 134); ctx.lineTo(65, 160);
+            ctx.moveTo(70, 134); ctx.lineTo(110, 160);
+            ctx.stroke();
+            
+            // Merging output bar below
+            ctx.fillStyle = '#ecfdf5'; ctx.strokeStyle = '#059669';
+            ctx.strokeRect(100, 260, 450, 30); ctx.fillRect(100, 260, 450, 30);
+            ctx.fillStyle = '#065f46';
+            ctx.font = 'bold 13px Inter';
+            ctx.fillText("Sorted Result: [13, 20, 27, 25, 29, 36, 42, 54, 98]", 325, 280);
+            
+            ctx.strokeStyle = '#059669';
+            ctx.beginPath();
+            ctx.moveTo(25, 182); ctx.quadraticCurveTo(100, 240, 220, 260);
+            ctx.moveTo(110, 182); ctx.quadraticCurveTo(150, 230, 260, 260);
+            ctx.stroke();
+        }
+
+        // -------------------------------------------------------------
+        // 3. Quick Sort Stepper Canvas
+        // -------------------------------------------------------------
+        let quickArray = [30, 80, 10, 90, 40, 50, 60];
+        let quickState = {
+            pivot: 30,
+            i: 0,
+            j: 6,
+            stepIndex: 0,
+            swapped: false,
+            done: false
+        };
+
+        function resetQuickSort() {
+            quickArray = [30, 80, 10, 90, 40, 50, 60];
+            quickState = {
+                pivot: 30,
+                i: 0,
+                j: 6,
+                stepIndex: 0,
+                swapped: false,
+                done: false
+            };
+            document.getElementById('quick-status').innerText = "Simulator reset. Array = [30, 80, 10, 90, 40, 50, 60], Pivot = 30.";
+            drawQuickSortStepper();
+        }
+
+        function stepQuickSort() {
+            const status = document.getElementById('quick-status');
+            if (quickState.done) {
+                status.innerText = "Partition finished! Reset to try again.";
+                return;
+            }
+            
+            const pivot = quickState.pivot;
+            let i = quickState.i;
+            let j = quickState.j;
+            
+            if (quickState.stepIndex === 0) {
+                // Find element greater than pivot from left
+                while (i < 6 && quickArray[i] <= pivot) { i++; }
+                quickState.i = i;
+                status.innerText = `[Step 1]: i pointer moves forward to index ${i} (value ${quickArray[i]} > pivot).`;
+                quickState.stepIndex = 1;
+            } else if (quickState.stepIndex === 1) {
+                // Find element smaller than pivot from right
+                while (j > 0 && quickArray[j] > pivot) { j--; }
+                quickState.j = j;
+                status.innerText = `[Step 2]: j pointer moves backward to index ${j} (value ${quickArray[j]} <= pivot).`;
+                quickState.stepIndex = 2;
+            } else if (quickState.stepIndex === 2) {
+                if (i < j) {
+                    // Swap values at i and j
+                    const temp = quickArray[i];
+                    quickArray[i] = quickArray[j];
+                    quickArray[j] = temp;
+                    status.innerText = `[Step 3]: Since i (${i}) < j (${j}), we swap values. Array becomes [${quickArray.join(", ")}].`;
+                    quickState.stepIndex = 0; // return to scanning
+                } else {
+                    // Cross detected, swap pivot with j
+                    const temp = quickArray[0];
+                    quickArray[0] = quickArray[j];
+                    quickArray[j] = temp;
+                    quickState.done = true;
+                    status.innerText = `[Partition Done]: Pointers crossed (i >= j). Swap pivot with A[j] (index ${j}). Final array: [${quickArray.join(", ")}].`;
+                }
+            }
+            drawQuickSortStepper();
+        }
+
+        function drawQuickSortStepper() {
+            const canvas = document.getElementById('quick-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const startX = 60;
+            const startY = 60;
+            const itemW = 60;
+            const itemH = 50;
+            
+            quickArray.forEach((val, idx) => {
+                const x = startX + idx * itemW;
+                
+                // Highlight states
+                if (idx === 0) {
+                    ctx.fillStyle = '#fee2e2'; // Pivot node (red)
+                    ctx.strokeStyle = '#b91c1c';
+                } else if (idx === quickState.i) {
+                    ctx.fillStyle = '#e0f2fe'; // i pointer (blue)
+                    ctx.strokeStyle = '#0284c7';
+                } else if (idx === quickState.j) {
+                    ctx.fillStyle = '#dcfce7'; // j pointer (green)
+                    ctx.strokeStyle = '#15803d';
+                } else {
+                    ctx.fillStyle = '#f8fafc';
+                    ctx.strokeStyle = '#64748b';
+                }
+                
+                ctx.lineWidth = 2.5;
+                ctx.strokeRect(x, startY, itemW, itemH);
+                ctx.fillRect(x, startY, itemW, itemH);
+                
+                ctx.fillStyle = '#1e293b';
+                ctx.font = 'bold 15px Inter';
+                ctx.textAlign = 'center';
+                ctx.fillText(val, x + itemW/2, startY + 30);
+                
+                // Labels below nodes
+                ctx.font = '10px Inter';
+                if (idx === 0) {
+                    ctx.fillStyle = '#b91c1c';
+                    ctx.fillText("Pivot", x + itemW/2, startY - 10);
+                }
+                
+                if (idx === quickState.i) {
+                    ctx.fillStyle = '#0284c7';
+                    ctx.fillText("↑ i", x + itemW/2, startY + itemH + 20);
+                }
+                if (idx === quickState.j) {
+                    ctx.fillStyle = '#15803d';
+                    ctx.fillText("↑ j", x + itemW/2, startY + itemH + 35);
+                }
+            });
+        }
+
+        // -------------------------------------------------------------
+        // 4. Strassen's Matrix Multiplication
+        // -------------------------------------------------------------
+        function calculateStrassen() {
+            const canvas = document.getElementById('strassen-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Read inputs
+            const a11 = parseFloat(document.getElementById('ma-11').value) || 0;
+            const a12 = parseFloat(document.getElementById('ma-12').value) || 0;
+            const a21 = parseFloat(document.getElementById('ma-21').value) || 0;
+            const a22 = parseFloat(document.getElementById('ma-22').value) || 0;
+            
+            const b11 = parseFloat(document.getElementById('mb-11').value) || 0;
+            const b12 = parseFloat(document.getElementById('mb-12').value) || 0;
+            const b21 = parseFloat(document.getElementById('mb-21').value) || 0;
+            const b22 = parseFloat(document.getElementById('mb-22').value) || 0;
+            
+            // Compute P to V variables
+            const P = (a11 + a22) * (b11 + b22);
+            const Q = (a21 + a22) * b11;
+            const R = a11 * (b12 - b22);
+            const S = a22 * (b21 - b11);
+            const T = (a11 + a12) * b22;
+            const U = (a21 - a11) * (b11 + b12);
+            const V = (a12 - a22) * (b21 + b22);
+            
+            // Compute Result Matrix elements
+            const c11 = P + S - T + V;
+            const c12 = R + T;
+            const c21 = Q + S;
+            const c22 = P + R - Q + U;
+            
+            // Draw details inside canvas
+            ctx.font = 'bold 12px Inter';
+            ctx.fillStyle = '#475569';
+            ctx.textAlign = 'left';
+            
+            // Column 1 variables output
+            ctx.fillText(`P = (A11+A22)(B11+B22) = ${P}`, 15, 25);
+            ctx.fillText(`Q = (A21+A22)B11 = ${Q}`, 15, 45);
+            ctx.fillText(`R = A11(B12-B22) = ${R}`, 15, 65);
+            ctx.fillText(`S = A22(B21-B11) = ${S}`, 15, 85);
+            ctx.fillText(`T = (A11+A12)B22 = ${T}`, 15, 105);
+            ctx.fillText(`U = (A21-A11)(B11+B12) = ${U}`, 15, 125);
+            
+            ctx.fillText(`V = (A12-A22)(B21+B22) = ${V}`, 250, 25);
+            
+            // Draw Resulting Matrix C
+            ctx.fillStyle = '#0f172a';
+            ctx.font = 'bold 14px Kalam';
+            ctx.fillText("Result Matrix C:", 250, 55);
+            
+            ctx.strokeStyle = '#0f172a';
+            ctx.lineWidth = 2.5;
+            // Draw square brackets
+            ctx.beginPath();
+            ctx.moveTo(270, 70); ctx.lineTo(260, 70); ctx.lineTo(260, 130); ctx.lineTo(270, 130);
+            ctx.moveTo(350, 70); ctx.lineTo(360, 70); ctx.lineTo(360, 130); ctx.lineTo(350, 130);
+            ctx.stroke();
+            
+            ctx.font = 'bold 14px Inter';
+            ctx.fillText(c11, 280, 90);
+            ctx.fillText(c12, 320, 90);
+            ctx.fillText(c21, 280, 115);
+            ctx.fillText(c22, 320, 115);
+        }
+
+        // -------------------------------------------------------------
+        // 5. Convex Hull Sandbox
+        // -------------------------------------------------------------
+        const hullCanvas = document.getElementById('hull-canvas');
+        let hullPoints = [];
+
+        if (hullCanvas) {
+            hullCanvas.addEventListener('click', (e) => {
+                const rect = hullCanvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                hullPoints.push({x, y});
+                document.getElementById('hull-status').innerText = `Click inside workspace to plot. Points count: ${hullPoints.length}`;
+                drawConvexHull();
+            });
+        }
+
+        function clearHullPoints() {
+            hullPoints = [];
+            document.getElementById('hull-status').innerText = "Click inside workspace to plot. Points count: 0";
+            drawConvexHull();
+        }
+
+        // Compute Convex Hull using monotone chain algorithm
+        function computeConvexHull(pts) {
+            if (pts.length <= 1) return pts;
+            
+            // Sort points by x, then by y
+            const sorted = pts.slice().sort((a, b) => a.x === b.x ? a.y - b.y : a.x - b.x);
+            
+            const crossProduct = (o, a, b) => (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
+            
+            const lower = [];
+            for (let i = 0; i < sorted.length; i++) {
+                while (lower.length >= 2 && crossProduct(lower[lower.length - 2], lower[lower.length - 1], sorted[i]) <= 0) {
+                    lower.pop();
+                }
+                lower.push(sorted[i]);
+            }
+            
+            const upper = [];
+            for (let i = sorted.length - 1; i >= 0; i--) {
+                while (upper.length >= 2 && crossProduct(upper[upper.length - 2], upper[upper.length - 1], sorted[i]) <= 0) {
+                    upper.pop();
+                }
+                upper.push(sorted[i]);
+            }
+            
+            upper.pop();
+            lower.pop();
+            return lower.concat(upper);
+        }
+
+        function drawConvexHull() {
+            if (!hullCanvas) return;
+            const ctx = hullCanvas.getContext('2d');
+            ctx.clearRect(0, 0, hullCanvas.width, hullCanvas.height);
+            
+            // Draw points
+            hullPoints.forEach(p => {
+                ctx.fillStyle = '#1e3a8a';
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, 5, 0, Math.PI*2);
+                ctx.fill();
+            });
+            
+            // Compute and draw hull polygon
+            if (hullPoints.length >= 3) {
+                const hull = computeConvexHull(hullPoints);
+                
+                ctx.strokeStyle = '#b91c1c';
+                ctx.fillStyle = '#fee2e255';
+                ctx.lineWidth = 2.5;
+                ctx.beginPath();
+                ctx.moveTo(hull[0].x, hull[0].y);
+                for (let i = 1; i < hull.length; i++) {
+                    ctx.lineTo(hull[i].x, hull[i].y);
+                }
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+            }
+        }
+
+        // Initialize all diagrams on window load
+        window.onload = () => {
+            switchTab('general-method');
+        };
+    </script>
+</body>
+</html>

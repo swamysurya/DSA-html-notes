@@ -1,0 +1,1499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Part II: Graphs - Lecture Notes</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts for Handwritten and Clean typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Kalam:wght@300;400;700&family=Patrick+Hand&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        notebookBg: '#FAF6EE',
+                        notebookPaper: '#FAF6EE',
+                        inkBlue: '#1A365D',
+                        inkRed: '#9B2C2C',
+                        pencilGray: '#2D3748',
+                        marginRed: '#E53E3E',
+                    },
+                    fontFamily: {
+                        handwriting: ['Caveat', 'Kalam', 'cursive'],
+                        clean: ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <link rel="stylesheet" href="../notebook.css">
+</head>
+
+<body class="bg-slate-200 text-pencilGray font-notes-body min-h-screen transition-all duration-300 text-xl md:text-2xl p-2 md:p-6">
+
+    <!-- Top Navigation & PDF Control Bar -->
+    <header class="sticky top-0 z-50 bg-notebookPaper shadow-md border-b-2 border-amber-200 px-4 py-3 no-print">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-3">
+            <div class="flex items-center space-x-3">
+                <span class="text-3xl font-bold text-inkBlue tracking-wide">📖 Part II: Graphs</span>
+                <span class="bg-amber-100 text-inkRed text-sm font-bold px-3 py-1 rounded-full border border-amber-300">Data Structures</span>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <nav class="max-w-7xl mx-auto mt-3 flex flex-wrap gap-1 border-t border-amber-200 pt-2 text-base md:text-lg">
+            <button onclick="switchTab('terminologies')" id="tab-terminologies" class="nav-tab px-3 py-1.5 rounded-t-lg font-bold bg-amber-200 text-inkBlue border-b-2 border-inkBlue">
+                1. Graph Terminologies
+            </button>
+            <button onclick="switchTab('adj-matrix')" id="tab-adj-matrix" class="nav-tab px-3 py-1.5 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
+                2. Adjacency Matrix
+            </button>
+            <button onclick="switchTab('search-traversal')" id="tab-search-traversal" class="nav-tab px-3 py-1.5 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
+                5. Search & Traversal
+            </button>
+            <button onclick="switchTab('dfs')" id="tab-dfs" class="nav-tab px-3 py-1.5 rounded-t-lg font-bold text-emerald-700 hover:text-emerald-900 bg-emerald-50">
+                6. DFS Traversal
+            </button>
+            <button onclick="switchTab('graph-components')" id="tab-graph-components" class="nav-tab px-3 py-1.5 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
+                7. Graph Components
+            </button>
+        </nav>
+    </header>
+
+    <!-- Main Notebook Container -->
+    <main class="max-w-7xl mx-auto my-6 px-2 sm:px-4">
+        
+        <!-- Outer Notebook Binding Wrapper -->
+        <div class="relative bg-notebookPaper rounded-xl shadow-2xl border border-amber-200 flex overflow-hidden min-h-[850px]">
+            
+            <!-- Binder Ring Column (Left Margin) -->
+            <div class="w-8 sm:w-12 bg-amber-100 border-r-2 border-amber-300 flex flex-col items-center py-6 select-none shrink-0 no-print">
+                <script>
+                    for(let i=0; i<30; i++) document.write('<div class="spiral-ring"></div>');
+                </script>
+            </div>
+
+            <!-- Notebook Content Area -->
+            <div class="flex-1 lined-paper p-4 sm:p-8 notebook-margin pl-6 sm:pl-10">
+
+                <!-- SECTION 1: GRAPH TERMINOLOGIES -->
+                <section id="sec-terminologies" class="tab-content block space-y-8">
+                    <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6">
+                        <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">Part - II</h1>
+                        <span class="text-xl text-inkRed font-semibold">Page 1 & 2</span>
+                    </div>
+
+                    <div class="space-y-4">
+                        <h2 class="text-3xl font-bold text-inkRed">Graphs:-</h2>
+                        <p class="leading-relaxed">
+                            Graph is a Non-linear data structure it consists of finite set of node vertex and edges. The vertex are the elements and edges are ordered pair of connections between the nodes or vertex.
+                        </p>
+                        <div class="text-center font-bold text-3xl text-inkBlue my-4 bg-white/60 inline-block px-4 py-2 rounded border border-slate-300 mx-auto block w-max">
+                            G = (V, E)
+                        </div>
+                    </div>
+
+                    <div class="space-y-4 pt-4">
+                        <h2 class="text-3xl font-bold text-inkBlue underline">Terminologies:-</h2>
+                        <ol class="list-decimal list-inside space-y-2 ml-4 font-semibold text-2xl">
+                            <li>Graph Representation</li>
+                            <li>Vertex (or) Node</li>
+                            <li>Edge</li>
+                            <li>Adjacent Nodes</li>
+                            <li>Path</li>
+                            <li>Undirected graph</li>
+                            <li>Directed graph</li>
+                            <li>Weighted graph</li>
+                        </ol>
+                    </div>
+
+                    <div class="space-y-10 pt-6">
+                        <div class="break-inside-avoid bg-amber-50/50 p-4 rounded-xl border border-amber-200">
+                            <h3 class="text-2xl font-bold text-inkRed">1. Graph Representation:-</h3>
+                            <p class="ml-6 mb-2">Generally a graph is represented as a pair of sets that is V, E.</p>
+                            <ul class="ml-10 list-none space-y-1 font-bold text-inkBlue mb-4">
+                                <li>V = Set of vertex (or) Node (or) Vertices</li>
+                                <li>E = Set of Edges</li>
+                            </ul>
+                            <div class="flex flex-col md:flex-row items-center gap-6">
+                                <div class="canvas-container w-full max-w-sm bg-white border border-slate-300 rounded shadow-sm shrink-0 h-40">
+                                    <canvas id="canvasTermRep"></canvas>
+                                </div>
+                                <div class="font-bold text-inkBlue text-xl bg-white p-3 border border-slate-200 rounded shadow-sm">
+                                    V = {V1, V2, V3}<br>E = {(V1,V2), (V2,V3), (V3,V1)}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="break-inside-avoid bg-amber-50/50 p-4 rounded-xl border border-amber-200">
+                            <h3 class="text-2xl font-bold text-inkRed">2. Node (or) Vertex:-</h3>
+                            <p class="ml-6 mb-4">The elements of a graph are connected through edges.</p>
+                            <div class="canvas-container w-full max-w-sm mx-auto bg-white border border-slate-300 rounded shadow-sm h-32">
+                                <canvas id="canvasTermVertex"></canvas>
+                            </div>
+                            <p class="text-center mt-4 font-bold text-inkBlue text-2xl">Ex:- A &nbsp; B &nbsp; C &nbsp; D &nbsp; E</p>
+                        </div>
+
+                        <div class="break-inside-avoid bg-amber-50/50 p-4 rounded-xl border border-amber-200">
+                            <h3 class="text-2xl font-bold text-inkRed">3. Edge:-</h3>
+                            <p class="ml-6 mb-4">A path (or) a line between two vertices in a graph.</p>
+                            <div class="canvas-container w-full max-w-sm mx-auto bg-white border border-slate-300 rounded shadow-sm">
+                                <canvas id="canvasTermEdge"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="break-inside-avoid bg-amber-50/50 p-4 rounded-xl border border-amber-200">
+                            <h3 class="text-2xl font-bold text-inkRed">4. Adjacent Nodes:-</h3>
+                            <p class="ml-6 mb-4">Two nodes are called adjacent if they are connected through an edge.</p>
+                            <div class="flex flex-col md:flex-row items-center justify-center gap-6">
+                                <div class="canvas-container w-full max-w-sm bg-white border border-slate-300 rounded shadow-sm shrink-0 h-48">
+                                    <canvas id="canvasTermAdjacent"></canvas>
+                                </div>
+                            </div>
+                            <p class="text-center mt-4 font-bold text-inkBlue text-xl">Ex:- <span class="bg-yellow-200 px-2 rounded">A to B</span>, A to D, A to C</p>
+                        </div>
+
+                        <div class="break-inside-avoid bg-amber-50/50 p-4 rounded-xl border border-amber-200">
+                            <h3 class="text-2xl font-bold text-inkRed">5. Path:-</h3>
+                            <p class="ml-6 mb-4">It is a sequence of edges between two vertices. It is essentially a traversal starting at one node and ending at another node.</p>
+                            <div class="canvas-container w-full max-w-sm mx-auto bg-white border border-slate-300 rounded shadow-sm h-48">
+                                <canvas id="canvasTermPath"></canvas>
+                            </div>
+                            <p class="text-center mt-4 font-bold text-inkBlue text-xl">Ex:- <span class="bg-yellow-200 px-2 rounded">A to B, B to E</span>, C to D, D to E<br>A to D, D to E</p>
+                        </div>
+                        
+                        <div class="break-inside-avoid bg-amber-50/50 p-4 rounded-xl border border-amber-200">
+                            <h3 class="text-2xl font-bold text-inkRed">6. Undirected graph:-</h3>
+                            <p class="ml-6 mb-2">An undirected graph is one where the edges do not specify a particular direction the edge are bi-directional.</p>
+                            <div class="flex flex-col md:flex-row items-center gap-6">
+                                <div class="canvas-container w-full max-w-sm bg-white border border-slate-300 rounded shadow-sm shrink-0">
+                                    <canvas id="canvasUndirected"></canvas>
+                                </div>
+                                <div class="font-bold text-inkBlue text-xl">
+                                    A to B, B to A<br>C to D, D to C<br>B to D, D to B<br>D to E, E to D
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="break-inside-avoid bg-blue-50/50 p-4 rounded-xl border border-blue-200">
+                            <h3 class="text-2xl font-bold text-inkBlue">7. Directed Graph:-</h3>
+                            <p class="ml-6 mb-2">A directed graph is one where the edges can be traversed in a specific direction only.</p>
+                            <div class="flex flex-col md:flex-row items-center gap-6">
+                                <div class="canvas-container w-full max-w-sm bg-white border border-slate-300 rounded shadow-sm shrink-0">
+                                    <canvas id="canvasDirected"></canvas>
+                                </div>
+                                <div class="font-bold text-inkRed text-xl">
+                                    A to C, D to E<br>B to A, C to D, B to D
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="break-inside-avoid bg-emerald-50/50 p-4 rounded-xl border border-emerald-200">
+                            <h3 class="text-2xl font-bold text-emerald-800">8. Weighted graph:-</h3>
+                            <p class="ml-6 mb-2">A weighted graph is one where the edges are associated with a weight. This is generally the cost to traverse the edge.</p>
+                            <div class="flex flex-col md:flex-row items-center gap-6">
+                                <div class="canvas-container w-full max-w-sm bg-white border border-slate-300 rounded shadow-sm shrink-0">
+                                    <canvas id="canvasWeighted"></canvas>
+                                </div>
+                                <div class="font-bold text-inkBlue text-xl">
+                                    AC + CD + DE = <br> 1 + 3 + 5 = 9<br><br>
+                                    BA + AC + CD + DE = <br> 3 + 1 + 3 + 5 = 12
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECTION 2: ADJACENCY MATRIX -->
+                <section id="sec-adj-matrix" class="tab-content hidden space-y-8">
+                    <div class="flex justify-between items-center border-b-2 border-inkBlue pb-2 mb-6">
+                        <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue">Representations:-</h1>
+                        <span class="text-xl text-inkRed font-semibold">Page 3</span>
+                    </div>
+
+                    <p class="text-2xl ml-4">There are two graph representations:</p>
+                    <ol class="list-decimal list-inside ml-8 font-bold text-2xl text-inkRed">
+                        <li>Adjacency matrix</li>
+                        <li>Adjacency List</li>
+                    </ol>
+
+                    <div class="mt-8">
+                        <h3 class="text-3xl font-bold text-inkBlue underline mb-4">1. Adjacency Matrix:-</h3>
+                        <ul class="list-disc list-inside space-y-3 ml-4 text-xl">
+                            <li>In this representation graph can be represented using a matrix of size total number of vertices by total number of vertices.</li>
+                            <li>Means if a graph with four vertices can be represented using a matrix of 4x4 matrix size.</li>
+                            <li>In this matrix rows and columns both represent vertices.</li>
+                            <li>This matrix is filled with either one or zero.</li>
+                            <li>One represents there is an edge from row vertex to column and zero represents there is no edge.</li>
+                            <li><strong>Adjacency matrix:</strong> Let G = (V,E) with 'n' vertices $n \ge 1$. The adjacency matrix of G is a two-dimensional n x n matrix A, $A(i,j) = 1$.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Example 1 -->
+                    <div class="bg-white p-6 rounded-xl border border-slate-300 shadow-sm break-inside-avoid mt-8">
+                        <h4 class="text-2xl font-bold text-inkRed mb-4">Example 1 (5 Nodes, with self-loop):-</h4>
+                        <div class="flex flex-col lg:flex-row items-center justify-around gap-8">
+                            <div class="w-full lg:w-1/2 h-[280px] relative border border-slate-200 rounded-lg bg-amber-50/20 p-2">
+                                <canvas id="canvasMatrixEx1" class="w-full h-full"></canvas>
+                            </div>
+                            
+                            <div class="font-clean-mode text-lg font-bold text-slate-800">
+                                <table class="border-collapse text-center">
+                                    <thead>
+                                        <tr>
+                                            <th class="p-2"></th>
+                                            <th class="p-2 w-10">A</th>
+                                            <th class="p-2 w-10">B</th>
+                                            <th class="p-2 w-10">C</th>
+                                            <th class="p-2 w-10">D</th>
+                                            <th class="p-2 w-10">E</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="border-l-2 border-r-2 border-slate-800 relative">
+                                        <!-- Matrix Brackets using CSS -->
+                                        <tr><td class="p-2 font-bold pr-4 border-r-0">A</td><td class="p-2">0</td><td class="p-2">1</td><td class="p-2">1</td><td class="p-2">0</td><td class="p-2">0</td></tr>
+                                        <tr><td class="p-2 font-bold pr-4">B</td><td class="p-2">1</td><td class="p-2">0</td><td class="p-2">0</td><td class="p-2">1</td><td class="p-2">0</td></tr>
+                                        <tr><td class="p-2 font-bold pr-4">C</td><td class="p-2">1</td><td class="p-2">0</td><td class="p-2">0</td><td class="p-2">1</td><td class="p-2">0</td></tr>
+                                        <tr><td class="p-2 font-bold pr-4">D</td><td class="p-2">0</td><td class="p-2">1</td><td class="p-2">1</td><td class="p-2">1</td><td class="p-2">1</td></tr>
+                                        <tr><td class="p-2 font-bold pr-4">E</td><td class="p-2">0</td><td class="p-2">0</td><td class="p-2">0</td><td class="p-2">1</td><td class="p-2">0</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Example 2 -->
+                    <div class="bg-white p-6 rounded-xl border border-slate-300 shadow-sm break-inside-avoid mt-8">
+                        <h4 class="text-2xl font-bold text-inkBlue mb-4">Example 2 (7 Nodes):-</h4>
+                        <div class="flex flex-col lg:flex-row items-center justify-around gap-8">
+                            <div class="w-full lg:w-1/2 h-[280px] relative border border-slate-200 rounded-lg bg-blue-50/20 p-2">
+                                <canvas id="canvasMatrixEx2" class="w-full h-full"></canvas>
+                            </div>
+                            
+                            <div class="font-clean-mode text-lg font-bold text-slate-800">
+                                <table class="border-collapse text-center">
+                                    <thead>
+                                        <tr>
+                                            <th class="p-1"></th>
+                                            <th class="p-1 w-8 text-inkRed">A</th>
+                                            <th class="p-1 w-8 text-inkRed">B</th>
+                                            <th class="p-1 w-8 text-inkRed">C</th>
+                                            <th class="p-1 w-8 text-inkRed">D</th>
+                                            <th class="p-1 w-8 text-inkRed">E</th>
+                                            <th class="p-1 w-8 text-inkRed">F</th>
+                                            <th class="p-1 w-8 text-inkRed">G</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="border-l-2 border-r-2 border-slate-800 relative">
+                                        <tr><td class="p-1 font-bold pr-3 text-inkBlue">A</td><td class="p-1">0</td><td class="p-1">1</td><td class="p-1">0</td><td class="p-1">1</td><td class="p-1">0</td><td class="p-1">0</td><td class="p-1">0</td></tr>
+                                        <tr><td class="p-1 font-bold pr-3 text-inkBlue">B</td><td class="p-1">1</td><td class="p-1">0</td><td class="p-1">1</td><td class="p-1">0</td><td class="p-1">1</td><td class="p-1">0</td><td class="p-1">0</td></tr>
+                                        <tr><td class="p-1 font-bold pr-3 text-inkBlue">C</td><td class="p-1">0</td><td class="p-1">1</td><td class="p-1">0</td><td class="p-1">0</td><td class="p-1">0</td><td class="p-1">1</td><td class="p-1">0</td></tr>
+                                        <tr><td class="p-1 font-bold pr-3 text-inkBlue">D</td><td class="p-1">1</td><td class="p-1">0</td><td class="p-1">0</td><td class="p-1">0</td><td class="p-1">1</td><td class="p-1">0</td><td class="p-1">0</td></tr>
+                                        <tr><td class="p-1 font-bold pr-3 text-inkBlue">E</td><td class="p-1">0</td><td class="p-1">1</td><td class="p-1">0</td><td class="p-1">1</td><td class="p-1">0</td><td class="p-1">1</td><td class="p-1">0</td></tr>
+                                        <tr><td class="p-1 font-bold pr-3 text-inkBlue">F</td><td class="p-1">0</td><td class="p-1">0</td><td class="p-1">1</td><td class="p-1">0</td><td class="p-1">1</td><td class="p-1">0</td><td class="p-1">1</td></tr>
+                                        <tr><td class="p-1 font-bold pr-3 text-inkBlue">G</td><td class="p-1">0</td><td class="p-1">0</td><td class="p-1">0</td><td class="p-1">0</td><td class="p-1">0</td><td class="p-1">1</td><td class="p-1">1</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECTION 3: ADJACENCY LIST -->
+                <section id="sec-adj-list" class="tab-content hidden space-y-8">
+                    <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6">
+                        <h1 class="text-4xl sm:text-5xl font-bold text-inkRed">2. Adjacency List:-</h1>
+                        <span class="text-xl text-inkBlue font-semibold">Page 4</span>
+                    </div>
+
+                    <div class="space-y-3 ml-4 text-xl text-slate-800">
+                        <p>Instead of a large matrix, we just keep a list of connected nodes (neighbors) for every vertex.</p>
+                        <p>Think of it as a dictionary: you look up a node, and it tells you exactly who it connects to.</p>
+                        <p>We can build these lists using either <strong>Linked Lists</strong> or <strong>Arrays</strong>.</p>
+                    </div>
+
+                    <div class="break-inside-avoid bg-white p-4 rounded-xl border border-slate-300 shadow-sm max-w-sm mt-6">
+                        <h4 class="text-2xl font-bold text-inkBlue mb-2">Example (0-3 Graph):-</h4>
+                        <div class="h-48 w-full relative">
+                            <canvas id="canvasListEx0" class="w-full h-full"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="mt-8 border-t-2 border-dashed border-slate-300 pt-8 break-inside-avoid">
+                        <h3 class="text-3xl font-bold text-inkBlue mb-4">Consider the following directed graph representation implemented using linked list:</h3>
+                        <p class="ml-4 font-bold">1. Graph representation using linked list.</p>
+                        <p class="ml-4 font-bold">2. Graph representation using array.</p>
+
+                        <!-- Main Directed Graph Drawing -->
+                        <div class="w-full max-w-lg h-64 mx-auto my-6 bg-amber-50/30 border border-slate-200 rounded-xl relative p-2 shadow-sm">
+                            <canvas id="canvasListExMain" class="w-full h-full"></canvas>
+                        </div>
+
+                        <!-- Linked List Representation -->
+                        <div class="mt-8 bg-red-50/40 p-6 rounded-xl border border-red-200">
+                            <h4 class="text-2xl font-bold text-inkRed underline mb-4">1. Graph representation using Linked List:-</h4>
+                            <p class="ml-4 mb-4 text-lg">In this representation, we keep a list of neighbors for each vertex in the graph. It means that each vertex has a list of its neighbors. Each array element points to a single linked list of vertex's neighbors and the array is indexed by the vertex number.</p>
+
+                            <div class="mt-4 pl-2 sm:pl-6">
+                                <div class="adj-row">
+                                    <div class="adj-head-wrapper"><div class="adj-head-box">A</div></div>
+                                    <span class="adj-arrow">⟶</span>
+                                    <div class="adj-ll-node"><div class="adj-ll-val">C</div><div class="adj-ll-ptr dot"></div></div><span class="adj-arrow">⟶</span>
+                                    <div class="adj-ll-node"><div class="adj-ll-val">B</div><div class="adj-ll-ptr dot"></div></div><span class="adj-arrow">⟶</span>
+                                    <div class="adj-ll-node"><div class="adj-ll-val">D</div><div class="adj-ll-ptr null"></div></div>
+                                </div>
+                                <div class="adj-row">
+                                    <div class="adj-head-wrapper"><div class="adj-head-box">B</div></div>
+                                    <span class="adj-arrow">⟶</span>
+                                    <div class="adj-ll-node"><div class="adj-ll-val">C</div><div class="adj-ll-ptr dot"></div></div><span class="adj-arrow">⟶</span>
+                                    <div class="adj-ll-node"><div class="adj-ll-val">A</div><div class="adj-ll-ptr dot"></div></div><span class="adj-arrow">⟶</span>
+                                    <div class="adj-ll-node"><div class="adj-ll-val">D</div><div class="adj-ll-ptr null"></div></div>
+                                </div>
+                                <div class="adj-row">
+                                    <div class="adj-head-wrapper"><div class="adj-head-box">C</div></div>
+                                    <span class="adj-arrow">⟶</span>
+                                    <div class="adj-ll-node"><div class="adj-ll-val">A</div><div class="adj-ll-ptr dot"></div></div><span class="adj-arrow">⟶</span>
+                                    <div class="adj-ll-node"><div class="adj-ll-val">D</div><div class="adj-ll-ptr null"></div></div>
+                                </div>
+                                <div class="adj-row">
+                                    <div class="adj-head-wrapper"><div class="adj-head-box">D</div></div>
+                                    <span class="adj-arrow">⟶</span>
+                                    <div class="adj-ll-node"><div class="adj-ll-val">A</div><div class="adj-ll-ptr dot"></div></div><span class="adj-arrow">⟶</span>
+                                    <div class="adj-ll-node"><div class="adj-ll-val">B</div><div class="adj-ll-ptr dot"></div></div><span class="adj-arrow">⟶</span>
+                                    <div class="adj-ll-node"><div class="adj-ll-val">C</div><div class="adj-ll-ptr dot"></div></div><span class="adj-arrow">⟶</span>
+                                    <div class="adj-ll-node"><div class="adj-ll-val">E</div><div class="adj-ll-ptr null"></div></div>
+                                </div>
+                                <div class="adj-row">
+                                    <div class="adj-head-wrapper"><div class="adj-head-box">E</div></div>
+                                    <span class="adj-arrow">⟶</span>
+                                    <div class="adj-ll-node"><div class="adj-ll-val">D</div><div class="adj-ll-ptr dot"></div></div><span class="adj-arrow">⟶</span>
+                                    <div class="adj-ll-node"><div class="adj-ll-val">B</div><div class="adj-ll-ptr null"></div></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Array Representation -->
+                        <div class="mt-8 bg-blue-50/40 p-6 rounded-xl border border-blue-200">
+                            <h4 class="text-2xl font-bold text-inkBlue underline mb-4">2. Graph Representation using Array:-</h4>
+                            <p class="ml-4 mb-4 text-lg">An adjacency matrix represents a graph as a two dimensional array. Each vertex is assigned a distinct index in it. If the graph is represented by the 2D array m. Then the edge from vertex i to vertex j is recorded at m[i][j].</p>
+
+                            <div class="mt-4 pl-2 sm:pl-6">
+                                <div class="adj-row">
+                                    <div class="adj-head-wrapper"><span class="adj-idx">0</span><div class="adj-head-box">A</div></div>
+                                    <span class="adj-arrow">⟶</span>
+                                    <div class="adj-array-container"><div class="adj-array-cell">B</div><div class="adj-array-cell">C</div><div class="adj-array-cell">D</div></div>
+                                </div>
+                                <div class="adj-row">
+                                    <div class="adj-head-wrapper"><span class="adj-idx">1</span><div class="adj-head-box">B</div></div>
+                                    <span class="adj-arrow">⟶</span>
+                                    <div class="adj-array-container"><div class="adj-array-cell">A</div><div class="adj-array-cell">D</div><div class="adj-array-cell">E</div></div>
+                                </div>
+                                <div class="adj-row">
+                                    <div class="adj-head-wrapper"><span class="adj-idx">2</span><div class="adj-head-box">C</div></div>
+                                    <span class="adj-arrow">⟶</span>
+                                    <div class="adj-array-container"><div class="adj-array-cell">A</div><div class="adj-array-cell">D</div></div>
+                                </div>
+                                <div class="adj-row">
+                                    <div class="adj-head-wrapper"><span class="adj-idx">3</span><div class="adj-head-box">D</div></div>
+                                    <span class="adj-arrow">⟶</span>
+                                    <div class="adj-array-container"><div class="adj-array-cell">A</div><div class="adj-array-cell">B</div><div class="adj-array-cell">C</div><div class="adj-array-cell">E</div></div>
+                                </div>
+                                <div class="adj-row">
+                                    <div class="adj-head-wrapper"><span class="adj-idx">4</span><div class="adj-head-box">E</div></div>
+                                    <span class="adj-arrow">⟶</span>
+                                    <div class="adj-array-container"><div class="adj-array-cell">B</div><div class="adj-array-cell">D</div></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECTION 4: COMPLEX GRAPH RUN -->
+                <section id="sec-complex-graph" class="tab-content hidden space-y-8">
+                    <div class="flex justify-between items-center border-b-2 border-inkBlue pb-2 mb-6">
+                        <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue">Complex Graph Representation</h1>
+                        <span class="text-xl text-inkRed font-semibold">Page 5</span>
+                    </div>
+
+                    <!-- Complex Graph Drawing -->
+                    <div class="w-full max-w-2xl h-80 mx-auto my-6 bg-white border border-slate-300 rounded-xl relative p-2 shadow-sm">
+                        <canvas id="canvasComplexGraph" class="w-full h-full"></canvas>
+                    </div>
+
+                    <!-- Linked List Representation -->
+                    <div class="bg-amber-50/50 p-6 rounded-xl border border-amber-200 break-inside-avoid">
+                        <h3 class="text-3xl font-bold text-inkRed underline mb-6">Linked list:-</h3>
+                        
+                        <div class="mt-4 pl-2 sm:pl-6">
+                            <div class="adj-row">
+                                <div class="adj-head-wrapper"><div class="adj-head-box">A</div></div><span class="adj-arrow">⟶</span>
+                                <div class="adj-ll-node"><div class="adj-ll-val">B</div><div class="adj-ll-ptr dot"></div></div><span class="adj-arrow">⟶</span>
+                                <div class="adj-ll-node"><div class="adj-ll-val">F</div><div class="adj-ll-ptr dot"></div></div><span class="adj-arrow">⟶</span>
+                                <div class="adj-ll-node"><div class="adj-ll-val">E</div><div class="adj-ll-ptr dot"></div></div><span class="adj-arrow">⟶</span>
+                                <div class="adj-ll-node"><div class="adj-ll-val">A</div><div class="adj-ll-ptr null"></div></div>
+                            </div>
+                            <div class="adj-row">
+                                <div class="adj-head-wrapper"><div class="adj-head-box">B</div></div><span class="adj-arrow">⟶</span>
+                                <div class="adj-ll-node"><div class="adj-ll-val">A</div><div class="adj-ll-ptr dot"></div></div><span class="adj-arrow">⟶</span>
+                                <div class="adj-ll-node"><div class="adj-ll-val">F</div><div class="adj-ll-ptr dot"></div></div><span class="adj-arrow">⟶</span>
+                                <div class="adj-ll-node"><div class="adj-ll-val">G</div><div class="adj-ll-ptr dot"></div></div><span class="adj-arrow">⟶</span>
+                                <div class="adj-ll-node"><div class="adj-ll-val">C</div><div class="adj-ll-ptr null"></div></div>
+                            </div>
+                            <div class="adj-row">
+                                <div class="adj-head-wrapper"><div class="adj-head-box">C</div></div><span class="adj-arrow">⟶</span>
+                                <div class="adj-ll-node"><div class="adj-ll-val">C</div><div class="adj-ll-ptr dot"></div></div><span class="adj-arrow">⟶</span>
+                                <div class="adj-ll-node"><div class="adj-ll-val">B</div><div class="adj-ll-ptr dot"></div></div><span class="adj-arrow">⟶</span>
+                                <div class="adj-ll-node"><div class="adj-ll-val">G</div><div class="adj-ll-ptr dot"></div></div><span class="adj-arrow">⟶</span>
+                                <div class="adj-ll-node"><div class="adj-ll-val">D</div><div class="adj-ll-ptr dot"></div></div><span class="adj-arrow">⟶</span>
+                                <div class="adj-ll-node"><div class="adj-ll-val">H</div><div class="adj-ll-ptr null"></div></div>
+                            </div>
+                            <div class="adj-row">
+                                <div class="adj-head-wrapper"><div class="adj-head-box">D</div></div><span class="adj-arrow">⟶</span>
+                                <div class="adj-ll-node"><div class="adj-ll-val">C</div><div class="adj-ll-ptr dot"></div></div><span class="adj-arrow">⟶</span>
+                                <div class="adj-ll-node"><div class="adj-ll-val">H</div><div class="adj-ll-ptr null"></div></div>
+                            </div>
+                            <div class="adj-row">
+                                <div class="adj-head-wrapper"><div class="adj-head-box">E</div></div><span class="adj-arrow">⟶</span>
+                                <div class="adj-ll-node"><div class="adj-ll-val">A</div><div class="adj-ll-ptr dot"></div></div><span class="adj-arrow">⟶</span>
+                                <div class="adj-ll-node"><div class="adj-ll-val">F</div><div class="adj-ll-ptr null"></div></div>
+                            </div>
+                            <div class="adj-row">
+                                <div class="adj-head-wrapper"><div class="adj-head-box">F</div></div><span class="adj-arrow">⟶</span>
+                                <div class="adj-ll-node"><div class="adj-ll-val">F</div><div class="adj-ll-ptr dot"></div></div><span class="adj-arrow">⟶</span>
+                                <div class="adj-ll-node"><div class="adj-ll-val">E</div><div class="adj-ll-ptr dot"></div></div><span class="adj-arrow">⟶</span>
+                                <div class="adj-ll-node"><div class="adj-ll-val">A</div><div class="adj-ll-ptr dot"></div></div><span class="adj-arrow">⟶</span>
+                                <div class="adj-ll-node"><div class="adj-ll-val">B</div><div class="adj-ll-ptr dot"></div></div><span class="adj-arrow">⟶</span>
+                                <div class="adj-ll-node"><div class="adj-ll-val">G</div><div class="adj-ll-ptr null"></div></div>
+                            </div>
+                            <div class="adj-row">
+                                <div class="adj-head-wrapper"><div class="adj-head-box">G</div></div><span class="adj-arrow">⟶</span>
+                                <div class="adj-ll-node"><div class="adj-ll-val">F</div><div class="adj-ll-ptr dot"></div></div><span class="adj-arrow">⟶</span>
+                                <div class="adj-ll-node"><div class="adj-ll-val">B</div><div class="adj-ll-ptr dot"></div></div><span class="adj-arrow">⟶</span>
+                                <div class="adj-ll-node"><div class="adj-ll-val">C</div><div class="adj-ll-ptr dot"></div></div><span class="adj-arrow">⟶</span>
+                                <div class="adj-ll-node"><div class="adj-ll-val">H</div><div class="adj-ll-ptr null"></div></div>
+                            </div>
+                            <div class="adj-row">
+                                <div class="adj-head-wrapper"><div class="adj-head-box">H</div></div><span class="adj-arrow">⟶</span>
+                                <div class="adj-ll-node"><div class="adj-ll-val">H</div><div class="adj-ll-ptr dot"></div></div><span class="adj-arrow">⟶</span>
+                                <div class="adj-ll-node"><div class="adj-ll-val">G</div><div class="adj-ll-ptr dot"></div></div><span class="adj-arrow">⟶</span>
+                                <div class="adj-ll-node"><div class="adj-ll-val">C</div><div class="adj-ll-ptr dot"></div></div><span class="adj-arrow">⟶</span>
+                                <div class="adj-ll-node"><div class="adj-ll-val">D</div><div class="adj-ll-ptr null"></div></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Array Representation -->
+                    <div class="bg-blue-50/50 p-6 rounded-xl border border-blue-200 break-inside-avoid mt-8">
+                        <h3 class="text-3xl font-bold text-inkBlue underline mb-6">Array:-</h3>
+                        
+                        <div class="mt-4 pl-2 sm:pl-6">
+                            <div class="adj-row">
+                                <div class="adj-head-wrapper"><span class="adj-idx">0</span><div class="adj-head-box">A</div></div><span class="adj-arrow">⟶</span>
+                                <div class="adj-array-container"><div class="adj-array-cell">B</div><div class="adj-array-cell">F</div><div class="adj-array-cell">E</div><div class="adj-array-cell">A</div></div>
+                            </div>
+                            <div class="adj-row">
+                                <div class="adj-head-wrapper"><span class="adj-idx">1</span><div class="adj-head-box">B</div></div><span class="adj-arrow">⟶</span>
+                                <div class="adj-array-container"><div class="adj-array-cell">A</div><div class="adj-array-cell">F</div><div class="adj-array-cell">G</div><div class="adj-array-cell">C</div></div>
+                            </div>
+                            <div class="adj-row">
+                                <div class="adj-head-wrapper"><span class="adj-idx">2</span><div class="adj-head-box">C</div></div><span class="adj-arrow">⟶</span>
+                                <div class="adj-array-container"><div class="adj-array-cell">C</div><div class="adj-array-cell">B</div><div class="adj-array-cell">G</div><div class="adj-array-cell">D</div><div class="adj-array-cell">H</div></div>
+                            </div>
+                            <div class="adj-row">
+                                <div class="adj-head-wrapper"><span class="adj-idx">3</span><div class="adj-head-box">D</div></div><span class="adj-arrow">⟶</span>
+                                <div class="adj-array-container"><div class="adj-array-cell">C</div><div class="adj-array-cell">H</div></div>
+                            </div>
+                            <div class="adj-row">
+                                <div class="adj-head-wrapper"><span class="adj-idx">4</span><div class="adj-head-box">E</div></div><span class="adj-arrow">⟶</span>
+                                <div class="adj-array-container"><div class="adj-array-cell">A</div><div class="adj-array-cell">F</div></div>
+                            </div>
+                            <div class="adj-row">
+                                <div class="adj-head-wrapper"><span class="adj-idx">5</span><div class="adj-head-box">F</div></div><span class="adj-arrow">⟶</span>
+                                <div class="adj-array-container"><div class="adj-array-cell">F</div><div class="adj-array-cell">C</div><div class="adj-array-cell">A</div><div class="adj-array-cell">B</div><div class="adj-array-cell">G</div></div>
+                            </div>
+                            <div class="adj-row">
+                                <div class="adj-head-wrapper"><span class="adj-idx">6</span><div class="adj-head-box">G</div></div><span class="adj-arrow">⟶</span>
+                                <div class="adj-array-container"><div class="adj-array-cell">F</div><div class="adj-array-cell">B</div><div class="adj-array-cell">C</div><div class="adj-array-cell">H</div></div>
+                            </div>
+                            <div class="adj-row">
+                                <div class="adj-head-wrapper"><span class="adj-idx">7</span><div class="adj-head-box">H</div></div><span class="adj-arrow">⟶</span>
+                                <div class="adj-array-container"><div class="adj-array-cell">H</div><div class="adj-array-cell">G</div><div class="adj-array-cell">C</div><div class="adj-array-cell">D</div></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECTION 5: BASIC SEARCH & TRAVERSAL -->
+                <section id="sec-search-traversal" class="tab-content hidden space-y-8">
+                    <div class="flex justify-between items-center border-b-2 border-emerald-600 pb-2 mb-6">
+                        <h1 class="text-4xl sm:text-5xl font-bold text-emerald-800">Basic Search and Traversal:-</h1>
+                        <span class="text-xl text-inkBlue font-semibold">Page 5-7</span>
+                    </div>
+
+                    <p class="text-2xl font-bold ml-4 text-slate-800">
+                        There are two types of search and three types of traversals
+                    </p>
+
+                    <div class="flex flex-col md:flex-row gap-6 mt-6 break-inside-avoid">
+                        <div class="flex-1 bg-emerald-50/50 p-6 rounded-xl border border-emerald-200">
+                            <h3 class="text-3xl font-bold text-inkBlue mb-4">1. Search techniques</h3>
+                            <ul class="list-none space-y-2 ml-10 text-2xl font-bold text-inkRed">
+                                <li>(i) BFS</li>
+                                <li>(ii) DFS</li>
+                            </ul>
+                        </div>
+                        <div class="flex-1 bg-amber-50/50 p-6 rounded-xl border border-amber-200">
+                            <h3 class="text-3xl font-bold text-inkBlue mb-4">2. Traversal techniques</h3>
+                            <ul class="list-none space-y-2 ml-10 text-2xl font-bold text-inkRed">
+                                <li>(i) Inorder</li>
+                                <li>(ii) Preorder</li>
+                                <li>(iii) Postorder</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="mt-8 border-t-2 border-dashed border-slate-300 pt-8 break-inside-avoid">
+                        <h2 class="text-4xl font-bold text-inkRed underline mb-4">Traversal:-</h2>
+                        <p class="text-xl leading-relaxed ml-4">
+                            Traversing a tree means visited on out putting the value of each node in a particular order. In this traversal we use the traversal methods (or) techniques.
+                        </p>
+                    </div>
+
+                    <!-- Inorder -->
+                    <div class="mt-8 break-inside-avoid bg-white p-6 rounded-xl border border-slate-300 shadow-sm">
+                        <h3 class="text-3xl font-bold text-inkBlue mb-4">(i) Inorder:-</h3>
+                        <p class="text-xl ml-4 mb-4">At first traverse the left sub-tree and then visit the root and then traverse the right sub-tree.</p>
+                        
+                        <div class="bg-amber-50 p-4 rounded-lg border border-amber-200 mb-6">
+                            <h4 class="text-2xl font-bold text-inkRed mb-2 underline">Algorithm for Inorder:-</h4>
+                            <ul class="list-none space-y-1 ml-4 text-xl">
+                                <li><span class="font-bold">Step-1 :-</span> Start</li>
+                                <li><span class="font-bold">Step-2 :-</span> Traverse the left sub-tree.</li>
+                                <li><span class="font-bold">Step-3 :-</span> Visit the root node and print the data.</li>
+                                <li><span class="font-bold">Step-4 :-</span> Traverse the right sub-tree.</li>
+                                <li><span class="font-bold">Step-5 :-</span> Stop.</li>
+                            </ul>
+                        </div>
+
+                        <div class="flex flex-col lg:flex-row items-center gap-8">
+                            <div class="w-full lg:w-1/2 h-64 relative border border-slate-200 rounded-lg bg-amber-50/20">
+                                <canvas id="canvasInorderTree" class="w-full h-full"></canvas>
+                            </div>
+                            <div class="w-full lg:w-1/2 space-y-4">
+                                <div class="inline-block border-2 border-inkBlue px-4 py-1 font-bold text-2xl text-inkBlue mx-auto">
+                                    L R Ri
+                                </div>
+                                <div class="font-bold text-inkRed text-xl">
+                                    Ex:- 20 10 25 5 15 23 28 4 18 21 29
+                                </div>
+                                <div class="font-bold text-inkBlue text-xl bg-slate-100 p-3 rounded">
+                                    Result: 4 5 10 15 18 20 21 23 25 28 29
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Preorder -->
+                    <div class="mt-8 break-inside-avoid bg-white p-6 rounded-xl border border-slate-300 shadow-sm">
+                        <h3 class="text-3xl font-bold text-inkBlue mb-4">(ii) Pre-order Traversal:-</h3>
+                        <p class="text-xl ml-4 mb-4">At first visit the root then traverse left sub-tree and then traverse the right-sub tree.</p>
+                        
+                        <div class="bg-blue-50 p-4 rounded-lg border border-blue-200 mb-6">
+                            <h4 class="text-2xl font-bold text-inkRed mb-2 underline">Algorithm for pre-order traversal:-</h4>
+                            <ul class="list-none space-y-1 ml-4 text-xl">
+                                <li><span class="font-bold">Step-1 :-</span> Start</li>
+                                <li><span class="font-bold">Step-2 :-</span> Visit the root and print the data</li>
+                                <li><span class="font-bold">Step-3 :-</span> Traverse left subtree</li>
+                                <li><span class="font-bold">Step-4 :-</span> Traverse the right sub-tree</li>
+                                <li><span class="font-bold">Step-5 :-</span> Stop.</li>
+                            </ul>
+                        </div>
+
+                        <div class="flex flex-col lg:flex-row items-center gap-8">
+                            <div class="w-full lg:w-1/2 h-64 relative border border-slate-200 rounded-lg bg-blue-50/20">
+                                <canvas id="canvasPreorderTree" class="w-full h-full"></canvas>
+                            </div>
+                            <div class="w-full lg:w-1/2 space-y-4">
+                                <div class="inline-block border-2 border-inkBlue px-4 py-1 font-bold text-2xl text-inkBlue mx-auto">
+                                    R L Ri
+                                </div>
+                                <div class="font-bold text-inkRed text-xl">
+                                    Ex:- 40 30 45 20 15 35 39 43 41 46 50
+                                </div>
+                                <div class="font-bold text-inkBlue text-xl bg-slate-100 p-3 rounded">
+                                    Result: 40 30 20 15 35 39 45 43 41 46 50
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Postorder -->
+                    <div class="mt-8 break-inside-avoid bg-white p-6 rounded-xl border border-slate-300 shadow-sm">
+                        <h3 class="text-3xl font-bold text-inkBlue mb-4">(iii) Post-order traversal:-</h3>
+                        <p class="text-xl ml-4 mb-4">At first traverse left subtree then traverse right sub-tree and then visit the root.</p>
+                        
+                        <div class="bg-emerald-50 p-4 rounded-lg border border-emerald-200 mb-6">
+                            <h4 class="text-2xl font-bold text-inkRed mb-2 underline">Algorithm for post order traversal:-</h4>
+                            <ul class="list-none space-y-1 ml-4 text-xl">
+                                <li><span class="font-bold">Step-1 :-</span> Start</li>
+                                <li><span class="font-bold">Step-2 :-</span> Traverse the left-sub tree</li>
+                                <li><span class="font-bold">Step-3 :-</span> Traverse the right sub tree</li>
+                                <li><span class="font-bold">Step-4 :-</span> Visit the root and print the data</li>
+                                <li><span class="font-bold">Step-5 :-</span> Stop.</li>
+                            </ul>
+                        </div>
+
+                        <div class="flex flex-col lg:flex-row items-center gap-8">
+                            <div class="w-full lg:w-1/2 h-64 relative border border-slate-200 rounded-lg bg-emerald-50/20">
+                                <canvas id="canvasPostorderTree" class="w-full h-full"></canvas>
+                            </div>
+                            <div class="w-full lg:w-1/2 space-y-4">
+                                <div class="inline-block border-2 border-inkBlue px-4 py-1 font-bold text-2xl text-inkBlue mx-auto">
+                                    L Ri R
+                                </div>
+                                <div class="font-bold text-inkRed text-xl">
+                                    Ex:- 1000 100 2000 50 150 1500 3000 25 200 13000 4000
+                                </div>
+                                <div class="font-bold text-inkBlue text-xl bg-slate-100 p-3 rounded">
+                                    Result: 25 50 200 150 100 1500 13000 4000 3000 2000 1000
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- BFS -->
+                    <div class="mt-8 border-t-2 border-dashed border-slate-300 pt-8 break-inside-avoid">
+                        <h2 class="text-3xl font-bold text-inkRed mb-4">BFS (Breadth First Search):-</h2>
+                        <p class="text-xl leading-relaxed ml-4 mb-4">
+                            It is a graph traversal algorithm that explores all the vertices in a graph at the current depth before moving on to the vertices at the next depth level.
+                        </p>
+                        <ul class="list-disc list-inside space-y-2 ml-8 text-xl">
+                            <li>It start at a specific vertex and visit all of its neighbours before moving on to the next level of neighbours.</li>
+                            <li>BFS is commonly used in algorithms for path finding connected components, and shortest path problems in a graph.</li>
+                            <li>In BFS we are using a "queue". <strong>The output is generated by printing each node as it gets dequeued from the front of the queue.</strong></li>
+                        </ul>
+
+                        <h3 class="text-3xl font-bold text-inkBlue mt-10 mb-6 border-b-2 border-amber-200 pb-2">BFS Step-by-Step Traversal:</h3>
+                        
+                        <div class="space-y-8" id="bfs-dynamic-steps-container">
+                            <!-- Step-by-step traversal will be dynamically injected here to maintain clean code -->
+                        </div>
+
+                    </div>
+                </section>
+
+                <!-- SECTION 6: DFS TRAVERSAL -->
+                <section id="sec-dfs" class="tab-content hidden space-y-8">
+                    <div class="flex justify-between items-center border-b-2 border-emerald-600 pb-2 mb-6">
+                        <h1 class="text-4xl sm:text-5xl font-bold text-emerald-800">DFS (Depth First Search):-</h1>
+                        <span class="text-xl text-inkBlue font-semibold">Page 8-10</span>
+                    </div>
+
+                    <div class="space-y-4">
+                        <p class="text-xl leading-relaxed ml-4">
+                            The algorithm is a recursive algorithm for searching all the vertices of a graph or tree data structure. This algorithm traverses a graph in a depthward motion and we uses a stack to remember to get the next vertex to start a search, when a dead end occurs in any iteration.
+                        </p>
+                    </div>
+
+                    <div class="bg-amber-50/50 p-6 rounded-xl border border-amber-200 mt-6 break-inside-avoid shadow-sm">
+                        <h3 class="text-3xl font-bold text-inkRed mb-4 underline">Rules for DFS:</h3>
+                        <div class="space-y-5 text-xl ml-4">
+                            <p class="flex gap-3"><span class="font-bold text-inkBlue whitespace-nowrap">Rule 1 (Visit & Push):</span> <span>If the top of the stack has an adjacent <strong>unvisited</strong> vertex, visit it, mark it as visited, print it, and <strong>push it onto the stack</strong>.</span></p>
+                            <p class="flex gap-3"><span class="font-bold text-inkRed whitespace-nowrap">Rule 2 (Backtrack & Pop):</span> <span>If the top of the stack has <strong>NO</strong> adjacent unvisited vertices (a dead end), <strong>pop the vertex</strong> off the top of the stack to backtrack.</span></p>
+                            <p class="flex gap-3"><span class="font-bold text-emerald-700 whitespace-nowrap">Rule 3 (Terminate):</span> <span>Repeat Rule 1 and Rule 2 until the stack becomes completely <strong>empty</strong>.</span></p>
+                        </div>
+                    </div>
+
+                    <!-- Example 1 DFS -->
+                    <div class="mt-10 border-t-2 border-dashed border-slate-300 pt-8 break-inside-avoid">
+                        <h2 class="text-4xl font-bold text-inkBlue mb-6">Example - 1</h2>
+                        
+                        <div class="space-y-12" id="dfs-ex1-container">
+                            <!-- DFS Ex 1 steps will be injected here -->
+                        </div>
+                    </div>
+
+                    <!-- Example 2 DFS -->
+                    <div class="mt-10 border-t-2 border-dashed border-slate-300 pt-8 break-inside-avoid">
+                        <h2 class="text-4xl font-bold text-inkBlue mb-6">Example - 2</h2>
+                        
+                        <div class="space-y-12" id="dfs-ex2-container">
+                            <!-- DFS Ex 2 steps will be injected here -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECTION 7: GRAPH COMPONENTS & PROPERTIES -->
+                <section id="sec-graph-components" class="tab-content hidden space-y-8">
+                    <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6">
+                        <h1 class="text-4xl sm:text-5xl font-bold text-inkRed">Graph Components & Properties</h1>
+                        <span class="text-xl text-inkBlue font-semibold">Page 10-12</span>
+                    </div>
+
+                    <!-- Connected Graph -->
+                    <div class="break-inside-avoid">
+                        <h2 class="text-3xl font-bold text-inkBlue mb-4 underline">Connected components (or) Connected graph:-</h2>
+                        <ul class="list-disc list-inside space-y-2 ml-4 text-xl">
+                            <li>A Graph in which we can visit from one vertex to any other vertex is called as a connected graph.</li>
+                            <li>In a connected graph, at least one path exists between <strong>every</strong> pair of vertices.</li>
+                            <li>Here in this graph we can visit from one vertex to any other vertex. There exists at least one path between every pair of vertices. Therefore, It is a connected graph.</li>
+                        </ul>
+                        
+                        <div class="flex flex-col md:flex-row gap-8 items-center justify-center mt-6">
+                            <div class="text-center w-full max-w-sm">
+                                <h3 class="text-2xl font-bold text-inkBlue mb-2">Connected Graph</h3>
+                                <div class="w-full h-48 relative bg-emerald-50/30 border border-slate-200 rounded-lg p-2">
+                                    <canvas id="canvasConnected" class="w-full h-full"></canvas>
+                                </div>
+                                <p class="mt-2 text-lg">Every node can reach every other node.</p>
+                            </div>
+                            <div class="text-center w-full max-w-sm">
+                                <h3 class="text-2xl font-bold text-inkRed mb-2">Disconnected Graph</h3>
+                                <div class="w-full h-48 relative bg-red-50/30 border border-slate-200 rounded-lg p-2">
+                                    <canvas id="canvasDisconnected" class="w-full h-full"></canvas>
+                                </div>
+                                <p class="mt-2 text-lg">Node E is isolated. No path exists to it.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Biconnected Graph -->
+                    <div class="mt-12 break-inside-avoid border-t-2 border-dashed border-slate-300 pt-8">
+                        <h2 class="text-3xl font-bold text-inkRed mb-4 underline">* Biconnected Graph or biconnected components:-</h2>
+                        <ul class="list-disc list-inside space-y-3 ml-4 text-xl">
+                            <li>An undirected graph is called biconnected if there are <strong>two vertex disjoint paths</strong> between any two vertices.</li>
+                            <li>In a biconnected graph, there is a simple cycle through any two vertices.</li>
+                            <li>A graph is said to be biconnected if they satisfy these two conditions:
+                                <ol class="list-[lower-roman] list-inside ml-8 mt-2 space-y-2">
+                                    <li>It is <strong>connected</strong> (it is possible to reach every vertex from every other vertex, by a simple path).</li>
+                                    <li><strong>Even after removing any single vertex</strong> (and its incident edges), the graph remains connected. It has <strong>no Articulation Points</strong>.</li>
+                                </ol>
+                            </li>
+                        </ul>
+                        
+                        <div class="mt-6 flex flex-col md:flex-row gap-8 items-start justify-center">
+                            <!-- Biconnected Example 1 -->
+                            <div class="text-center w-full lg:w-1/2 flex flex-col items-center">
+                                <h3 class="text-2xl font-bold text-inkBlue mb-2">Example 1 (Biconnected):</h3>
+                                <div class="w-full max-w-sm h-48 relative bg-emerald-50 border border-emerald-200 rounded p-2 shadow-sm">
+                                    <canvas id="canvasBiconnectedEx1" class="w-full h-full"></canvas>
+                                </div>
+                                <p class="mt-4 text-lg text-left bg-white p-3 rounded border border-slate-200 w-full max-w-sm">
+                                    <strong>Why?</strong> Removing any single node (e.g., removing D) still leaves a path between all remaining nodes (A, B, C). There is no single point of failure.
+                                </p>
+                            </div>
+
+                            <!-- Biconnected Example 2 -->
+                            <div class="text-center w-full lg:w-1/2 flex flex-col items-center">
+                                <h3 class="text-2xl font-bold text-inkRed mb-2">Example 2 (NOT Biconnected):</h3>
+                                <div class="w-full max-w-sm h-48 relative bg-red-50 border border-red-200 rounded p-2 shadow-sm">
+                                    <canvas id="canvasBiconnectedEx2" class="w-full h-full"></canvas>
+                                </div>
+                                <p class="mt-4 text-lg text-left bg-white p-3 rounded border border-slate-200 w-full max-w-sm">
+                                    <strong>Why?</strong> Node <strong class="text-inkRed">0</strong> and Node <strong class="text-inkRed">2</strong> are <strong>Articulation Points</strong> (highlighted red). If you remove Node 0, Node 1 is completely disconnected from 2, 3, and 4!
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Applications -->
+                    <div class="mt-12 break-inside-avoid border-t-2 border-dashed border-slate-300 pt-6">
+                        <h2 class="text-3xl font-bold text-inkBlue mb-6 underline">Applications of Graph:-</h2>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="bg-amber-50 p-4 rounded-xl border border-amber-200 shadow-sm">
+                                <ol class="list-decimal list-inside space-y-3 text-xl font-semibold">
+                                    <li>Social media analysis</li>
+                                    <li>Network Monitoring</li>
+                                    <li>Financial Trading</li>
+                                    <li>Internet of Things (IOT)</li>
+                                    <li>Autonomous vehicles</li>
+                                </ol>
+                            </div>
+                            <div class="bg-amber-50 p-4 rounded-xl border border-amber-200 shadow-sm">
+                                <ol class="list-decimal list-inside space-y-3 text-xl font-semibold" start="6">
+                                    <li>Disease surveillance</li>
+                                    <li>Visualization</li>
+                                    <li>Machine learning</li>
+                                    <li>Webpages (PageRank, routing)</li>
+                                    <li><strong>Graph Transforming:</strong> Using Graph Grammars and rewriting systems to modify structures for compilers, state-transition analysis, and digital twin networks.</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Advantages & Disadvantages -->
+                    <div class="flex flex-col md:flex-row gap-8 mt-8 break-inside-avoid">
+                        <div class="flex-1 bg-emerald-50/50 p-6 rounded-xl border border-emerald-200">
+                            <h2 class="text-3xl font-bold text-emerald-800 mb-4 underline">Advantages of Graphs:-</h2>
+                            <ol class="list-decimal list-inside space-y-2 ml-4 text-xl font-semibold">
+                                <li>Representing complex data</li>
+                                <li>Efficient Data processing</li>
+                                <li>Network Analysis</li>
+                                <li>Pathfinding</li>
+                            </ol>
+                        </div>
+                        <div class="flex-1 bg-red-50/50 p-6 rounded-xl border border-red-200">
+                            <h2 class="text-3xl font-bold text-inkRed mb-4 underline">Disadvantages of Graph:-</h2>
+                            <ol class="list-decimal list-inside space-y-2 ml-4 text-xl font-semibold">
+                                <li>Limited Representation</li>
+                                <li>Difficulty in Interpretation</li>
+                                <li>Scalability issues</li>
+                                <li>Data quality issues</li>
+                                <li>Lack of standardization</li>
+                                <li>Privacy concerns</li>
+                            </ol>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- JavaScript Logic & Canvas Rendering Engine -->
+    <script>
+        // Global Navigation State
+        let currentTab = 'terminologies';
+        let isCleanFont = false;
+
+        function switchTab(tabId) {
+            currentTab = tabId;
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.nav-tab').forEach(el => {
+                el.classList.remove('bg-amber-200', 'text-inkBlue', 'border-b-2', 'border-inkBlue');
+                el.classList.add('text-gray-600');
+            });
+
+            document.getElementById(`sec-${tabId}`).classList.remove('hidden');
+            const activeNav = document.getElementById(`tab-${tabId}`);
+            if(activeNav) {
+                activeNav.classList.add('bg-amber-200', 'text-inkBlue', 'border-b-2', 'border-inkBlue');
+                activeNav.classList.remove('text-gray-600');
+            }
+
+            // Render specific canvas based on tab
+            setTimeout(() => {
+                if(tabId === 'terminologies') renderTerminologiesGraphs();
+                if(tabId === 'adj-matrix') renderMatrixGraphs();
+                if(tabId === 'adj-list') renderListGraphs();
+                if(tabId === 'complex-graph') renderComplexGraph();
+                if(tabId === 'search-traversal') renderTraversalTrees();
+                if(tabId === 'dfs') renderDFSSteps();
+                if(tabId === 'graph-components') renderComponentGraphs();
+            }, 50);
+        }
+
+        function toggleStyleMode() {
+            isCleanFont = !isCleanFont;
+            const body = document.body;
+            const styleBtnText = document.getElementById('styleBtnText');
+            if(isCleanFont) {
+                body.classList.remove('font-notes-body');
+                body.classList.add('font-clean-mode');
+                styleBtnText.innerText = "Switch to Handwritten Font";
+            } else {
+                body.classList.remove('font-clean-mode');
+                body.classList.add('font-notes-body');
+                styleBtnText.innerText = "Switch to Clean Print Font";
+            }
+        }
+
+        /* ----------------------------------------------------------------------
+           CORE GRAPH DRAWING ENGINE
+        ---------------------------------------------------------------------- */
+        function drawGraph(canvasId, nodes, edges, isTree = false) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            
+            const rect = canvas.parentElement.getBoundingClientRect();
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            ctx.scale(dpr, dpr);
+            
+            ctx.clearRect(0, 0, rect.width, rect.height);
+            // Smaller radius for trees with many nodes
+            const nodeRadius = isTree ? (nodes.length > 10 ? 12 : 16) : 16;
+
+            // Define node positions based on logical relative coords (0-1) to fit responsive canvas
+            const pos = {};
+            nodes.forEach(n => {
+                pos[n.id] = {
+                    x: n.x * (rect.width - 60) + 30,
+                    y: n.y * (rect.height - 60) + 30
+                };
+            });
+
+            // Draw Edges First
+            edges.forEach(edge => {
+                const p1 = pos[edge.from];
+                const p2 = pos[edge.to];
+                if (!p1 || !p2) return;
+
+                ctx.beginPath();
+                ctx.lineWidth = edge.highlight ? 4 : 2.5;
+                ctx.strokeStyle = edge.highlight ? '#E53E3E' : '#1a365d';
+
+                if (edge.from === edge.to) {
+                    // Self-loop
+                    ctx.arc(p1.x + nodeRadius, p1.y - nodeRadius, 15, 0, 2 * Math.PI);
+                    ctx.stroke();
+                } else {
+                    // Normal line
+                    ctx.moveTo(p1.x, p1.y);
+                    ctx.lineTo(p2.x, p2.y);
+                    ctx.stroke();
+
+                    // Arrowhead for directed graphs
+                    if (edge.directed) {
+                        const angle = Math.atan2(p2.y - p1.y, p2.x - p1.x);
+                        // Calculate point on the edge of the destination circle
+                        const arrowX = p2.x - nodeRadius * Math.cos(angle);
+                        const arrowY = p2.y - nodeRadius * Math.sin(angle);
+                        
+                        ctx.beginPath();
+                        ctx.moveTo(arrowX, arrowY);
+                        ctx.lineTo(arrowX - 10 * Math.cos(angle - Math.PI / 6), arrowY - 10 * Math.sin(angle - Math.PI / 6));
+                        ctx.lineTo(arrowX - 10 * Math.cos(angle + Math.PI / 6), arrowY - 10 * Math.sin(angle + Math.PI / 6));
+                        ctx.lineTo(arrowX, arrowY);
+                        ctx.fillStyle = edge.highlight ? '#E53E3E' : '#1a365d';
+                        ctx.fill();
+                    }
+
+                    // Weights
+                    if (edge.weight) {
+                        const midX = (p1.x + p2.x) / 2;
+                        const midY = (p1.y + p2.y) / 2;
+                        
+                        // Draw white background for text
+                        ctx.fillStyle = '#ffffff';
+                        ctx.beginPath();
+                        ctx.arc(midX, midY - 10, 8, 0, Math.PI * 2);
+                        ctx.fill();
+
+                        ctx.fillStyle = '#9B2C2C';
+                        ctx.font = 'bold 16px sans-serif';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText(edge.weight, midX, midY - 10);
+                    }
+                }
+            });
+
+            // Draw Nodes
+            nodes.forEach(n => {
+                const p = pos[n.id];
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, nodeRadius, 0, 2 * Math.PI);
+                ctx.fillStyle = n.highlight ? '#fef08a' : '#ffffff';
+                ctx.fill();
+                ctx.lineWidth = n.highlight ? 3.5 : 2.5;
+                ctx.strokeStyle = n.highlight ? '#E53E3E' : '#9b2c2c';
+                ctx.stroke();
+
+                ctx.fillStyle = '#1e293b';
+                // Adjust font size based on string length and node size
+                let fontSize = nodeRadius - 2;
+                if(n.id.length > 2) fontSize = nodeRadius - 6;
+                if(n.id.length > 3) fontSize = nodeRadius - 8;
+
+                ctx.font = `bold ${fontSize}px sans-serif`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(n.id, p.x, p.y);
+            });
+        }
+
+        // Data Definitions & Renders
+        function renderTerminologiesGraphs() {
+            // 1. Graph Representation
+            drawGraph('canvasTermRep', 
+                [{id:'V1', x:0.5, y:0.2}, {id:'V2', x:0.2, y:0.8}, {id:'V3', x:0.8, y:0.8}],
+                [{from:'V1', to:'V2'}, {from:'V2', to:'V3'}, {from:'V3', to:'V1'}]
+            );
+            // 2. Vertex / Node
+            drawGraph('canvasTermVertex', 
+                [{id:'A', x:0.1, y:0.5}, {id:'B', x:0.3, y:0.2}, {id:'C', x:0.5, y:0.8}, {id:'D', x:0.7, y:0.3}, {id:'E', x:0.9, y:0.6}],
+                [] // No edges, just isolated vertices
+            );
+            // 3. Edge Graph
+            drawGraph('canvasTermEdge', 
+                [{id:'A', x:0.5, y:0.1}, {id:'B', x:0.9, y:0.3}, {id:'C', x:0.8, y:0.9}, {id:'D', x:0.5, y:0.9}],
+                [{from:'A', to:'B'}, {from:'A', to:'D'}, {from:'A', to:'C'}, {from:'B', to:'C'}, {from:'C', to:'D'}]
+            );
+            // 4. Adjacent Nodes
+            drawGraph('canvasTermAdjacent', 
+                [{id:'A', x:0.2, y:0.5, highlight:true}, {id:'B', x:0.8, y:0.5, highlight:true}, {id:'C', x:0.5, y:0.1}, {id:'D', x:0.5, y:0.9}],
+                [{from:'A', to:'B', highlight:true}, {from:'A', to:'C'}, {from:'A', to:'D'}, {from:'B', to:'C'}, {from:'B', to:'D'}]
+            );
+            // 5. Path
+            drawGraph('canvasTermPath', 
+                [{id:'A', x:0.1, y:0.5, highlight:true}, {id:'B', x:0.5, y:0.2, highlight:true}, {id:'C', x:0.5, y:0.8}, {id:'D', x:0.9, y:0.8}, {id:'E', x:0.9, y:0.2, highlight:true}],
+                [{from:'A', to:'B', highlight:true}, {from:'B', to:'E', highlight:true}, {from:'A', to:'C'}, {from:'C', to:'D'}, {from:'D', to:'E'}]
+            );
+            // 6. Undirected Graph
+            drawGraph('canvasUndirected',
+                [{id:'A', x:0.1, y:0.1}, {id:'B', x:0.6, y:0.1}, {id:'C', x:0.1, y:0.9}, {id:'D', x:0.6, y:0.9}, {id:'E', x:0.9, y:0.9}],
+                [{from:'A', to:'B'}, {from:'A', to:'C'}, {from:'C', to:'D'}, {from:'B', to:'D'}, {from:'D', to:'E'}]
+            );
+            // 7. Directed Graph
+            drawGraph('canvasDirected',
+                [{id:'A', x:0.1, y:0.1}, {id:'B', x:0.6, y:0.1}, {id:'C', x:0.1, y:0.9}, {id:'D', x:0.6, y:0.9}, {id:'E', x:0.9, y:0.9}],
+                [{from:'A', to:'C', directed:true}, {from:'B', to:'A', directed:true}, {from:'B', to:'D', directed:true}, {from:'C', to:'D', directed:true}, {from:'D', to:'E', directed:true}]
+            );
+            // 8. Weighted Graph
+            drawGraph('canvasWeighted',
+                [{id:'A', x:0.1, y:0.1}, {id:'B', x:0.6, y:0.1}, {id:'C', x:0.1, y:0.9}, {id:'D', x:0.6, y:0.9}, {id:'E', x:0.9, y:0.9}],
+                [{from:'A', to:'B', weight:3, directed:true}, {from:'A', to:'C', weight:1, directed:true}, {from:'B', to:'D', weight:3, directed:true}, {from:'C', to:'D', weight:3, directed:true}, {from:'D', to:'E', weight:5, directed:true}]
+            );
+        }
+
+        function renderMatrixGraphs() {
+            // Ex 1: 5 Nodes with self-loop on D
+            drawGraph('canvasMatrixEx1',
+                [{id:'A', x:0.1, y:0.1}, {id:'B', x:0.6, y:0.1}, {id:'C', x:0.1, y:0.9}, {id:'D', x:0.6, y:0.9}, {id:'E', x:0.9, y:0.5}],
+                [{from:'A', to:'B'}, {from:'A', to:'C'}, {from:'B', to:'D'}, {from:'C', to:'D'}, {from:'D', to:'E'}, {from:'D', to:'D'}]
+            );
+            // Ex 2: 7 Nodes
+            drawGraph('canvasMatrixEx2',
+                [{id:'A', x:0.1, y:0.1}, {id:'B', x:0.3, y:0.1}, {id:'C', x:0.6, y:0.1}, {id:'D', x:0.1, y:0.9}, {id:'E', x:0.3, y:0.9}, {id:'F', x:0.6, y:0.9}, {id:'G', x:0.9, y:0.5}],
+                [
+                    {from:'A', to:'B'}, {from:'A', to:'D'},
+                    {from:'B', to:'C'}, {from:'B', to:'E'}, 
+                    {from:'C', to:'F'}, 
+                    {from:'D', to:'E'}, 
+                    {from:'E', to:'F'},
+                    {from:'F', to:'G'}, {from:'G', to:'G'}
+                ]
+            );
+        }
+
+        function renderListGraphs() {
+            // Ex 0: 0-3 Graph
+            drawGraph('canvasListEx0',
+                [{id:'0', x:0.5, y:0.1}, {id:'1', x:0.1, y:0.5}, {id:'2', x:0.9, y:0.5}, {id:'3', x:0.5, y:0.9}],
+                [{from:'0', to:'1'}, {from:'0', to:'2'}, {from:'0', to:'3'}, {from:'1', to:'3'}, {from:'2', to:'3'}]
+            );
+            // Main Ex: A-E Directed
+            drawGraph('canvasListExMain',
+                [{id:'A', x:0.1, y:0.1}, {id:'B', x:0.6, y:0.1}, {id:'C', x:0.1, y:0.9}, {id:'D', x:0.6, y:0.9}, {id:'E', x:0.9, y:0.5}],
+                [
+                    {from:'A', to:'B', directed:true}, {from:'A', to:'C', directed:true}, {from:'A', to:'D', directed:true},
+                    {from:'B', to:'A', directed:true}, {from:'B', to:'C', directed:true}, {from:'B', to:'D', directed:true},
+                    {from:'C', to:'A', directed:true}, {from:'C', to:'D', directed:true},
+                    {from:'D', to:'A', directed:true}, {from:'D', to:'B', directed:true}, {from:'D', to:'C', directed:true}, {from:'D', to:'E', directed:true},
+                    {from:'E', to:'D', directed:true}, {from:'E', to:'B', directed:true}
+                ]
+            );
+        }
+
+        function renderComplexGraph() {
+            // Complex 8 Node Graph with self-loops
+            drawGraph('canvasComplexGraph',
+                [
+                    {id:'A', x:0.1, y:0.1}, {id:'B', x:0.35, y:0.1}, {id:'C', x:0.65, y:0.1}, {id:'D', x:0.9, y:0.1},
+                    {id:'E', x:0.1, y:0.9}, {id:'F', x:0.35, y:0.9}, {id:'G', x:0.65, y:0.9}, {id:'H', x:0.9, y:0.9}
+                ],
+                [
+                    {from:'A', to:'A'}, {from:'A', to:'B'}, {from:'A', to:'E'}, {from:'A', to:'F'},
+                    {from:'B', to:'C'}, {from:'B', to:'F'}, {from:'B', to:'G'},
+                    {from:'C', to:'C'}, {from:'C', to:'D'}, {from:'C', to:'G'}, {from:'C', to:'H'},
+                    {from:'D', to:'H'},
+                    {from:'E', to:'F'},
+                    {from:'F', to:'F'}, {from:'F', to:'G'},
+                    {from:'G', to:'H'},
+                    {from:'H', to:'H'}
+                ]
+            );
+        }
+
+        function renderTraversalTrees() {
+            // Inorder Tree
+            drawGraph('canvasInorderTree',
+                [
+                    {id:'20', x:0.5, y:0.1},
+                    {id:'10', x:0.25, y:0.35}, {id:'25', x:0.75, y:0.35},
+                    {id:'5', x:0.125, y:0.6}, {id:'15', x:0.375, y:0.6}, {id:'23', x:0.625, y:0.6}, {id:'28', x:0.875, y:0.6},
+                    {id:'4', x:0.06, y:0.9}, {id:'18', x:0.44, y:0.9}, {id:'21', x:0.56, y:0.9}, {id:'29', x:0.94, y:0.9}
+                ],
+                [
+                    {from:'20', to:'10'}, {from:'20', to:'25'},
+                    {from:'10', to:'5'}, {from:'10', to:'15'},
+                    {from:'25', to:'23'}, {from:'25', to:'28'},
+                    {from:'5', to:'4'}, {from:'15', to:'18'},
+                    {from:'23', to:'21'}, {from:'28', to:'29'}
+                ], true
+            );
+
+            // Preorder Tree
+            drawGraph('canvasPreorderTree',
+                [
+                    {id:'40', x:0.5, y:0.1},
+                    {id:'30', x:0.25, y:0.35}, {id:'45', x:0.75, y:0.35},
+                    {id:'20', x:0.125, y:0.6}, {id:'35', x:0.375, y:0.6}, {id:'43', x:0.625, y:0.6}, {id:'46', x:0.875, y:0.6},
+                    {id:'15', x:0.06, y:0.9}, {id:'39', x:0.44, y:0.9}, {id:'41', x:0.56, y:0.9}, {id:'50', x:0.94, y:0.9}
+                ],
+                [
+                    {from:'40', to:'30'}, {from:'40', to:'45'},
+                    {from:'30', to:'20'}, {from:'30', to:'35'},
+                    {from:'45', to:'43'}, {from:'45', to:'46'},
+                    {from:'20', to:'15'}, {from:'35', to:'39'},
+                    {from:'43', to:'41'}, {from:'46', to:'50'}
+                ], true
+            );
+
+            // Postorder Tree
+            drawGraph('canvasPostorderTree',
+                [
+                    {id:'1000', x:0.5, y:0.1},
+                    {id:'100', x:0.25, y:0.35}, {id:'2000', x:0.75, y:0.35},
+                    {id:'50', x:0.125, y:0.6}, {id:'150', x:0.375, y:0.6}, {id:'1500', x:0.625, y:0.6}, {id:'3000', x:0.875, y:0.6},
+                    {id:'25', x:0.06, y:0.9}, {id:'200', x:0.44, y:0.9}, {id:'1300', x:0.56, y:0.9}, {id:'4000', x:0.94, y:0.9}
+                ],
+                [
+                    {from:'1000', to:'100'}, {from:'1000', to:'2000'},
+                    {from:'100', to:'50'}, {from:'100', to:'150'},
+                    {from:'2000', to:'1500'}, {from:'2000', to:'3000'},
+                    {from:'50', to:'25'}, {from:'150', to:'200'},
+                    {from:'1500', to:'1300'}, {from:'3000', to:'4000'}
+                ], true
+            );
+
+            // BFS Graph Steps Rendering
+            renderBFSSteps();
+        }
+
+        function renderBFSSteps() {
+            const container = document.getElementById('bfs-dynamic-steps-container');
+            if(!container) return;
+            
+                    // 11-step hand-drawn example
+            const stepsData = [
+                { s: 1, desc: "Start at source node 0. Mark visited and Enqueue.", v: [0], q: [0], out: [] },
+                { s: 2, desc: "Dequeue 0. Unvisited neighbors are 1, 5. Mark visited and Enqueue.", v: [0,1,5], q: [1,5], out: [0] },
+                { s: 3, desc: "Dequeue 1. Unvisited neighbor is 2. Mark visited and Enqueue.", v: [0,1,5,2], q: [5,2], out: [0,1] },
+                { s: 4, desc: "Dequeue 5. Unvisited neighbor is 6. Mark visited and Enqueue.", v: [0,1,5,2,6], q: [2,6], out: [0,1,5] },
+                { s: 5, desc: "Dequeue 2. Unvisited neighbor is 3. Mark visited and Enqueue.", v: [0,1,5,2,6,3], q: [6,3], out: [0,1,5,2] },
+                { s: 6, desc: "Dequeue 6. Unvisited neighbor is 7. Mark visited and Enqueue.", v: [0,1,5,2,6,3,7], q: [3,7], out: [0,1,5,2,6] },
+                { s: 7, desc: "Dequeue 3. Unvisited neighbor is 4. Mark visited and Enqueue.", v: [0,1,5,2,6,3,7,4], q: [7,4], out: [0,1,5,2,6,3] },
+                { s: 8, desc: "Dequeue 7. Unvisited neighbor is 8. Mark visited and Enqueue.", v: [0,1,5,2,6,3,7,4,8], q: [4,8], out: [0,1,5,2,6,3,7] },
+                { s: 9, desc: "Dequeue 4. Unvisited neighbor is 9. Mark visited and Enqueue.", v: [0,1,5,2,6,3,7,4,8,9], q: [8,9], out: [0,1,5,2,6,3,7,4] },
+                { s: 10, desc: "Dequeue 8. All neighbors (7, 4, 9) are already visited.", v: [0,1,5,2,6,3,7,4,8,9], q: [9], out: [0,1,5,2,6,3,7,4,8] },
+                { s: 11, desc: "Dequeue 9. All neighbors (4, 8) are already visited. Queue empty!", v: [0,1,5,2,6,3,7,4,8,9], q: [], out: [0,1,5,2,6,3,7,4,8,9] }
+            ];
+
+            let html = '';
+            stepsData.forEach((step) => {
+                // Generate Visited Cells (10 slots)
+                let vCells = '';
+                for(let j=0; j<10; j++) {
+                    if(j < step.v.length) vCells += `<div class="w-8 flex items-center justify-center border-r border-inkBlue bg-yellow-100">${step.v[j]}</div>`;
+                    else vCells += `<div class="w-8 border-r border-inkBlue"></div>`;
+                }
+                
+                // Generate Queue Cells (10 slots)
+                let qCells = '';
+                for(let j=0; j<10; j++) {
+                    if(j < step.q.length) qCells += `<div class="w-8 flex items-center justify-center border-r border-inkBlue bg-emerald-100">${step.q[j]}</div>`;
+                    else qCells += `<div class="w-8 border-r border-inkBlue"></div>`;
+                }
+
+                let outText = step.out.length > 0 ? step.out.join(', ') : "(Waiting for dequeue)";
+                
+                // Build dynamic UI for step
+                html += `
+                <div class="bg-white p-5 rounded-xl border border-slate-300 shadow-sm flex flex-col lg:flex-row items-center gap-6 break-inside-avoid">
+                    <div class="w-full lg:w-1/2 h-48 relative border border-slate-200 rounded-lg bg-amber-50/20">
+                        <canvas id="canvasBFSStep${step.s}" class="w-full h-full"></canvas>
+                    </div>
+                    <div class="w-full lg:w-1/2 space-y-3">
+                        <h4 class="text-xl font-bold text-inkRed">Step ${step.s}</h4>
+                        <p class="text-lg leading-snug">${step.desc}</p>
+                        
+                        <div class="flex items-center gap-3">
+                            <span class="text-lg font-bold text-inkBlue w-16">Visited:</span>
+                            <div class="flex border border-inkBlue h-8 bg-white font-clean-mode text-sm font-bold text-slate-800 shadow-sm" style="width:322px;">
+                                ${vCells}
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center gap-3 relative mb-2">
+                            <span class="text-lg font-bold text-inkBlue w-16">Queue:</span>
+                            <div class="flex border border-inkBlue h-8 bg-white font-clean-mode text-sm font-bold text-slate-800 shadow-sm" style="width:322px;">
+                                ${qCells}
+                            </div>
+                            ${step.q.length > 0 ? '<span class="text-inkRed font-bold text-xs absolute -bottom-4 left-[4.8rem]">↑ Front</span>' : ''}
+                        </div>
+                        
+                        <div class="flex items-center gap-3 border-t border-slate-200 pt-2 mt-2">
+                            <span class="text-lg font-bold text-inkRed w-16">Output:</span>
+                            <span class="font-clean-mode font-bold text-base text-slate-800 bg-red-50 px-2 rounded border border-red-200">${outText}</span>
+                        </div>
+                    </div>
+                </div>`;
+            });
+            
+            // Add Final Summary Box
+            html += `
+            <div class="bg-emerald-50 p-6 rounded-xl border border-emerald-200 break-inside-avoid mt-6">
+                <h4 class="text-3xl font-bold text-inkBlue mb-4 underline">Final BFS Traversal Output:</h4>
+                <div class="flex flex-wrap items-center gap-4">
+                    <div class="flex border-2 border-inkBlue h-12 bg-white font-clean-mode text-xl font-bold text-slate-800 shadow-sm">
+                        ${stepsData[10].out.map((v, i) => `<div class="w-12 flex items-center justify-center ${i<9?'border-r-2 border-inkBlue':''} bg-emerald-100">${v}</div>`).join('')}
+                    </div>
+                </div>
+                <p class="mt-4 text-xl">The node is printed to output only at the moment it is dequeued from the front of the queue.</p>
+            </div>`;
+
+            container.innerHTML = html;
+
+            // Define node positions exactly mapping to the uploaded diagram shape
+            const baseNodes = [
+                {id:'0', x:0.05, y:0.5},
+                {id:'1', x:0.2, y:0.2}, {id:'2', x:0.4, y:0.2}, {id:'3', x:0.6, y:0.2}, {id:'4', x:0.8, y:0.2},
+                {id:'5', x:0.2, y:0.8}, {id:'6', x:0.4, y:0.8}, {id:'7', x:0.6, y:0.8}, {id:'8', x:0.8, y:0.8},
+                {id:'9', x:0.95, y:0.5}
+            ];
+            
+            const baseEdges = [
+                {from:'0', to:'1'}, {from:'0', to:'5'},
+                {from:'1', to:'2'}, {from:'2', to:'3'}, {from:'3', to:'4'}, {from:'4', to:'9'},
+                {from:'5', to:'6'}, {from:'6', to:'7'}, {from:'7', to:'8'}, {from:'8', to:'9'},
+                {from:'1', to:'5'}, {from:'2', to:'6'}, {from:'3', to:'7'}, {from:'4', to:'8'}
+            ];
+
+            const getGraph = (highlights) => {
+                return baseNodes.map(n => ({...n, highlight: highlights.includes(n.id)}));
+            };
+
+            // Draw all 11 graphs dynamically matching visited nodes
+            stepsData.forEach(step => {
+                drawGraph(`canvasBFSStep${step.s}`, getGraph(step.v.map(String)), baseEdges);
+            });
+        }
+
+        function renderDFSSteps() {
+            // Helper to generate a stack visualization
+            const createStack = (stackArr) => {
+                let itemsHtml = '';
+                // Stack is drawn from bottom to top, so we reverse the array for HTML rendering
+                // where the first element in HTML is the top of the stack visually.
+                let displayStack = [...stackArr].reverse();
+                
+                // Ensure at least 4 empty slots for visual consistency
+                const slots = Math.max(4, displayStack.length + 1);
+                
+                for(let i=0; i<slots; i++) {
+                    if(i < slots - displayStack.length) {
+                        itemsHtml += `<div class="h-8 border-b border-transparent"></div>`;
+                    } else {
+                        let itemIndex = i - (slots - displayStack.length);
+                        let isTop = itemIndex === 0;
+                        itemsHtml += `
+                            <div class="h-8 border-b border-inkBlue flex items-center justify-center font-clean-mode font-bold text-lg relative">
+                                ${displayStack[itemIndex]}
+                                ${isTop ? '<span class="absolute -right-12 text-inkRed text-sm">← Top</span>' : ''}
+                            </div>
+                        `;
+                    }
+                }
+
+                return `
+                <div class="flex flex-col items-center">
+                    <div class="w-24 border-l-2 border-r-2 border-b-2 border-inkBlue rounded-b-lg flex flex-col bg-white overflow-hidden shadow-sm pt-2">
+                        ${itemsHtml}
+                    </div>
+                    <span class="mt-2 font-bold text-inkBlue">Stack</span>
+                </div>`;
+            };
+
+            // ---- DFS Example 1 Data ----
+            const ex1Nodes = [
+                {id:'S', x:0.5, y:0.1},
+                {id:'A', x:0.2, y:0.5}, {id:'B', x:0.5, y:0.5}, {id:'C', x:0.8, y:0.5},
+                {id:'D', x:0.5, y:0.9}
+            ];
+            const ex1Edges = [
+                {from:'S', to:'A'}, {from:'S', to:'B'}, {from:'S', to:'C'},
+                {from:'A', to:'D'}, {from:'B', to:'D'}, {from:'C', to:'D'}
+            ];
+
+            const dfsEx1Steps = [
+                { s: 1, title: "Step 1:-", desc: "<strong>Action:</strong> Initialize the empty stack.", v: [], stack: [] },
+                { s: 2, title: "Step 2:-", desc: "<strong>Action:</strong> Mark 'S' as visited and push it onto the stack.<br><br><strong>Next:</strong> Check for unvisited neighbors of 'S' (A, B, C). We pick 'A' following alphabetical order.", v: ['S'], stack: ['S'] },
+                { s: 3, title: "Step 3:-", desc: "<strong>Action:</strong> Mark 'A' as visited and push it onto the stack.<br><br><strong>Next:</strong> Check for unvisited neighbors of 'A' (S is visited, D is unvisited). We pick 'D'.", v: ['S', 'A'], stack: ['S', 'A'] },
+                { s: 4, title: "Step 4:-", desc: "<strong>Action:</strong> Visit 'D', mark it as visited, and push it onto the stack.<br><br><strong>Next:</strong> 'D' has unvisited neighbors 'B' and 'C'. We choose 'B' alphabetically.", v: ['S', 'A', 'D'], stack: ['S', 'A', 'D'] },
+                { s: 5, title: "Step 5:-", desc: "<strong>Action:</strong> Visit 'B', mark it as visited, and push it onto the stack.<br><br><strong>Next (Dead End):</strong> 'B' connects to 'S' and 'D', but BOTH are already visited. Rule 2 applies: POP 'B' from the stack.", v: ['S', 'A', 'D', 'B'], stack: ['S', 'A', 'D', 'B'] },
+                { s: 6, title: "Step 6:-", desc: "<strong>Action:</strong> 'B' is popped. The new top of the stack is 'D'.<br><br><strong>Next:</strong> Check if 'D' has any remaining unvisited neighbors. Yes, 'C' is still unvisited!", v: ['S', 'A', 'D', 'B'], stack: ['S', 'A', 'D'] },
+                { s: 7, title: "Step 7:-", desc: "<strong>Action:</strong> Visit 'C', mark it as visited, and push it onto the stack.<br><br><em>(Process continues popping until stack is empty).</em>", v: ['S', 'A', 'D', 'B', 'C'], stack: ['S', 'A', 'D', 'C'] }
+            ];
+
+            const containerEx1 = document.getElementById('dfs-ex1-container');
+            let htmlEx1 = '';
+            dfsEx1Steps.forEach(step => {
+                htmlEx1 += `
+                <div class="flex flex-col lg:flex-row items-center gap-8 bg-white p-6 rounded-xl border border-slate-300 shadow-sm break-inside-avoid">
+                    <div class="w-full lg:w-1/3 flex flex-col gap-4">
+                        <h4 class="text-2xl font-bold text-inkRed underline">${step.title}</h4>
+                        <p class="text-lg leading-relaxed">${step.desc}</p>
+                    </div>
+                    <div class="w-full lg:w-1/3 h-56 relative bg-amber-50/20 border border-slate-200 rounded-lg p-2">
+                        <canvas id="canvasDFS1Step${step.s}" class="w-full h-full"></canvas>
+                    </div>
+                    <div class="w-full lg:w-1/3 flex justify-center">
+                        ${createStack(step.stack)}
+                    </div>
+                </div>`;
+            });
+            containerEx1.innerHTML = htmlEx1;
+
+            dfsEx1Steps.forEach(step => {
+                let hlNodes = ex1Nodes.map(n => ({...n, highlight: step.v.includes(n.id)}));
+                // special highlight for step 6 to show top of stack D
+                if(step.s === 6) {
+                    hlNodes = hlNodes.map(n => n.id === 'D' ? {...n, highlight: true, style: 'active'} : n);
+                }
+                drawGraph(`canvasDFS1Step${step.s}`, hlNodes, ex1Edges);
+            });
+
+            // ---- DFS Example 2 Data ----
+            const ex2Nodes = [
+                {id:'S', x:0.5, y:0.1},
+                {id:'A', x:0.2, y:0.4}, {id:'B', x:0.2, y:0.7},
+                {id:'C', x:0.8, y:0.4}, {id:'F', x:0.8, y:0.7},
+                {id:'E', x:0.5, y:0.55}, {id:'G', x:0.5, y:0.9}
+            ];
+            // S-A, A-B, B-G, S-E, E-G, S-C, C-F, F-G
+            const ex2Edges = [
+                {from:'S', to:'A'}, {from:'A', to:'B'}, {from:'B', to:'G'},
+                {from:'S', to:'E'}, {from:'E', to:'G'},
+                {from:'S', to:'C'}, {from:'C', to:'F'}, {from:'F', to:'G'}
+            ];
+
+            const logicalEx2Steps = [
+                { s: 1, title: "Step 1", desc: "<strong>Action:</strong> Push 'S' (Root) onto the stack and mark as visited.<br><br><strong>Next:</strong> Alphabetically pick neighbor 'A'.", stack: ['S'], v: ['S'] },
+                { s: 2, title: "Step 2", desc: "<strong>Action:</strong> Push 'A' onto the stack and mark as visited.<br><br><strong>Next:</strong> 'A' connects to 'B'.", stack: ['S', 'A'], v: ['S', 'A'] },
+                { s: 3, title: "Step 3", desc: "<strong>Action:</strong> Push 'B' onto the stack and mark as visited.<br><br><strong>Next:</strong> 'B' connects to 'G'.", stack: ['S', 'A', 'B'], v: ['S', 'A', 'B'] },
+                { s: 4, title: "Step 4", desc: "<strong>Action:</strong> Push 'G' onto the stack and mark as visited.<br><br><strong>Next:</strong> 'G' connects to 'E' and 'F'. Alphabetically pick 'E'.", stack: ['S', 'A', 'B', 'G'], v: ['S', 'A', 'B', 'G'] },
+                { s: 5, title: "Step 5", desc: "<strong>Action:</strong> Push 'E' onto the stack and mark as visited.<br><br><strong>Dead End:</strong> 'E' connects to 'S' and 'G', but both are visited! POP 'E'.", stack: ['S', 'A', 'B', 'G', 'E'], v: ['S', 'A', 'B', 'G', 'E'] },
+                { s: 6, title: "Step 6", desc: "<strong>Action:</strong> After popping 'E', 'G' is top again. Check 'G' for unvisited neighbors. 'F' is unvisited! Push 'F'.", stack: ['S', 'A', 'B', 'G', 'F'], v: ['S', 'A', 'B', 'G', 'E', 'F'] },
+                { s: 7, title: "Step 7", desc: "<strong>Action:</strong> Top is 'F'. Neighbor 'C' is unvisited. Push 'C'.<br><br><em>(All nodes are now visited. Stack will pop until empty).</em>", stack: ['S', 'A', 'B', 'G', 'F', 'C'], v: ['S', 'A', 'B', 'G', 'E', 'F', 'C'] }
+            ];
+
+            const containerEx2 = document.getElementById('dfs-ex2-container');
+            let htmlEx2 = '<div class="space-y-8">';
+            
+            // First item is the graph itself
+            htmlEx2 += `
+                <div class="flex flex-col items-center gap-4 bg-white p-6 rounded-xl border border-slate-300 shadow-sm break-inside-avoid w-full max-w-2xl mx-auto mb-10">
+                    <h4 class="text-3xl font-bold text-inkBlue underline">Complete Graph for Example 2:</h4>
+                    <div class="w-full h-64 relative bg-amber-50/20 border border-slate-200 rounded-lg p-2">
+                        <canvas id="canvasDFS2Main" class="w-full h-full"></canvas>
+                    </div>
+                </div>
+            `;
+
+            logicalEx2Steps.forEach((step, i) => {
+                htmlEx2 += `
+                <div class="flex flex-col lg:flex-row items-center gap-8 bg-white p-6 rounded-xl border border-slate-300 shadow-sm break-inside-avoid">
+                    <div class="w-full lg:w-1/3 flex flex-col gap-4">
+                        <h4 class="text-2xl font-bold text-inkRed underline">${step.title}:</h4>
+                        <p class="text-lg leading-relaxed">${step.desc}</p>
+                    </div>
+                    <div class="w-full lg:w-1/3 h-56 relative bg-amber-50/20 border border-slate-200 rounded-lg p-2">
+                        <canvas id="canvasDFS2Step${step.s}" class="w-full h-full"></canvas>
+                    </div>
+                    <div class="w-full lg:w-1/3 flex justify-center">
+                        ${createStack(step.stack)}
+                    </div>
+                </div>`;
+            });
+            htmlEx2 += '</div>';
+            containerEx2.innerHTML = htmlEx2;
+
+            drawGraph('canvasDFS2Main', ex2Nodes, ex2Edges);
+
+            logicalEx2Steps.forEach(step => {
+                let hlNodes = ex2Nodes.map(n => ({...n, highlight: step.v.includes(n.id)}));
+                drawGraph(`canvasDFS2Step${step.s}`, hlNodes, ex2Edges);
+            });
+        }
+
+        function renderComponentGraphs() {
+            // Connected Graph Main
+            drawGraph('canvasConnected',
+                [
+                    {id:'A', x:0.2, y:0.2}, {id:'B', x:0.1, y:0.5}, {id:'C', x:0.2, y:0.8},
+                    {id:'D', x:0.5, y:0.5}, {id:'F', x:0.8, y:0.2}, {id:'G', x:0.8, y:0.8}
+                ],
+                [
+                    {from:'A', to:'B'}, {from:'B', to:'C'}, {from:'C', to:'D'}, {from:'D', to:'A'},
+                    {from:'D', to:'F'}, {from:'D', to:'G'}, {from:'F', to:'G'}
+                ]
+            );
+
+            // Disconnected Graph Main
+            drawGraph('canvasDisconnected',
+                [
+                    {id:'A', x:0.2, y:0.2}, {id:'B', x:0.1, y:0.5}, {id:'C', x:0.2, y:0.8},
+                    {id:'D', x:0.5, y:0.5}, {id:'E', x:0.8, y:0.5, highlight: true} 
+                ],
+                [
+                    {from:'A', to:'B'}, {from:'B', to:'C'}, {from:'C', to:'D'}, {from:'D', to:'A'}
+                    // E is isolated
+                ]
+            );
+
+            // Biconnected Ex 1 (Square)
+            drawGraph('canvasBiconnectedEx1',
+                [
+                    {id:'A', x:0.2, y:0.2}, {id:'B', x:0.8, y:0.2}, 
+                    {id:'C', x:0.8, y:0.8}, {id:'D', x:0.2, y:0.8}
+                ],
+                [
+                    {from:'A', to:'B'}, {from:'B', to:'C'}, {from:'C', to:'D'}, {from:'D', to:'A'}
+                ]
+            );
+
+            // Biconnected Ex 2 (Not biconnected - articulated)
+            drawGraph('canvasBiconnectedEx2',
+                [
+                    {id:'1', x:0.1, y:0.2}, 
+                    {id:'0', x:0.5, y:0.2, highlight: true}, // Articulation Point
+                    {id:'3', x:0.9, y:0.2},
+                    {id:'2', x:0.5, y:0.8, highlight: true}, // Articulation Point
+                    {id:'4', x:0.9, y:0.8}
+                ],
+                [
+                    {from:'1', to:'0'}, {from:'0', to:'3'}, {from:'3', to:'4'},
+                    {from:'4', to:'2'}, {from:'2', to:'0'}
+                ]
+            );
+        }
+
+        // Initialize App
+        window.onload = function() {
+            renderTerminologiesGraphs();
+        };
+
+        // Window Resize Handler
+        window.onresize = function() {
+            if (currentTab === 'terminologies') renderTerminologiesGraphs();
+            if (currentTab === 'adj-matrix') renderMatrixGraphs();
+            if (currentTab === 'adj-list') renderListGraphs();
+            if (currentTab === 'complex-graph') renderComplexGraph();
+            if (currentTab === 'search-traversal') renderTraversalTrees();
+            if (currentTab === 'dfs') renderDFSSteps();
+            if (currentTab === 'graph-components') renderComponentGraphs();
+        };
+    </script>
+</body>
+</html>

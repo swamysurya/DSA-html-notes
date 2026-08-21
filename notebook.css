@@ -1,0 +1,316 @@
+/* ==========================================================================
+   Shared Notebook Design System Stylesheet
+   ========================================================================== */
+
+/* Page layout / Desk background */
+body {
+    background-color: #cbd5e1; /* Slate-300 desktop look */
+}
+
+/* Lined Paper Base Pattern */
+.lined-paper, .notebook-page {
+    background-color: #FAF6EE !important;
+    background-image: repeating-linear-gradient(
+        #FAF6EE 0px,
+        #FAF6EE 27px,
+        #e2ebf3 28px
+    ) !important;
+    position: relative;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+}
+
+/* Specific lined-paper pattern override for graphs and heap trees if they use size */
+.lined-paper {
+    background-image: linear-gradient(#e2e8f0 1px, transparent 1px) !important;
+    background-size: 100% 2.2rem !important;
+    line-height: 2.2rem;
+}
+
+/* Red Margin Line on left side of notebook paper */
+.notebook-margin {
+    border-left: 2px solid #feb2b2 !important;
+}
+
+.notebook-page::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 55px;
+    width: 2px;
+    background-color: #f87171;
+    opacity: 0.7;
+}
+
+/* Spiral binder rings columns and elements */
+.spiral-ring {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #a0aec0, #4a5568);
+    box-shadow: inset 1px 1px 2px rgba(0,0,0,0.4);
+    margin-bottom: 14px;
+}
+
+/* B-Tree style spiral binder holes */
+.binder-holes {
+    position: absolute;
+    left: 12px;
+    top: 30px;
+    bottom: 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    z-index: 10;
+}
+.hole {
+    width: 14px;
+    height: 14px;
+    background-color: #334155;
+    border-radius: 50%;
+    box-shadow: inset 2px 2px 4px rgba(0,0,0,0.6);
+}
+
+/* Typography styles */
+.font-handwriting {
+    font-family: 'Caveat', 'Kalam', cursive;
+}
+.font-notes-body {
+    font-family: 'Patrick Hand', 'Kalam', cursive;
+    font-size: 1.15rem;
+    line-height: 1.6;
+}
+.font-heading {
+    font-family: 'Kalam', cursive;
+}
+
+/* Headings default to Kalam font in handwriting mode */
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Kalam', cursive;
+}
+
+/* Clean print font mode overrides */
+body.font-clean,
+body.font-clean .font-notes-body,
+body.font-clean .font-handwriting,
+body.font-clean .font-heading,
+body.font-clean h1,
+body.font-clean h2,
+body.font-clean h3,
+body.font-clean h4,
+body.font-clean h5,
+body.font-clean h6,
+body.font-clean-mode,
+body.font-clean-mode .font-handwriting,
+body.font-clean-mode h1,
+body.font-clean-mode h2,
+body.font-clean-mode h3,
+body.font-clean-mode h4,
+body.font-clean-mode h5,
+body.font-clean-mode h6 {
+    font-family: 'Inter', sans-serif !important;
+}
+
+/* Canvas Containers styling */
+.canvas-container {
+    width: 100%;
+    height: 220px;
+    position: relative;
+}
+
+/* Ink Colors (Handwritten B-Tree Specifics) */
+.ink-blue { color: #1e3a8a; } 
+.ink-red { color: #dc2626; }  
+.ink-green { color: #15803d; }
+.ink-purple { color: #7e22ce; }
+
+/* Highlights & Underlines */
+.pen-underline {
+    border-bottom: 2px solid #dc2626;
+    display: inline-block;
+}
+.highlighter {
+    background-color: #fef08a;
+    padding: 0 4px;
+    border-radius: 2px;
+}
+.note-box {
+    border: 2px dashed #3b82f6;
+    background-color: rgba(239, 246, 255, 0.75);
+    border-radius: 8px;
+}
+
+/* Adjacency List & Array Vis Styles (Graph Specifics) */
+.adj-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+}
+.adj-head-wrapper {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    width: 70px;
+}
+.adj-idx {
+    color: #64748b;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    width: 20px;
+    font-weight: 600;
+}
+.adj-head-box {
+    display: inline-flex;
+    width: 40px;
+    height: 40px;
+    border: 2px solid #1A365D;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Caveat', cursive;
+    font-weight: bold;
+    font-size: 26px;
+    color: #9B2C2C;
+    background-color: #fff;
+    border-radius: 4px;
+    box-shadow: 2px 2px 0px rgba(26,54,93,0.1);
+}
+.adj-arrow {
+    color: #1A365D;
+    font-weight: bold;
+    margin: 0 12px;
+    font-size: 24px;
+    flex-shrink: 0;
+}
+.adj-ll-node {
+    display: inline-flex;
+    height: 40px;
+    border: 2px solid #1A365D;
+    border-radius: 4px;
+    background-color: white;
+    align-items: stretch;
+    box-shadow: 2px 2px 0px rgba(26,54,93,0.1);
+    flex-shrink: 0;
+}
+.adj-ll-val {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 16px;
+    border-right: 2px solid #1A365D;
+    font-family: 'Inter', sans-serif;
+    font-weight: bold;
+    font-size: 16px;
+    color: #1A365D;
+}
+.adj-ll-ptr {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    position: relative;
+    background-color: #f8fafc;
+}
+.adj-ll-ptr.dot::after {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background-color: #1A365D;
+    border-radius: 50%;
+}
+.adj-ll-ptr.null::after {
+    content: '/';
+    color: #E53E3E;
+    font-family: 'Inter', sans-serif;
+    font-weight: bold;
+    font-size: 20px;
+}
+.adj-array-container {
+    display: inline-flex;
+    border: 2px solid #1A365D;
+    border-radius: 4px;
+    background-color: white;
+    box-shadow: 2px 2px 0px rgba(26,54,93,0.1);
+    flex-shrink: 0;
+}
+.adj-array-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    font-family: 'Inter', sans-serif;
+    font-weight: bold;
+    font-size: 16px;
+    color: #1A365D;
+    border-right: 2px solid #1A365D;
+}
+.adj-array-cell:last-child {
+    border-right: none;
+}
+
+/* Linked List Box Styling (Graph Specifics) */
+.ll-node {
+    display: inline-flex;
+    border: 2px solid #1A365D;
+    border-radius: 4px;
+    background: white;
+    font-family: 'Inter', sans-serif;
+    font-weight: bold;
+    color: #1A365D;
+    height: 32px;
+    align-items: center;
+}
+.ll-val {
+    padding: 0 10px;
+    border-right: 2px solid #1A365D;
+}
+.ll-ptr {
+    padding: 0 8px;
+    color: #9B2C2C;
+    font-size: 14px;
+}
+.ll-arrow {
+    color: #9B2C2C;
+    font-weight: bold;
+    margin: 0 8px;
+    font-size: 20px;
+}
+
+/* Print Stylesheet for PDF Export */
+@media print {
+    header, button, nav, .no-print, .binder-holes {
+        display: none !important;
+    }
+    body {
+        background: #ffffff !important;
+        color: #000000 !important;
+        padding: 0 !important;
+    }
+    .lined-paper, .notebook-page {
+        background-image: none !important;
+        background-color: #ffffff !important;
+        box-shadow: none !important;
+        margin: 0 0 20px 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        page-break-after: always;
+    }
+    .notebook-page::before {
+        left: 40px !important;
+    }
+    .tab-content {
+        display: block !important;
+        page-break-after: always;
+    }
+    .shadow-2xl, .shadow-md, .shadow-sm {
+        box-shadow: none !important;
+    }
+    .border {
+        border-color: #cccccc !important;
+    }
+    .break-inside-avoid {
+        page-break-inside: avoid;
+    }
+}

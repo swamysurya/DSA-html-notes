@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit II - Part I: Heap Tree Lecture Notes</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts for Handwritten and Clean typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Kalam:wght@300;400;700&family=Patrick+Hand&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        notebookBg: '#FAF6EE',
+                        notebookPaper: '#FAF6EE',
+                        inkBlue: '#1A365D',
+                        inkRed: '#9B2C2C',
+                        pencilGray: '#2D3748',
+                        marginRed: '#E53E3E',
+                        ruleLine: '#E2E8F0'
+                    },
+                    fontFamily: {
+                        handwriting: ['Caveat', 'cursive'],
+                        clean: ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <link rel="stylesheet" href="../notebook.css">
+</head>
+
+<body class="font-notes-body text-2xl text-slate-800 antialiased transition-all duration-300">
+
+    <header class="sticky top-0 z-50 bg-[#FAF6EE] shadow-md border-b-2 border-amber-200 px-4 py-3 no-print">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-3">
+            <div class="flex items-center space-x-3">
+                <span class="text-3xl font-bold text-inkBlue tracking-wide">📖 Unit II (Part I): Heap Trees</span>
+                <span class="bg-amber-100 text-inkRed text-sm font-bold px-3 py-1 rounded-full border border-amber-300">Data Structures</span>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <nav class="max-w-6xl mx-auto mt-3 flex flex-wrap gap-1 border-t border-amber-200 pt-2 text-base md:text-lg">
+            <button onclick="switchTab('fundamentals')" id="tab-fundamentals" class="nav-tab px-3 py-1.5 rounded-t-lg font-bold bg-amber-200 text-inkBlue border-b-2 border-inkBlue">
+                1. Heap Fundamentals
+            </button>
+            <button onclick="switchTab('construction')" id="tab-construction" class="nav-tab px-3 py-1.5 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
+                2. Heap Construction
+            </button>
+            <button onclick="switchTab('operations')" id="tab-operations" class="nav-tab px-3 py-1.5 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
+                3. Heap Operations
+            </button>
+            <button onclick="switchTab('applications')" id="tab-applications" class="nav-tab px-3 py-1.5 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
+                4. Applications
+            </button>
+        </nav>
+    </header>
+
+    <!-- Main Notebook Container -->
+    <main class="max-w-6xl mx-auto flex relative bg-notebookPaper rounded-xl shadow-2xl overflow-hidden min-h-[1000px] border border-amber-200">
+        
+        <!-- Left Binder Column (Spiral Rings) -->
+        <div class="w-10 sm:w-16 bg-amber-50 border-r-2 border-amber-200 flex flex-col items-center py-8 select-none shrink-0 no-print space-y-6 z-10 shadow-[inset_-5px_0_10px_rgba(0,0,0,0.05)]">
+            <!-- Generate spiral rings -->
+            <script>
+                for(let i=0; i<45; i++) document.write('<div class="spiral-ring"></div>');
+            </script>
+        </div>
+
+        <!-- Notebook Content Area -->
+        <div class="flex-1 lined-paper p-4 sm:p-8 notebook-margin sm:pl-8 overflow-hidden z-0">
+
+            <!-- SECTION 1: FUNDAMENTALS -->
+            <section id="sec-fundamentals" class="tab-content block space-y-8">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">Unit II (Part I): Heap Trees</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 1</span>
+                </div>
+                <div class="break-inside-avoid mb-8">
+                <h3 class="text-4xl font-bold text-inkRed mb-2">Heap Tree (Priority Queues) :-</h3>
+                <p class="leading-relaxed mb-4">
+                    Heap tree is a complete binary tree data structure that satisfies the heap property for every node, the value of its children is greater than or equal to its own value (Min Heap) or less than or equal to its own value (Max Heap). Heaps are usually used to implement priority queues, where the smallest or largest element is always at the root of the tree.
+                </p>
+                <p class="font-bold text-3xl text-inkBlue mb-2 mt-4">Example Array:</p>
+                <p class="font-sans font-bold text-xl bg-white/60 inline-block px-3 py-1 rounded border border-slate-300 mb-4 shadow-sm">25, 67, 22, 91, 62, 52, 63, 92, 90</p>
+                
+                <!-- Initial Example Tree -->
+                <div class="my-6 max-w-lg mx-auto flex justify-center"><canvas id="initial-tree-canvas"></canvas></div>
+            </div>
+
+            <div class="mb-8 break-inside-avoid">
+                <h3 class="text-3xl font-bold text-inkBlue">There are two main types of heaps:</h3>
+                <ol class="list-decimal list-inside space-y-2 mt-2 font-bold text-2xl ml-4">
+                    <li>MAX heap (maximum heap)</li>
+                    <li>MIN heap (minimum heap)</li>
+                </ol>
+                <div class="mt-4 space-y-3 ml-4">
+                    <p><strong>1. MAX heap:</strong> The root node contains maximum value, and the value decreases as you move down the tree.</p>
+                    <p><strong>2. MIN heap:</strong> The root node contains minimum value, and the value increases as you move down the tree.</p>
+                </div>
+            </div>
+            </section>
+
+            <!-- SECTION 2: CONSTRUCTION -->
+            <section id="sec-construction" class="tab-content hidden space-y-8">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">Heap Construction</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 2</span>
+                </div>
+                <div class="mt-4 pt-4">
+                <h3 class="text-4xl font-bold text-inkRed mb-4">Example: MAX HEAP Construction</h3>
+                <p class="text-2xl font-bold mb-2">Input Elements:</p>
+                <p class="font-sans font-bold text-xl bg-white/60 inline-block px-3 py-1 rounded border border-slate-300 mb-6 shadow-sm">41, 200, 26, 42, 12, 33, 59, 68, 77, 82, 0, 100, 250, 1000, 21</p>
+                
+                <p class="text-3xl font-bold text-inkBlue mb-6 underline">Step-by-Step Construction (with Bubbling Up):</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10" id="max-heap-build-container"></div>
+            </div>
+
+            <div class="mt-12 pt-8 border-t-2 border-dashed border-slate-300 page-break-before">
+                <h3 class="text-4xl font-bold text-inkBlue mb-4">Example: MIN HEAP Construction</h3>
+                <p class="text-2xl font-bold mb-2">Input Elements:</p>
+                <p class="font-sans font-bold text-xl bg-white/60 inline-block px-3 py-1 rounded border border-slate-300 mb-6 shadow-sm">91, 200, 26, 42, 12, 33, 59, 68, 77, 82, 0, 100, 250, 1000, 21</p>
+                
+                <p class="text-3xl font-bold text-inkRed mb-6 underline">Step-by-Step Construction (with Bubbling Up):</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10" id="min-heap-build-container"></div>
+            </div>
+            </section>
+
+            <!-- SECTION 3: OPERATIONS -->
+            <section id="sec-operations" class="tab-content hidden space-y-8">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">Heap Operations</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 3</span>
+                </div>
+                <div class="mt-4 pt-4">
+                    <h3 class="text-4xl font-bold text-inkRed mb-6">Heap-Tree Operations:-</h3>
+                <ol class="list-decimal list-inside font-bold text-3xl mb-6 ml-4">
+                    <li>Insertion</li>
+                    <li>Deletion</li>
+                </ol>
+
+                <div class="mb-8 break-inside-avoid">
+                    <h4 class="text-3xl font-bold text-inkBlue">1. Insertion:</h4>
+                    <p class="ml-4 mt-2">Add a new element to the heap while maintaining the heap property.</p>
+                    <p class="ml-8">(i) Min heap insertion</p>
+                    <p class="ml-8">(ii) Max heap insertion</p>
+                </div>
+
+                <div class="mb-8 break-inside-avoid">
+                    <h4 class="text-3xl font-bold text-inkRed underline">Algorithm for MAX heap insertion:</h4>
+                    <ol class="list-none space-y-2 mt-4 ml-4">
+                        <li><strong>Step 1:</strong> Create a new node at the end of heap tree.</li>
+                        <li><strong>Step 2:</strong> Assign new value to the node.</li>
+                        <li><strong>Step 3:</strong> Compare the value of this child node with its parent.</li>
+                        <li><strong>Step 4:</strong> If value of parent is less than child, then swap them.</li>
+                        <li><strong>Step 5:</strong> Repeat Step 3 and 4 until heap property holds.</li>
+                    </ol>
+                </div>
+
+                <div class="mb-12 break-inside-avoid">
+                    <p class="font-bold text-3xl text-inkBlue mb-2">Example 1 (Max Heap):</p>
+                    <p class="font-sans font-bold text-xl bg-white/60 inline-block px-3 py-1 rounded border border-slate-300 mb-6 shadow-sm">Initial Array: 24, 26, 31, 25, 14, 18, 29, 35, 27</p>
+                    
+                    <p class="text-2xl font-bold mt-4 text-inkRed bg-red-50 inline-block px-2 rounded">Action 1: Insert 100</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-4" id="max-heap-ins-100-container"></div>
+                    
+                    <p class="text-2xl font-bold mt-10 text-inkRed bg-red-50 inline-block px-2 rounded">Action 2: Insert 44</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-4" id="max-heap-ins-44-container"></div>
+                </div>
+
+                <div class="mb-8 break-inside-avoid page-break-before">
+                    <h4 class="text-3xl font-bold text-inkBlue underline">Algorithm for MIN heap insertion:</h4>
+                    <ol class="list-none space-y-2 mt-4 ml-4">
+                        <li><strong>Step 1:</strong> Create a new node at the end of heap tree.</li>
+                        <li><strong>Step 2:</strong> Assign new value to the node.</li>
+                        <li><strong>Step 3:</strong> Compare the value of this child node with its parent.</li>
+                        <li><strong>Step 4:</strong> If value of parent is more than child, then swap them.</li>
+                        <li><strong>Step 5:</strong> Repeat Step 3 and 4 until heap property holds.</li>
+                    </ol>
+                </div>
+
+                <div class="mb-12 break-inside-avoid">
+                    <p class="font-bold text-3xl text-inkRed mb-2">Example 2 (Min Heap):</p>
+                    <p class="font-sans font-bold text-xl bg-white/60 inline-block px-3 py-1 rounded border border-slate-300 mb-6 shadow-sm">Initial Array: 100, 10, 50, 49, 0, 64, 99, -3, 14, 33, 61</p>
+                    
+                    <p class="text-2xl font-bold mt-4 text-inkBlue bg-blue-50 inline-block px-2 rounded">Action 1: Insert -1</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-4" id="min-heap-ins-neg1-container"></div>
+                    
+                    <p class="text-2xl font-bold mt-10 text-inkBlue bg-blue-50 inline-block px-2 rounded">Action 2: Insert 1000</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-4" id="min-heap-ins-1000-container"></div>
+                </div>
+            </div>
+
+            <div class="mt-12 pt-8 border-t-2 border-dashed border-slate-300 page-break-before">
+                <h4 class="text-4xl font-bold text-inkRed mb-4">2. Deletion:</h4>
+                <p class="mb-6 ml-4">Remove the Minimum or Maximum element from the heap tree and return it.</p>
+
+                <div class="mb-8 break-inside-avoid">
+                    <h4 class="text-3xl font-bold text-inkBlue underline">Algorithm for MAX heap deletion:</h4>
+                    <ol class="list-none space-y-2 mt-4 ml-4">
+                        <li><strong>Step 1:</strong> Remove root node (the maximum element).</li>
+                        <li><strong>Step 2:</strong> Move the last element of the last level to the root index.</li>
+                        <li><strong>Step 3:</strong> Compare the value of this new root node with its children.</li>
+                        <li><strong>Step 4:</strong> If value of node is less than a child then swap it with the <em>larger</em> child.</li>
+                        <li><strong>Step 5:</strong> Repeat Step 3 and 4 until heap property holds (Bubble-down).</li>
+                    </ol>
+                </div>
+
+                <div class="mb-12 break-inside-avoid">
+                    <p class="font-bold text-3xl text-inkRed mb-2">Example: 3 Consecutive Node Deletions (Max Heap)</p>
+                    <p class="font-sans font-bold text-xl bg-white/60 inline-block px-3 py-1 rounded border border-slate-300 mb-6 shadow-sm">Initial Max Heap: 99, 72, 55, 68, 14, 34, 42, 29</p>
+                    
+                    <p class="text-2xl font-bold mt-4 text-inkRed bg-red-50 inline-block px-2 rounded">Action 1: Delete Root Node (99)</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-4" id="max-heap-del-1-container"></div>
+
+                    <p class="text-2xl font-bold mt-12 text-inkRed bg-red-50 inline-block px-2 rounded">Action 2: Delete Next Root (72)</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-4" id="max-heap-del-2-container"></div>
+
+                    <p class="text-2xl font-bold mt-12 text-inkRed bg-red-50 inline-block px-2 rounded">Action 3: Delete Next Root (68)</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-4" id="max-heap-del-3-container"></div>
+                </div>
+
+                <div class="mb-8 break-inside-avoid page-break-before">
+                    <h4 class="text-3xl font-bold text-inkBlue underline">Algorithm for MIN heap deletion:</h4>
+                    <ol class="list-none space-y-2 mt-4 ml-4">
+                        <li><strong>Step 1:</strong> Remove root node (the minimum element).</li>
+                        <li><strong>Step 2:</strong> Move the last element of the last level to the root index.</li>
+                        <li><strong>Step 3:</strong> Compare the value of this new root node with its children.</li>
+                        <li><strong>Step 4:</strong> If value of node is more than a child then swap it with the <em>smaller</em> child.</li>
+                        <li><strong>Step 5:</strong> Repeat Step 3 and 4 until heap property holds (Bubble-down).</li>
+                    </ol>
+                </div>
+
+                <div class="mb-12 break-inside-avoid">
+                    <p class="font-bold text-3xl text-inkRed mb-2">Example: 3 Consecutive Node Deletions (Min Heap)</p>
+                    <p class="font-sans font-bold text-xl bg-white/60 inline-block px-3 py-1 rounded border border-slate-300 mb-6 shadow-sm">Initial Min Heap: -3, 5, -2, 16, 29, 52, 2, 26, 38</p>
+                    
+                    <p class="text-2xl font-bold mt-4 text-inkBlue bg-blue-50 inline-block px-2 rounded">Action 1: Delete Root Node (-3)</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-4" id="min-heap-del-1-container"></div>
+
+                    <p class="text-2xl font-bold mt-12 text-inkBlue bg-blue-50 inline-block px-2 rounded">Action 2: Delete Next Root (-2)</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-4" id="min-heap-del-2-container"></div>
+
+                    <p class="text-2xl font-bold mt-12 text-inkBlue bg-blue-50 inline-block px-2 rounded">Action 3: Delete Next Root (2)</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-4" id="min-heap-del-3-container"></div>
+                </div>
+            </div>
+            </section>
+
+            <!-- SECTION 4: APPLICATIONS -->
+            <section id="sec-applications" class="tab-content hidden space-y-8">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">Applications</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 4</span>
+                </div>
+                <div class="mt-4 pt-4">
+                    <h3 class="text-4xl font-bold text-inkBlue mb-6">Applications of heap tree :-</h3>
+                <ol class="list-decimal list-inside space-y-4 text-2xl ml-4">
+                    <li><strong>Heaps</strong> are commonly used to implement <strong>priority queues</strong>, where elements are retrieved based on their priority (Max or Min value).</li>
+                    <li><strong>Heap tree</strong> are used in graph algorithms like <strong>Prims algorithm</strong> and <strong>Dijkstra's algorithm</strong> for finding the shortest path and minimum spanning tree.</li>
+                    <li><strong>Heapsort</strong> is a sorting algorithm that uses a heap sort an array in ascending or descending order.</li>
+                </ol>
+            </div>
+            </section>
+
+        </div>
+    </main>
+
+    <script>
+        // Global Style Toggle
+        let isCleanFont = false;
+        let redrawAllCanvases = () => {};
+        
+        let currentTab = 'fundamentals';
+        function switchTab(tabId) {
+            currentTab = tabId;
+            document.querySelectorAll('.tab-content').forEach(sec => {
+                sec.classList.remove('block');
+                sec.classList.add('hidden');
+            });
+            document.getElementById('sec-' + tabId).classList.remove('hidden');
+            document.getElementById('sec-' + tabId).classList.add('block');
+            
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('bg-amber-200', 'text-inkBlue', 'border-b-2', 'border-inkBlue');
+                tab.classList.add('text-gray-600', 'hover:text-inkBlue');
+            });
+            const activeTab = document.getElementById('tab-' + tabId);
+            if (activeTab) {
+                activeTab.classList.remove('text-gray-600', 'hover:text-inkBlue');
+                activeTab.classList.add('bg-amber-200', 'text-inkBlue', 'border-b-2', 'border-inkBlue');
+            }
+            
+            setTimeout(() => {
+                if (typeof redrawAllCanvases === 'function') {
+                    redrawAllCanvases();
+                }
+            }, 50);
+        }
+
+        window.onresize = () => {
+            if (typeof redrawAllCanvases === 'function') {
+                redrawAllCanvases();
+            }
+        };
+        
+        function toggleStyleMode() {
+            isCleanFont = !isCleanFont;
+            const body = document.body;
+            const styleBtn = document.getElementById('styleBtn');
+            if(isCleanFont) {
+                body.classList.remove('font-notes-body');
+                body.classList.add('font-clean');
+                styleBtn.innerText = "✍️ Switch to Handwritten Font";
+            } else {
+                body.classList.remove('font-clean');
+                body.classList.add('font-notes-body');
+                styleBtn.innerText = "✍️ Switch to Clean Print Font";
+            }
+            if (typeof redrawAllCanvases === 'function') {
+                redrawAllCanvases();
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const activeHeaps = [];
+
+            // Core Canvas Drawing Engine for Binary Trees
+            function drawTreeCanvas(canvas, arr, swapPair = [], inkColor = '#1a365d') {
+                if (!canvas) return;
+                if (!arr || arr.length === 0) return;
+
+                const ctx = canvas.getContext('2d');
+                const width = 320;
+                const nodeRadius = 15;
+                const levelHeight = 50;
+                const height = (Math.floor(Math.log2(arr.length > 0 ? arr.length : 1)) + 1) * levelHeight + 30;
+
+                // Adjust high-DPI scaling
+                const dpr = window.devicePixelRatio || 1;
+                canvas.width = width * dpr;
+                canvas.height = height * dpr;
+                canvas.style.width = `${width}px`;
+                canvas.style.height = `${height}px`;
+                ctx.scale(dpr, dpr);
+
+                // Track registered canvases for font toggle redraws
+                const existing = activeHeaps.find(h => h.canvas === canvas);
+                if (existing) {
+                    existing.arr = arr;
+                    existing.swapPair = swapPair;
+                    existing.inkColor = inkColor;
+                } else {
+                    activeHeaps.push({ canvas, arr, swapPair, inkColor });
+                }
+
+                // Positions
+                const positions = [];
+                for (let i = 0; i < arr.length; i++) {
+                    const level = Math.floor(Math.log2(i + 1));
+                    const levelNodes = Math.pow(2, level);
+                    const posInLevel = i - (levelNodes - 1);
+                    const sectionWidth = width / levelNodes;
+                    const x = sectionWidth * posInLevel + sectionWidth / 2;
+                    const y = level * levelHeight + 25;
+                    positions.push({ x, y });
+                }
+
+                // Draw Edges First
+                ctx.strokeStyle = '#64748b';
+                ctx.lineWidth = 2;
+                for (let i = 0; i < arr.length; i++) {
+                    const left = 2 * i + 1;
+                    const right = 2 * i + 2;
+                    if (left < arr.length) {
+                        ctx.beginPath();
+                        ctx.moveTo(positions[i].x, positions[i].y);
+                        ctx.lineTo(positions[left].x, positions[left].y);
+                        ctx.stroke();
+                    }
+                    if (right < arr.length) {
+                        ctx.beginPath();
+                        ctx.moveTo(positions[i].x, positions[i].y);
+                        ctx.lineTo(positions[right].x, positions[right].y);
+                        ctx.stroke();
+                    }
+                }
+
+                // Draw Swap Curved Arrows (Red Ink)
+                if (swapPair.length === 2 && positions[swapPair[0]] && positions[swapPair[1]]) {
+                    const p1 = positions[swapPair[0]];
+                    const p2 = positions[swapPair[1]];
+                    const dx = p2.x - p1.x;
+                    const midX = (p1.x + p2.x) / 2 + (dx > 0 ? 30 : -30);
+                    const midY = (p1.y + p2.y) / 2 - 10;
+                    ctx.strokeStyle = '#9B2C2C';
+                    ctx.lineWidth = 2;
+                    ctx.setLineDash([4, 4]);
+                    ctx.beginPath();
+                    const startX = p1.x + (dx > 0 ? nodeRadius : -nodeRadius);
+                    const startY = p1.y;
+                    const endX = p2.x + (dx > 0 ? nodeRadius : -nodeRadius);
+                    const endY = p2.y - nodeRadius;
+                    ctx.moveTo(startX, startY);
+                    ctx.quadraticCurveTo(midX, midY, endX, endY);
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+                    
+                    // Draw arrowhead
+                    ctx.fillStyle = '#9B2C2C';
+                    ctx.beginPath();
+                    ctx.moveTo(endX, endY);
+                    ctx.lineTo(endX - (dx > 0 ? 5 : -5), endY - 5);
+                    ctx.lineTo(endX - (dx > 0 ? 5 : -5), endY + 2);
+                    ctx.fill();
+                }
+
+                // Draw Nodes
+                for (let i = 0; i < arr.length; i++) {
+                    let currentStroke = inkColor;
+                    if (swapPair.includes(i)) currentStroke = '#9B2C2C';
+
+                    // Round circle fill
+                    ctx.fillStyle = '#FAF6EE'; // match warm paper background
+                    ctx.strokeStyle = currentStroke;
+                    ctx.lineWidth = 2.5;
+                    ctx.beginPath();
+                    ctx.arc(positions[i].x, positions[i].y, nodeRadius, 0, 2 * Math.PI);
+                    ctx.fill();
+                    ctx.stroke();
+
+                    // Text
+                    ctx.fillStyle = inkColor;
+                    const fontName = isCleanFont ? 'Inter, sans-serif' : 'Caveat, Kalam, cursive';
+                    ctx.font = `bold 13px ${fontName}`;
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(arr[i], positions[i].x, positions[i].y + 1);
+                }
+            }
+
+            redrawAllCanvases = () => {
+                activeHeaps.forEach(h => drawTreeCanvas(h.canvas, h.arr, h.swapPair, h.inkColor));
+            };
+
+            // Simulate Heap Array Build & Bubble Up steps
+            function simulateHeapBuild(input, type) {
+                let heap = [];
+                let steps = [];
+                
+                for(let i=0; i<input.length; i++) {
+                    let val = input[i];
+                    heap.push(val);
+                    let idx = heap.length - 1;
+                    
+                    // Record Initial insertion step
+                    steps.push({ arr: [...heap], cap: `Insert ${val}`, swap: [] });
+
+                    // Bubble Up loop
+                    while(idx > 0) {
+                        let pIdx = Math.floor((idx-1)/2);
+                        let shouldSwap = type === 'MAX' ? heap[idx] > heap[pIdx] : heap[idx] < heap[pIdx];
+                        
+                        if(shouldSwap) {
+                            // Record the state BEFORE the swap, but show the arrow
+                            steps[steps.length-1].swap = [pIdx, idx];
+                            steps[steps.length-1].cap += ` (Swap with ${heap[pIdx]})`;
+
+                            // Execute Swap
+                            let temp = heap[idx];
+                            heap[idx] = heap[pIdx];
+                            heap[pIdx] = temp;
+                            
+                            // Record new state after swap
+                            steps.push({ arr: [...heap], cap: `${val} bubbled up.`, swap: [] });
+                            idx = pIdx;
+                        } else {
+                            break;
+                        }
+                    }
+                }
+                return steps;
+            }
+
+            // Simulate Detailed Step-by-Step Deletion & Bubble Down
+            function simulateDeletion(input, type) {
+                let heap = [...input];
+                let steps = [];
+                if (heap.length === 0) return steps;
+                
+                let removed = heap[0];
+                
+                // 1. Show Initial state targeting the root
+                steps.push({ arr: [...heap], cap: `Step 1: Remove root element (${removed}).`, swap: [] });
+                
+                let last = heap.pop();
+                if(heap.length === 0) {
+                    steps.push({ arr: [], cap: `Heap is now empty.`, swap: []});
+                    return steps;
+                }
+                
+                heap[0] = last;
+                // 2. Show state after moving last to root
+                steps.push({ arr: [...heap], cap: `Step 2: Move last leaf (${last}) to root.`, swap: [] });
+
+                let idx = 0;
+                let stepCounter = 3;
+                
+                // 3. Bubble Down loop
+                while(true) {
+                    let left = 2*idx + 1;
+                    let right = 2*idx + 2;
+                    let target = idx;
+
+                    if (type === 'MAX') {
+                        if(left < heap.length && heap[left] > heap[target]) target = left;
+                        if(right < heap.length && heap[right] > heap[target]) target = right;
+                    } else {
+                        if(left < heap.length && heap[left] < heap[target]) target = left;
+                        if(right < heap.length && heap[right] < heap[target]) target = right;
+                    }
+
+                    if(target !== idx) {
+                        // Describe comparison and identify swap direction
+                        let relation = type === 'MAX' ? 'larger' : 'smaller';
+                        steps[steps.length-1].swap = [idx, target];
+                        steps[steps.length-1].cap += ` Compare with children. Swap with ${relation} child (${heap[target]}).`;
+
+                        // Execute swap
+                        let temp = heap[idx];
+                        heap[idx] = heap[target];
+                        heap[target] = temp;
+                        
+                        // Push new state
+                        steps.push({ arr: [...heap], cap: `Step ${stepCounter}: ${temp} bubbled down.`, swap: [] });
+                        idx = target;
+                        stepCounter++;
+                    } else {
+                        steps[steps.length-1].cap += ` Property restored!`;
+                        break;
+                    }
+                }
+                return steps;
+            }
+
+            function renderStepsToContainer(containerId, stepsArr, inkColor) {
+                const container = document.getElementById(containerId);
+                if (!container) return;
+                container.innerHTML = ''; // clear first
+                stepsArr.forEach((step, index) => {
+                    const div = document.createElement('div');
+                    // Style to look like a small section of the notebook paper
+                    div.className = "flex flex-col items-center justify-end break-inside-avoid relative p-2 w-full max-w-[320px]";
+                    
+                    const canvasDiv = document.createElement('div');
+                    canvasDiv.className = "w-full relative z-10 flex justify-center";
+                    const canvas = document.createElement('canvas');
+                    canvasDiv.appendChild(canvas);
+                    
+                    const span = document.createElement('span');
+                    span.className = "mt-2 text-center font-sans text-sm font-bold bg-white/70 px-2 py-1 rounded shadow-sm border border-slate-200 z-10";
+                    span.style.color = inkColor;
+                    span.style.maxWidth = "90%";
+                    span.innerHTML = step.cap;
+                    
+                    div.appendChild(canvasDiv);
+                    div.appendChild(span);
+                    container.appendChild(div);
+                    
+                    // Draw tree on canvas
+                    drawTreeCanvas(canvas, step.arr, step.swap, inkColor);
+                });
+            }
+
+            // 1. Initial Example
+            const initialExample = [25, 67, 22, 91, 62, 52, 63, 92, 90];
+            const initialCanvas = document.getElementById('initial-tree-canvas');
+            if (initialCanvas) {
+                drawTreeCanvas(initialCanvas, initialExample, [], '#1a365d');
+            }
+
+            // 2. Max Heap Full Build
+            const maxInput = [41, 200, 26, 42, 12, 33, 59, 68, 77, 82, 0, 100, 250, 1000, 21];
+            const maxBuildSteps = simulateHeapBuild(maxInput, 'MAX');
+            renderStepsToContainer('max-heap-build-container', maxBuildSteps, '#9B2C2C');
+
+            // 3. Min Heap Full Build
+            const minInput = [91, 200, 26, 42, 12, 33, 59, 68, 77, 82, 0, 100, 250, 1000, 21];
+            const minBuildSteps = simulateHeapBuild(minInput, 'MIN');
+            renderStepsToContainer('min-heap-build-container', minBuildSteps, '#1A365D');
+
+            // 4. Max Heap Insertions
+            const exactMaxBase = [35, 31, 29, 27, 14, 18, 24, 25, 26]; 
+            const maxIns100Steps = simulateHeapBuild([...exactMaxBase, 100], 'MAX').slice(exactMaxBase.length);
+            renderStepsToContainer('max-heap-ins-100-container', maxIns100Steps, '#9B2C2C');
+            
+            const maxIns44Steps = simulateHeapBuild([...exactMaxBase, 44], 'MAX').slice(exactMaxBase.length);
+            renderStepsToContainer('max-heap-ins-44-container', maxIns44Steps, '#9B2C2C');
+
+            // 5. Min Heap Insertions
+            const exactMinBase = [-3, 0, 50, 10, 33, 64, 99, 49, 14, 100, 61];
+            const minInsNeg1Steps = simulateHeapBuild([...exactMinBase, -1], 'MIN').slice(exactMinBase.length);
+            renderStepsToContainer('min-heap-ins-neg1-container', minInsNeg1Steps, '#1A365D');
+            
+            const minIns1000Steps = simulateHeapBuild([...exactMinBase, 1000], 'MIN').slice(exactMinBase.length);
+            renderStepsToContainer('min-heap-ins-1000-container', minIns1000Steps, '#1A365D');
+
+            // 6. Max Heap Deletions (Sequential)
+            let currentMaxDelHeap = [99, 72, 55, 68, 14, 34, 42, 29];
+            
+            // Max Delete 1
+            const maxDel1Steps = simulateDeletion(currentMaxDelHeap, 'MAX');
+            renderStepsToContainer('max-heap-del-1-container', maxDel1Steps, '#9B2C2C');
+            currentMaxDelHeap = maxDel1Steps[maxDel1Steps.length-1].arr;
+            
+            // Max Delete 2
+            const maxDel2Steps = simulateDeletion(currentMaxDelHeap, 'MAX');
+            renderStepsToContainer('max-heap-del-2-container', maxDel2Steps, '#9B2C2C');
+            currentMaxDelHeap = maxDel2Steps[maxDel2Steps.length-1].arr;
+            
+            // Max Delete 3
+            const maxDel3Steps = simulateDeletion(currentMaxDelHeap, 'MAX');
+            renderStepsToContainer('max-heap-del-3-container', maxDel3Steps, '#9B2C2C');
+
+            // 7. Min Heap Deletions (Sequential)
+            let currentMinDelHeap = [-3, 5, -2, 16, 29, 52, 2, 26, 38];
+            
+            // Min Delete 1
+            const minDel1Steps = simulateDeletion(currentMinDelHeap, 'MIN');
+            renderStepsToContainer('min-heap-del-1-container', minDel1Steps, '#1A365D');
+            currentMinDelHeap = minDel1Steps[minDel1Steps.length-1].arr;
+            
+            // Min Delete 2
+            const minDel2Steps = simulateDeletion(currentMinDelHeap, 'MIN');
+            renderStepsToContainer('min-heap-del-2-container', minDel2Steps, '#1A365D');
+            currentMinDelHeap = minDel2Steps[minDel2Steps.length-1].arr;
+            
+            // Min Delete 3
+            const minDel3Steps = simulateDeletion(currentMinDelHeap, 'MIN');
+            renderStepsToContainer('min-heap-del-3-container', minDel3Steps, '#1A365D');
+        });
+    </script>
+</body>
+</html>

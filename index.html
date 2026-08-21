@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lecture Notes Bookshelf - Study Library</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Kalam:wght@400;700&family=Patrick+Hand&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        deskBg: '#0f172a', // Dark slate workspace desk
+                        shelfWood: '#854d0e', // Walnut wood trim
+                        paperWarm: '#FAF6EE',
+                        inkBlue: '#1A365D',
+                        inkRed: '#9B2C2C',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        .wood-shelf {
+            background: linear-gradient(to bottom, #a16207 0%, #854d0e 20%, #713f12 80%, #451a03 100%);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.4), inset 0 2px 2px rgba(255,255,255,0.1);
+        }
+        .book-spine {
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            transform: rotate(180deg);
+        }
+        .font-notes-body {
+            font-family: 'Patrick Hand', cursive;
+        }
+        .font-heading {
+            font-family: 'Kalam', cursive;
+        }
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+    </style>
+</head>
+
+<body class="bg-deskBg min-h-screen text-slate-100 font-sans p-4 md:p-8">
+
+    <!-- Landing Portal Container -->
+    <div class="max-w-6xl mx-auto space-y-8">
+        
+        <!-- Header Banner -->
+        <header class="text-center py-6 glass-panel rounded-2xl shadow-2xl relative overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-r from-amber-500/10 to-indigo-500/10 opacity-30"></div>
+            <div class="relative z-10 space-y-2">
+                <h1 class="text-4xl md:text-5xl font-bold font-heading text-amber-400 tracking-wide">📚 My Digital Study Desk</h1>
+                <p class="text-lg md:text-xl text-slate-300 font-notes-body">Interactive computer science lecture notebooks & database structures notes</p>
+            </div>
+        </header>
+
+        <!-- Search and Filters Panel -->
+        <section class="glass-panel p-4 rounded-xl shadow-lg flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="relative w-full md:w-96">
+                <input type="text" id="search-input" onkeyup="filterNotebooks()" placeholder="Search topics (e.g. Graphs, B-Trees, Sort)..." 
+                    class="w-full bg-slate-900/60 border border-slate-700 rounded-lg px-4 py-2 text-slate-100 focus:outline-none focus:border-amber-500 transition font-sans text-sm">
+                <span class="absolute right-3 top-2.5 text-slate-500 text-sm">🔍</span>
+            </div>
+            
+            <div class="flex gap-2 flex-wrap">
+                <button onclick="filterCategory('all')" id="filter-all" class="px-4 py-1.5 rounded-full text-xs font-bold bg-amber-500 text-slate-900 border border-amber-500 transition">All Notebooks</button>
+                <button onclick="filterCategory('nsrit')" id="filter-nsrit" class="px-4 py-1.5 rounded-full text-xs font-bold bg-slate-800 hover:bg-slate-700 border border-slate-700 transition">NSRIT Lectures</button>
+                <button onclick="filterCategory('personal')" id="filter-personal" class="px-4 py-1.5 rounded-full text-xs font-bold bg-slate-800 hover:bg-slate-700 border border-slate-700 transition">Personal Notes</button>
+            </div>
+        </section>
+
+        <!-- Bookshelf Grid Layout -->
+        <main class="space-y-16">
+            
+            <!-- SHELF 1: NSRIT Lectures -->
+            <div class="shelf-container space-y-4" id="cat-nsrit-container">
+                <div class="flex justify-between items-center border-b border-slate-700 pb-1">
+                    <h2 class="text-2xl font-bold font-heading text-amber-400 flex items-center gap-2">🏫 NSRIT Lectures <span class="text-xs bg-slate-800 text-slate-400 font-sans px-2.5 py-0.5 rounded-full border border-slate-700">Course Syllabus</span></h2>
+                </div>
+                
+                <!-- Wooden Shelf Surface containing books -->
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 p-4 bg-slate-950/40 rounded-xl relative">
+                    
+                    <!-- BOOK 1: Graphs -->
+                    <a href="NSRIT/graphs_notebook (5).html" class="notebook-card group block bg-[#FAF6EE] text-[#1A365D] rounded-md shadow-md hover:-translate-y-2 hover:shadow-xl transition duration-300 overflow-hidden border-l-[6px] border-emerald-700 flex flex-col justify-between p-3 min-h-[140px]" data-title="graphs algorithms bfs dfs spanning trees traversal matrix" data-cat="nsrit">
+                        <div class="space-y-1">
+                            <span class="text-[10px] font-bold uppercase text-emerald-800 bg-emerald-100/50 px-1.5 py-0.5 rounded border border-emerald-300 font-sans">Part II: Graphs</span>
+                            <h3 class="text-base font-bold font-heading line-clamp-2">Graph Theory</h3>
+                        </div>
+                        <div class="text-[10px] font-sans font-bold flex justify-between items-center text-slate-500 mt-2">
+                            <span>4 Topics</span>
+                            <span class="text-emerald-800 group-hover:translate-x-0.5 transition">Open →</span>
+                        </div>
+                    </a>
+
+                    <!-- BOOK 2: Heap Trees -->
+                    <a href="NSRIT/heap_trees_notebook (2).html" class="notebook-card group block bg-[#FAF6EE] text-[#1A365D] rounded-md shadow-md hover:-translate-y-2 hover:shadow-xl transition duration-300 overflow-hidden border-l-[6px] border-indigo-700 flex flex-col justify-between p-3 min-h-[140px]" data-title="heaps priority queues heapify sorting insertion deletion max min heaps" data-cat="nsrit">
+                        <div class="space-y-1">
+                            <span class="text-[10px] font-bold uppercase text-indigo-800 bg-indigo-100/50 px-1.5 py-0.5 rounded border border-indigo-300 font-sans">Heap Trees</span>
+                            <h3 class="text-base font-bold font-heading line-clamp-2">Heap Structures</h3>
+                        </div>
+                        <div class="text-[10px] font-sans font-bold flex justify-between items-center text-slate-500 mt-2">
+                            <span>4 Topics</span>
+                            <span class="text-indigo-800 group-hover:translate-x-0.5 transition">Open →</span>
+                        </div>
+                    </a>
+
+                    <!-- BOOK 3: B-Trees (SVG Handwritten) -->
+                    <a href="NSRIT/handwritten_b_tree.html" class="notebook-card group block bg-[#FAF6EE] text-[#1A365D] rounded-md shadow-md hover:-translate-y-2 hover:shadow-xl transition duration-300 overflow-hidden border-l-[6px] border-amber-700 flex flex-col justify-between p-3 min-h-[140px]" data-title="btree balance search trees mway keys partitions node structures split splits merge" data-cat="nsrit">
+                        <div class="space-y-1">
+                            <span class="text-[10px] font-bold uppercase text-amber-800 bg-amber-100/50 px-1.5 py-0.5 rounded border border-amber-300 font-sans">B-Trees</span>
+                            <h3 class="text-base font-bold font-heading line-clamp-2">B-Tree Basics</h3>
+                        </div>
+                        <div class="text-[10px] font-sans font-bold flex justify-between items-center text-slate-500 mt-2">
+                            <span>5 Topics</span>
+                            <span class="text-amber-800 group-hover:translate-x-0.5 transition">Open →</span>
+                        </div>
+                    </a>
+
+                    <!-- BOOK 4: Divide and Conquer -->
+                    <a href="NSRIT/divide_and_conquer_notebook.html" class="notebook-card group block bg-[#FAF6EE] text-[#1A365D] rounded-md shadow-md hover:-translate-y-2 hover:shadow-xl transition duration-300 overflow-hidden border-l-[6px] border-rose-700 flex flex-col justify-between p-3 min-h-[140px]" data-title="divide conquer merge sort quick partition strassens matrix multiplication avl trees convex hull" data-cat="nsrit">
+                        <div class="space-y-1">
+                            <span class="text-[10px] font-bold uppercase text-rose-800 bg-rose-100/50 px-1.5 py-0.5 rounded border border-rose-300 font-sans">Algorithms</span>
+                            <h3 class="text-base font-bold font-heading line-clamp-2">Divide & Conquer</h3>
+                        </div>
+                        <div class="text-[10px] font-sans font-bold flex justify-between items-center text-slate-500 mt-2">
+                            <span>5 Topics</span>
+                            <span class="text-rose-800 group-hover:translate-x-0.5 transition">Open →</span>
+                        </div>
+                    </a>
+
+                </div>
+                <!-- Wood Shelf Plank shadow decoration -->
+                <div class="wood-shelf h-4 w-full rounded-b-md"></div>
+            </div>
+
+            <!-- SHELF 2: Personal Notes -->
+            <div class="shelf-container space-y-4" id="cat-personal-container">
+                <div class="flex justify-between items-center border-b border-slate-700 pb-1">
+                    <h2 class="text-2xl font-bold font-heading text-amber-400 flex items-center gap-2">✍️ Personal Notes <span class="text-xs bg-slate-800 text-slate-400 font-sans px-2.5 py-0.5 rounded-full border border-slate-700">Database Tuning</span></h2>
+                </div>
+                
+                <!-- Wooden Shelf Surface containing books -->
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 p-4 bg-slate-950/40 rounded-xl relative">
+                    
+                    <!-- BOOK 5: DBMS B-Trees -->
+                    <a href="Personal/dbms_b_trees_notes.html" class="notebook-card group block bg-[#FAF6EE] text-[#1A365D] rounded-md shadow-md hover:-translate-y-2 hover:shadow-xl transition duration-300 overflow-hidden border-l-[6px] border-blue-700 flex flex-col justify-between p-3 min-h-[140px]" data-title="dbms database indexing disk tracks sectors blocks offsets multilevel index b tree plus search simulator" data-cat="personal">
+                        <div class="space-y-1">
+                            <span class="text-[10px] font-bold uppercase text-blue-800 bg-blue-100/50 px-1.5 py-0.5 rounded border border-blue-300 font-sans">DBMS Storage</span>
+                            <h3 class="text-base font-bold font-heading line-clamp-2">B & B+ Trees</h3>
+                        </div>
+                        <div class="text-[10px] font-sans font-bold flex justify-between items-center text-slate-500 mt-2">
+                            <span>5 Topics</span>
+                            <span class="text-blue-800 group-hover:translate-x-0.5 transition">Open →</span>
+                        </div>
+                    </a>
+
+                </div>
+                <!-- Wood Shelf Plank shadow decoration -->
+                <div class="wood-shelf h-4 w-full rounded-b-md"></div>
+            </div>
+
+        </main>
+        
+        <!-- Footer -->
+        <footer class="text-center text-xs text-slate-500 py-8 border-t border-slate-800 font-sans">
+            <p>Built with Tailwind CSS, Google Fonts, and Vanilla Canvas Engines. Rendered like a physical student notebook library.</p>
+        </footer>
+
+    </div>
+
+    <!-- Filtering Scripts -->
+    <script>
+        function filterNotebooks() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            const cards = document.querySelectorAll('.notebook-card');
+            
+            cards.forEach(card => {
+                const searchTags = card.getAttribute('data-title').toLowerCase();
+                if (searchTags.includes(query)) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+            
+            checkEmptyShelves();
+        }
+        
+        function filterCategory(cat) {
+            // Update filter buttons appearance
+            const buttons = ['all', 'nsrit', 'personal'];
+            buttons.forEach(b => {
+                const el = document.getElementById('filter-' + b);
+                if (b === cat) {
+                    el.classList.remove('bg-slate-800', 'hover:bg-slate-700', 'border-slate-700');
+                    el.classList.add('bg-amber-500', 'text-slate-900', 'border-amber-500');
+                } else {
+                    el.classList.remove('bg-amber-500', 'text-slate-900', 'border-amber-500');
+                    el.classList.add('bg-slate-800', 'hover:bg-slate-700', 'border-slate-700', 'text-slate-100');
+                }
+            });
+
+            // Toggle category containers
+            const nsritCont = document.getElementById('cat-nsrit-container');
+            const personalCont = document.getElementById('cat-personal-container');
+            
+            if (cat === 'all') {
+                nsritCont.style.display = 'block';
+                personalCont.style.display = 'block';
+            } else if (cat === 'nsrit') {
+                nsritCont.style.display = 'block';
+                personalCont.style.display = 'none';
+            } else if (cat === 'personal') {
+                nsritCont.style.display = 'none';
+                personalCont.style.display = 'block';
+            }
+        }
+        
+        function checkEmptyShelves() {
+            const shelves = ['nsrit', 'personal'];
+            shelves.forEach(sh => {
+                const container = document.getElementById(`cat-${sh}-container`);
+                const visibleCards = container.querySelectorAll(`.notebook-card[data-cat="${sh}"]:not([style*="display: none"])`);
+                if (visibleCards.length === 0) {
+                    container.style.opacity = '0.35';
+                } else {
+                    container.style.opacity = '1';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

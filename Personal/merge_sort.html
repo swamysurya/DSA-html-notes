@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Algorithms: Merge Sort - Digital Lecture Notes</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Kalam:wght@300;400;700&family=Patrick+Hand&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        notebookBg: '#cbd5e1',
+                        notebookPaper: '#FAF6EE',
+                        indigoBlue: '#1A365D',
+                        inkRed: '#9B2C2C',
+                        pencilGray: '#4A5568',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Shared Notebook Styles -->
+    <link rel="stylesheet" href="../notebook.css">
+    
+    <style>
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+
+<body class="font-notes-body text-2xl text-slate-800 antialiased transition-all duration-300">
+
+    <!-- Sticky Header -->
+    <header class="sticky top-0 z-50 bg-[#FAF6EE] shadow-md border-b-2 border-amber-200 px-4 py-3 no-print">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-3">
+            <div class="flex items-center space-x-3">
+                <span class="text-3xl font-bold text-[#1A365D] tracking-wide font-heading">📖 Algorithms: Merge Sort</span>
+                <span class="bg-blue-100 text-blue-800 text-xs font-bold px-2.5 py-1 rounded-full border border-blue-300 font-sans uppercase">Sorting</span>
+            </div>
+            <button id="styleBtn" onclick="toggleStyleMode()" class="px-4 py-1.5 rounded-full text-sm font-bold bg-[#1A365D] text-white hover:bg-opacity-90 transition font-sans shadow-sm">
+                ✍️ Switch to Clean Print Font
+            </button>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <nav class="max-w-6xl mx-auto mt-3 flex flex-wrap gap-1 border-t border-amber-200 pt-2 text-base md:text-lg">
+            <button onclick="switchTab('definitions')" id="tab-definitions" class="nav-tab px-4 py-2 rounded-t-lg font-bold bg-amber-200 text-[#1A365D] border-b-2 border-[#1A365D]">
+                1. Definitions & Concepts
+            </button>
+            <button onclick="switchTab('step-by-step')" id="tab-step-by-step" class="nav-tab px-4 py-2 rounded-t-lg font-bold text-gray-600 hover:text-[#1A365D]">
+                2. Step-by-Step Tree
+            </button>
+            <button onclick="switchTab('complexity')" id="tab-complexity" class="nav-tab px-4 py-2 rounded-t-lg font-bold text-gray-600 hover:text-[#1A365D]">
+                3. Complexity Analysis
+            </button>
+            <button onclick="switchTab('visualization')" id="tab-visualization" class="nav-tab px-4 py-2 rounded-t-lg font-bold text-gray-600 hover:text-[#1A365D]">
+                4. Interactive Simulator
+            </button>
+        </nav>
+    </header>
+
+    <!-- Main Notebook Container -->
+    <main class="max-w-6xl mx-auto flex relative bg-notebookPaper rounded-xl shadow-2xl overflow-hidden min-h-[900px] border border-amber-200 my-8">
+        
+        <!-- Left Binder Column -->
+        <div class="w-10 sm:w-16 bg-amber-50 border-r-2 border-amber-200 flex flex-col items-center py-8 select-none shrink-0 no-print space-y-6 z-10 shadow-[inset_-5px_0_10px_rgba(0,0,0,0.05)]">
+            <script>
+                for (let i = 0; i < 40; i++) document.write('<div class="spiral-ring"></div>');
+            </script>
+        </div>
+
+        <!-- Notebook Content Area -->
+        <div class="flex-1 lined-paper p-4 sm:p-8 notebook-margin sm:pl-8 overflow-hidden z-0">
+
+            <!-- TAB 1: DEFINITIONS & CONCEPTS -->
+            <section id="sec-definitions" class="tab-content active space-y-8">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-[#1A365D] underline decoration-2 underline-offset-4">
+                        Divide-and-Conquer Recursive Partitioning</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 1</span>
+                </div>
+
+                <div class="space-y-6">
+                    <div>
+                        <h3 class="text-3xl font-bold text-inkRed font-heading pen-underline mb-2">What is Merge Sort?</h3>
+                        <p class="leading-relaxed">
+                            **Merge Sort** is an efficient, general-purpose, comparison-based sorting algorithm. It utilizes a **divide-and-conquer** strategy to divide the input array into two halves, calls itself recursively on the halves, and then merges the two sorted halves back together.
+                        </p>
+                    </div>
+
+                    <div class="note-box p-5 space-y-3">
+                        <h4 class="text-2xl font-bold text-[#1A365D] font-heading">🔑 Divide, Conquer, & Merge</h4>
+                        <ul class="list-disc list-inside space-y-2 text-xl ml-4">
+                            <li><strong>Divide:</strong> Calculate the middle index `mid = low + (high - low) / 2` and split the array into two halves recursively.</li>
+                            <li><strong>Conquer:</strong> Continue splitting until subarrays reach singleton sizes (length 1), which are sorted by default.</li>
+                            <li><strong>Merge:</strong> Combine adjacent sorted subarrays by stepping through both, copying smaller elements sequentially into a temp array.</li>
+                        </ul>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-center my-6">
+                        <div class="space-y-4">
+                            <h3 class="text-2xl font-bold text-inkRed font-heading pen-underline">Stable Merge Step</h3>
+                            <p class="text-xl leading-relaxed">
+                                When merging `arr[L]` and `arr[R]`, if elements are equal, we choose the element from the left subarray first. This guarantees that duplicate items maintain their relative input orders, making Merge Sort **stable**.
+                            </p>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <span class="text-sm font-sans font-bold text-pencilGray mb-1">Recursive Split Tree:</span>
+                            <canvas id="concept-canvas" class="border border-slate-300 rounded bg-white shadow-sm" style="width: 100%; height: 160px;"></canvas>
+                            <span class="text-xs text-pencilGray mt-1">Arrays divided into halves down to length 1.</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 2: STEP-BY-STEP EXAMPLE -->
+            <section id="sec-step-by-step" class="tab-content space-y-8">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-[#1A365D] underline decoration-2 underline-offset-4">
+                        Step-by-Step Partition Tree</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 2</span>
+                </div>
+
+                <div class="space-y-6">
+                    <p class="leading-relaxed">
+                        Let us trace merge sorting the array: `[4, 2, 1, 3]`.
+                    </p>
+
+                    <div class="space-y-8 border-l-4 border-dashed border-amber-300 pl-4 py-2">
+                        
+                        <!-- Step 1 -->
+                        <div class="space-y-2 break-inside-avoid">
+                            <h3 class="text-2xl font-bold text-inkRed font-heading">Step 1: Partition down to Singletons</h3>
+                            <p class="text-lg">
+                                &bull; Split `[4, 2, 1, 3]` into left `[4, 2]` and right `[1, 3]`. <br>
+                                &bull; Sub-splits reach singletons: `[4]`, `[2]`, `[1]`, `[3]`.
+                            </p>
+                            <div class="bg-white border border-slate-300 rounded p-2 max-w-xl shadow-sm">
+                                <canvas id="step-canvas-1" class="w-full"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Step 2 -->
+                        <div class="space-y-2 break-inside-avoid">
+                            <h3 class="text-2xl font-bold text-inkRed font-heading">Step 2: Merge sorted halves recursively</h3>
+                            <p class="text-lg">
+                                &bull; Merge `[4]` and `[2]` into sorted `[2, 4]`. Merge `[1]` and `[3]` into `[1, 3]`. <br>
+                                &bull; Merge `[2, 4]` and `[1, 3]` into the final sorted array `[1, 2, 3, 4]`.
+                            </p>
+                            <div class="bg-white border border-slate-300 rounded p-2 max-w-xl shadow-sm">
+                                <canvas id="step-canvas-2" class="w-full"></canvas>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 3: COMPLEXITY ANALYSIS -->
+            <section id="sec-complexity" class="tab-content space-y-8">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-[#1A365D] underline decoration-2 underline-offset-4">
+                        Merge Sort Complexity Analysis</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 3</span>
+                </div>
+
+                <div class="space-y-6">
+                    <h3 class="text-3xl font-bold text-inkRed font-heading pen-underline">Asymptotic Runtime Bounds</h3>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse border-2 border-slate-400 bg-white/95 text-base md:text-lg">
+                            <thead>
+                                <tr class="bg-blue-900 text-white font-sans text-sm uppercase">
+                                    <th class="p-3 border border-slate-400">Case</th>
+                                    <th class="p-3 border border-slate-400">Scenario</th>
+                                    <th class="p-3 border border-slate-400">Time Complexity</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-slate-900">
+                                <tr>
+                                    <td class="p-3 border border-slate-400 font-bold font-sans text-sm">Best Case</td>
+                                    <td class="p-3 border border-slate-400">Array is already sorted. Split structure remains identical, still taking O(N log N) merge operations.</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-emerald-700">O(N log N)</td>
+                                </tr>
+                                <tr class="bg-slate-50/50">
+                                    <td class="p-3 border border-slate-400 font-bold font-sans text-sm">Average Case</td>
+                                    <td class="p-3 border border-slate-400">Elements are randomly distributed. Consistently partitions and merges halves.</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-emerald-700">O(N log N)</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 border border-slate-400 font-bold font-sans text-sm">Worst Case</td>
+                                    <td class="p-3 border border-slate-400">Elements are configured to trigger the maximum number of comparisons in merge.</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-emerald-700">O(N log N)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="note-box p-4 space-y-2 mt-4">
+                        <h4 class="text-2xl font-bold text-[#1A365D] font-heading">📝 Space Complexity:</h4>
+                        <p class="text-xl">
+                            Because merging requires allocating a separate temporary workspace of size N to copy values back and forth, the space complexity is **not in-place**:
+                            <br><strong class="text-red-700">Space Complexity = O(N) (Auxiliary space)</strong>
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 4: INTERACTIVE VISUALIZATION -->
+            <section id="sec-visualization" class="tab-content space-y-6">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-4 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-[#1A365D] underline decoration-2 underline-offset-4">
+                        Merge Sort Simulator</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 4</span>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                    
+                    <!-- Left Column: Controls (5 Cols) -->
+                    <div class="lg:col-span-5 space-y-4 bg-amber-50/50 p-4 rounded-xl border border-amber-300">
+                        <h3 class="text-2xl font-bold text-inkRed font-heading border-b border-amber-200 pb-1">Sort Controls</h3>
+                        
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="simStep()" class="bg-blue-700 hover:bg-blue-800 text-white font-sans text-sm font-bold py-2 rounded shadow transition">Next Step</button>
+                            <button onclick="simRunAll()" class="bg-emerald-700 hover:bg-emerald-800 text-white font-sans text-sm font-bold py-2 rounded shadow transition">Run All</button>
+                        </div>
+
+                        <div class="flex justify-between items-center pt-1">
+                            <button onclick="simRegen()" class="bg-slate-500 hover:bg-slate-600 text-white font-sans text-sm font-bold py-1.5 px-3 rounded shadow transition">Regenerate Array</button>
+                        </div>
+
+                        <!-- Stats Dashboard -->
+                        <div class="bg-white border border-slate-300 rounded-lg p-3 space-y-1.5 shadow-sm text-base md:text-lg">
+                            <h4 class="font-bold text-[#1A365D] font-sans text-sm uppercase tracking-wider border-b border-slate-100 pb-1">Sort Stats</h4>
+                            <div class="flex justify-between">
+                                <span class="font-bold">Active Subarrays:</span>
+                                <span id="lbl-split" class="font-sans font-bold text-slate-800">1 (length 8)</span>
+                            </div>
+                        </div>
+
+                        <!-- Status Log -->
+                        <div class="bg-white border border-slate-300 rounded-lg p-3 shadow-sm">
+                            <h4 class="font-bold text-pencilGray font-sans text-sm uppercase tracking-wider mb-1">Execution Trace:</h4>
+                            <p id="sim-status" class="text-base text-inkRed font-semibold min-h-[45px] leading-snug">Click Next Step to begin dividing array.</p>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Canvas Output (7 Cols) -->
+                    <div class="lg:col-span-7 flex flex-col items-center">
+                        <div class="w-full bg-white border border-slate-300 rounded-lg shadow-md p-3 relative">
+                            <canvas id="simulator-canvas" style="width: 100%; height: 350px;"></canvas>
+                        </div>
+                        <span class="text-xs text-pencilGray mt-1.5 text-center block w-full font-sans italic">
+                            * Visual guides: Canvas displays partitioning steps down into levels. Levels merge back once sorted.
+                        </span>
+                    </div>
+
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- JavaScript Controllers -->
+    <script>
+        let isCleanFont = false;
+        
+        function toggleStyleMode() {
+            isCleanFont = !isCleanFont;
+            const body = document.body;
+            const styleBtn = document.getElementById('styleBtn');
+            if (isCleanFont) {
+                body.classList.remove('font-notes-body');
+                body.classList.add('font-clean');
+                styleBtn.innerText = "✍️ Switch to Handwritten Font";
+            } else {
+                body.classList.remove('font-clean');
+                body.classList.add('font-notes-body');
+                styleBtn.innerText = "✍️ Switch to Clean Print Font";
+            }
+            drawConceptDiagram();
+            drawStepCanvases();
+            drawSimulator();
+        }
+
+        let currentTab = 'definitions';
+        function switchTab(tabId) {
+            currentTab = tabId;
+            document.querySelectorAll('.tab-content').forEach(sec => {
+                sec.classList.remove('active');
+            });
+            document.getElementById('sec-' + tabId).classList.add('active');
+            
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('bg-amber-200', 'text-[#1A365D]', 'border-b-2', 'border-[#1A365D]');
+                tab.classList.add('text-gray-600', 'hover:text-[#1A365D]');
+            });
+            
+            const activeTab = document.getElementById('tab-' + tabId);
+            if (activeTab) {
+                activeTab.classList.remove('text-gray-600', 'hover:text-[#1A365D]');
+                activeTab.classList.add('bg-amber-200', 'text-[#1A365D]', 'border-b-2', 'border-[#1A365D]');
+            }
+            
+            setTimeout(() => {
+                if (tabId === 'definitions') drawConceptDiagram();
+                if (tabId === 'step-by-step') drawStepCanvases();
+                if (tabId === 'visualization') drawSimulator();
+            }, 50);
+        }
+
+        window.onresize = () => {
+            if (currentTab === 'definitions') drawConceptDiagram();
+            if (currentTab === 'step-by-step') drawStepCanvases();
+            if (currentTab === 'visualization') drawSimulator();
+        };
+
+        // Helper to draw horizontal arrays at offset
+        function drawMergeBlocks(ctx, x, y, elements, title = "") {
+            const blockW = 28;
+            const blockH = 22;
+            const spacing = 2;
+            ctx.textBaseline = 'middle';
+            ctx.textAlign = 'center';
+            
+            if (title) {
+                ctx.fillStyle = '#4A5568';
+                ctx.font = 'bold 9px sans-serif';
+                ctx.fillText(title, x - 10, y + blockH/2);
+            }
+
+            for (let i = 0; i < elements.length; i++) {
+                ctx.fillStyle = '#EBF8FF';
+                ctx.strokeStyle = '#1A365D';
+                ctx.lineWidth = 1;
+                ctx.fillRect(x + i*30, y, blockW, blockH);
+                ctx.strokeRect(x + i*30, y, blockW, blockH);
+
+                ctx.fillStyle = '#1A365D';
+                ctx.font = isCleanFont ? 'bold 10px Inter' : 'bold 11px Kalam';
+                ctx.fillText(String(elements[i]), x + i*30 + blockW/2, y + blockH/2);
+            }
+        }
+
+        /* ----------------------------------------------------------------------
+           TAB 1: CONCEPT DRAWING
+        ---------------------------------------------------------------------- */
+        function drawConceptDiagram() {
+            const canvas = document.getElementById('concept-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            
+            const width = canvas.parentElement.clientWidth || 400;
+            const height = 160;
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            ctx.scale(dpr, dpr);
+            
+            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = '#FCFBF9';
+            ctx.fillRect(0, 0, width, height);
+
+            drawMergeBlocks(ctx, 120, 20, [4, 2, 1, 3], "Root");
+            drawMergeBlocks(ctx, 40, 70, [4, 2], "Left");
+            drawMergeBlocks(ctx, 220, 70, [1, 3], "Right");
+        }
+
+        /* ----------------------------------------------------------------------
+           TAB 2: STEP-BY-STEP CANVASES
+        ---------------------------------------------------------------------- */
+        function drawStepCanvases() {
+            // Step 1: Splits
+            const c1 = document.getElementById('step-canvas-1');
+            if (c1) {
+                const ctx = c1.getContext('2d');
+                const w = c1.parentElement.clientWidth || 400;
+                setupCanvas(c1, w, 120);
+                drawMergeBlocks(ctx, 20, 10, [4, 2], "L1");
+                drawMergeBlocks(ctx, 100, 10, [1, 3], "R1");
+                drawMergeBlocks(ctx, 20, 60, [4], "L2a");
+                drawMergeBlocks(ctx, 60, 60, [2], "L2b");
+                drawMergeBlocks(ctx, 100, 60, [1], "R2a");
+                drawMergeBlocks(ctx, 140, 60, [3], "R2b");
+            }
+            
+            // Step 2: Merges
+            const c2 = document.getElementById('step-canvas-2');
+            if (c2) {
+                const ctx = c2.getContext('2d');
+                const w = c2.parentElement.clientWidth || 400;
+                setupCanvas(c2, w, 120);
+                drawMergeBlocks(ctx, 20, 10, [2, 4], "Merge L");
+                drawMergeBlocks(ctx, 120, 10, [1, 3], "Merge R");
+                drawMergeBlocks(ctx, 70, 60, [1, 2, 3, 4], "Final Merge");
+            }
+        }
+
+        function setupCanvas(canvas, width, height) {
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            ctx.scale(dpr, dpr);
+            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = '#FCFBF9';
+            ctx.fillRect(0, 0, width, height);
+        }
+
+        /* ----------------------------------------------------------------------
+           TAB 4: SIMULATOR SYSTEM
+        ---------------------------------------------------------------------- */
+        let simArray = [38, 27, 43, 3, 9, 82, 10, 16];
+        let simLevels = []; // Store state of each step split
+        let simStepIndex = 0;
+        let simDone = false;
+
+        // Set up the static steps sequence for simulator trace
+        function initSimulator() {
+            simStepIndex = 0;
+            simDone = false;
+            simLevels = [
+                { text: "Initial unsorted array: [38, 27, 43, 3, 9, 82, 10, 16]", data: [[38, 27, 43, 3, 9, 82, 10, 16]] },
+                { text: "Split into halves: [38, 27, 43, 3] and [9, 82, 10, 16]", data: [[38, 27, 43, 3], [9, 82, 10, 16]] },
+                { text: "Split again: [38, 27], [43, 3], [9, 82], [10, 16]", data: [[38, 27], [43, 3], [9, 82], [10, 16]] },
+                { text: "Singletons reached: [38], [27], [43], [3], [9], [82], [10], [16]", data: [[38], [27], [43], [3], [9], [82], [10], [16]] },
+                { text: "Merge level 1: [27, 38], [3, 43], [9, 82], [10, 16]", data: [[27, 38], [3, 43], [9, 82], [10, 16]] },
+                { text: "Merge level 2: [3, 27, 38, 43] and [9, 10, 16, 82]", data: [[3, 27, 38, 43], [9, 10, 16, 82]] },
+                { text: "Final merge complete: [3, 9, 10, 16, 27, 38, 43, 82]!", data: [[3, 9, 10, 16, 27, 38, 43, 82]] }
+            ];
+            document.getElementById('sim-status').innerText = simLevels[0].text;
+            drawSimulator();
+        }
+
+        function simRegen() {
+            initSimulator();
+        }
+
+        function simStep() {
+            if (simDone) {
+                document.getElementById('sim-status').innerText = "Sorting finished! Click Regenerate to reset.";
+                return;
+            }
+
+            simStepIndex++;
+            if (simStepIndex >= simLevels.length - 1) {
+                simDone = true;
+            }
+
+            document.getElementById('sim-status').innerText = simLevels[simStepIndex].text;
+            drawSimulator();
+        }
+
+        function simRunAll() {
+            const timer = setInterval(() => {
+                if (simDone) {
+                    clearInterval(timer);
+                } else {
+                    simStep();
+                }
+            }, 800);
+        }
+
+        function drawSimulator() {
+            const canvas = document.getElementById('simulator-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            
+            const width = canvas.parentElement.clientWidth || 500;
+            const height = 350;
+            
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            ctx.scale(dpr, dpr);
+            
+            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = '#FCFBF9';
+            ctx.fillRect(0, 0, width, height);
+
+            ctx.fillStyle = '#1A365D';
+            ctx.font = isCleanFont ? 'bold 13px Inter' : 'bold 15px Kalam';
+            ctx.textAlign = 'left';
+            ctx.fillText("Dynamic recursive split & merge level representation:", 25, 45);
+
+            const activeData = simLevels[simStepIndex].data;
+            document.getElementById('lbl-split').innerText = `${activeData.length} subarray segments`;
+
+            // Draw active level subarrays
+            let currentY = 120;
+            const segmentSpace = 32;
+
+            for (let s = 0; s < activeData.length; s++) {
+                const sub = activeData[s];
+                const blockWidth = 30;
+                const totalW = sub.length * blockWidth;
+                
+                // Centered horizontally per partition block
+                const partitionSpacing = width / activeData.length;
+                const startX = s * partitionSpacing + (partitionSpacing - totalW) / 2;
+
+                drawMergeBlocks(ctx, startX, currentY, sub);
+            }
+        }
+
+        window.onload = () => {
+            drawConceptDiagram();
+            drawStepCanvases();
+            drawSimulator();
+        };
+    </script>
+</body>
+
+</html>

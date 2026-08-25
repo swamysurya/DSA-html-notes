@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Algorithms: Selection Sort - Digital Lecture Notes</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Kalam:wght@300;400;700&family=Patrick+Hand&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        notebookBg: '#cbd5e1',
+                        notebookPaper: '#FAF6EE',
+                        indigoBlue: '#1A365D',
+                        inkRed: '#9B2C2C',
+                        pencilGray: '#4A5568',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Shared Notebook Styles -->
+    <link rel="stylesheet" href="../notebook.css">
+    
+    <style>
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+
+<body class="font-notes-body text-2xl text-slate-800 antialiased transition-all duration-300">
+
+    <!-- Sticky Header -->
+    <header class="sticky top-0 z-50 bg-[#FAF6EE] shadow-md border-b-2 border-amber-200 px-4 py-3 no-print">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-3">
+            <div class="flex items-center space-x-3">
+                <span class="text-3xl font-bold text-[#1A365D] tracking-wide font-heading">📖 Algorithms: Selection Sort</span>
+                <span class="bg-blue-100 text-blue-800 text-xs font-bold px-2.5 py-1 rounded-full border border-blue-300 font-sans uppercase">Sorting</span>
+            </div>
+            <button id="styleBtn" onclick="toggleStyleMode()" class="px-4 py-1.5 rounded-full text-sm font-bold bg-[#1A365D] text-white hover:bg-opacity-90 transition font-sans shadow-sm">
+                ✍️ Switch to Clean Print Font
+            </button>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <nav class="max-w-6xl mx-auto mt-3 flex flex-wrap gap-1 border-t border-amber-200 pt-2 text-base md:text-lg">
+            <button onclick="switchTab('definitions')" id="tab-definitions" class="nav-tab px-4 py-2 rounded-t-lg font-bold bg-amber-200 text-[#1A365D] border-b-2 border-[#1A365D]">
+                1. Definitions & Concepts
+            </button>
+            <button onclick="switchTab('step-by-step')" id="tab-step-by-step" class="nav-tab px-4 py-2 rounded-t-lg font-bold text-gray-600 hover:text-[#1A365D]">
+                2. Step-by-Step Pass
+            </button>
+            <button onclick="switchTab('complexity')" id="tab-complexity" class="nav-tab px-4 py-2 rounded-t-lg font-bold text-gray-600 hover:text-[#1A365D]">
+                3. Complexity Analysis
+            </button>
+            <button onclick="switchTab('visualization')" id="tab-visualization" class="nav-tab px-4 py-2 rounded-t-lg font-bold text-gray-600 hover:text-[#1A365D]">
+                4. Interactive Simulator
+            </button>
+        </nav>
+    </header>
+
+    <!-- Main Notebook Container -->
+    <main class="max-w-6xl mx-auto flex relative bg-notebookPaper rounded-xl shadow-2xl overflow-hidden min-h-[900px] border border-amber-200 my-8">
+        
+        <!-- Left Binder Column -->
+        <div class="w-10 sm:w-16 bg-amber-50 border-r-2 border-amber-200 flex flex-col items-center py-8 select-none shrink-0 no-print space-y-6 z-10 shadow-[inset_-5px_0_10px_rgba(0,0,0,0.05)]">
+            <script>
+                for (let i = 0; i < 40; i++) document.write('<div class="spiral-ring"></div>');
+            </script>
+        </div>
+
+        <!-- Notebook Content Area -->
+        <div class="flex-1 lined-paper p-4 sm:p-8 notebook-margin sm:pl-8 overflow-hidden z-0">
+
+            <!-- TAB 1: DEFINITIONS & CONCEPTS -->
+            <section id="sec-definitions" class="tab-content active space-y-8">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-[#1A365D] underline decoration-2 underline-offset-4">
+                        Sorted Sub-Arrays & Selection Sort</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 1</span>
+                </div>
+
+                <div class="space-y-6">
+                    <div>
+                        <h3 class="text-3xl font-bold text-inkRed font-heading pen-underline mb-2">What is Selection Sort?</h3>
+                        <p class="leading-relaxed">
+                            **Selection Sort** splits the array conceptually into two segments: a **sorted prefix** at the left and an **unsorted suffix** at the right. It repeatedly scans the unsorted suffix to locate the minimum element, then swaps it with the first element of the unsorted suffix.
+                        </p>
+                    </div>
+
+                    <div class="note-box p-5 space-y-3">
+                        <h4 class="text-2xl font-bold text-[#1A365D] font-heading">🔑 Core Attributes</h4>
+                        <ul class="list-disc list-inside space-y-2 text-xl ml-4">
+                            <li><strong>Unstable Sort:</strong> Due to distant elements swapping, it can alter the relative order of duplicate elements.</li>
+                            <li><strong>Minimal Swaps:</strong> Selection sort executes at most **N swaps** total, making it highly efficient when memory writes are extremely expensive.</li>
+                            <li><strong>Constant Comparison load:</strong> Unlike bubble sort, selection sort always performs N &times; (N-1) / 2 comparisons, regardless of whether the input is already sorted.</li>
+                        </ul>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-center my-6">
+                        <div class="space-y-4">
+                            <h3 class="text-2xl font-bold text-inkRed font-heading pen-underline">Finding the Minimum</h3>
+                            <p class="text-xl leading-relaxed">
+                                In each pass `i`, a pointer scans from `i + 1` to `N-1`. The index of the smallest element found (`min_idx`) is tracked. Once the loop ends, `arr[i]` and `arr[min_idx]` are swapped, growing the sorted prefix by 1 element.
+                            </p>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <span class="text-sm font-sans font-bold text-pencilGray mb-1">Pass 1 Minimum Swap:</span>
+                            <canvas id="concept-canvas" class="border border-slate-300 rounded bg-white shadow-sm" style="width: 100%; height: 160px;"></canvas>
+                            <span class="text-xs text-pencilGray mt-1">Minimum element 1 swaps with unsorted front element 5.</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 2: STEP-BY-STEP EXAMPLE -->
+            <section id="sec-step-by-step" class="tab-content space-y-8">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-[#1A365D] underline decoration-2 underline-offset-4">
+                        Step-by-Step Selection Pass</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 2</span>
+                </div>
+
+                <div class="space-y-6">
+                    <p class="leading-relaxed">
+                        Let us trace the first pass of selection sorting the array: `[5, 3, 4, 1]`.
+                    </p>
+
+                    <div class="space-y-8 border-l-4 border-dashed border-amber-300 pl-4 py-2">
+                        
+                        <!-- Step 1 -->
+                        <div class="space-y-2 break-inside-avoid">
+                            <h3 class="text-2xl font-bold text-inkRed font-heading">Step 1: Locate Minimum (Index 0 to 3)</h3>
+                            <p class="text-lg">
+                                &bull; Initial minimum: `arr[0] = 5`. Pointers scan right.<br>
+                                &bull; Scanning indices finds `1` at index 3 is smaller than 5. Set `min_idx = 3`.
+                            </p>
+                            <div class="bg-white border border-slate-300 rounded p-2 max-w-xl shadow-sm">
+                                <canvas id="step-canvas-1" class="w-full"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Step 2 -->
+                        <div class="space-y-2 break-inside-avoid">
+                            <h3 class="text-2xl font-bold text-inkRed font-heading">Step 2: Swap minimum into index 0</h3>
+                            <p class="text-lg">
+                                Swap `arr[0]` (5) and `arr[3]` (1). Array becomes `[1, 3, 4, 5]`. (1 is now sorted).
+                            </p>
+                            <div class="bg-white border border-slate-300 rounded p-2 max-w-xl shadow-sm">
+                                <canvas id="step-canvas-2" class="w-full"></canvas>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 3: COMPLEXITY ANALYSIS -->
+            <section id="sec-complexity" class="tab-content space-y-8">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-[#1A365D] underline decoration-2 underline-offset-4">
+                        Selection Sort Complexity Analysis</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 3</span>
+                </div>
+
+                <div class="space-y-6">
+                    <h3 class="text-3xl font-bold text-inkRed font-heading pen-underline">Asymptotic Runtime Bounds</h3>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse border-2 border-slate-400 bg-white/95 text-base md:text-lg">
+                            <thead>
+                                <tr class="bg-blue-900 text-white font-sans text-sm uppercase">
+                                    <th class="p-3 border border-slate-400">Case</th>
+                                    <th class="p-3 border border-slate-400">Scenario</th>
+                                    <th class="p-3 border border-slate-400">Time Complexity</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-slate-900">
+                                <tr>
+                                    <td class="p-3 border border-slate-400 font-bold font-sans text-sm">Best Case</td>
+                                    <td class="p-3 border border-slate-400">Array is already sorted. However, inner loops must scan completely to verify, taking N*(N-1)/2 comparisons.</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-red-700">O(N^2)</td>
+                                </tr>
+                                <tr class="bg-slate-50/50">
+                                    <td class="p-3 border border-slate-400 font-bold font-sans text-sm">Average Case</td>
+                                    <td class="p-3 border border-slate-400">Elements are randomly distributed. Scan comparisons always equal O(N^2).</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-red-700">O(N^2)</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 border border-slate-400 font-bold font-sans text-sm">Worst Case</td>
+                                    <td class="p-3 border border-slate-400">Array is sorted in reverse order. Performs O(N^2) comparisons and N swaps.</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-red-700">O(N^2)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="note-box p-4 space-y-2 mt-4">
+                        <h4 class="text-2xl font-bold text-inkRed font-heading">📝 Space & Writes Advantage:</h4>
+                        <ul class="list-disc list-inside space-y-1 text-lg">
+                            <li><strong>Auxiliary Space:</strong> In-place sorting, consuming only <strong class="text-emerald-700">O(1)</strong> extra space.</li>
+                            <li><strong>Write Efficiency:</strong> Selection sort executes at most N swaps. Contrast this with bubble sort, which can perform up to O(N^2) swaps. This makes selection sort much faster if writing to memory is a performance bottleneck.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 4: INTERACTIVE VISUALIZATION -->
+            <section id="sec-visualization" class="tab-content space-y-6">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-4 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-[#1A365D] underline decoration-2 underline-offset-4">
+                        Selection Sort Simulator</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 4</span>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                    
+                    <!-- Left Column: Controls (5 Cols) -->
+                    <div class="lg:col-span-5 space-y-4 bg-amber-50/50 p-4 rounded-xl border border-amber-300">
+                        <h3 class="text-2xl font-bold text-inkRed font-heading border-b border-amber-200 pb-1">Sort Controls</h3>
+                        
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="simStep()" class="bg-blue-700 hover:bg-blue-800 text-white font-sans text-sm font-bold py-2 rounded shadow transition">Next Step</button>
+                            <button onclick="simRunAll()" class="bg-emerald-700 hover:bg-emerald-800 text-white font-sans text-sm font-bold py-2 rounded shadow transition">Run All</button>
+                        </div>
+
+                        <div class="flex justify-between items-center pt-1">
+                            <button onclick="simRegen()" class="bg-slate-500 hover:bg-slate-600 text-white font-sans text-sm font-bold py-1.5 px-3 rounded shadow transition">Regenerate Array</button>
+                        </div>
+
+                        <!-- Stats Dashboard -->
+                        <div class="bg-white border border-slate-300 rounded-lg p-3 space-y-1.5 shadow-sm text-base md:text-lg">
+                            <h4 class="font-bold text-[#1A365D] font-sans text-sm uppercase tracking-wider border-b border-slate-100 pb-1">Sort Stats</h4>
+                            <div class="flex justify-between">
+                                <span class="font-bold">Min Index Found:</span>
+                                <span id="lbl-min" class="font-sans font-bold text-slate-800">0</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="font-bold">Comparisons:</span>
+                                <span id="lbl-comps" class="font-sans font-bold text-slate-800">0</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="font-bold">Swaps Count:</span>
+                                <span id="lbl-swaps" class="font-sans font-bold text-slate-800">0</span>
+                            </div>
+                        </div>
+
+                        <!-- Status Log -->
+                        <div class="bg-white border border-slate-300 rounded-lg p-3 shadow-sm">
+                            <h4 class="font-bold text-pencilGray font-sans text-sm uppercase tracking-wider mb-1">Execution Trace:</h4>
+                            <p id="sim-status" class="text-base text-inkRed font-semibold min-h-[45px] leading-snug">Click Next Step to start sorting.</p>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Canvas Output (7 Cols) -->
+                    <div class="lg:col-span-7 flex flex-col items-center">
+                        <div class="w-full bg-white border border-slate-300 rounded-lg shadow-md p-3 relative">
+                            <canvas id="simulator-canvas" style="width: 100%; height: 350px;"></canvas>
+                        </div>
+                        <span class="text-xs text-pencilGray mt-1.5 text-center block w-full font-sans italic">
+                            * Visual guides: <span class="text-emerald-700 font-bold">Green cells</span> are sorted, <span class="text-yellow-600 font-bold">yellow cell</span> is checked, <span class="text-red-700 font-bold">red index pointer</span> marks the minimum found key.
+                        </span>
+                    </div>
+
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- JavaScript Controllers -->
+    <script>
+        let isCleanFont = false;
+        
+        function toggleStyleMode() {
+            isCleanFont = !isCleanFont;
+            const body = document.body;
+            const styleBtn = document.getElementById('styleBtn');
+            if (isCleanFont) {
+                body.classList.remove('font-notes-body');
+                body.classList.add('font-clean');
+                styleBtn.innerText = "✍️ Switch to Handwritten Font";
+            } else {
+                body.classList.remove('font-clean');
+                body.classList.add('font-notes-body');
+                styleBtn.innerText = "✍️ Switch to Clean Print Font";
+            }
+            drawConceptDiagram();
+            drawStepCanvases();
+            drawSimulator();
+        }
+
+        let currentTab = 'definitions';
+        function switchTab(tabId) {
+            currentTab = tabId;
+            document.querySelectorAll('.tab-content').forEach(sec => {
+                sec.classList.remove('active');
+            });
+            document.getElementById('sec-' + tabId).classList.add('active');
+            
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('bg-amber-200', 'text-[#1A365D]', 'border-b-2', 'border-[#1A365D]');
+                tab.classList.add('text-gray-600', 'hover:text-[#1A365D]');
+            });
+            
+            const activeTab = document.getElementById('tab-' + tabId);
+            if (activeTab) {
+                activeTab.classList.remove('text-gray-600', 'hover:text-[#1A365D]');
+                activeTab.classList.add('bg-amber-200', 'text-[#1A365D]', 'border-b-2', 'border-[#1A365D]');
+            }
+            
+            setTimeout(() => {
+                if (tabId === 'definitions') drawConceptDiagram();
+                if (tabId === 'step-by-step') drawStepCanvases();
+                if (tabId === 'visualization') drawSimulator();
+            }, 50);
+        }
+
+        window.onresize = () => {
+            if (currentTab === 'definitions') drawConceptDiagram();
+            if (currentTab === 'step-by-step') drawStepCanvases();
+            if (currentTab === 'visualization') drawSimulator();
+        };
+
+        // Draw array blocks helper
+        function drawSelectionBlocks(ctx, startX, startY, elements, checkedIdx = -1, minIdx = -1, sortedBoundary = 0) {
+            const blockW = 44;
+            const blockH = 34;
+            const spacing = 4;
+            
+            ctx.textBaseline = 'middle';
+            ctx.textAlign = 'center';
+
+            for (let i = 0; i < elements.length; i++) {
+                const x = startX + i * (blockW + spacing);
+                const isSorted = i < sortedBoundary;
+
+                // Select background color
+                ctx.lineWidth = 2;
+                if (isSorted) {
+                    ctx.fillStyle = '#DEF7EC'; // Green sorted
+                    ctx.strokeStyle = '#03543F';
+                } else if (i === minIdx) {
+                    ctx.fillStyle = '#FEE2E2'; // Red min candidate
+                    ctx.strokeStyle = '#9B2C2C';
+                } else if (i === checkedIdx) {
+                    ctx.fillStyle = '#FEF3C7'; // Yellow scanning
+                    ctx.strokeStyle = '#D97706';
+                } else {
+                    ctx.fillStyle = '#EBF8FF'; // Blue active
+                    ctx.strokeStyle = '#1A365D';
+                }
+
+                ctx.fillRect(x, startY, blockW, blockH);
+                ctx.strokeRect(x, startY, blockW, blockH);
+
+                // Value Text
+                if (isSorted) {
+                    ctx.fillStyle = '#03543F';
+                } else if (i === minIdx) {
+                    ctx.fillStyle = '#9B2C2C';
+                } else if (i === checkedIdx) {
+                    ctx.fillStyle = '#D97706';
+                } else {
+                    ctx.fillStyle = '#1A365D';
+                }
+                ctx.font = isCleanFont ? 'bold 12px Inter' : 'bold 14px Kalam';
+                ctx.fillText(String(elements[i]), x + blockW/2, startY + blockH/2);
+
+                // Index underneath
+                ctx.fillStyle = '#4A5568';
+                ctx.font = isCleanFont ? '10px Inter' : '11px Kalam';
+                ctx.fillText(`[${i}]`, x + blockW/2, startY + blockH + 18);
+            }
+        }
+
+        /* ----------------------------------------------------------------------
+           TAB 1: CONCEPT DRAWING
+        ---------------------------------------------------------------------- */
+        function drawConceptDiagram() {
+            const canvas = document.getElementById('concept-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            
+            const width = canvas.parentElement.clientWidth || 400;
+            const height = 160;
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            ctx.scale(dpr, dpr);
+            
+            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = '#FCFBF9';
+            ctx.fillRect(0, 0, width, height);
+
+            ctx.fillStyle = '#1A365D';
+            ctx.font = isCleanFont ? 'bold 12px Inter' : 'bold 14px Kalam';
+            ctx.textAlign = 'left';
+            ctx.fillText("Index 0 (val 5) swapped with min element 1:", 20, 35);
+
+            drawSelectionBlocks(ctx, 20, 60, [1, 3, 4, 5], -1, -1, 1);
+        }
+
+        /* ----------------------------------------------------------------------
+           TAB 2: STEP-BY-STEP CANVASES
+        ---------------------------------------------------------------------- */
+        function drawStepCanvases() {
+            // Step 1: Scan for minimum
+            const c1 = document.getElementById('step-canvas-1');
+            if (c1) {
+                const ctx = c1.getContext('2d');
+                const w = c1.parentElement.clientWidth || 400;
+                setupCanvas(c1, w, 120);
+                drawSelectionBlocks(ctx, 30, 30, [5, 3, 4, 1], 2, 3);
+            }
+            
+            // Step 2: Swap to index 0
+            const c2 = document.getElementById('step-canvas-2');
+            if (c2) {
+                const ctx = c2.getContext('2d');
+                const w = c2.parentElement.clientWidth || 400;
+                setupCanvas(c2, w, 120);
+                drawSelectionBlocks(ctx, 30, 30, [1, 3, 4, 5], -1, -1, 1);
+            }
+        }
+
+        function setupCanvas(canvas, width, height) {
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            ctx.scale(dpr, dpr);
+            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = '#FCFBF9';
+            ctx.fillRect(0, 0, width, height);
+        }
+
+        /* ----------------------------------------------------------------------
+           TAB 4: SIMULATOR SYSTEM
+        ---------------------------------------------------------------------- */
+        let simArray = [35, 12, 5, 47, 8, 50, 21, 19, 30, 15];
+        let simBoundary = 0; // Sorted boundary
+        let simScan = 0; // Current scan index
+        let simMin = 0; // Index of current minimum
+        let simComps = 0;
+        let simSwaps = 0;
+        let simDone = false;
+
+        function initSimulator() {
+            simBoundary = 0;
+            simScan = 1;
+            simMin = 0;
+            simComps = 0;
+            simSwaps = 0;
+            simDone = false;
+            document.getElementById('sim-status').innerText = "Initialized Selection Sort. Minimum index defaults to 0.";
+            drawSimulator();
+        }
+
+        function simRegen() {
+            const newArr = [];
+            for (let i = 0; i < 10; i++) {
+                newArr.push(Math.floor(Math.random() * 85) + 3);
+            }
+            simArray = newArr;
+            initSimulator();
+        }
+
+        function simStep() {
+            const status = document.getElementById('sim-status');
+
+            if (simDone) {
+                status.innerText = "Array fully sorted! Regenerate to restart.";
+                return;
+            }
+
+            simComps++;
+            let text = `Comparing scan index [${simScan}] (${simArray[simScan]}) with min index [${simMin}] (${simArray[simMin]}). `;
+
+            if (simArray[simScan] < simArray[simMin]) {
+                simMin = simScan;
+                text += `New minimum found at index ${simMin}!`;
+            } else {
+                text += "No change to minimum.";
+            }
+
+            status.innerText = text;
+            simScan++;
+
+            // End of unsorted suffix scan
+            if (simScan >= simArray.length) {
+                if (simMin !== simBoundary) {
+                    const temp = simArray[simBoundary];
+                    simArray[simBoundary] = simArray[simMin];
+                    simArray[simMin] = temp;
+                    simSwaps++;
+                    status.innerText += ` Swap minimum ${simArray[simBoundary]} into boundary [${simBoundary}].`;
+                } else {
+                    status.innerText += ` Minimum matches boundary [${simBoundary}]. No swap needed.`;
+                }
+
+                simBoundary++;
+                simMin = simBoundary;
+                simScan = simBoundary + 1;
+
+                if (simBoundary >= simArray.length - 1) {
+                    simDone = true;
+                    simBoundary = simArray.length;
+                    status.innerText += " Array sorted completely!";
+                }
+            }
+
+            drawSimulator();
+        }
+
+        function simRunAll() {
+            let limit = 0;
+            const timer = setInterval(() => {
+                if (simDone || limit > 90) {
+                    clearInterval(timer);
+                } else {
+                    simStep();
+                }
+                limit++;
+            }, 200);
+        }
+
+        function drawSimulator() {
+            const canvas = document.getElementById('simulator-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            
+            const width = canvas.parentElement.clientWidth || 500;
+            const height = 350;
+            
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            ctx.scale(dpr, dpr);
+            
+            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = '#FCFBF9';
+            ctx.fillRect(0, 0, width, height);
+
+            ctx.fillStyle = '#1A365D';
+            ctx.font = isCleanFont ? 'bold 13px Inter' : 'bold 15px Kalam';
+            ctx.textAlign = 'left';
+            ctx.fillText("Dynamic minimum swaps view:", 25, 45);
+
+            const startX = 25;
+            const startY = 100;
+
+            const checkIdx = simDone ? -1 : simScan;
+            const minCandidateIdx = simDone ? -1 : simMin;
+            drawSelectionBlocks(ctx, startX, startY, simArray, checkIdx, minCandidateIdx, simBoundary);
+
+            // Pointers
+            ctx.fillStyle = '#9B2C2C';
+            ctx.font = 'bold 11px sans-serif';
+            ctx.textAlign = 'center';
+            if (!simDone && simScan < simArray.length) {
+                ctx.fillText('scan ↑', startX + simScan * 48 + 22, startY + 70);
+            }
+            if (!simDone && simMin < simArray.length) {
+                ctx.fillStyle = '#9B2C2C';
+                ctx.fillText('min ↑', startX + simMin * 48 + 22, startY - 14);
+            }
+
+            // Update stats
+            document.getElementById('lbl-comps').innerText = simComps;
+            document.getElementById('lbl-swaps').innerText = simSwaps;
+            document.getElementById('lbl-min').innerText = simMin;
+        }
+
+        window.onload = () => {
+            drawConceptDiagram();
+            drawStepCanvases();
+            drawSimulator();
+        };
+    </script>
+</body>
+
+</html>

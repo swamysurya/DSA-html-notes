@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Algorithms: Bubble Sort - Digital Lecture Notes</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Kalam:wght@300;400;700&family=Patrick+Hand&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        notebookBg: '#cbd5e1',
+                        notebookPaper: '#FAF6EE',
+                        inkBlue: '#1A365D',
+                        inkRed: '#9B2C2C',
+                        pencilGray: '#4A5568',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Shared Notebook Styles -->
+    <link rel="stylesheet" href="../notebook.css">
+    
+    <style>
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+
+<body class="font-notes-body text-2xl text-slate-800 antialiased transition-all duration-300">
+
+    <!-- Sticky Header -->
+    <header class="sticky top-0 z-50 bg-[#FAF6EE] shadow-md border-b-2 border-amber-200 px-4 py-3 no-print">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-3">
+            <div class="flex items-center space-x-3">
+                <span class="text-3xl font-bold text-inkBlue tracking-wide font-heading">📖 Algorithms: Bubble Sort</span>
+                <span class="bg-blue-100 text-blue-800 text-xs font-bold px-2.5 py-1 rounded-full border border-blue-300 font-sans uppercase">Sorting</span>
+            </div>
+            <button id="styleBtn" onclick="toggleStyleMode()" class="px-4 py-1.5 rounded-full text-sm font-bold bg-inkBlue text-white hover:bg-opacity-90 transition font-sans shadow-sm">
+                ✍️ Switch to Clean Print Font
+            </button>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <nav class="max-w-6xl mx-auto mt-3 flex flex-wrap gap-1 border-t border-amber-200 pt-2 text-base md:text-lg">
+            <button onclick="switchTab('definitions')" id="tab-definitions" class="nav-tab px-4 py-2 rounded-t-lg font-bold bg-amber-200 text-inkBlue border-b-2 border-inkBlue">
+                1. Definitions & Concepts
+            </button>
+            <button onclick="switchTab('step-by-step')" id="tab-step-by-step" class="nav-tab px-4 py-2 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
+                2. Step-by-Step Pass
+            </button>
+            <button onclick="switchTab('complexity')" id="tab-complexity" class="nav-tab px-4 py-2 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
+                3. Complexity Analysis
+            </button>
+            <button onclick="switchTab('visualization')" id="tab-visualization" class="nav-tab px-4 py-2 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
+                4. Interactive Simulator
+            </button>
+        </nav>
+    </header>
+
+    <!-- Main Notebook Container -->
+    <main class="max-w-6xl mx-auto flex relative bg-notebookPaper rounded-xl shadow-2xl overflow-hidden min-h-[900px] border border-amber-200 my-8">
+        
+        <!-- Left Binder Column -->
+        <div class="w-10 sm:w-16 bg-amber-50 border-r-2 border-amber-200 flex flex-col items-center py-8 select-none shrink-0 no-print space-y-6 z-10 shadow-[inset_-5px_0_10px_rgba(0,0,0,0.05)]">
+            <script>
+                for (let i = 0; i < 40; i++) document.write('<div class="spiral-ring"></div>');
+            </script>
+        </div>
+
+        <!-- Notebook Content Area -->
+        <div class="flex-1 lined-paper p-4 sm:p-8 notebook-margin sm:pl-8 overflow-hidden z-0">
+
+            <!-- TAB 1: DEFINITIONS & CONCEPTS -->
+            <section id="sec-definitions" class="tab-content active space-y-8">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                        Adjacent Swapping & Bubble Sinking</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 1</span>
+                </div>
+
+                <div class="space-y-6">
+                    <div>
+                        <h3 class="text-3xl font-bold text-inkRed font-heading pen-underline mb-2">What is Bubble Sort?</h3>
+                        <p class="leading-relaxed">
+                            **Bubble Sort** is a basic comparison-based sorting algorithm. It works by repeatedly stepping through the list, comparing adjacent elements, and swapping them if they are in the wrong order. This process repeats until no swaps are needed, meaning the list is sorted.
+                        </p>
+                    </div>
+
+                    <div class="note-box p-5 space-y-3">
+                        <h4 class="text-2xl font-bold text-inkBlue font-heading">🔑 Key Attributes</h4>
+                        <ul class="list-disc list-inside space-y-2 text-xl ml-4">
+                            <li><strong>Stable Sort:</strong> Retains relative order of duplicate elements since elements are only swapped when one is strictly greater than the other.</li>
+                            <li><strong>Sinking Bubbles:</strong> In each pass, the largest unsorted element "bubbles up" or sinks to its correct position at the end of the array.</li>
+                            <li><strong>Optimized Check flag:</strong> If a complete pass finishes without triggering a single swap, the array is already sorted, and we can terminate early.</li>
+                        </ul>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-center my-6">
+                        <div class="space-y-4">
+                            <h3 class="text-2xl font-bold text-inkRed font-heading pen-underline">Pass Bounds Reduction</h3>
+                            <p class="text-xl leading-relaxed">
+                                After pass `k`, the last `k` elements are guaranteed to be in their final sorted positions. Thus, the inner loop comparison boundary can contract to `N - k - 1`, avoiding redundant comparisons on already sorted tails.
+                            </p>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <span class="text-sm font-sans font-bold text-pencilGray mb-1">Pass 1 Boundary Lock:</span>
+                            <canvas id="concept-canvas" class="border border-slate-300 rounded bg-white shadow-sm" style="width: 100%; height: 160px;"></canvas>
+                            <span class="text-xs text-pencilGray mt-1">Rightmost cell is locked at the end of pass 1.</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 2: STEP-BY-STEP EXAMPLE -->
+            <section id="sec-step-by-step" class="tab-content space-y-8">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                        Step-by-Step Bubble Pass</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 2</span>
+                </div>
+
+                <div class="space-y-6">
+                    <p class="leading-relaxed">
+                        Let us trace the first pass of bubble sorting the array: `[5, 1, 4, 2]`.
+                    </p>
+
+                    <div class="space-y-8 border-l-4 border-dashed border-amber-300 pl-4 py-2">
+                        
+                        <!-- Step 1 -->
+                        <div class="space-y-2 break-inside-avoid">
+                            <h3 class="text-2xl font-bold text-inkRed font-heading">Step 1: Compare index 0 and 1</h3>
+                            <p class="text-lg">
+                                Comparison: `5 > 1`. Swap them. Array becomes `[1, 5, 4, 2]`.
+                            </p>
+                            <div class="bg-white border border-slate-300 rounded p-2 max-w-xl shadow-sm">
+                                <canvas id="step-canvas-1" class="w-full"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Step 2 -->
+                        <div class="space-y-2 break-inside-avoid">
+                            <h3 class="text-2xl font-bold text-inkRed font-heading">Step 2: Compare index 1 and 2</h3>
+                            <p class="text-lg">
+                                Comparison: `5 > 4`. Swap them. Array becomes `[1, 4, 5, 2]`.
+                            </p>
+                            <div class="bg-white border border-slate-300 rounded p-2 max-w-xl shadow-sm">
+                                <canvas id="step-canvas-2" class="w-full"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Step 3 -->
+                        <div class="space-y-2 break-inside-avoid">
+                            <h3 class="text-2xl font-bold text-inkRed font-heading">Step 3: Compare index 2 and 3</h3>
+                            <p class="text-lg">
+                                Comparison: `5 > 2`. Swap them. Array becomes `[1, 4, 2, 5]`. (5 is now locked in place).
+                            </p>
+                            <div class="bg-white border border-slate-300 rounded p-2 max-w-xl shadow-sm">
+                                <canvas id="step-canvas-3" class="w-full"></canvas>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 3: COMPLEXITY ANALYSIS -->
+            <section id="sec-complexity" class="tab-content space-y-8">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                        Bubble Sort Complexity Analysis</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 3</span>
+                </div>
+
+                <div class="space-y-6">
+                    <h3 class="text-3xl font-bold text-inkRed font-heading pen-underline">Asymptotic Runtime Bounds</h3>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse border-2 border-slate-400 bg-white/95 text-base md:text-lg">
+                            <thead>
+                                <tr class="bg-blue-900 text-white font-sans text-sm uppercase">
+                                    <th class="p-3 border border-slate-400">Case</th>
+                                    <th class="p-3 border border-slate-400">Scenario</th>
+                                    <th class="p-3 border border-slate-400">Time Complexity</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-slate-900">
+                                <tr>
+                                    <td class="p-3 border border-slate-400 font-bold font-sans text-sm">Best Case</td>
+                                    <td class="p-3 border border-slate-400">Array is already sorted. Requires 1 pass of N-1 comparisons (no swaps, triggers early exit).</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-emerald-700">O(N) (Optimized flag)</td>
+                                </tr>
+                                <tr class="bg-slate-50/50">
+                                    <td class="p-3 border border-slate-400 font-bold font-sans text-sm">Average Case</td>
+                                    <td class="p-3 border border-slate-400">Elements are randomly distributed. Requires about N^2 / 4 swaps and comparisons.</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-red-700">O(N^2)</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 border border-slate-400 font-bold font-sans text-sm">Worst Case</td>
+                                    <td class="p-3 border border-slate-400">Array is sorted in reverse order. Every adjacent check triggers a swap.</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-red-700">O(N^2)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="note-box p-4 space-y-2 mt-4">
+                        <h4 class="text-2xl font-bold text-inkRed font-heading">📝 Space Complexity & Stability:</h4>
+                        <ul class="list-disc list-inside space-y-1 text-lg">
+                            <li><strong>Space:</strong> Requires only constant auxiliary variables for temp values during swap: <strong class="text-emerald-700">O(1)</strong>.</li>
+                            <li><strong>Stability:</strong> Yes. It is stable.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 4: INTERACTIVE VISUALIZATION -->
+            <section id="sec-visualization" class="tab-content space-y-6">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-4 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                        Bubble Sort Simulator</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 4</span>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                    
+                    <!-- Left Column: Controls (5 Cols) -->
+                    <div class="lg:col-span-5 space-y-4 bg-amber-50/50 p-4 rounded-xl border border-amber-300">
+                        <h3 class="text-2xl font-bold text-inkRed font-heading border-b border-amber-200 pb-1">Sort Controls</h3>
+                        
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="simStep()" class="bg-blue-700 hover:bg-blue-800 text-white font-sans text-sm font-bold py-2 rounded shadow transition">Next Step</button>
+                            <button onclick="simRunAll()" class="bg-emerald-700 hover:bg-emerald-800 text-white font-sans text-sm font-bold py-2 rounded shadow transition">Run All</button>
+                        </div>
+
+                        <div class="flex justify-between items-center pt-1">
+                            <button onclick="simRegen()" class="bg-slate-500 hover:bg-slate-600 text-white font-sans text-sm font-bold py-1.5 px-3 rounded shadow transition">Regenerate Array</button>
+                        </div>
+
+                        <!-- Stats Dashboard -->
+                        <div class="bg-white border border-slate-300 rounded-lg p-3 space-y-1.5 shadow-sm text-base md:text-lg">
+                            <h4 class="font-bold text-inkBlue font-sans text-sm uppercase tracking-wider border-b border-slate-100 pb-1">Sort Stats</h4>
+                            <div class="flex justify-between">
+                                <span class="font-bold">Comparisons:</span>
+                                <span id="lbl-comps" class="font-sans font-bold text-slate-800">0</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="font-bold">Swaps:</span>
+                                <span id="lbl-swaps" class="font-sans font-bold text-slate-800">0</span>
+                            </div>
+                        </div>
+
+                        <!-- Status Log -->
+                        <div class="bg-white border border-slate-300 rounded-lg p-3 shadow-sm">
+                            <h4 class="font-bold text-pencilGray font-sans text-sm uppercase tracking-wider mb-1">Execution Trace:</h4>
+                            <p id="sim-status" class="text-base text-inkRed font-semibold min-h-[45px] leading-snug">Click Next Step to begin sorting.</p>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Canvas Output (7 Cols) -->
+                    <div class="lg:col-span-7 flex flex-col items-center">
+                        <div class="w-full bg-white border border-slate-300 rounded-lg shadow-md p-3 relative">
+                            <canvas id="simulator-canvas" style="width: 100%; height: 350px;"></canvas>
+                        </div>
+                        <span class="text-xs text-pencilGray mt-1.5 text-center block w-full font-sans italic">
+                            * Visual guides: <span class="text-yellow-600 font-bold">Yellow adjacent cells</span> are compared, <span class="text-emerald-700 font-bold">green cells</span> are locked/sorted.
+                        </span>
+                    </div>
+
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- JavaScript Controllers -->
+    <script>
+        let isCleanFont = false;
+        
+        function toggleStyleMode() {
+            isCleanFont = !isCleanFont;
+            const body = document.body;
+            const styleBtn = document.getElementById('styleBtn');
+            if (isCleanFont) {
+                body.classList.remove('font-notes-body');
+                body.classList.add('font-clean');
+                styleBtn.innerText = "✍️ Switch to Handwritten Font";
+            } else {
+                body.classList.remove('font-clean');
+                body.classList.add('font-notes-body');
+                styleBtn.innerText = "✍️ Switch to Clean Print Font";
+            }
+            drawConceptDiagram();
+            drawStepCanvases();
+            drawSimulator();
+        }
+
+        let currentTab = 'definitions';
+        function switchTab(tabId) {
+            currentTab = tabId;
+            document.querySelectorAll('.tab-content').forEach(sec => {
+                sec.classList.remove('active');
+            });
+            document.getElementById('sec-' + tabId).classList.add('active');
+            
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('bg-amber-200', 'text-inkBlue', 'border-b-2', 'border-inkBlue');
+                tab.classList.add('text-gray-600', 'hover:text-inkBlue');
+            });
+            
+            const activeTab = document.getElementById('tab-' + tabId);
+            if (activeTab) {
+                activeTab.classList.remove('text-gray-600', 'hover:text-inkBlue');
+                activeTab.classList.add('bg-amber-200', 'text-inkBlue', 'border-b-2', 'border-inkBlue');
+            }
+            
+            setTimeout(() => {
+                if (tabId === 'definitions') drawConceptDiagram();
+                if (tabId === 'step-by-step') drawStepCanvases();
+                if (tabId === 'visualization') drawSimulator();
+            }, 50);
+        }
+
+        window.onresize = () => {
+            if (currentTab === 'definitions') drawConceptDiagram();
+            if (currentTab === 'step-by-step') drawStepCanvases();
+            if (currentTab === 'visualization') drawSimulator();
+        };
+
+        // Draw array blocks helper
+        function drawSortingBlocks(ctx, startX, startY, elements, highlights = {}, sortedIndex = 9) {
+            const blockW = 44;
+            const blockH = 34;
+            const spacing = 4;
+            
+            ctx.textBaseline = 'middle';
+            ctx.textAlign = 'center';
+
+            for (let i = 0; i < elements.length; i++) {
+                const x = startX + i * (blockW + spacing);
+                const isSorted = i >= sortedIndex;
+
+                // Select background color
+                ctx.lineWidth = 2;
+                if (isSorted) {
+                    ctx.fillStyle = '#DEF7EC'; // Green
+                    ctx.strokeStyle = '#03543F';
+                } else if (highlights[i]) {
+                    ctx.fillStyle = '#FEF3C7'; // Yellow check
+                    ctx.strokeStyle = '#D97706';
+                } else {
+                    ctx.fillStyle = '#EBF8FF'; // Blue active
+                    ctx.strokeStyle = '#1A365D';
+                }
+
+                ctx.fillRect(x, startY, blockW, blockH);
+                ctx.strokeRect(x, startY, blockW, blockH);
+
+                // Value Text
+                if (isSorted) {
+                    ctx.fillStyle = '#03543F';
+                } else if (highlights[i]) {
+                    ctx.fillStyle = '#D97706';
+                } else {
+                    ctx.fillStyle = '#1A365D';
+                }
+                ctx.font = isCleanFont ? 'bold 12px Inter' : 'bold 14px Kalam';
+                ctx.fillText(String(elements[i]), x + blockW/2, startY + blockH/2);
+
+                // Index underneath
+                ctx.fillStyle = '#4A5568';
+                ctx.font = isCleanFont ? '10px Inter' : '11px Kalam';
+                ctx.fillText(`[${i}]`, x + blockW/2, startY + blockH + 18);
+            }
+        }
+
+        /* ----------------------------------------------------------------------
+           TAB 1: CONCEPT DRAWING
+        ---------------------------------------------------------------------- */
+        function drawConceptDiagram() {
+            const canvas = document.getElementById('concept-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            
+            const width = canvas.parentElement.clientWidth || 400;
+            const height = 160;
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            ctx.scale(dpr, dpr);
+            
+            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = '#FCFBF9';
+            ctx.fillRect(0, 0, width, height);
+
+            ctx.fillStyle = '#1A365D';
+            ctx.font = isCleanFont ? 'bold 12px Inter' : 'bold 14px Kalam';
+            ctx.textAlign = 'left';
+            ctx.fillText("Pass 1: Last element is sorted:", 20, 35);
+
+            drawSortingBlocks(ctx, 20, 60, [1, 4, 2, 5], {}, 3);
+        }
+
+        /* ----------------------------------------------------------------------
+           TAB 2: STEP-BY-STEP CANVASES
+        ---------------------------------------------------------------------- */
+        function drawStepCanvases() {
+            // Step 1: Compare idx 0, 1
+            const c1 = document.getElementById('step-canvas-1');
+            if (c1) {
+                const ctx = c1.getContext('2d');
+                const w = c1.parentElement.clientWidth || 400;
+                setupCanvas(c1, w, 120);
+                drawSortingBlocks(ctx, 30, 30, [1, 5, 4, 2], { 0:true, 1:true });
+            }
+            
+            // Step 2: Compare idx 1, 2
+            const c2 = document.getElementById('step-canvas-2');
+            if (c2) {
+                const ctx = c2.getContext('2d');
+                const w = c2.parentElement.clientWidth || 400;
+                setupCanvas(c2, w, 120);
+                drawSortingBlocks(ctx, 30, 30, [1, 4, 5, 2], { 1:true, 2:true });
+            }
+
+            // Step 3: Compare idx 2, 3 (Lock 5)
+            const c3 = document.getElementById('step-canvas-3');
+            if (c3) {
+                const ctx = c3.getContext('2d');
+                const w = c3.parentElement.clientWidth || 400;
+                setupCanvas(c3, w, 120);
+                drawSortingBlocks(ctx, 30, 30, [1, 4, 2, 5], {}, 3);
+            }
+        }
+
+        function setupCanvas(canvas, width, height) {
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            ctx.scale(dpr, dpr);
+            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = '#FCFBF9';
+            ctx.fillRect(0, 0, width, height);
+        }
+
+        /* ----------------------------------------------------------------------
+           TAB 4: SIMULATOR SYSTEM
+        ---------------------------------------------------------------------- */
+        let simArray = [29, 10, 14, 37, 8, 50, 22, 5, 30, 42];
+        let simPass = 0;
+        let simIdx = 0;
+        let simComps = 0;
+        let simSwaps = 0;
+        let simHighlights = {};
+        let simDone = false;
+        let simSortedIdx = 10;
+
+        function initSimulator() {
+            simPass = 0;
+            simIdx = 0;
+            simComps = 0;
+            simSwaps = 0;
+            simHighlights = {};
+            simDone = false;
+            simSortedIdx = 10;
+            document.getElementById('sim-status').innerText = "Initialized Bubble Sort. Ready to compare adjacent cells.";
+            drawSimulator();
+        }
+
+        function simRegen() {
+            const newArr = [];
+            for (let i = 0; i < 10; i++) {
+                newArr.push(Math.floor(Math.random() * 85) + 3);
+            }
+            simArray = newArr;
+            initSimulator();
+        }
+
+        function simStep() {
+            const status = document.getElementById('sim-status');
+
+            if (simDone) {
+                status.innerText = "Array fully sorted! Regenerate to restart.";
+                return;
+            }
+
+            simHighlights = {};
+            simHighlights[simIdx] = true;
+            simHighlights[simIdx + 1] = true;
+            simComps++;
+
+            let text = `Comparing arr[${simIdx}] (${simArray[simIdx]}) and arr[${simIdx+1}] (${simArray[simIdx+1]}). `;
+
+            if (simArray[simIdx] > simArray[simIdx+1]) {
+                const temp = simArray[simIdx];
+                simArray[simIdx] = simArray[simIdx+1];
+                simArray[simIdx+1] = temp;
+                simSwaps++;
+                text += "Swap triggered!";
+            } else {
+                text += "No swap needed.";
+            }
+
+            status.innerText = text;
+            simIdx++;
+
+            // End of active pass
+            if (simIdx >= simSortedIdx - 1) {
+                simSortedIdx--;
+                simIdx = 0;
+                simPass++;
+                status.innerText += ` Pass ${simPass} finished. Element at [${simSortedIdx}] is now locked.`;
+
+                if (simSortedIdx <= 1) {
+                    simDone = true;
+                    simSortedIdx = 0;
+                    status.innerText += " Array sorted completely!";
+                }
+            }
+
+            drawSimulator();
+        }
+
+        function simRunAll() {
+            let limit = 0;
+            const timer = setInterval(() => {
+                if (simDone || limit > 90) {
+                    clearInterval(timer);
+                } else {
+                    simStep();
+                }
+                limit++;
+            }, 150);
+        }
+
+        function drawSimulator() {
+            const canvas = document.getElementById('simulator-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            
+            const width = canvas.parentElement.clientWidth || 500;
+            const height = 350;
+            
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            ctx.scale(dpr, dpr);
+            
+            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = '#FCFBF9';
+            ctx.fillRect(0, 0, width, height);
+
+            ctx.fillStyle = '#1A365D';
+            ctx.font = isCleanFont ? 'bold 13px Inter' : 'bold 15px Kalam';
+            ctx.textAlign = 'left';
+            ctx.fillText("Dynamic bubble sort swaps view:", 25, 45);
+
+            const startX = 25;
+            const startY = 100;
+            drawSortingBlocks(ctx, startX, startY, simArray, simHighlights, simSortedIdx);
+
+            // Update stats
+            document.getElementById('lbl-comps').innerText = simComps;
+            document.getElementById('lbl-swaps').innerText = simSwaps;
+        }
+
+        window.onload = () => {
+            drawConceptDiagram();
+            drawStepCanvases();
+            drawSimulator();
+        };
+    </script>
+</body>
+
+</html>

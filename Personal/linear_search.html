@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Algorithms: Linear Search - Digital Lecture Notes</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Kalam:wght@300;400;700&family=Patrick+Hand&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        notebookBg: '#cbd5e1',
+                        notebookPaper: '#FAF6EE',
+                        inkBlue: '#1A365D',
+                        inkRed: '#9B2C2C',
+                        pencilGray: '#4A5568',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Shared Notebook Styles -->
+    <link rel="stylesheet" href="../notebook.css">
+    
+    <style>
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+
+<body class="font-notes-body text-2xl text-slate-800 antialiased transition-all duration-300">
+
+    <!-- Sticky Header -->
+    <header class="sticky top-0 z-50 bg-[#FAF6EE] shadow-md border-b-2 border-amber-200 px-4 py-3 no-print">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-3">
+            <div class="flex items-center space-x-3">
+                <span class="text-3xl font-bold text-inkBlue tracking-wide font-heading">📖 Algorithms: Linear Search</span>
+                <span class="bg-blue-100 text-blue-800 text-xs font-bold px-2.5 py-1 rounded-full border border-blue-300 font-sans uppercase">Searching</span>
+            </div>
+            <button id="styleBtn" onclick="toggleStyleMode()" class="px-4 py-1.5 rounded-full text-sm font-bold bg-inkBlue text-white hover:bg-opacity-90 transition font-sans shadow-sm">
+                ✍️ Switch to Clean Print Font
+            </button>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <nav class="max-w-6xl mx-auto mt-3 flex flex-wrap gap-1 border-t border-amber-200 pt-2 text-base md:text-lg">
+            <button onclick="switchTab('definitions')" id="tab-definitions" class="nav-tab px-4 py-2 rounded-t-lg font-bold bg-amber-200 text-inkBlue border-b-2 border-inkBlue">
+                1. Definitions & Concepts
+            </button>
+            <button onclick="switchTab('step-by-step')" id="tab-step-by-step" class="nav-tab px-4 py-2 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
+                2. Step-by-Step Trace
+            </button>
+            <button onclick="switchTab('complexity')" id="tab-complexity" class="nav-tab px-4 py-2 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
+                3. Complexity Analysis
+            </button>
+            <button onclick="switchTab('visualization')" id="tab-visualization" class="nav-tab px-4 py-2 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
+                4. Interactive Simulator
+            </button>
+        </nav>
+    </header>
+
+    <!-- Main Notebook Container -->
+    <main class="max-w-6xl mx-auto flex relative bg-notebookPaper rounded-xl shadow-2xl overflow-hidden min-h-[900px] border border-amber-200 my-8">
+        
+        <!-- Left Binder Column -->
+        <div class="w-10 sm:w-16 bg-amber-50 border-r-2 border-amber-200 flex flex-col items-center py-8 select-none shrink-0 no-print space-y-6 z-10 shadow-[inset_-5px_0_10px_rgba(0,0,0,0.05)]">
+            <script>
+                for (let i = 0; i < 40; i++) document.write('<div class="spiral-ring"></div>');
+            </script>
+        </div>
+
+        <!-- Notebook Content Area -->
+        <div class="flex-1 lined-paper p-4 sm:p-8 notebook-margin sm:pl-8 overflow-hidden z-0">
+
+            <!-- TAB 1: DEFINITIONS & CONCEPTS -->
+            <section id="sec-definitions" class="tab-content active space-y-8">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                        Sequential Scans & Linear Searching</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 1</span>
+                </div>
+
+                <div class="space-y-6">
+                    <div>
+                        <h3 class="text-3xl font-bold text-inkRed font-heading pen-underline mb-2">What is Linear Search?</h3>
+                        <p class="leading-relaxed">
+                            **Linear Search** is the most straightforward search method. It sequentially scans a collection element-by-element from the beginning (index 0) to the end (index N-1) until the target key is located or the collection is exhausted.
+                        </p>
+                    </div>
+
+                    <div class="note-box p-5 space-y-3">
+                        <h4 class="text-2xl font-bold text-inkBlue font-heading">🔑 Key Attributes</h4>
+                        <ul class="list-disc list-inside space-y-2 text-xl ml-4">
+                            <li><strong>Unsorted Collections:</strong> Ideal choice since it does not require elements to be ordered.</li>
+                            <li><strong>Memory Layout:</strong> Works on array-based and linked structures (like singly or doubly linked lists) since it only requires sequential pointer traversal.</li>
+                            <li><strong>Sentinel optimization:</strong> We can avoid index boundary comparisons (`i < N`) on every loop iteration by inserting the target key as a sentinel element at the end of the array.</li>
+                        </ul>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-center my-6">
+                        <div class="space-y-4">
+                            <h3 class="text-2xl font-bold text-inkRed font-heading pen-underline">Sentinel Search Variation</h3>
+                            <p class="text-xl leading-relaxed">
+                                In a traditional linear search loop, we check:
+                                <code class="block bg-amber-100 p-2 my-2 text-xs font-sans rounded">if (i < N && arr[i] == target)</code>
+                                By setting the last element to the target key, we can remove the `i < N` check, saving one comparison instruction per step in the assembly code.
+                            </p>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <span class="text-sm font-sans font-bold text-pencilGray mb-1">Conceptual Scan Step:</span>
+                            <canvas id="concept-canvas" class="border border-slate-300 rounded bg-white shadow-sm" style="width: 100%; height: 160px;"></canvas>
+                            <span class="text-xs text-pencilGray mt-1">Inspections move sequentially left-to-right.</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 2: STEP-BY-STEP EXAMPLE -->
+            <section id="sec-step-by-step" class="tab-content space-y-8">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                        Step-by-Step Scan Trace</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 2</span>
+                </div>
+
+                <div class="space-y-6">
+                    <p class="leading-relaxed">
+                        Let us trace searching for key **25** in an unsorted list: `[12, 5, 25, 8, 20]`.
+                    </p>
+
+                    <div class="space-y-8 border-l-4 border-dashed border-amber-300 pl-4 py-2">
+                        
+                        <!-- Step 1 -->
+                        <div class="space-y-2 break-inside-avoid">
+                            <h3 class="text-2xl font-bold text-inkRed font-heading">Step 1: Inspect Index 0</h3>
+                            <p class="text-lg">
+                                Comparison: `arr[0]` (12) != 25. Move pointer to next index.
+                            </p>
+                            <div class="bg-white border border-slate-300 rounded p-2 max-w-xl shadow-sm">
+                                <canvas id="step-canvas-1" class="w-full"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Step 2 -->
+                        <div class="space-y-2 break-inside-avoid">
+                            <h3 class="text-2xl font-bold text-inkRed font-heading">Step 2: Inspect Index 1</h3>
+                            <p class="text-lg">
+                                Comparison: `arr[1]` (5) != 25. Move pointer to next index.
+                            </p>
+                            <div class="bg-white border border-slate-300 rounded p-2 max-w-xl shadow-sm">
+                                <canvas id="step-canvas-2" class="w-full"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Step 3 -->
+                        <div class="space-y-2 break-inside-avoid">
+                            <h3 class="text-2xl font-bold text-inkRed font-heading">Step 3: Inspect Index 2</h3>
+                            <p class="text-lg">
+                                Comparison: `arr[2]` (25) == 25. Match found! Stop search.
+                            </p>
+                            <div class="bg-white border border-slate-300 rounded p-2 max-w-xl shadow-sm">
+                                <canvas id="step-canvas-3" class="w-full"></canvas>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 3: COMPLEXITY ANALYSIS -->
+            <section id="sec-complexity" class="tab-content space-y-8">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                        Linear Search Complexity Analysis</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 3</span>
+                </div>
+
+                <div class="space-y-6">
+                    <h3 class="text-3xl font-bold text-inkRed font-heading pen-underline">Asymptotic Runtime Bounds</h3>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse border-2 border-slate-400 bg-white/95 text-base md:text-lg">
+                            <thead>
+                                <tr class="bg-blue-900 text-white font-sans text-sm uppercase">
+                                    <th class="p-3 border border-slate-400">Case</th>
+                                    <th class="p-3 border border-slate-400">Scenario</th>
+                                    <th class="p-3 border border-slate-400">Time Complexity</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-slate-900">
+                                <tr>
+                                    <td class="p-3 border border-slate-400 font-bold font-sans text-sm">Best Case</td>
+                                    <td class="p-3 border border-slate-400">Target element is at index 0. Requires exactly 1 comparison.</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-emerald-700">O(1)</td>
+                                </tr>
+                                <tr class="bg-slate-50/50">
+                                    <td class="p-3 border border-slate-400 font-bold font-sans text-sm">Average Case</td>
+                                    <td class="p-3 border border-slate-400">Target is located in the middle of the collection. Requires N/2 comparisons.</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-red-700">O(N)</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 border border-slate-400 font-bold font-sans text-sm">Worst Case</td>
+                                    <td class="p-3 border border-slate-400">Target element is at index N-1, or not present at all. Requires N comparisons.</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-red-700">O(N)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="note-box p-4 space-y-2 mt-4">
+                        <h4 class="text-2xl font-bold text-inkRed font-heading">📝 Space Complexity:</h4>
+                        <p class="text-xl">
+                            Linear search performs lookup **in-place** using a single index counter. No extra memory is allocated:
+                            <br><strong class="text-emerald-700">Space Complexity = O(1) (Constant space)</strong>
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 4: INTERACTIVE VISUALIZATION -->
+            <section id="sec-visualization" class="tab-content space-y-6">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-4 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                        Linear Search Simulator</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 4</span>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                    
+                    <!-- Left Column: Controls (5 Cols) -->
+                    <div class="lg:col-span-5 space-y-4 bg-amber-50/50 p-4 rounded-xl border border-amber-300">
+                        <h3 class="text-2xl font-bold text-inkRed font-heading border-b border-amber-200 pb-1">Search Settings</h3>
+                        
+                        <div class="flex items-center space-x-2">
+                            <input type="number" id="sim-input" placeholder="Search Key (integer)" class="w-full bg-white border border-slate-300 rounded px-3 py-1.5 font-sans text-sm focus:outline-none focus:border-inkBlue">
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="simStep()" class="bg-blue-700 hover:bg-blue-800 text-white font-sans text-sm font-bold py-2 rounded shadow transition">Next Step</button>
+                            <button onclick="simRunAll()" class="bg-emerald-700 hover:bg-emerald-800 text-white font-sans text-sm font-bold py-2 rounded shadow transition">Run All</button>
+                        </div>
+
+                        <div class="flex justify-between items-center pt-1">
+                            <button onclick="simRegen()" class="bg-slate-500 hover:bg-slate-600 text-white font-sans text-sm font-bold py-1.5 px-3 rounded shadow transition">Regenerate Array</button>
+                        </div>
+
+                        <!-- Stats Dashboard -->
+                        <div class="bg-white border border-slate-300 rounded-lg p-3 space-y-1.5 shadow-sm text-base md:text-lg">
+                            <h4 class="font-bold text-inkBlue font-sans text-sm uppercase tracking-wider border-b border-slate-100 pb-1">Trace Stats</h4>
+                            <div class="flex justify-between">
+                                <span class="font-bold">Active Index (i):</span>
+                                <span id="lbl-index" class="font-sans font-bold text-slate-800">0</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="font-bold">Comparisons:</span>
+                                <span id="lbl-comps" class="font-sans font-bold text-slate-800">0</span>
+                            </div>
+                        </div>
+
+                        <!-- Status Log -->
+                        <div class="bg-white border border-slate-300 rounded-lg p-3 shadow-sm">
+                            <h4 class="font-bold text-pencilGray font-sans text-sm uppercase tracking-wider mb-1">Execution Trace:</h4>
+                            <p id="sim-status" class="text-base text-inkRed font-semibold min-h-[45px] leading-snug">Enter key and click Next Step.</p>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Canvas Output (7 Cols) -->
+                    <div class="lg:col-span-7 flex flex-col items-center">
+                        <div class="w-full bg-white border border-slate-300 rounded-lg shadow-md p-3 relative">
+                            <canvas id="simulator-canvas" style="width: 100%; height: 350px;"></canvas>
+                        </div>
+                        <span class="text-xs text-pencilGray mt-1.5 text-center block w-full font-sans italic">
+                            * Visual guides: <span class="text-yellow-600 font-bold">Yellow index cell</span> shows current inspection, <span class="text-emerald-700 font-bold">green cell</span> shows found key.
+                        </span>
+                    </div>
+
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- JavaScript Controllers -->
+    <script>
+        let isCleanFont = false;
+        
+        function toggleStyleMode() {
+            isCleanFont = !isCleanFont;
+            const body = document.body;
+            const styleBtn = document.getElementById('styleBtn');
+            if (isCleanFont) {
+                body.classList.remove('font-notes-body');
+                body.classList.add('font-clean');
+                styleBtn.innerText = "✍️ Switch to Handwritten Font";
+            } else {
+                body.classList.remove('font-clean');
+                body.classList.add('font-notes-body');
+                styleBtn.innerText = "✍️ Switch to Clean Print Font";
+            }
+            drawConceptDiagram();
+            drawStepCanvases();
+            drawSimulator();
+        }
+
+        let currentTab = 'definitions';
+        function switchTab(tabId) {
+            currentTab = tabId;
+            document.querySelectorAll('.tab-content').forEach(sec => {
+                sec.classList.remove('active');
+            });
+            document.getElementById('sec-' + tabId).classList.add('active');
+            
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('bg-amber-200', 'text-inkBlue', 'border-b-2', 'border-inkBlue');
+                tab.classList.add('text-gray-600', 'hover:text-inkBlue');
+            });
+            
+            const activeTab = document.getElementById('tab-' + tabId);
+            if (activeTab) {
+                activeTab.classList.remove('text-gray-600', 'hover:text-inkBlue');
+                activeTab.classList.add('bg-amber-200', 'text-inkBlue', 'border-b-2', 'border-inkBlue');
+            }
+            
+            setTimeout(() => {
+                if (tabId === 'definitions') drawConceptDiagram();
+                if (tabId === 'step-by-step') drawStepCanvases();
+                if (tabId === 'visualization') drawSimulator();
+            }, 50);
+        }
+
+        window.onresize = () => {
+            if (currentTab === 'definitions') drawConceptDiagram();
+            if (currentTab === 'step-by-step') drawStepCanvases();
+            if (currentTab === 'visualization') drawSimulator();
+        };
+
+        // Draw array blocks helper
+        function drawLinearBlocks(ctx, startX, startY, elements, checkedIndex = -1, foundIndex = -1) {
+            const blockW = 44;
+            const blockH = 34;
+            const spacing = 4;
+            
+            ctx.textBaseline = 'middle';
+            ctx.textAlign = 'center';
+
+            for (let i = 0; i < elements.length; i++) {
+                const x = startX + i * (blockW + spacing);
+
+                // Select background color
+                ctx.lineWidth = 2;
+                if (i === foundIndex) {
+                    ctx.fillStyle = '#DEF7EC'; // Green
+                    ctx.strokeStyle = '#03543F';
+                } else if (i === checkedIndex) {
+                    ctx.fillStyle = '#FEF3C7'; // Yellow
+                    ctx.strokeStyle = '#D97706';
+                } else {
+                    ctx.fillStyle = '#EBF8FF'; // Blue active
+                    ctx.strokeStyle = '#1A365D';
+                }
+
+                ctx.fillRect(x, startY, blockW, blockH);
+                ctx.strokeRect(x, startY, blockW, blockH);
+
+                // Value Text
+                if (i === foundIndex) {
+                    ctx.fillStyle = '#03543F';
+                } else if (i === checkedIndex) {
+                    ctx.fillStyle = '#D97706';
+                } else {
+                    ctx.fillStyle = '#1A365D';
+                }
+                ctx.font = isCleanFont ? 'bold 12px Inter' : 'bold 14px Kalam';
+                ctx.fillText(String(elements[i]), x + blockW/2, startY + blockH/2);
+
+                // Index underneath
+                ctx.fillStyle = '#4A5568';
+                ctx.font = isCleanFont ? '10px Inter' : '11px Kalam';
+                ctx.fillText(`[${i}]`, x + blockW/2, startY + blockH + 18);
+            }
+        }
+
+        /* ----------------------------------------------------------------------
+           TAB 1: CONCEPT DRAWING
+        ---------------------------------------------------------------------- */
+        function drawConceptDiagram() {
+            const canvas = document.getElementById('concept-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            
+            const width = canvas.parentElement.clientWidth || 400;
+            const height = 160;
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            ctx.scale(dpr, dpr);
+            
+            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = '#FCFBF9';
+            ctx.fillRect(0, 0, width, height);
+
+            ctx.fillStyle = '#1A365D';
+            ctx.font = isCleanFont ? 'bold 12px Inter' : 'bold 14px Kalam';
+            ctx.textAlign = 'left';
+            ctx.fillText("Inspecting indices left-to-right:", 20, 35);
+
+            drawLinearBlocks(ctx, 20, 60, [12, 5, 25, 8, 20], 1);
+
+            // Draw indicator
+            ctx.fillStyle = '#9B2C2C';
+            ctx.font = 'bold 11px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('scan ↑', 92, 120);
+        }
+
+        /* ----------------------------------------------------------------------
+           TAB 2: STEP-BY-STEP CANVASES
+        ---------------------------------------------------------------------- */
+        function drawStepCanvases() {
+            const arr = [12, 5, 25, 8, 20];
+            
+            // Step 1: Check idx 0
+            const c1 = document.getElementById('step-canvas-1');
+            if (c1) {
+                const ctx = c1.getContext('2d');
+                const w = c1.parentElement.clientWidth || 400;
+                setupCanvas(c1, w, 120);
+                drawLinearBlocks(ctx, 30, 30, arr, 0);
+            }
+            
+            // Step 2: Check idx 1
+            const c2 = document.getElementById('step-canvas-2');
+            if (c2) {
+                const ctx = c2.getContext('2d');
+                const w = c2.parentElement.clientWidth || 400;
+                setupCanvas(c2, w, 120);
+                drawLinearBlocks(ctx, 30, 30, arr, 1);
+            }
+
+            // Step 3: Check idx 2 (Match!)
+            const c3 = document.getElementById('step-canvas-3');
+            if (c3) {
+                const ctx = c3.getContext('2d');
+                const w = c3.parentElement.clientWidth || 400;
+                setupCanvas(c3, w, 120);
+                drawLinearBlocks(ctx, 30, 30, arr, -1, 2);
+            }
+        }
+
+        function setupCanvas(canvas, width, height) {
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            ctx.scale(dpr, dpr);
+            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = '#FCFBF9';
+            ctx.fillRect(0, 0, width, height);
+        }
+
+        /* ----------------------------------------------------------------------
+           TAB 4: SIMULATOR SYSTEM
+        ---------------------------------------------------------------------- */
+        let simArray = [12, 45, 8, 23, 72, 19, 5, 30, 60, 52];
+        let simIndex = 0;
+        let simComps = 0;
+        let simFound = -1;
+        let simDone = false;
+
+        function initSimulator() {
+            simIndex = 0;
+            simComps = 0;
+            simFound = -1;
+            simDone = false;
+            document.getElementById('sim-status').innerText = "Initialized Linear Search. Ready to start sequential scan.";
+            drawSimulator();
+        }
+
+        function simRegen() {
+            const newArr = [];
+            for (let i = 0; i < 10; i++) {
+                newArr.push(Math.floor(Math.random() * 85) + 3);
+            }
+            simArray = newArr;
+            initSimulator();
+        }
+
+        function simStep() {
+            const input = document.getElementById('sim-input');
+            const target = parseInt(input.value);
+            const status = document.getElementById('sim-status');
+
+            if (isNaN(target)) {
+                status.innerText = "⚠️ Please enter an integer key to search.";
+                return;
+            }
+
+            if (simDone) {
+                status.innerText = "Search completed. Click Regenerate or clear input to restart.";
+                return;
+            }
+
+            simComps++;
+
+            if (simArray[simIndex] === target) {
+                simFound = simIndex;
+                status.innerText = `Comparison: arr[${simIndex}] (${simArray[simIndex]}) == ${target}. Target found!`;
+                simDone = true;
+            } else {
+                status.innerText = `Comparison: arr[${simIndex}] (${simArray[simIndex]}) != ${target}. Advancing pointer.`;
+                simIndex++;
+                if (simIndex >= simArray.length) {
+                    status.innerText += " End of list reached. Target not present.";
+                    simDone = true;
+                }
+            }
+
+            drawSimulator();
+        }
+
+        function simRunAll() {
+            const input = document.getElementById('sim-input');
+            const target = parseInt(input.value);
+            if (isNaN(target)) {
+                document.getElementById('sim-status').innerText = "⚠️ Enter search key first.";
+                return;
+            }
+
+            let iterations = 0;
+            const timer = setInterval(() => {
+                if (simDone || iterations > 15) {
+                    clearInterval(timer);
+                } else {
+                    simStep();
+                }
+                iterations++;
+            }, 600);
+        }
+
+        function drawSimulator() {
+            const canvas = document.getElementById('simulator-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            
+            const width = canvas.parentElement.clientWidth || 500;
+            const height = 350;
+            
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            ctx.scale(dpr, dpr);
+            
+            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = '#FCFBF9';
+            ctx.fillRect(0, 0, width, height);
+
+            ctx.fillStyle = '#1A365D';
+            ctx.font = isCleanFont ? 'bold 13px Inter' : 'bold 15px Kalam';
+            ctx.textAlign = 'left';
+            ctx.fillText("Dynamic sequential array inspect view:", 25, 45);
+
+            const blockW = 44;
+            const spacing = 4;
+            const startX = 25;
+            const startY = 100;
+
+            const checkedIdx = simDone ? -1 : simIndex;
+            drawLinearBlocks(ctx, startX, startY, simArray, checkedIdx, simFound);
+
+            // Draw indicators
+            ctx.fillStyle = '#9B2C2C';
+            ctx.font = 'bold 11px sans-serif';
+            ctx.textAlign = 'center';
+            if (!simDone && simIndex < simArray.length) {
+                ctx.fillText('scan ↑', startX + simIndex * (blockW + spacing) + blockW/2, startY + 70);
+            } else if (simFound !== -1) {
+                ctx.fillStyle = '#03543F';
+                ctx.fillText('found ↑', startX + simFound * (blockW + spacing) + blockW/2, startY + 70);
+            }
+
+            // Stats
+            document.getElementById('lbl-comps').innerText = simComps;
+            document.getElementById('lbl-index').innerText = simIndex;
+        }
+
+        window.onload = () => {
+            drawConceptDiagram();
+            drawStepCanvases();
+            drawSimulator();
+        };
+    </script>
+</body>
+
+</html>

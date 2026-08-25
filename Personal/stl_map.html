@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STL Containers: std::map (Ordered Map) - Digital Lecture Notes</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Kalam:wght@300;400;700&family=Patrick+Hand&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        notebookBg: '#cbd5e1',
+                        notebookPaper: '#FAF6EE',
+                        inkBlue: '#1A365D',
+                        inkRed: '#9B2C2C',
+                        pencilGray: '#4A5568',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Shared Notebook Styles -->
+    <link rel="stylesheet" href="../notebook.css">
+    
+    <style>
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+
+<body class="font-notes-body text-2xl text-slate-800 antialiased transition-all duration-300">
+
+    <!-- Sticky Header -->
+    <header class="sticky top-0 z-50 bg-[#FAF6EE] shadow-md border-b-2 border-amber-200 px-4 py-3 no-print">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-3">
+            <div class="flex items-center space-x-3">
+                <span class="text-3xl font-bold text-inkBlue tracking-wide font-heading">📖 STL: std::map (Ordered Map)</span>
+                <span class="bg-purple-100 text-purple-800 text-xs font-bold px-2.5 py-1 rounded-full border border-purple-300 font-sans uppercase">STL Containers</span>
+            </div>
+            <button id="styleBtn" onclick="toggleStyleMode()" class="px-4 py-1.5 rounded-full text-sm font-bold bg-inkBlue text-white hover:bg-opacity-90 transition font-sans shadow-sm">
+                ✍️ Switch to Clean Print Font
+            </button>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <nav class="max-w-6xl mx-auto mt-3 flex flex-wrap gap-1 border-t border-amber-200 pt-2 text-base md:text-lg">
+            <button onclick="switchTab('definitions')" id="tab-definitions" class="nav-tab px-4 py-2 rounded-t-lg font-bold bg-amber-200 text-inkBlue border-b-2 border-inkBlue">
+                1. Definitions & Concepts
+            </button>
+            <button onclick="switchTab('step-by-step')" id="tab-step-by-step" class="nav-tab px-4 py-2 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
+                2. Step-by-Step Balancing
+            </button>
+            <button onclick="switchTab('complexity')" id="tab-complexity" class="nav-tab px-4 py-2 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
+                3. Complexity & Methods
+            </button>
+            <button onclick="switchTab('visualization')" id="tab-visualization" class="nav-tab px-4 py-2 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
+                4. Interactive Simulator
+            </button>
+        </nav>
+    </header>
+
+    <!-- Main Notebook Container -->
+    <main class="max-w-6xl mx-auto flex relative bg-notebookPaper rounded-xl shadow-2xl overflow-hidden min-h-[900px] border border-amber-200 my-8">
+        
+        <!-- Left Binder Column -->
+        <div class="w-10 sm:w-16 bg-amber-50 border-r-2 border-amber-200 flex flex-col items-center py-8 select-none shrink-0 no-print space-y-6 z-10 shadow-[inset_-5px_0_10px_rgba(0,0,0,0.05)]">
+            <script>
+                for (let i = 0; i < 40; i++) document.write('<div class="spiral-ring"></div>');
+            </script>
+        </div>
+
+        <!-- Notebook Content Area -->
+        <div class="flex-1 lined-paper p-4 sm:p-8 notebook-margin sm:pl-8 overflow-hidden z-0">
+
+            <!-- TAB 1: DEFINITIONS & CONCEPTS -->
+            <section id="sec-definitions" class="tab-content active space-y-8">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                        Key-Value Pairs & Red-Black Trees</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 1</span>
+                </div>
+
+                <div class="space-y-6">
+                    <div>
+                        <h3 class="text-3xl font-bold text-inkRed font-heading pen-underline mb-2">What is std::map?</h3>
+                        <p class="leading-relaxed">
+                            In C++, <code class="bg-amber-100 px-1 rounded text-slate-900 font-sans text-lg font-semibold">std::map</code> is an associative container that stores elements formed by a combination of a **unique key** and a **mapped value**. The keys are used to sort and uniquely identify the elements, while the values store the actual data.
+                        </p>
+                    </div>
+
+                    <div class="note-box p-5 space-y-3">
+                        <h4 class="text-2xl font-bold text-inkBlue font-heading">🔑 Key-Value Sorting & Red-Black Tree representation</h4>
+                        <p class="text-xl">
+                            Under the hood, `std::map` is structured as a **Red-Black Tree** of key-value nodes (using <code class="bg-white border px-1 text-sm font-sans font-bold">std::pair&lt;const Key, Value&gt;</code>):
+                        </p>
+                        <ol class="list-decimal list-inside space-y-2 text-xl ml-4">
+                            <li><strong>Key Comparison:</strong> When inserting `{Key, Value}`, the tree uses the Key to search for its position (keys must be unique; inserting a duplicate updates or rejects depending on configuration).</li>
+                            <li><strong>Red-Black balancing:</strong> Rotations and recoloring are applied identical to standard RBTs to keep heights logarithmic: <span class="bg-white border border-blue-200 px-2 py-0.5 rounded font-sans text-base font-bold text-inkRed">Height &le; 2 &times; log<sub>2</sub>(N)</span>.</li>
+                            <li><strong>In-order Iteration:</strong> Because it is a BST, iterating from `begin()` to `end()` returns elements sorted by key.</li>
+                        </ol>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-center my-6">
+                        <div class="space-y-4">
+                            <h3 class="text-2xl font-bold text-inkRed font-heading pen-underline">Map vs. Set</h3>
+                            <p class="text-xl leading-relaxed">
+                                While `std::set` only stores keys (acting as an ordered collection of values), `std::map` maps each key to a separate data value. However, the balancing, heights, and logarithmic O(log N) lookup rules remain identical.
+                            </p>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <span class="text-sm font-sans font-bold text-pencilGray mb-1">Conceptual Key-Value RBT Node:</span>
+                            <canvas id="concept-canvas" class="border border-slate-300 rounded bg-white shadow-sm" style="width: 100%; height: 220px;"></canvas>
+                            <span class="text-xs text-pencilGray mt-1">Each node holds Key:Value (e.g. 20:A).</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 2: STEP-BY-STEP EXAMPLE -->
+            <section id="sec-step-by-step" class="tab-content space-y-8">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                        Step-by-Step Pair Insertion</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 2</span>
+                </div>
+
+                <div class="space-y-6">
+                    <p class="leading-relaxed">
+                        Let us trace inserting the key-value pairs <strong class="text-inkBlue font-sans">{10: "A"}, {20: "B"}, {30: "C"}</strong> into an empty map.
+                    </p>
+
+                    <div class="space-y-8 border-l-4 border-dashed border-amber-300 pl-4 py-2">
+                        
+                        <!-- Step 1 -->
+                        <div class="space-y-2 break-inside-avoid">
+                            <h3 class="text-2xl font-bold text-inkRed font-heading">Step 1: Insert {10: "A"}</h3>
+                            <p class="text-lg">
+                                Key 10 is root, recolored <strong>Black</strong>.
+                            </p>
+                            <div class="bg-white border border-slate-300 rounded p-2 max-w-xl shadow-sm">
+                                <canvas id="step-canvas-1" class="w-full"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Step 2 -->
+                        <div class="space-y-2 break-inside-avoid">
+                            <h3 class="text-2xl font-bold text-inkRed font-heading">Step 2: Insert {20: "B"}</h3>
+                            <p class="text-lg">
+                                Key 20 is greater than 10. Placed as right child (Red).
+                            </p>
+                            <div class="bg-white border border-slate-300 rounded p-2 max-w-xl shadow-sm">
+                                <canvas id="step-canvas-2" class="w-full"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Step 3 -->
+                        <div class="space-y-2 break-inside-avoid">
+                            <h3 class="text-2xl font-bold text-inkRed font-heading">Step 3: Insert {30: "C"} (Violation!)</h3>
+                            <p class="text-lg">
+                                Key 30 is placed as right child of 20 (Red). Consecutive Red nodes violation occurs at keys 20 and 30.
+                            </p>
+                            <div class="bg-white border border-slate-300 rounded p-2 max-w-xl shadow-sm">
+                                <canvas id="step-canvas-3" class="w-full"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Step 4 -->
+                        <div class="space-y-2 break-inside-avoid">
+                            <h3 class="text-2xl font-bold text-inkRed font-heading">Step 4: Rotate & Recolor</h3>
+                            <p class="text-lg">
+                                Left rotation at key 10. Key 20 becomes Black parent, key 10 and 30 recolor Red.
+                            </p>
+                            <div class="bg-white border border-slate-300 rounded p-2 max-w-xl shadow-sm">
+                                <canvas id="step-canvas-4" class="w-full"></canvas>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 3: COMPLEXITY & METHODS -->
+            <section id="sec-complexity" class="tab-content space-y-8">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                        Map Methods & Complexity Analysis</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 3</span>
+                </div>
+
+                <div class="space-y-6">
+                    <h3 class="text-3xl font-bold text-inkRed font-heading pen-underline">Primary std::map Operations</h3>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse border-2 border-slate-400 bg-white/95 text-base md:text-lg">
+                            <thead>
+                                <tr class="bg-blue-900 text-white font-sans text-sm uppercase">
+                                    <th class="p-3 border border-slate-400">Method</th>
+                                    <th class="p-3 border border-slate-400">Description</th>
+                                    <th class="p-3 border border-slate-400">Average Time</th>
+                                    <th class="p-3 border border-slate-400">Worst-Case Time</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-slate-900">
+                                <tr>
+                                    <td class="p-3 border border-slate-400 font-bold font-sans text-sm"><code class="bg-slate-100 px-1 rounded text-purple-900">insert({key, val})</code></td>
+                                    <td class="p-3 border border-slate-400">Inserts the pair into the tree. Balanced sorted order.</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-emerald-700">O(log N)</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-emerald-700">O(log N)</td>
+                                </tr>
+                                <tr class="bg-slate-50/50">
+                                    <td class="p-3 border border-slate-400 font-bold font-sans text-sm"><code class="bg-slate-100 px-1 rounded text-purple-900">erase(key)</code></td>
+                                    <td class="p-3 border border-slate-400">Removes the pair corresponding to the key. Rebalances tree.</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-emerald-700">O(log N)</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-emerald-700">O(log N)</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 border border-slate-400 font-bold font-sans text-sm"><code class="bg-slate-100 px-1 rounded text-purple-900">find(key)</code></td>
+                                    <td class="p-3 border border-slate-400">Searches by key. Returns pair iterator if found, or `end()`.</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-emerald-700">O(log N)</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-emerald-700">O(log N)</td>
+                                </tr>
+                                <tr class="bg-slate-50/50">
+                                    <td class="p-3 border border-slate-400 font-bold font-sans text-sm"><code class="bg-slate-100 px-1 rounded text-purple-900">operator[key]</code></td>
+                                    <td class="p-3 border border-slate-400">Accesses value of key. If key doesn't exist, inserts key.</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-emerald-700">O(log N)</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-emerald-700">O(log N)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="note-box p-4 space-y-2 mt-4">
+                        <h4 class="text-2xl font-bold text-inkRed font-heading">📝 Key Complexity Facts:</h4>
+                        <ul class="list-disc list-inside space-y-1 text-lg">
+                            <li><strong>Guaranteed logarithmic performance:</strong> Finding, inserting, or removing values is guaranteed to take logarithmic time, even in worst-case insertions (unlike unordered_map, which can suffer O(N) lookup).</li>
+                            <li><strong>Map iteration sorted order:</strong> Iterating a map returns key-value pairs sorted by key.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 4: INTERACTIVE VISUALIZATION -->
+            <section id="sec-visualization" class="tab-content space-y-6">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-4 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                        Interactive Map Simulator</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 4</span>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                    
+                    <!-- Left Column: Controls (5 Cols) -->
+                    <div class="lg:col-span-5 space-y-4 bg-amber-50/50 p-4 rounded-xl border border-amber-300">
+                        <h3 class="text-2xl font-bold text-inkRed font-heading border-b border-amber-200 pb-1">Map Pairs</h3>
+                        
+                        <div class="flex gap-2">
+                            <input type="number" id="sim-key" placeholder="Key (int)" class="w-1/2 bg-white border border-slate-300 rounded px-3 py-1.5 font-sans text-sm focus:outline-none focus:border-inkBlue">
+                            <input type="text" id="sim-val" placeholder="Value (string)" class="w-1/2 bg-white border border-slate-300 rounded px-3 py-1.5 font-sans text-sm focus:outline-none focus:border-inkBlue">
+                        </div>
+
+                        <div class="grid grid-cols-3 gap-2">
+                            <button onclick="simInsert()" class="bg-blue-700 hover:bg-blue-800 text-white font-sans text-sm font-bold py-2 rounded shadow transition">Insert</button>
+                            <button onclick="simDelete()" class="bg-red-700 hover:bg-red-800 text-white font-sans text-sm font-bold py-2 rounded shadow transition">Delete</button>
+                            <button onclick="simFind()" class="bg-emerald-700 hover:bg-emerald-800 text-white font-sans text-sm font-bold py-2 rounded shadow transition">Find</button>
+                        </div>
+
+                        <div class="flex justify-between items-center pt-2">
+                            <button onclick="simClear()" class="bg-slate-500 hover:bg-slate-600 text-white font-sans text-sm font-bold py-1.5 px-3 rounded shadow transition">Clear Map</button>
+                            <span class="text-xs text-pencilGray font-sans font-bold">Max Depth = <span id="lbl-depth">0</span></span>
+                        </div>
+
+                        <!-- Stats Dashboard -->
+                        <div class="bg-white border border-slate-300 rounded-lg p-3 space-y-1.5 shadow-sm text-base md:text-lg">
+                            <h4 class="font-bold text-inkBlue font-sans text-sm uppercase tracking-wider border-b border-slate-100 pb-1">Map Stats</h4>
+                            <div class="flex justify-between">
+                                <span class="font-bold">Pairs count (N):</span>
+                                <span id="lbl-size" class="font-sans font-bold text-slate-800">0</span>
+                            </div>
+                        </div>
+
+                        <!-- Status Log -->
+                        <div class="bg-white border border-slate-300 rounded-lg p-3 shadow-sm">
+                            <h4 class="font-bold text-pencilGray font-sans text-sm uppercase tracking-wider mb-1">Execution Trace:</h4>
+                            <p id="sim-status" class="text-base text-inkRed font-semibold min-h-[45px] leading-snug">Enter key and value (e.g. 10 and 'Apple') and click Insert.</p>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Canvas Output (7 Cols) -->
+                    <div class="lg:col-span-7 flex flex-col items-center">
+                        <div class="w-full bg-white border border-slate-300 rounded-lg shadow-md p-3 relative">
+                            <canvas id="simulator-canvas" style="width: 100%; height: 420px;"></canvas>
+                        </div>
+                        <span class="text-xs text-pencilGray mt-1.5 text-center block w-full font-sans italic">
+                            * Red-Black nodes display `Key:Value`. Glow indicates node path traversal.
+                        </span>
+                    </div>
+
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- JavaScript Controllers -->
+    <script>
+        let isCleanFont = false;
+        
+        function toggleStyleMode() {
+            isCleanFont = !isCleanFont;
+            const body = document.body;
+            const styleBtn = document.getElementById('styleBtn');
+            if (isCleanFont) {
+                body.classList.remove('font-notes-body');
+                body.classList.add('font-clean');
+                styleBtn.innerText = "✍️ Switch to Handwritten Font";
+            } else {
+                body.classList.remove('font-clean');
+                body.classList.add('font-notes-body');
+                styleBtn.innerText = "✍️ Switch to Clean Print Font";
+            }
+            drawConceptDiagram();
+            drawStepCanvases();
+            drawSimulator();
+        }
+
+        let currentTab = 'definitions';
+        function switchTab(tabId) {
+            currentTab = tabId;
+            document.querySelectorAll('.tab-content').forEach(sec => {
+                sec.classList.remove('active');
+            });
+            document.getElementById('sec-' + tabId).classList.add('active');
+            
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('bg-amber-200', 'text-inkBlue', 'border-b-2', 'border-inkBlue');
+                tab.classList.add('text-gray-600', 'hover:text-inkBlue');
+            });
+            
+            const activeTab = document.getElementById('tab-' + tabId);
+            if (activeTab) {
+                activeTab.classList.remove('text-gray-600', 'hover:text-inkBlue');
+                activeTab.classList.add('bg-amber-200', 'text-inkBlue', 'border-b-2', 'border-inkBlue');
+            }
+            
+            setTimeout(() => {
+                if (tabId === 'definitions') drawConceptDiagram();
+                if (tabId === 'step-by-step') drawStepCanvases();
+                if (tabId === 'visualization') drawSimulator();
+            }, 50);
+        }
+
+        window.onresize = () => {
+            if (currentTab === 'definitions') drawConceptDiagram();
+            if (currentTab === 'step-by-step') drawStepCanvases();
+            if (currentTab === 'visualization') drawSimulator();
+        };
+
+        /* ----------------------------------------------------------------------
+           REDBLACK TREE IMPLEMENTATION (FOR MAP)
+        ---------------------------------------------------------------------- */
+        class RBTNode {
+            constructor(key, value) {
+                this.key = key;
+                this.value = value;
+                this.color = 'RED';
+                this.left = null;
+                this.right = null;
+                this.parent = null;
+            }
+        }
+
+        class RedBlackTreeMap {
+            constructor() {
+                this.NIL = { key: null, value: null, color: 'BLACK', left: null, right: null, parent: null };
+                this.root = this.NIL;
+            }
+
+            leftRotate(x) {
+                let y = x.right;
+                x.right = y.left;
+                if (y.left !== this.NIL) {
+                    y.left.parent = x;
+                }
+                y.parent = x.parent;
+                if (x.parent === this.NIL) {
+                    this.root = y;
+                } else if (x === x.parent.left) {
+                    x.parent.left = y;
+                } else {
+                    x.parent.right = y;
+                }
+                y.left = x;
+                x.parent = y;
+            }
+
+            rightRotate(y) {
+                let x = y.left;
+                y.left = x.right;
+                if (x.right !== this.NIL) {
+                    x.right.parent = y;
+                }
+                x.parent = y.parent;
+                if (y.parent === this.NIL) {
+                    this.root = x;
+                } else if (y === y.parent.left) {
+                    y.parent.left = x;
+                } else {
+                    y.parent.right = x;
+                }
+                x.right = y;
+                y.parent = x;
+            }
+
+            insert(key, value) {
+                let node = new RBTNode(key, value);
+                node.left = this.NIL;
+                node.right = this.NIL;
+                node.parent = this.NIL;
+
+                let y = this.NIL;
+                let x = this.root;
+
+                while (x !== this.NIL) {
+                    y = x;
+                    if (node.key < x.key) {
+                        x = x.left;
+                    } else if (node.key > x.key) {
+                        x = x.right;
+                    } else {
+                        // Key exists -> Update value
+                        x.value = value;
+                        return { status: 'updated', node: x };
+                    }
+                }
+
+                node.parent = y;
+                if (y === this.NIL) {
+                    this.root = node;
+                } else if (node.key < y.key) {
+                    y.left = node;
+                } else {
+                    y.right = node;
+                }
+
+                node.left = this.NIL;
+                node.right = this.NIL;
+                node.color = 'RED';
+
+                this.insertFixup(node);
+                return { status: 'inserted', node: node };
+            }
+
+            insertFixup(z) {
+                while (z.parent.color === 'RED') {
+                    if (z.parent === z.parent.parent.left) {
+                        let y = z.parent.parent.right;
+                        if (y.color === 'RED') {
+                            z.parent.color = 'BLACK';
+                            y.color = 'BLACK';
+                            z.parent.parent.color = 'RED';
+                            z = z.parent.parent;
+                        } else {
+                            if (z === z.parent.right) {
+                                z = z.parent;
+                                this.leftRotate(z);
+                            }
+                            z.parent.color = 'BLACK';
+                            z.parent.parent.color = 'RED';
+                            this.rightRotate(z.parent.parent);
+                        }
+                    } else {
+                        let y = z.parent.parent.left;
+                        if (y.color === 'RED') {
+                            z.parent.color = 'BLACK';
+                            y.color = 'BLACK';
+                            z.parent.parent.color = 'RED';
+                            z = z.parent.parent;
+                        } else {
+                            if (z === z.parent.left) {
+                                z = z.parent;
+                                this.rightRotate(z);
+                            }
+                            z.parent.color = 'BLACK';
+                            z.parent.parent.color = 'RED';
+                            this.leftRotate(z.parent.parent);
+                        }
+                    }
+                }
+                this.root.color = 'BLACK';
+            }
+
+            find(key) {
+                let path = [];
+                let current = this.root;
+                while (current !== this.NIL) {
+                    path.push(current);
+                    if (key === current.key) {
+                        return { found: true, path: path };
+                    } else if (key < current.key) {
+                        current = current.left;
+                    } else {
+                        current = current.right;
+                    }
+                }
+                return { found: false, path: path };
+            }
+
+            getDepth(node) {
+                if (node === this.NIL) return 0;
+                return 1 + Math.max(this.getDepth(node.left), this.getDepth(node.right));
+            }
+        }
+
+        // Draw node
+        function drawMapNode(ctx, x, y, key, value, color, isHighlighted = false) {
+            const width = 46;
+            const height = 28;
+            
+            if (isHighlighted) {
+                ctx.strokeStyle = '#D97706';
+                ctx.lineWidth = 3;
+                ctx.strokeRect(x - width/2 - 3, y - height/2 - 3, width + 6, height + 6);
+            }
+
+            ctx.lineWidth = 2;
+            if (color === 'RED') {
+                ctx.fillStyle = '#FCA5A5';
+                ctx.strokeStyle = '#9B2C2C';
+            } else {
+                ctx.fillStyle = '#1E293B';
+                ctx.strokeStyle = '#0F172A';
+            }
+            ctx.fillRect(x - width/2, y - height/2, width, height);
+            ctx.strokeRect(x - width/2, y - height/2, width, height);
+
+            // Text
+            ctx.fillStyle = (color === 'RED') ? '#7F1D1D' : '#FFFFFF';
+            ctx.font = isCleanFont ? 'bold 10px Inter' : 'bold 12px Kalam';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            const displayStr = `${key}:${value}`;
+            ctx.fillText(displayStr, x, y);
+        }
+
+        function drawNILLeaf(ctx, x, y) {
+            const side = 8;
+            ctx.fillStyle = '#1E293B';
+            ctx.strokeStyle = '#0F172A';
+            ctx.lineWidth = 1;
+            ctx.fillRect(x - side/2, y - side/2, side, side);
+            ctx.strokeRect(x - side/2, y - side/2, side, side);
+        }
+
+        /* ----------------------------------------------------------------------
+           TAB 1: CONCEPT DRAWING
+        ---------------------------------------------------------------------- */
+        function drawConceptDiagram() {
+            const canvas = document.getElementById('concept-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            
+            const width = canvas.parentElement.clientWidth || 400;
+            const height = 220;
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            ctx.scale(dpr, dpr);
+            
+            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = '#FCFBF9';
+            ctx.fillRect(0, 0, width, height);
+
+            const rx = width / 2;
+            const ry = 40;
+            const lx = rx - 70;
+            const rx30 = rx + 70;
+            const yOffset = 70;
+
+            ctx.strokeStyle = '#4A5568';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(rx, ry); ctx.lineTo(lx, ry + yOffset);
+            ctx.moveTo(rx, ry); ctx.lineTo(rx30, ry + yOffset);
+            ctx.stroke();
+
+            drawMapNode(ctx, rx, ry, 20, "X", 'BLACK');
+            drawMapNode(ctx, lx, ry + yOffset, 10, "Y", 'RED');
+            drawMapNode(ctx, rx30, ry + yOffset, 30, "Z", 'RED');
+        }
+
+        /* ----------------------------------------------------------------------
+           TAB 2: STEP-BY-STEP CANVASES
+        ---------------------------------------------------------------------- */
+        function drawStepCanvases() {
+            // Step 1
+            const c1 = document.getElementById('step-canvas-1');
+            if (c1) {
+                const ctx = c1.getContext('2d');
+                const w = c1.parentElement.clientWidth || 400;
+                setupCanvas(c1, w, 90);
+                drawMapNode(ctx, w/2, 35, 10, "A", 'BLACK');
+            }
+            // Step 2
+            const c2 = document.getElementById('step-canvas-2');
+            if (c2) {
+                const ctx = c2.getContext('2d');
+                const w = c2.parentElement.clientWidth || 400;
+                setupCanvas(c2, w, 110);
+                ctx.strokeStyle = '#4A5568';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.moveTo(w/2, 35); ctx.lineTo(w/2 + 45, 75);
+                ctx.stroke();
+                drawMapNode(ctx, w/2, 35, 10, "A", 'BLACK');
+                drawMapNode(ctx, w/2 + 45, 75, 20, "B", 'RED');
+            }
+            // Step 3
+            const c3 = document.getElementById('step-canvas-3');
+            if (c3) {
+                const ctx = c3.getContext('2d');
+                const w = c3.parentElement.clientWidth || 400;
+                setupCanvas(c3, w, 150);
+                ctx.strokeStyle = '#4A5568';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.moveTo(w/2, 30); ctx.lineTo(w/2 + 45, 70);
+                ctx.moveTo(w/2 + 45, 70); ctx.lineTo(w/2 + 90, 110);
+                ctx.stroke();
+                drawMapNode(ctx, w/2, 30, 10, "A", 'BLACK');
+                drawMapNode(ctx, w/2 + 45, 70, 20, "B", 'RED');
+                drawMapNode(ctx, w/2 + 90, 110, 30, "C", 'RED', true);
+            }
+            // Step 4
+            const c4 = document.getElementById('step-canvas-4');
+            if (c4) {
+                const ctx = c4.getContext('2d');
+                const w = c4.parentElement.clientWidth || 400;
+                setupCanvas(c4, w, 110);
+                ctx.strokeStyle = '#4A5568';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.moveTo(w/2, 35); ctx.lineTo(w/2 - 50, 75);
+                ctx.moveTo(w/2, 35); ctx.lineTo(w/2 + 50, 75);
+                ctx.stroke();
+                drawMapNode(ctx, w/2, 35, 20, "B", 'BLACK');
+                drawMapNode(ctx, w/2 - 50, 75, 10, "A", 'RED');
+                drawMapNode(ctx, w/2 + 50, 75, 30, "C", 'RED');
+            }
+        }
+
+        function setupCanvas(canvas, width, height) {
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            ctx.scale(dpr, dpr);
+            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = '#FCFBF9';
+            ctx.fillRect(0, 0, width, height);
+        }
+
+        /* ----------------------------------------------------------------------
+           TAB 4: SIMULATOR SYSTEM
+        ---------------------------------------------------------------------- */
+        const simMap = new RedBlackTreeMap();
+        const simKeysList = [];
+        
+        // Populate initial elements
+        const prePairs = [
+            { k: 15, v: "Apple" },
+            { k: 8, v: "Berry" },
+            { k: 25, v: "Cherry" },
+            { k: 5, v: "Date" },
+            { k: 12, v: "Fig" }
+        ];
+        
+        prePairs.forEach(p => {
+            simMap.insert(p.k, p.v);
+            simKeysList.push(p);
+        });
+
+        let searchHighlightPath = [];
+
+        function updateStatsDashboard() {
+            document.getElementById('lbl-size').innerText = simKeysList.length;
+            document.getElementById('lbl-depth').innerText = simMap.getDepth(simMap.root);
+        }
+
+        function simInsert() {
+            const keyIn = document.getElementById('sim-key');
+            const valIn = document.getElementById('sim-val');
+            const status = document.getElementById('sim-status');
+            
+            const k = parseInt(keyIn.value);
+            const v = valIn.value.trim() || "val";
+
+            if (isNaN(k)) {
+                status.innerText = "⚠️ Please enter a valid integer key.";
+                return;
+            }
+
+            const existingIdx = simKeysList.findIndex(x => x.k === k);
+            const res = simMap.insert(k, v);
+            
+            if (res.status === 'updated') {
+                simKeysList[existingIdx].v = v;
+                status.innerText = `Key ${k} already exists. Updated mapped value to '${v}'.`;
+            } else {
+                simKeysList.push({ k: k, v: v });
+                status.innerText = `Inserted pair {${k}: "${v}"}. Tree self-balanced recursively.`;
+            }
+
+            keyIn.value = '';
+            valIn.value = '';
+            
+            const findRes = simMap.find(k);
+            searchHighlightPath = findRes.path;
+            drawSimulator();
+
+            setTimeout(() => {
+                searchHighlightPath = [];
+                drawSimulator();
+            }, 2500);
+        }
+
+        function simDelete() {
+            const keyIn = document.getElementById('sim-key');
+            const status = document.getElementById('sim-status');
+            const k = parseInt(keyIn.value);
+
+            if (isNaN(k)) {
+                status.innerText = "⚠️ Please enter a valid integer key.";
+                return;
+            }
+
+            const existingIdx = simKeysList.findIndex(x => x.k === k);
+            if (existingIdx === -1) {
+                status.innerText = `⚠️ Key ${k} not found in map.`;
+                return;
+            }
+
+            simKeysList.splice(existingIdx, 1);
+            
+            // Rebuild
+            simMap.root = simMap.NIL;
+            simKeysList.forEach(x => simMap.insert(x.k, x.v));
+
+            status.innerText = `Removed key ${k} and rebalanced Red-Black Tree map.`;
+            keyIn.value = '';
+            searchHighlightPath = [];
+            drawSimulator();
+        }
+
+        function simFind() {
+            const keyIn = document.getElementById('sim-key');
+            const status = document.getElementById('sim-status');
+            const k = parseInt(keyIn.value);
+
+            if (isNaN(k)) {
+                status.innerText = "⚠️ Please enter a valid integer key.";
+                return;
+            }
+
+            const findRes = simMap.find(k);
+            searchHighlightPath = findRes.path;
+
+            if (findRes.found) {
+                const targetNode = findRes.path[findRes.path.length - 1];
+                status.innerHTML = `<strong>Trace:</strong> Key ${k} found!<br>` +
+                                   `Path: Root ${findRes.path.map(n => n.key).join(' &rarr; ')}.<br>` +
+                                   `Mapped value: <strong>"${targetNode.value}"</strong>.`;
+            } else {
+                status.innerHTML = `<strong>Trace:</strong> Key ${k} not found in map.<br>` +
+                                   `Path: Root ${findRes.path.map(n => n.key).join(' &rarr; ')} &rarr; NIL.`;
+            }
+
+            keyIn.value = '';
+            drawSimulator();
+
+            setTimeout(() => {
+                searchHighlightPath = [];
+                drawSimulator();
+            }, 3500);
+        }
+
+        function simClear() {
+            simMap.root = simMap.NIL;
+            simKeysList.length = 0;
+            searchHighlightPath = [];
+            document.getElementById('sim-status').innerText = "Map cleared.";
+            drawSimulator();
+        }
+
+        function drawSimulator() {
+            const canvas = document.getElementById('simulator-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            
+            const width = canvas.parentElement.clientWidth || 500;
+            const height = 420;
+            
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            ctx.scale(dpr, dpr);
+            
+            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = '#FCFBF9';
+            ctx.fillRect(0, 0, width, height);
+
+            if (simMap.root === simMap.NIL) {
+                ctx.fillStyle = '#9B2C2C';
+                ctx.font = isCleanFont ? 'bold 15px Inter' : 'bold 18px Kalam';
+                ctx.textAlign = 'center';
+                ctx.fillText("Empty Map (insert Key-Value pairs above)", width/2, height/2);
+                updateStatsDashboard();
+                return;
+            }
+
+            // Draw links
+            function drawSubtreeLines(node, x, y, dx) {
+                ctx.strokeStyle = '#4A5568';
+                ctx.lineWidth = 1.5;
+                if (node.left !== simMap.NIL) {
+                    ctx.beginPath();
+                    ctx.moveTo(x, y); ctx.lineTo(x - dx, y + 65);
+                    ctx.stroke();
+                    drawSubtreeLines(node.left, x - dx, y + 65, dx/2);
+                } else {
+                    ctx.beginPath();
+                    ctx.moveTo(x, y); ctx.lineTo(x - dx/2, y + 45);
+                    ctx.stroke();
+                    drawNILLeaf(ctx, x - dx/2, y + 45);
+                }
+
+                if (node.right !== simMap.NIL) {
+                    ctx.beginPath();
+                    ctx.moveTo(x, y); ctx.lineTo(x + dx, y + 65);
+                    ctx.stroke();
+                    drawSubtreeLines(node.right, x + dx, y + 65, dx/2);
+                } else {
+                    ctx.beginPath();
+                    ctx.moveTo(x, y); ctx.lineTo(x + dx/2, y + 45);
+                    ctx.stroke();
+                    drawNILLeaf(ctx, x + dx/2, y + 45);
+                }
+            }
+
+            function drawSubtreeNodes(node, x, y, dx) {
+                const isVisited = searchHighlightPath.includes(node);
+                drawMapNode(ctx, x, y, node.key, node.value, node.color, isVisited);
+
+                if (node.left !== simMap.NIL) {
+                    drawSubtreeNodes(node.left, x - dx, y + 65, dx/2);
+                }
+                if (node.right !== simMap.NIL) {
+                    drawSubtreeNodes(node.right, x + dx, y + 65, dx/2);
+                }
+            }
+
+            drawSubtreeLines(simMap.root, width/2, 35, width/4.2);
+            drawSubtreeNodes(simMap.root, width/2, 35, width/4.2);
+
+            updateStatsDashboard();
+        }
+
+        window.onload = () => {
+            drawConceptDiagram();
+            drawStepCanvases();
+            drawSimulator();
+        };
+    </script>
+</body>
+
+</html>

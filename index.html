@@ -149,29 +149,260 @@
             </div>
 
             <!-- SHELF 2: Personal Notes -->
-            <div class="shelf-container space-y-4" id="cat-personal-container">
-                <div class="flex justify-between items-center border-b border-slate-700 pb-1">
-                    <h2 class="text-2xl font-bold font-heading text-amber-400 flex items-center gap-2">✍️ Personal Notes <span class="text-xs bg-slate-800 text-slate-400 font-sans px-2.5 py-0.5 rounded-full border border-slate-700">Database Tuning</span></h2>
-                </div>
+            <div class="shelf-container space-y-8" id="cat-personal-container">
                 
-                <!-- Wooden Shelf Surface containing books -->
-                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 p-4 bg-slate-950/40 rounded-xl relative">
-                    
-                    <!-- BOOK 5: DBMS B-Trees -->
-                    <a href="Personal/dbms_b_trees_notes.html" class="notebook-card group block bg-[#FAF6EE] text-[#1A365D] rounded-md shadow-md hover:-translate-y-2 hover:shadow-xl transition duration-300 overflow-hidden border-l-[6px] border-blue-700 flex flex-col justify-between p-3 min-h-[140px]" data-title="dbms database indexing disk tracks sectors blocks offsets multilevel index b tree plus search simulator" data-cat="personal">
-                        <div class="space-y-1">
-                            <span class="text-[10px] font-bold uppercase text-blue-800 bg-blue-100/50 px-1.5 py-0.5 rounded border border-blue-300 font-sans">DBMS Storage</span>
-                            <h3 class="text-base font-bold font-heading line-clamp-2">B & B+ Trees</h3>
-                        </div>
-                        <div class="text-[10px] font-sans font-bold flex justify-between items-center text-slate-500 mt-2">
-                            <span>5 Topics</span>
-                            <span class="text-blue-800 group-hover:translate-x-0.5 transition">Open →</span>
-                        </div>
-                    </a>
-
+                <!-- SUB-SHELF A: DBMS Storage -->
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center border-b border-slate-700 pb-1">
+                        <h2 class="text-2xl font-bold font-heading text-amber-400 flex items-center gap-2">✍️ Personal Notes: DBMS Storage <span class="text-xs bg-slate-800 text-slate-400 font-sans px-2.5 py-0.5 rounded-full border border-slate-700">Disk & Trees</span></h2>
+                    </div>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 p-4 bg-slate-950/40 rounded-xl relative">
+                        <!-- BOOK 5: DBMS B-Trees -->
+                        <a href="Personal/dbms_b_trees_notes.html" class="notebook-card group block bg-[#FAF6EE] text-[#1A365D] rounded-md shadow-md hover:-translate-y-2 hover:shadow-xl transition duration-300 overflow-hidden border-l-[6px] border-blue-700 flex flex-col justify-between p-3 min-h-[140px]" data-title="dbms database indexing disk tracks sectors blocks offsets multilevel index b tree plus search simulator" data-cat="personal">
+                            <div class="space-y-1">
+                                <span class="text-[10px] font-bold uppercase text-blue-800 bg-blue-100/50 px-1.5 py-0.5 rounded border border-blue-300 font-sans">DBMS Storage</span>
+                                <h3 class="text-base font-bold font-heading line-clamp-2">B & B+ Trees</h3>
+                            </div>
+                            <div class="text-[10px] font-sans font-bold flex justify-between items-center text-slate-500 mt-2">
+                                <span>5 Topics</span>
+                                <span class="text-blue-800 group-hover:translate-x-0.5 transition">Open →</span>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="wood-shelf h-4 w-full rounded-b-md"></div>
                 </div>
-                <!-- Wood Shelf Plank shadow decoration -->
-                <div class="wood-shelf h-4 w-full rounded-b-md"></div>
+
+                <!-- SUB-SHELF B: STL Containers (All in one place) -->
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center border-b border-slate-700 pb-1">
+                        <h2 class="text-2xl font-bold font-heading text-emerald-400 flex items-center gap-2">📦 Personal Notes: STL Containers <span class="text-xs bg-slate-800 text-slate-400 font-sans px-2.5 py-0.5 rounded-full border border-slate-700">Standard Template Library</span></h2>
+                    </div>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 p-4 bg-slate-950/40 rounded-xl relative">
+                        <!-- Vector -->
+                        <a href="Personal/stl_vector.html" class="notebook-card group block bg-[#FAF6EE] text-[#1A365D] rounded-md shadow-md hover:-translate-y-2 hover:shadow-xl transition duration-300 overflow-hidden border-l-[6px] border-emerald-700 flex flex-col justify-between p-3 min-h-[140px]" data-title="stl standard template library containers vector dynamic array capacity double resize complexity insertion" data-cat="personal">
+                            <div class="space-y-1">
+                                <span class="text-[10px] font-bold uppercase text-emerald-800 bg-emerald-100/50 px-1.5 py-0.5 rounded border border-emerald-300 font-sans">STL Containers</span>
+                                <h3 class="text-base font-bold font-heading line-clamp-2">Vector</h3>
+                            </div>
+                            <div class="text-[10px] font-sans font-bold flex justify-between items-center text-slate-500 mt-2">
+                                <span>4 Topics</span>
+                                <span class="text-emerald-800 group-hover:translate-x-0.5 transition">Open →</span>
+                            </div>
+                        </a>
+
+                        <!-- List -->
+                        <a href="Personal/stl_list.html" class="notebook-card group block bg-[#FAF6EE] text-[#1A365D] rounded-md shadow-md hover:-translate-y-2 hover:shadow-xl transition duration-300 overflow-hidden border-l-[6px] border-amber-700 flex flex-col justify-between p-3 min-h-[140px]" data-title="stl standard template library containers list doubly linked list nodes pointers complexity insertion search delete" data-cat="personal">
+                            <div class="space-y-1">
+                                <span class="text-[10px] font-bold uppercase text-amber-800 bg-amber-100/50 px-1.5 py-0.5 rounded border border-amber-300 font-sans">STL Containers</span>
+                                <h3 class="text-base font-bold font-heading line-clamp-2">List (Doubly Linked)</h3>
+                            </div>
+                            <div class="text-[10px] font-sans font-bold flex justify-between items-center text-slate-500 mt-2">
+                                <span>4 Topics</span>
+                                <span class="text-amber-800 group-hover:translate-x-0.5 transition">Open →</span>
+                            </div>
+                        </a>
+
+                        <!-- Deque -->
+                        <a href="Personal/stl_deque.html" class="notebook-card group block bg-[#FAF6EE] text-[#1A365D] rounded-md shadow-md hover:-translate-y-2 hover:shadow-xl transition duration-300 overflow-hidden border-l-[6px] border-rose-700 flex flex-col justify-between p-3 min-h-[140px]" data-title="stl standard template library containers deque double ended queue block map chunks complexity push back push front" data-cat="personal">
+                            <div class="space-y-1">
+                                <span class="text-[10px] font-bold uppercase text-rose-800 bg-rose-100/50 px-1.5 py-0.5 rounded border border-rose-300 font-sans">STL Containers</span>
+                                <h3 class="text-base font-bold font-heading line-clamp-2">Deque</h3>
+                            </div>
+                            <div class="text-[10px] font-sans font-bold flex justify-between items-center text-slate-500 mt-2">
+                                <span>4 Topics</span>
+                                <span class="text-rose-800 group-hover:translate-x-0.5 transition">Open →</span>
+                            </div>
+                        </a>
+
+                        <!-- Set -->
+                        <a href="Personal/stl_set.html" class="notebook-card group block bg-[#FAF6EE] text-[#1A365D] rounded-md shadow-md hover:-translate-y-2 hover:shadow-xl transition duration-300 overflow-hidden border-l-[6px] border-indigo-700 flex flex-col justify-between p-3 min-h-[140px]" data-title="stl standard template library containers set ordered self balancing binary search tree red black tree rotations complexity insert find erase lower bound upper bound" data-cat="personal">
+                            <div class="space-y-1">
+                                <span class="text-[10px] font-bold uppercase text-indigo-800 bg-indigo-100/50 px-1.5 py-0.5 rounded border border-indigo-300 font-sans">STL Containers</span>
+                                <h3 class="text-base font-bold font-heading line-clamp-2">Set (Ordered)</h3>
+                            </div>
+                            <div class="text-[10px] font-sans font-bold flex justify-between items-center text-slate-500 mt-2">
+                                <span>4 Topics</span>
+                                <span class="text-indigo-800 group-hover:translate-x-0.5 transition">Open →</span>
+                            </div>
+                        </a>
+
+                        <!-- Map -->
+                        <a href="Personal/stl_map.html" class="notebook-card group block bg-[#FAF6EE] text-[#1A365D] rounded-md shadow-md hover:-translate-y-2 hover:shadow-xl transition duration-300 overflow-hidden border-l-[6px] border-blue-700 flex flex-col justify-between p-3 min-h-[140px]" data-title="stl standard template library containers map ordered key value associative red black tree rotations complexity find insert" data-cat="personal">
+                            <div class="space-y-1">
+                                <span class="text-[10px] font-bold uppercase text-blue-800 bg-blue-100/50 px-1.5 py-0.5 rounded border border-blue-300 font-sans">STL Containers</span>
+                                <h3 class="text-base font-bold font-heading line-clamp-2">Map (Ordered)</h3>
+                            </div>
+                            <div class="text-[10px] font-sans font-bold flex justify-between items-center text-slate-500 mt-2">
+                                <span>4 Topics</span>
+                                <span class="text-blue-800 group-hover:translate-x-0.5 transition">Open →</span>
+                            </div>
+                        </a>
+
+                        <!-- Unordered Set -->
+                        <a href="Personal/stl_unordered_set.html" class="notebook-card group block bg-[#FAF6EE] text-[#1A365D] rounded-md shadow-md hover:-translate-y-2 hover:shadow-xl transition duration-300 overflow-hidden border-l-[6px] border-purple-700 flex flex-col justify-between p-3 min-h-[140px]" data-title="stl standard template library containers unordered set hash table buckets chaining time complexity insert find erase" data-cat="personal">
+                            <div class="space-y-1">
+                                <span class="text-[10px] font-bold uppercase text-purple-800 bg-purple-100/50 px-1.5 py-0.5 rounded border border-purple-300 font-sans">STL Containers</span>
+                                <h3 class="text-base font-bold font-heading line-clamp-2">Unordered Set</h3>
+                            </div>
+                            <div class="text-[10px] font-sans font-bold flex justify-between items-center text-slate-500 mt-2">
+                                <span>4 Topics</span>
+                                <span class="text-purple-800 group-hover:translate-x-0.5 transition">Open →</span>
+                            </div>
+                        </a>
+
+                        <!-- Unordered Map -->
+                        <a href="Personal/stl_unordered_map.html" class="notebook-card group block bg-[#FAF6EE] text-[#1A365D] rounded-md shadow-md hover:-translate-y-2 hover:shadow-xl transition duration-300 overflow-hidden border-l-[6px] border-pink-700 flex flex-col justify-between p-3 min-h-[140px]" data-title="stl standard template library containers unordered map key value hash table buckets chaining load factor complexity find insert" data-cat="personal">
+                            <div class="space-y-1">
+                                <span class="text-[10px] font-bold uppercase text-pink-800 bg-pink-100/50 px-1.5 py-0.5 rounded border border-pink-300 font-sans">STL Containers</span>
+                                <h3 class="text-base font-bold font-heading line-clamp-2">Unordered Map</h3>
+                            </div>
+                            <div class="text-[10px] font-sans font-bold flex justify-between items-center text-slate-500 mt-2">
+                                <span>4 Topics</span>
+                                <span class="text-pink-800 group-hover:translate-x-0.5 transition">Open →</span>
+                            </div>
+                        </a>
+
+                        <!-- Stack -->
+                        <a href="Personal/stl_stack.html" class="notebook-card group block bg-[#FAF6EE] text-[#1A365D] rounded-md shadow-md hover:-translate-y-2 hover:shadow-xl transition duration-300 overflow-hidden border-l-[6px] border-teal-700 flex flex-col justify-between p-3 min-h-[140px]" data-title="stl standard template library containers stack lifo adapter push pop top complexity" data-cat="personal">
+                            <div class="space-y-1">
+                                <span class="text-[10px] font-bold uppercase text-teal-800 bg-teal-100/50 px-1.5 py-0.5 rounded border border-teal-300 font-sans">STL Containers</span>
+                                <h3 class="text-base font-bold font-heading line-clamp-2">Stack (LIFO)</h3>
+                            </div>
+                            <div class="text-[10px] font-sans font-bold flex justify-between items-center text-slate-500 mt-2">
+                                <span>4 Topics</span>
+                                <span class="text-teal-800 group-hover:translate-x-0.5 transition">Open →</span>
+                            </div>
+                        </a>
+
+                        <!-- Queue -->
+                        <a href="Personal/stl_queue.html" class="notebook-card group block bg-[#FAF6EE] text-[#1A365D] rounded-md shadow-md hover:-translate-y-2 hover:shadow-xl transition duration-300 overflow-hidden border-l-[6px] border-cyan-700 flex flex-col justify-between p-3 min-h-[140px]" data-title="stl standard template library containers queue fifo adapter enqueue dequeue front back push pop complexity" data-cat="personal">
+                            <div class="space-y-1">
+                                <span class="text-[10px] font-bold uppercase text-cyan-800 bg-cyan-100/50 px-1.5 py-0.5 rounded border border-cyan-300 font-sans">STL Containers</span>
+                                <h3 class="text-base font-bold font-heading line-clamp-2">Queue (FIFO)</h3>
+                            </div>
+                            <div class="text-[10px] font-sans font-bold flex justify-between items-center text-slate-500 mt-2">
+                                <span>4 Topics</span>
+                                <span class="text-cyan-800 group-hover:translate-x-0.5 transition">Open →</span>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="wood-shelf h-4 w-full rounded-b-md"></div>
+                </div>
+
+                <!-- SUB-SHELF C: Personal Notes: Algorithms -->
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center border-b border-slate-700 pb-1">
+                        <h2 class="text-2xl font-bold font-heading text-sky-400 flex items-center gap-2">🔍 Personal Notes: Algorithms <span class="text-xs bg-slate-800 text-slate-400 font-sans px-2.5 py-0.5 rounded-full border border-slate-700">Searching</span></h2>
+                    </div>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 p-4 bg-slate-950/40 rounded-xl relative">
+                        <!-- BOOK 15: Linear Search -->
+                        <a href="Personal/linear_search.html" class="notebook-card group block bg-[#FAF6EE] text-[#1A365D] rounded-md shadow-md hover:-translate-y-2 hover:shadow-xl transition duration-300 overflow-hidden border-l-[6px] border-emerald-700 flex flex-col justify-between p-3 min-h-[140px]" data-title="linear search sequential scans array lists complexity inspection sentinel" data-cat="personal">
+                            <div class="space-y-1">
+                                <span class="text-[10px] font-bold uppercase text-emerald-800 bg-emerald-100/50 px-1.5 py-0.5 rounded border border-emerald-300 font-sans">Algorithms</span>
+                                <h3 class="text-base font-bold font-heading line-clamp-2">Linear Search</h3>
+                            </div>
+                            <div class="text-[10px] font-sans font-bold flex justify-between items-center text-slate-500 mt-2">
+                                <span>4 Topics</span>
+                                <span class="text-emerald-800 group-hover:translate-x-0.5 transition">Open →</span>
+                            </div>
+                        </a>
+
+                        <!-- BOOK 16: Binary Search -->
+                        <a href="Personal/binary_search.html" class="notebook-card group block bg-[#FAF6EE] text-[#1A365D] rounded-md shadow-md hover:-translate-y-2 hover:shadow-xl transition duration-300 overflow-hidden border-l-[6px] border-indigo-700 flex flex-col justify-between p-3 min-h-[140px]" data-title="binary search divide conquer range bounds mid pointers log complexity" data-cat="personal">
+                            <div class="space-y-1">
+                                <span class="text-[10px] font-bold uppercase text-indigo-800 bg-indigo-100/50 px-1.5 py-0.5 rounded border border-indigo-300 font-sans">Algorithms</span>
+                                <h3 class="text-base font-bold font-heading line-clamp-2">Binary Search</h3>
+                            </div>
+                            <div class="text-[10px] font-sans font-bold flex justify-between items-center text-slate-500 mt-2">
+                                <span>4 Topics</span>
+                                <span class="text-indigo-800 group-hover:translate-x-0.5 transition">Open →</span>
+                            </div>
+                        </a>
+
+                        <!-- BOOK 17: Ternary Search -->
+                        <a href="Personal/ternary_search.html" class="notebook-card group block bg-[#FAF6EE] text-[#1A365D] rounded-md shadow-md hover:-translate-y-2 hover:shadow-xl transition duration-300 overflow-hidden border-l-[6px] border-pink-700 flex flex-col justify-between p-3 min-h-[140px]" data-title="ternary search range trisections mid1 mid2 log3 complexity unimodal" data-cat="personal">
+                            <div class="space-y-1">
+                                <span class="text-[10px] font-bold uppercase text-pink-800 bg-pink-100/50 px-1.5 py-0.5 rounded border border-pink-300 font-sans">Algorithms</span>
+                                <h3 class="text-base font-bold font-heading line-clamp-2">Ternary Search</h3>
+                            </div>
+                            <div class="text-[10px] font-sans font-bold flex justify-between items-center text-slate-500 mt-2">
+                                <span>4 Topics</span>
+                                <span class="text-pink-800 group-hover:translate-x-0.5 transition">Open →</span>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="wood-shelf h-4 w-full rounded-b-md"></div>
+                </div>
+
+                <!-- SUB-SHELF D: Personal Notes: Sorting Algorithms -->
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center border-b border-slate-700 pb-1">
+                        <h2 class="text-2xl font-bold font-heading text-sky-400 flex items-center gap-2">⚡ Personal Notes: Sorting Algorithms <span class="text-xs bg-slate-800 text-slate-400 font-sans px-2.5 py-0.5 rounded-full border border-slate-700">Sorting</span></h2>
+                    </div>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 p-4 bg-slate-950/40 rounded-xl relative">
+                        <!-- BOOK 18: Bubble Sort -->
+                        <a href="Personal/bubble_sort.html" class="notebook-card group block bg-[#FAF6EE] text-[#1A365D] rounded-md shadow-md hover:-translate-y-2 hover:shadow-xl transition duration-300 overflow-hidden border-l-[6px] border-amber-700 flex flex-col justify-between p-3 min-h-[140px]" data-title="bubble sort adjacent swaps bubble sinking complexity array stability" data-cat="personal">
+                            <div class="space-y-1">
+                                <span class="text-[10px] font-bold uppercase text-amber-800 bg-amber-100/50 px-1.5 py-0.5 rounded border border-amber-300 font-sans">Algorithms</span>
+                                <h3 class="text-base font-bold font-heading line-clamp-2">Bubble Sort</h3>
+                            </div>
+                            <div class="text-[10px] font-sans font-bold flex justify-between items-center text-slate-500 mt-2">
+                                <span>4 Topics</span>
+                                <span class="text-amber-800 group-hover:translate-x-0.5 transition">Open →</span>
+                            </div>
+                        </a>
+
+                        <!-- BOOK 19: Selection Sort -->
+                        <a href="Personal/selection_sort.html" class="notebook-card group block bg-[#FAF6EE] text-[#1A365D] rounded-md shadow-md hover:-translate-y-2 hover:shadow-xl transition duration-300 overflow-hidden border-l-[6px] border-emerald-700 flex flex-col justify-between p-3 min-h-[140px]" data-title="selection sort minimum scans swap index complexity array unstability" data-cat="personal">
+                            <div class="space-y-1">
+                                <span class="text-[10px] font-bold uppercase text-emerald-800 bg-emerald-100/50 px-1.5 py-0.5 rounded border border-emerald-300 font-sans">Algorithms</span>
+                                <h3 class="text-base font-bold font-heading line-clamp-2">Selection Sort</h3>
+                            </div>
+                            <div class="text-[10px] font-sans font-bold flex justify-between items-center text-slate-500 mt-2">
+                                <span>4 Topics</span>
+                                <span class="text-emerald-800 group-hover:translate-x-0.5 transition">Open →</span>
+                            </div>
+                        </a>
+
+                        <!-- BOOK 20: Insertion Sort -->
+                        <a href="Personal/insertion_sort.html" class="notebook-card group block bg-[#FAF6EE] text-[#1A365D] rounded-md shadow-md hover:-translate-y-2 hover:shadow-xl transition duration-300 overflow-hidden border-l-[6px] border-teal-700 flex flex-col justify-between p-3 min-h-[140px]" data-title="insertion sort card sort shift values insert key complexity array stability adaptive" data-cat="personal">
+                            <div class="space-y-1">
+                                <span class="text-[10px] font-bold uppercase text-teal-800 bg-teal-100/50 px-1.5 py-0.5 rounded border border-teal-300 font-sans">Algorithms</span>
+                                <h3 class="text-base font-bold font-heading line-clamp-2">Insertion Sort</h3>
+                            </div>
+                            <div class="text-[10px] font-sans font-bold flex justify-between items-center text-slate-500 mt-2">
+                                <span>4 Topics</span>
+                                <span class="text-teal-800 group-hover:translate-x-0.5 transition">Open →</span>
+                            </div>
+                        </a>
+
+                        <!-- BOOK 21: Merge Sort -->
+                        <a href="Personal/merge_sort.html" class="notebook-card group block bg-[#FAF6EE] text-[#1A365D] rounded-md shadow-md hover:-translate-y-2 hover:shadow-xl transition duration-300 overflow-hidden border-l-[6px] border-blue-700 flex flex-col justify-between p-3 min-h-[140px]" data-title="merge sort divide conquer recursive splits temp array stable merge complexity log" data-cat="personal">
+                            <div class="space-y-1">
+                                <span class="text-[10px] font-bold uppercase text-blue-800 bg-blue-100/50 px-1.5 py-0.5 rounded border border-blue-300 font-sans">Algorithms</span>
+                                <h3 class="text-base font-bold font-heading line-clamp-2">Merge Sort</h3>
+                            </div>
+                            <div class="text-[10px] font-sans font-bold flex justify-between items-center text-slate-500 mt-2">
+                                <span>4 Topics</span>
+                                <span class="text-blue-800 group-hover:translate-x-0.5 transition">Open →</span>
+                            </div>
+                        </a>
+
+                        <!-- BOOK 22: Quick Sort -->
+                        <a href="Personal/quick_sort.html" class="notebook-card group block bg-[#FAF6EE] text-[#1A365D] rounded-md shadow-md hover:-translate-y-2 hover:shadow-xl transition duration-300 overflow-hidden border-l-[6px] border-indigo-700 flex flex-col justify-between p-3 min-h-[140px]" data-title="quick sort pivot partitions boundary pointers i j swap log complexity unstable" data-cat="personal">
+                            <div class="space-y-1">
+                                <span class="text-[10px] font-bold uppercase text-indigo-800 bg-indigo-100/50 px-1.5 py-0.5 rounded border border-indigo-300 font-sans">Algorithms</span>
+                                <h3 class="text-base font-bold font-heading line-clamp-2">Quick Sort</h3>
+                            </div>
+                            <div class="text-[10px] font-sans font-bold flex justify-between items-center text-slate-500 mt-2">
+                                <span>4 Topics</span>
+                                <span class="text-indigo-800 group-hover:translate-x-0.5 transition">Open →</span>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="wood-shelf h-4 w-full rounded-b-md"></div>
+                </div>
+
             </div>
 
         </main>

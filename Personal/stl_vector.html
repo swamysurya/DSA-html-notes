@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STL Containers: std::vector - Digital Lecture Notes</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Kalam:wght@300;400;700&family=Patrick+Hand&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        notebookBg: '#cbd5e1',
+                        notebookPaper: '#FAF6EE',
+                        inkBlue: '#1A365D',
+                        inkRed: '#9B2C2C',
+                        pencilGray: '#4A5568',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Shared Notebook Styles -->
+    <link rel="stylesheet" href="../notebook.css">
+    
+    <style>
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+
+<body class="font-notes-body text-2xl text-slate-800 antialiased transition-all duration-300">
+
+    <!-- Sticky Header -->
+    <header class="sticky top-0 z-50 bg-[#FAF6EE] shadow-md border-b-2 border-amber-200 px-4 py-3 no-print">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-3">
+            <div class="flex items-center space-x-3">
+                <span class="text-3xl font-bold text-inkBlue tracking-wide font-heading">📖 STL: std::vector</span>
+                <span class="bg-purple-100 text-purple-800 text-xs font-bold px-2.5 py-1 rounded-full border border-purple-300 font-sans uppercase">STL Containers</span>
+            </div>
+            <button id="styleBtn" onclick="toggleStyleMode()" class="px-4 py-1.5 rounded-full text-sm font-bold bg-inkBlue text-white hover:bg-opacity-90 transition font-sans shadow-sm">
+                ✍️ Switch to Clean Print Font
+            </button>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <nav class="max-w-6xl mx-auto mt-3 flex flex-wrap gap-1 border-t border-amber-200 pt-2 text-base md:text-lg">
+            <button onclick="switchTab('definitions')" id="tab-definitions" class="nav-tab px-4 py-2 rounded-t-lg font-bold bg-amber-200 text-inkBlue border-b-2 border-inkBlue">
+                1. Definitions & Concepts
+            </button>
+            <button onclick="switchTab('step-by-step')" id="tab-step-by-step" class="nav-tab px-4 py-2 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
+                2. Step-by-Step Resize
+            </button>
+            <button onclick="switchTab('complexity')" id="tab-complexity" class="nav-tab px-4 py-2 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
+                3. Complexity & Methods
+            </button>
+            <button onclick="switchTab('visualization')" id="tab-visualization" class="nav-tab px-4 py-2 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
+                4. Interactive Simulator
+            </button>
+        </nav>
+    </header>
+
+    <!-- Main Notebook Container -->
+    <main class="max-w-6xl mx-auto flex relative bg-notebookPaper rounded-xl shadow-2xl overflow-hidden min-h-[900px] border border-amber-200 my-8">
+        
+        <!-- Left Binder Column -->
+        <div class="w-10 sm:w-16 bg-amber-50 border-r-2 border-amber-200 flex flex-col items-center py-8 select-none shrink-0 no-print space-y-6 z-10 shadow-[inset_-5px_0_10px_rgba(0,0,0,0.05)]">
+            <script>
+                for (let i = 0; i < 40; i++) document.write('<div class="spiral-ring"></div>');
+            </script>
+        </div>
+
+        <!-- Notebook Content Area -->
+        <div class="flex-1 lined-paper p-4 sm:p-8 notebook-margin sm:pl-8 overflow-hidden z-0">
+
+            <!-- TAB 1: DEFINITIONS & CONCEPTS -->
+            <section id="sec-definitions" class="tab-content active space-y-8">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                        Dynamic Arrays & Vector Resizing</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 1</span>
+                </div>
+
+                <div class="space-y-6">
+                    <div>
+                        <h3 class="text-3xl font-bold text-inkRed font-heading pen-underline mb-2">What is std::vector?</h3>
+                        <p class="leading-relaxed">
+                            In C++, <code class="bg-amber-100 px-1 rounded text-slate-900 font-sans text-lg font-semibold">std::vector</code> is a sequence container that represents a **dynamic array**. Unlike standard static arrays, vectors can resize themselves dynamically when elements are inserted or deleted, with all their elements stored in contiguous memory locations.
+                        </p>
+                    </div>
+
+                    <div class="note-box p-5 space-y-3">
+                        <h4 class="text-2xl font-bold text-inkBlue font-heading">🔑 Contiguous Memory & Size vs. Capacity</h4>
+                        <p class="text-xl">
+                            Because vector elements are contiguous, we can access them in O(1) time using pointers/indices. To avoid allocating memory on every single insert, a vector separates its **Size** from its **Capacity**:
+                        </p>
+                        <ul class="list-disc list-inside space-y-2 text-xl ml-4">
+                            <li><strong>Size (N):</strong> The number of actual elements currently stored in the vector.</li>
+                            <li><strong>Capacity (C):</strong> The total amount of memory slots currently allocated.</li>
+                            <li><strong>Doubling Rule:</strong> When size reaches capacity (<span class="font-bold text-inkRed">N == C</span>) and a new item is pushed, the vector allocates a new block of size <span class="font-bold text-inkRed">2 &times; C</span>, copies all old elements into the new block, and deletes the old block.</li>
+                        </ul>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-center my-6">
+                        <div class="space-y-4">
+                            <h3 class="text-2xl font-bold text-inkRed font-heading pen-underline">Amortized O(1) Insertion</h3>
+                            <p class="text-xl leading-relaxed">
+                                Inserting at the end (`push_back`) is usually a simple write operation taking O(1) time. However, when a reallocation copy is triggered, the operation takes O(N) time.
+                            </p>
+                            <p class="text-xl leading-relaxed">
+                                Since doubling capacity happens less and less frequently as the vector grows, the average (amortized) time complexity for a sequence of push operations remains strictly <strong class="text-inkBlue">O(1)</strong>.
+                            </p>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <span class="text-sm font-sans font-bold text-pencilGray mb-1">Vector Memory Allocation View:</span>
+                            <canvas id="concept-canvas" class="border border-slate-300 rounded bg-white shadow-sm" style="width: 100%; height: 180px;"></canvas>
+                            <span class="text-xs text-pencilGray mt-1">Yellow slots represent unused pre-allocated capacity.</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 2: STEP-BY-STEP EXAMPLE -->
+            <section id="sec-step-by-step" class="tab-content space-y-8">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                        Step-by-Step Reallocation Trace</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 2</span>
+                </div>
+
+                <div class="space-y-6">
+                    <p class="leading-relaxed">
+                        Let us trace pushing values <strong class="text-inkBlue font-sans">10, 20, 30</strong> into an empty vector initialized with **capacity = 2**.
+                    </p>
+
+                    <div class="space-y-8 border-l-4 border-dashed border-amber-300 pl-4 py-2">
+                        
+                        <!-- Step 1 -->
+                        <div class="space-y-2 break-inside-avoid">
+                            <h3 class="text-2xl font-bold text-inkRed font-heading">Step 1: Push 10</h3>
+                            <p class="text-lg">
+                                Size = 1, Capacity = 2. Element written at index 0.
+                            </p>
+                            <div class="bg-white border border-slate-300 rounded p-2 max-w-xl shadow-sm">
+                                <canvas id="step-canvas-1" class="w-full"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Step 2 -->
+                        <div class="space-y-2 break-inside-avoid">
+                            <h3 class="text-2xl font-bold text-inkRed font-heading">Step 2: Push 20</h3>
+                            <p class="text-lg">
+                                Size = 2, Capacity = 2. Element written at index 1. Capacity is now full.
+                            </p>
+                            <div class="bg-white border border-slate-300 rounded p-2 max-w-xl shadow-sm">
+                                <canvas id="step-canvas-2" class="w-full"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Step 3 -->
+                        <div class="space-y-2 break-inside-avoid">
+                            <h3 class="text-2xl font-bold text-inkRed font-heading">Step 3: Push 30 (Reallocation Copy!)</h3>
+                            <p class="text-lg">
+                                &bull; Since size equals capacity (2 == 2), the vector allocates a new memory block of size <strong class="text-inkRed font-sans">4</strong>.<br>
+                                &bull; Values 10 and 20 are copied to the new block. The old block is freed. 30 is written at index 2.<br>
+                                &bull; Size = 3, Capacity = 4.
+                            </p>
+                            <div class="bg-white border border-slate-300 rounded p-2 max-w-xl shadow-sm">
+                                <canvas id="step-canvas-3" class="w-full"></canvas>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 3: COMPLEXITY & METHODS -->
+            <section id="sec-complexity" class="tab-content space-y-8">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                        Vector Methods & Complexity Analysis</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 3</span>
+                </div>
+
+                <div class="space-y-6">
+                    <h3 class="text-3xl font-bold text-inkRed font-heading pen-underline">Primary std::vector Operations</h3>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse border-2 border-slate-400 bg-white/95 text-base md:text-lg">
+                            <thead>
+                                <tr class="bg-blue-900 text-white font-sans text-sm uppercase">
+                                    <th class="p-3 border border-slate-400">Method</th>
+                                    <th class="p-3 border border-slate-400">Description</th>
+                                    <th class="p-3 border border-slate-400">Average Time</th>
+                                    <th class="p-3 border border-slate-400">Worst-Case Time</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-slate-900">
+                                <tr>
+                                    <td class="p-3 border border-slate-400 font-bold font-sans text-sm"><code class="bg-slate-100 px-1 rounded text-purple-900">push_back(val)</code></td>
+                                    <td class="p-3 border border-slate-400">Adds element to the end of the array.</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-emerald-700">Amortized O(1)</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-red-700">O(N) (realloc)</td>
+                                </tr>
+                                <tr class="bg-slate-50/50">
+                                    <td class="p-3 border border-slate-400 font-bold font-sans text-sm"><code class="bg-slate-100 px-1 rounded text-purple-900">pop_back()</code></td>
+                                    <td class="p-3 border border-slate-400">Removes the last element. Capacity is not reduced.</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-emerald-700">O(1)</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-emerald-700">O(1)</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 border border-slate-400 font-bold font-sans text-sm"><code class="bg-slate-100 px-1 rounded text-purple-900">operator[idx]</code></td>
+                                    <td class="p-3 border border-slate-400">Returns element at index. Direct memory access.</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-emerald-700">O(1)</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-emerald-700">O(1)</td>
+                                </tr>
+                                <tr class="bg-slate-50/50">
+                                    <td class="p-3 border border-slate-400 font-bold font-sans text-sm"><code class="bg-slate-100 px-1 rounded text-purple-900">insert(pos, val)</code></td>
+                                    <td class="p-3 border border-slate-400">Inserts at pos. Shifts remaining elements to the right.</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-red-700">O(N)</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-red-700">O(N)</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 border border-slate-400 font-bold font-sans text-sm"><code class="bg-slate-100 px-1 rounded text-purple-900">erase(pos)</code></td>
+                                    <td class="p-3 border border-slate-400">Removes element at pos. Shifts remaining elements left.</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-red-700">O(N)</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-red-700">O(N)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="note-box p-4 space-y-2 mt-4">
+                        <h4 class="text-2xl font-bold text-inkRed font-heading">📝 Memory Overhead & Performance Trade-offs:</h4>
+                        <ul class="list-disc list-inside space-y-1 text-lg">
+                            <li><strong>Fast Random Access:</strong> Direct address math <span class="text-xs font-sans bg-white border px-1">Address = Start + Index * SizeOfElement</span> allows O(1) reading.</li>
+                            <li><strong>Shifting Cost:</strong> Inserting or erasing in the middle is expensive because all elements to the right must be moved in memory.</li>
+                            <li><strong>Reserve Hint optimization:</strong> If the size of the elements is known, calling <code class="text-sm font-sans font-bold">vector::reserve(n)</code> pre-allocates enough capacity, eliminating reallocation copy overhead.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 4: INTERACTIVE VISUALIZATION -->
+            <section id="sec-visualization" class="tab-content space-y-6">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-4 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                        Interactive Vector Simulator</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 4</span>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                    
+                    <!-- Left Column: Controls (5 Cols) -->
+                    <div class="lg:col-span-5 space-y-4 bg-amber-50/50 p-4 rounded-xl border border-amber-300">
+                        <h3 class="text-2xl font-bold text-inkRed font-heading border-b border-amber-200 pb-1">Vector Operations</h3>
+                        
+                        <div class="flex items-center space-x-2">
+                            <input type="number" id="sim-input" placeholder="Enter key (integer)" class="w-full bg-white border border-slate-300 rounded px-3 py-1.5 font-sans text-sm focus:outline-none focus:border-inkBlue">
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="simPushBack()" class="bg-blue-700 hover:bg-blue-800 text-white font-sans text-sm font-bold py-2 rounded shadow transition">Push Back</button>
+                            <button onclick="simPopBack()" class="bg-red-700 hover:bg-red-800 text-white font-sans text-sm font-bold py-2 rounded shadow transition">Pop Back</button>
+                        </div>
+
+                        <div class="flex justify-between items-center pt-2">
+                            <button onclick="simClear()" class="bg-slate-500 hover:bg-slate-600 text-white font-sans text-sm font-bold py-1.5 px-3 rounded shadow transition">Clear Vector</button>
+                        </div>
+
+                        <!-- Stats Dashboard -->
+                        <div class="bg-white border border-slate-300 rounded-lg p-3 space-y-1.5 shadow-sm text-base md:text-lg">
+                            <h4 class="font-bold text-inkBlue font-sans text-sm uppercase tracking-wider border-b border-slate-100 pb-1">Dynamic Dimensions</h4>
+                            <div class="flex justify-between">
+                                <span class="font-bold">Size (N):</span>
+                                <span id="lbl-size" class="font-sans font-bold text-slate-800">0</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="font-bold">Capacity (C):</span>
+                                <span id="lbl-capacity" class="font-sans font-bold text-slate-800">2</span>
+                            </div>
+                        </div>
+
+                        <!-- Status Log -->
+                        <div class="bg-white border border-slate-300 rounded-lg p-3 shadow-sm">
+                            <h4 class="font-bold text-pencilGray font-sans text-sm uppercase tracking-wider mb-1">Execution Trace:</h4>
+                            <p id="sim-status" class="text-base text-inkRed font-semibold min-h-[45px] leading-snug">Push elements to fill the capacity and trigger doubling.</p>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Canvas Output (7 Cols) -->
+                    <div class="lg:col-span-7 flex flex-col items-center">
+                        <div class="w-full bg-white border border-slate-300 rounded-lg shadow-md p-3 relative">
+                            <canvas id="simulator-canvas" style="width: 100%; height: 350px;"></canvas>
+                        </div>
+                        <span class="text-xs text-pencilGray mt-1.5 text-center block w-full font-sans italic">
+                            * Visual guides: <span class="text-emerald-700 font-bold">Green cells</span> contain stored values, <span class="text-amber-600 font-bold">Yellow/gray cells</span> represent unused pre-allocated capacity.
+                        </span>
+                    </div>
+
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- JavaScript Controllers -->
+    <script>
+        let isCleanFont = false;
+        
+        function toggleStyleMode() {
+            isCleanFont = !isCleanFont;
+            const body = document.body;
+            const styleBtn = document.getElementById('styleBtn');
+            if (isCleanFont) {
+                body.classList.remove('font-notes-body');
+                body.classList.add('font-clean');
+                styleBtn.innerText = "✍️ Switch to Handwritten Font";
+            } else {
+                body.classList.remove('font-clean');
+                body.classList.add('font-notes-body');
+                styleBtn.innerText = "✍️ Switch to Clean Print Font";
+            }
+            drawConceptDiagram();
+            drawStepCanvases();
+            drawSimulator();
+        }
+
+        let currentTab = 'definitions';
+        function switchTab(tabId) {
+            currentTab = tabId;
+            document.querySelectorAll('.tab-content').forEach(sec => {
+                sec.classList.remove('active');
+            });
+            document.getElementById('sec-' + tabId).classList.add('active');
+            
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('bg-amber-200', 'text-inkBlue', 'border-b-2', 'border-inkBlue');
+                tab.classList.add('text-gray-600', 'hover:text-inkBlue');
+            });
+            
+            const activeTab = document.getElementById('tab-' + tabId);
+            if (activeTab) {
+                activeTab.classList.remove('text-gray-600', 'hover:text-inkBlue');
+                activeTab.classList.add('bg-amber-200', 'text-inkBlue', 'border-b-2', 'border-inkBlue');
+            }
+            
+            setTimeout(() => {
+                if (tabId === 'definitions') drawConceptDiagram();
+                if (tabId === 'step-by-step') drawStepCanvases();
+                if (tabId === 'visualization') drawSimulator();
+            }, 50);
+        }
+
+        window.onresize = () => {
+            if (currentTab === 'definitions') drawConceptDiagram();
+            if (currentTab === 'step-by-step') drawStepCanvases();
+            if (currentTab === 'visualization') drawSimulator();
+        };
+
+        // Draw array blocks utility
+        function drawArrayBlocks(ctx, startX, startY, size, capacity, elements = [], highlightIndex = -1) {
+            const blockW = 45;
+            const blockH = 35;
+            const spacing = 4;
+            
+            ctx.font = isCleanFont ? 'bold 11px Inter' : 'bold 13px Kalam';
+            ctx.textBaseline = 'middle';
+            ctx.textAlign = 'center';
+
+            for (let i = 0; i < capacity; i++) {
+                const x = startX + i * (blockW + spacing);
+                const hasItem = i < size;
+
+                // Border and fill styling
+                ctx.lineWidth = 2;
+                if (i === highlightIndex) {
+                    ctx.fillStyle = '#FEF3C7'; // Yellow flash
+                    ctx.strokeStyle = '#D97706';
+                } else if (hasItem) {
+                    ctx.fillStyle = '#DEF7EC'; // Green background
+                    ctx.strokeStyle = '#03543F';
+                } else {
+                    ctx.fillStyle = '#F3F4F6'; // Gray empty capacity
+                    ctx.strokeStyle = '#9CA3AF';
+                }
+                
+                ctx.fillRect(x, startY, blockW, blockH);
+                ctx.strokeRect(x, startY, blockW, blockH);
+
+                // Value and Index label
+                if (hasItem && elements[i] !== undefined) {
+                    ctx.fillStyle = '#03543F';
+                    ctx.font = isCleanFont ? 'bold 13px Inter' : 'bold 15px Kalam';
+                    ctx.fillText(String(elements[i]), x + blockW/2, startY + blockH/2);
+                } else {
+                    ctx.fillStyle = '#9CA3AF';
+                    ctx.fillText('-', x + blockW/2, startY + blockH/2);
+                }
+
+                // Index labels underneath
+                ctx.fillStyle = '#4A5568';
+                ctx.font = isCleanFont ? 'bold 10px Inter' : 'bold 12px Kalam';
+                ctx.fillText(`[${i}]`, x + blockW/2, startY + blockH + 18);
+            }
+        }
+
+        /* ----------------------------------------------------------------------
+           TAB 1: CONCEPT DRAWING
+        ---------------------------------------------------------------------- */
+        function drawConceptDiagram() {
+            const canvas = document.getElementById('concept-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            
+            const width = canvas.parentElement.clientWidth || 400;
+            const height = 180;
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            ctx.scale(dpr, dpr);
+            
+            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = '#FCFBF9';
+            ctx.fillRect(0, 0, width, height);
+
+            ctx.fillStyle = '#1A365D';
+            ctx.font = isCleanFont ? 'bold 13px Inter' : 'bold 15px Kalam';
+            ctx.textAlign = 'left';
+            ctx.fillText("Elements (Size N = 3, Capacity C = 6):", 20, 45);
+
+            drawArrayBlocks(ctx, 20, 70, 3, 6, [10, 20, 30]);
+        }
+
+        /* ----------------------------------------------------------------------
+           TAB 2: STEP-BY-STEP CANVASES
+        ---------------------------------------------------------------------- */
+        function drawStepCanvases() {
+            // Step 1
+            const c1 = document.getElementById('step-canvas-1');
+            if (c1) {
+                const ctx = c1.getContext('2d');
+                const w = c1.parentElement.clientWidth || 400;
+                setupCanvas(c1, w, 110);
+                drawArrayBlocks(ctx, 30, 35, 1, 2, [10]);
+            }
+            // Step 2
+            const c2 = document.getElementById('step-canvas-2');
+            if (c2) {
+                const ctx = c2.getContext('2d');
+                const w = c2.parentElement.clientWidth || 400;
+                setupCanvas(c2, w, 110);
+                drawArrayBlocks(ctx, 30, 35, 2, 2, [10, 20]);
+            }
+            // Step 3
+            const c3 = document.getElementById('step-canvas-3');
+            if (c3) {
+                const ctx = c3.getContext('2d');
+                const w = c3.parentElement.clientWidth || 400;
+                setupCanvas(c3, w, 130);
+                ctx.fillStyle = '#9B2C2C';
+                ctx.font = isCleanFont ? 'bold 10px Inter' : 'bold 12px Kalam';
+                ctx.fillText("Old Memory block (Capacity 2) was deleted. All items copied to block below:", 30, 22);
+                drawArrayBlocks(ctx, 30, 50, 3, 4, [10, 20, 30]);
+            }
+        }
+
+        function setupCanvas(canvas, width, height) {
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            ctx.scale(dpr, dpr);
+            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = '#FCFBF9';
+            ctx.fillRect(0, 0, width, height);
+        }
+
+        /* ----------------------------------------------------------------------
+           TAB 4: SIMULATOR SYSTEM
+        ---------------------------------------------------------------------- */
+        const simVector = [15, 8];
+        let simCapacity = 2;
+        let recentHighlightIndex = -1;
+
+        function simPushBack() {
+            const input = document.getElementById('sim-input');
+            const val = parseInt(input.value);
+            const status = document.getElementById('sim-status');
+            
+            if (isNaN(val)) {
+                status.innerText = "⚠️ Please enter a valid integer.";
+                return;
+            }
+
+            let text = `Pushed back value: ${val}. `;
+            if (simVector.length === simCapacity) {
+                const oldCap = simCapacity;
+                simCapacity = simCapacity * 2;
+                text += `Capacity limit reached! Resized from ${oldCap} to ${simCapacity} slots. Doubled allocation block and copied elements.`;
+            } else {
+                text += "Element added directly into empty pre-allocated capacity slot.";
+            }
+
+            simVector.push(val);
+            recentHighlightIndex = simVector.length - 1;
+            status.innerText = text;
+            input.value = '';
+            
+            drawSimulator();
+            
+            setTimeout(() => {
+                recentHighlightIndex = -1;
+                drawSimulator();
+            }, 1500);
+        }
+
+        function simPopBack() {
+            const status = document.getElementById('sim-status');
+            if (simVector.length === 0) {
+                status.innerText = "⚠️ Vector is already empty.";
+                return;
+            }
+            const val = simVector.pop();
+            status.innerText = `Popped back element ${val}. Element removed, size decreases, but capacity remains at ${simCapacity}.`;
+            recentHighlightIndex = -1;
+            drawSimulator();
+        }
+
+        function simClear() {
+            simVector.length = 0;
+            simCapacity = 2;
+            recentHighlightIndex = -1;
+            document.getElementById('sim-status').innerText = "Vector cleared. Reinitialized capacity to 2.";
+            drawSimulator();
+        }
+
+        function drawSimulator() {
+            const canvas = document.getElementById('simulator-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            
+            const width = canvas.parentElement.clientWidth || 500;
+            const height = 350;
+            
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            ctx.scale(dpr, dpr);
+            
+            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = '#FCFBF9';
+            ctx.fillRect(0, 0, width, height);
+
+            ctx.fillStyle = '#1A365D';
+            ctx.font = isCleanFont ? 'bold 13px Inter' : 'bold 15px Kalam';
+            ctx.textAlign = 'left';
+            ctx.fillText("Dynamic Memory Blocks representation:", 20, 50);
+
+            // Center arrays if possible
+            const startX = 25;
+            drawArrayBlocks(ctx, startX, 90, simVector.length, simCapacity, simVector, recentHighlightIndex);
+
+            // Update stats
+            document.getElementById('lbl-size').innerText = simVector.length;
+            document.getElementById('lbl-capacity').innerText = simCapacity;
+        }
+
+        window.onload = () => {
+            drawConceptDiagram();
+            drawStepCanvases();
+            drawSimulator();
+        };
+    </script>
+</body>
+
+</html>

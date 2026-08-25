@@ -115,31 +115,7 @@ DAC(p) {
                         </div>
                     </div>
 
-                    <div class="border-t-2 border-dashed border-slate-300 pt-6 space-y-4">
-                        <h3 class="text-3xl font-bold text-inkRed underline">Dry Run Example: Building an AVL Tree</h3>
-                        <p>
-                            To maintain balance in binary search structures, AVL trees recalculate balance factors upon inserts. Below is the dry run for inserting:
-                            <span class="bg-white border border-slate-300 font-sans font-bold px-2 py-0.5 rounded">50, 30, 70, 25, 35, 62, 75</span>.
-                        </p>
-                        
-                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 my-4">
-                            <div class="space-y-2 text-xl bg-slate-50/60 p-4 rounded border border-slate-300">
-                                <ol class="list-decimal list-inside space-y-2">
-                                    <li><strong>Insert 50:</strong> Root node created (BF = 0).</li>
-                                    <li><strong>Insert 30:</strong> Left child of 50. BF of 50 becomes $1 - 0 = 1$.</li>
-                                    <li><strong>Insert 70:</strong> Right child of 50. BF of 50 becomes 0.</li>
-                                    <li><strong>Insert 25:</strong> Left child of 30. BF of 50 becomes $2 - 1 = 1$.</li>
-                                    <li><strong>Insert 35:</strong> Right child of 30. Tree remains balanced.</li>
-                                    <li><strong>Insert 62:</strong> Left child of 70. BF of 50 becomes $2 - 2 = 0$.</li>
-                                    <li><strong>Insert 75:</strong> Right child of 70. Balanced leaf level reached.</li>
-                                </ol>
-                            </div>
-                            <div class="flex flex-col items-center">
-                                <span class="text-lg text-pencilGray font-bold mb-2">Final AVL Tree Structure (BF shown inside):</span>
-                                <canvas id="avl-canvas" width="400" height="240" class="border border-slate-300 rounded bg-white shadow"></canvas>
-                            </div>
-                        </div>
-                    </div>
+
                 </div>
             </section>
 
@@ -155,9 +131,10 @@ DAC(p) {
                         Merge sort is a recursive algorithm that repeatedly divides a list in half until individual elements are isolated, then merges them back in sorted order.
                     </p>
 
-                    <div class="bg-amber-50/50 p-6 rounded-lg border border-amber-200 my-4 space-y-3">
-                        <h3 class="text-2xl font-bold text-inkBlue">Algorithm Definition:</h3>
-                        <pre class="font-sans text-lg bg-white p-3 rounded border border-slate-300">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 my-4">
+                        <div class="bg-amber-50/50 p-4 rounded-lg border border-amber-200 space-y-2">
+                            <h3 class="text-2xl font-bold text-inkBlue underline">MergeSort Algorithm:</h3>
+                            <pre class="font-sans text-base bg-white p-3 rounded border border-slate-300">
 Algorithm MergeSort(l, h) {
     if (l < h) {
         mid = (l + h) / 2;
@@ -166,16 +143,127 @@ Algorithm MergeSort(l, h) {
         Merge(l, mid, h);
     }
 }</pre>
+                        </div>
+                        <div class="bg-blue-50/50 p-4 rounded-lg border border-blue-200 space-y-2">
+                            <h3 class="text-2xl font-bold text-inkRed underline">Merge Algorithm:</h3>
+                            <pre class="font-sans text-xs bg-white p-3 rounded border border-slate-300">
+Algorithm Merge(l, mid, h) {
+    i = l; j = mid + 1; k = l;
+    while (i <= mid && j <= h) {
+        if (A[i] <= A[j]) {
+            B[k++] = A[i++];
+        } else {
+            B[k++] = A[j++];
+        }
+    }
+    for (; i <= mid; i++) B[k++] = A[i];
+    for (; j <= h; j++) B[k++] = A[j];
+    for (i = l; i <= h; i++) A[i] = B[i];
+}</pre>
+                        </div>
                     </div>
 
-                    <div class="space-y-4 pt-4 border-t border-dashed border-slate-300">
-                        <h3 class="text-3xl font-bold text-inkRed underline">Dry Run Example:</h3>
-                        <p>
-                            Sorting the array: <span class="bg-white border border-slate-300 font-sans font-bold px-2 py-0.5 rounded">[29, 13, 27, 25, 36, 54, 98, 20, 42]</span>.
+                    <div class="space-y-6 pt-4 border-t border-dashed border-slate-300">
+                        <h3 class="text-3xl font-bold text-inkRed underline">Dry Run Example: Step-by-Step Execution</h3>
+                        <p class="mb-4">
+                            Let's trace the execution of Merge Sort on the array: <span class="bg-white border border-slate-300 font-sans font-bold px-2 py-0.5 rounded">[29, 13, 27, 25, 36, 54, 98, 20, 42]</span>.
                         </p>
-                        <div class="flex flex-col items-center">
-                            <span class="text-lg text-pencilGray font-bold mb-2">Recursive Splitting & Merging Tree:</span>
-                            <canvas id="merge-canvas" width="650" height="320" class="border border-slate-300 bg-white rounded shadow max-w-full"></canvas>
+
+                        <!-- PHASE 1: SPLITTING -->
+                        <div class="space-y-4">
+                            <h4 class="text-2xl font-bold text-inkBlue">Phase 1: Top-Down Splitting (Division)</h4>
+                            <p class="text-lg text-pencilGray">
+                                The array is recursively split in half at each step until we get sub-arrays of size 1.
+                            </p>
+
+                            <!-- Split Step 1 -->
+                            <div class="bg-white/60 p-4 rounded border border-slate-200 flex flex-col md:flex-row items-center justify-between gap-4">
+                                <div class="flex-1 space-y-1">
+                                    <h5 class="text-xl font-bold text-inkRed">Step 1.1: Initial State</h5>
+                                    <p class="text-base">The unsorted array of size 9 is loaded into memory.</p>
+                                </div>
+                                <canvas id="merge-split-1" width="450" height="250" class="border border-slate-200 rounded bg-slate-50/50"></canvas>
+                            </div>
+
+                            <!-- Split Step 2 -->
+                            <div class="bg-white/60 p-4 rounded border border-slate-200 flex flex-col md:flex-row items-center justify-between gap-4">
+                                <div class="flex-1 space-y-1">
+                                    <h5 class="text-xl font-bold text-inkRed">Step 1.2: First Split</h5>
+                                    <p class="text-base">Split at index 4: Left half `[29, 13, 27, 25, 36]` and Right half `[54, 98, 20, 42]`.</p>
+                                </div>
+                                <canvas id="merge-split-2" width="450" height="250" class="border border-slate-200 rounded bg-slate-50/50"></canvas>
+                            </div>
+
+                            <!-- Split Step 3 -->
+                            <div class="bg-white/60 p-4 rounded border border-slate-200 flex flex-col md:flex-row items-center justify-between gap-4">
+                                <div class="flex-1 space-y-1">
+                                    <h5 class="text-xl font-bold text-inkRed">Step 1.3: Second Level Split</h5>
+                                    <p class="text-base">Left splits into `[29, 13, 27]` and `[25, 36]`. Right splits into `[54, 98]` and `[20, 42]`.</p>
+                                </div>
+                                <canvas id="merge-split-3" width="450" height="250" class="border border-slate-200 rounded bg-slate-50/50"></canvas>
+                            </div>
+
+                            <!-- Split Step 4 -->
+                            <div class="bg-white/60 p-4 rounded border border-slate-200 flex flex-col md:flex-row items-center justify-between gap-4">
+                                <div class="flex-1 space-y-1">
+                                    <h5 class="text-xl font-bold text-inkRed">Step 1.4: Third Level Split</h5>
+                                    <p class="text-base">Sub-arrays split further: `[29, 13]` & `[27]`, `[25]` & `[36]`, `[54]` & `[98]`, and `[20]` & `[42]`.</p>
+                                </div>
+                                <canvas id="merge-split-4" width="450" height="250" class="border border-slate-200 rounded bg-slate-50/50"></canvas>
+                            </div>
+
+                            <!-- Split Step 5 -->
+                            <div class="bg-white/60 p-4 rounded border border-slate-200 flex flex-col md:flex-row items-center justify-between gap-4">
+                                <div class="flex-1 space-y-1">
+                                    <h5 class="text-xl font-bold text-inkRed">Step 1.5: Deepest Split</h5>
+                                    <p class="text-base">All items are split into individual sorted elements of size 1 (singletons).</p>
+                                </div>
+                                <canvas id="merge-split-5" width="450" height="250" class="border border-slate-200 rounded bg-slate-50/50"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- PHASE 2: MERGING -->
+                        <div class="space-y-4 pt-4">
+                            <h4 class="text-2xl font-bold text-inkBlue">Phase 2: Bottom-Up Merging (Combine)</h4>
+                            <p class="text-lg text-pencilGray">
+                                Adjacent sorted sub-arrays are merged back together in ascending sorted order.
+                            </p>
+
+                            <!-- Merge Step 1 -->
+                            <div class="bg-white/60 p-4 rounded border border-slate-200 flex flex-col md:flex-row items-center justify-between gap-4">
+                                <div class="flex-1 space-y-1">
+                                    <h5 class="text-xl font-bold text-emerald-800">Step 2.1: First Level Merges</h5>
+                                    <p class="text-base">Merge singletons: `[29]` and `[13]` $\rightarrow$ `[13, 29]` (sorted). `[25]` and `[36]` $\rightarrow$ `[25, 36]` (sorted). `[54]` and `[98]` $\rightarrow$ `[54, 98]`. `[20]` and `[42]` $\rightarrow$ `[20, 42]`.</p>
+                                </div>
+                                <canvas id="merge-merge-1" width="450" height="250" class="border border-slate-200 rounded bg-slate-50/50"></canvas>
+                            </div>
+
+                            <!-- Merge Step 2 -->
+                            <div class="bg-white/60 p-4 rounded border border-slate-200 flex flex-col md:flex-row items-center justify-between gap-4">
+                                <div class="flex-1 space-y-1">
+                                    <h5 class="text-xl font-bold text-emerald-800">Step 2.2: Left Tree Merge</h5>
+                                    <p class="text-base">Merge left elements: `[13, 29]` and `[27]` $\rightarrow$ `[13, 27, 29]` (sorted).</p>
+                                </div>
+                                <canvas id="merge-merge-2" width="450" height="250" class="border border-slate-200 rounded bg-slate-50/50"></canvas>
+                            </div>
+
+                            <!-- Merge Step 3 -->
+                            <div class="bg-white/60 p-4 rounded border border-slate-200 flex flex-col md:flex-row items-center justify-between gap-4">
+                                <div class="flex-1 space-y-1">
+                                    <h5 class="text-xl font-bold text-emerald-800">Step 2.3: Sub-array Halves Merged</h5>
+                                    <p class="text-base">Merge sub-arrays: Left half `[13, 27, 29]` and `[25, 36]` $\rightarrow$ `[13, 25, 27, 29, 36]`. Right half `[54, 98]` and `[20, 42]` $\rightarrow$ `[20, 42, 54, 98]`.</p>
+                                </div>
+                                <canvas id="merge-merge-3" width="450" height="250" class="border border-slate-200 rounded bg-slate-50/50"></canvas>
+                            </div>
+
+                            <!-- Merge Step 4 -->
+                            <div class="bg-white/60 p-4 rounded border border-slate-200 flex flex-col md:flex-row items-center justify-between gap-4">
+                                <div class="flex-1 space-y-1">
+                                    <h5 class="text-xl font-bold text-emerald-800">Step 2.4: Final Merge</h5>
+                                    <p class="text-base">Merge both sorted halves `[13, 25, 27, 29, 36]` and `[20, 42, 54, 98]` to get the final sorted array.</p>
+                                </div>
+                                <canvas id="merge-merge-4" width="450" height="250" class="border border-slate-200 rounded bg-slate-50/50"></canvas>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -372,7 +460,6 @@ Partition(A, l, h) {
             // Redraw active tab canvas elements
             setTimeout(() => {
                 drawDacFlow();
-                drawAvlTree();
                 drawMergeSortTree();
                 drawQuickSortStepper();
                 calculateStrassen();
@@ -382,7 +469,6 @@ Partition(A, l, h) {
 
         window.onresize = () => {
             drawDacFlow();
-            drawAvlTree();
             drawMergeSortTree();
             drawQuickSortStepper();
             calculateStrassen();
@@ -461,136 +547,200 @@ Partition(A, l, h) {
             ctx.fillText("Combine", 245, 185);
         }
 
-        // -------------------------------------------------------------
-        // 1.5. AVL Balance Tree Canvas
-        // -------------------------------------------------------------
-        function drawAvlTree() {
-            const canvas = document.getElementById('avl-canvas');
-            if (!canvas) return;
-            const ctx = canvas.getContext('2d');
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // Define nodes coordinates
-            const nodes = [
-                { k: '50', x: 200, y: 35, bf: '0' },
-                { k: '30', x: 110, y: 95, bf: '0' },
-                { k: '70', x: 290, y: 95, bf: '0' },
-                { k: '25', x: 60, y: 165, bf: '0' },
-                { k: '35', x: 160, y: 165, bf: '0' },
-                { k: '62', x: 240, y: 165, bf: '0' },
-                { k: '75', x: 340, y: 165, bf: '0' }
-            ];
-            
-            ctx.strokeStyle = '#64748b';
-            ctx.lineWidth = 2;
-            
-            // Draw connections
-            ctx.beginPath();
-            ctx.moveTo(200, 35); ctx.lineTo(110, 95);
-            ctx.moveTo(200, 35); ctx.lineTo(290, 95);
-            ctx.moveTo(110, 95); ctx.lineTo(60, 165);
-            ctx.moveTo(110, 95); ctx.lineTo(160, 165);
-            ctx.moveTo(290, 95); ctx.lineTo(240, 165);
-            ctx.moveTo(290, 95); ctx.lineTo(340, 165);
-            ctx.stroke();
-            
-            // Draw node balls
-            nodes.forEach(n => {
-                ctx.fillStyle = '#eff6ff';
-                ctx.strokeStyle = '#1e3a8a';
-                ctx.beginPath();
-                ctx.arc(n.x, n.y, 20, 0, Math.PI*2);
-                ctx.fill();
-                ctx.stroke();
-                
-                ctx.fillStyle = '#1a365d';
-                ctx.font = 'bold 13px Inter';
-                ctx.textAlign = 'center';
-                ctx.fillText(n.k, n.x, n.y + 5);
-                
-                // Balance factors
-                ctx.fillStyle = '#b91c1c';
-                ctx.font = 'italic 10px Kalam';
-                ctx.fillText(`BF:${n.bf}`, n.x + 28, n.y - 12);
-            });
-        }
+
 
         // -------------------------------------------------------------
         // 2. Merge Sort Split Tree Canvas
         // -------------------------------------------------------------
-        function drawMergeSortTree() {
-            const canvas = document.getElementById('merge-canvas');
+        function drawMergeTreeState(canvasId, stepId) {
+            const canvas = document.getElementById(canvasId);
             if (!canvas) return;
             const ctx = canvas.getContext('2d');
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const w = canvas.width;
+            const h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
             
-            ctx.lineWidth = 1.5;
-            ctx.textAlign = 'center';
-            ctx.font = 'bold 11px Inter';
-            
-            // Draw splits blocks level by level
-            // Level 0: [29, 13, 27, 25, 36, 54, 98, 20, 42]
-            ctx.strokeStyle = '#1e3a8a'; ctx.fillStyle = '#eff6ff';
-            ctx.strokeRect(175, 10, 300, 24); ctx.fillRect(175, 10, 300, 24);
-            ctx.fillStyle = '#1a365d';
-            ctx.fillText("[29, 13, 27, 25, 36, 54, 98, 20, 42]", 325, 26);
-            
-            // Level 1: Left [29, 13, 27, 25, 36] and Right [54, 98, 20, 42]
-            ctx.strokeStyle = '#1e3a8a'; ctx.fillStyle = '#eff6ff';
-            ctx.strokeRect(60, 60, 180, 24); ctx.fillRect(60, 60, 180, 24);
-            ctx.strokeRect(410, 60, 180, 24); ctx.fillRect(410, 60, 180, 24);
-            ctx.fillStyle = '#1a365d';
-            ctx.fillText("[29, 13, 27, 25, 36]", 150, 76);
-            ctx.fillText("[54, 98, 20, 42]", 500, 76);
-            
-            // Level 2: LeftSplits [29, 13, 27], [25, 36]  RightSplits [54, 98], [20, 42]
-            ctx.strokeRect(20, 110, 100, 24); ctx.fillRect(20, 110, 100, 24);
-            ctx.strokeRect(170, 110, 80, 24); ctx.fillRect(170, 110, 80, 24);
-            ctx.strokeRect(380, 110, 80, 24); ctx.fillRect(380, 110, 80, 24);
-            ctx.strokeRect(510, 110, 80, 24); ctx.fillRect(510, 110, 80, 24);
-            ctx.fillStyle = '#1a365d';
-            ctx.fillText("[29, 13, 27]", 70, 126);
-            ctx.fillText("[25, 36]", 210, 126);
-            ctx.fillText("[54, 98]", 420, 126);
-            ctx.fillText("[20, 42]", 550, 126);
+            // Nodes data with coordinates structured as a binary tree
+            const nodes = [
+                { id: 0, arr: [29, 13, 27, 25, 36, 54, 98, 20, 42], sortedArr: [13, 20, 25, 27, 29, 36, 42, 54, 98], x: 225, y: 15, parent: null },
+                { id: 1, arr: [29, 13, 27, 25, 36], sortedArr: [13, 25, 27, 29, 36], x: 120, y: 65, parent: 0 },
+                { id: 2, arr: [54, 98, 20, 42], sortedArr: [20, 42, 54, 98], x: 330, y: 65, parent: 0 },
+                { id: 3, arr: [29, 13, 27], sortedArr: [13, 27, 29], x: 65, y: 115, parent: 1 },
+                { id: 4, arr: [25, 36], sortedArr: [25, 36], x: 175, y: 115, parent: 1 },
+                { id: 5, arr: [54, 98], sortedArr: [54, 98], x: 275, y: 115, parent: 2 },
+                { id: 6, arr: [20, 42], sortedArr: [20, 42], x: 385, y: 115, parent: 2 },
+                { id: 7, arr: [29, 13], sortedArr: [13, 29], x: 35, y: 165, parent: 3 },
+                { id: 8, arr: [27], sortedArr: [27], x: 95, y: 165, parent: 3 },
+                { id: 9, arr: [25], sortedArr: [25], x: 145, y: 165, parent: 4 },
+                { id: 10, arr: [36], sortedArr: [36], x: 205, y: 165, parent: 4 },
+                { id: 11, arr: [54], sortedArr: [54], x: 250, y: 165, parent: 5 },
+                { id: 12, arr: [98], sortedArr: [98], x: 300, y: 165, parent: 5 },
+                { id: 13, arr: [20], sortedArr: [20], x: 360, y: 165, parent: 6 },
+                { id: 14, arr: [42], sortedArr: [42], x: 415, y: 165, parent: 6 },
+                { id: 15, arr: [29], sortedArr: [29], x: 15, y: 215, parent: 7 },
+                { id: 16, arr: [13], sortedArr: [13], x: 55, y: 215, parent: 7 }
+            ];
 
-            // Level 3: Deep leaf splits
-            ctx.fillStyle = '#f8fafc';
-            ctx.strokeRect(10, 160, 30, 22); ctx.fillRect(10, 160, 30, 22);
-            ctx.strokeRect(50, 160, 30, 22); ctx.fillRect(50, 160, 30, 22);
-            ctx.strokeRect(95, 160, 30, 22); ctx.fillRect(95, 160, 30, 22);
-            ctx.fillStyle = '#475569';
-            ctx.fillText("29", 25, 175);
-            ctx.fillText("13", 65, 175);
-            ctx.fillText("27", 110, 175);
-            
-            // Connection splits lines
-            ctx.strokeStyle = '#94a3b8';
-            ctx.beginPath();
-            ctx.moveTo(325, 34); ctx.lineTo(150, 60);
-            ctx.moveTo(325, 34); ctx.lineTo(500, 60);
-            ctx.moveTo(150, 84); ctx.lineTo(70, 110);
-            ctx.moveTo(150, 84); ctx.lineTo(210, 110);
-            ctx.moveTo(500, 84); ctx.lineTo(420, 110);
-            ctx.moveTo(500, 84); ctx.lineTo(550, 110);
-            
-            ctx.moveTo(70, 134); ctx.lineTo(25, 160);
-            ctx.moveTo(70, 134); ctx.lineTo(65, 160);
-            ctx.moveTo(70, 134); ctx.lineTo(110, 160);
-            ctx.stroke();
-            
-            // Merging output bar below
-            ctx.fillStyle = '#ecfdf5'; ctx.strokeStyle = '#059669';
-            ctx.strokeRect(100, 260, 450, 30); ctx.fillRect(100, 260, 450, 30);
-            ctx.fillStyle = '#065f46';
-            ctx.font = 'bold 13px Inter';
-            ctx.fillText("Sorted Result: [13, 20, 27, 25, 29, 36, 42, 54, 98]", 325, 280);
-            
-            ctx.strokeStyle = '#059669';
-            ctx.beginPath();
-            ctx.moveTo(25, 182); ctx.quadraticCurveTo(100, 240, 220, 260);
-            ctx.moveTo(110, 182); ctx.quadraticCurveTo(150, 230, 260, 260);
-            ctx.stroke();
+            let nodeStates = {};
+            nodes.forEach(n => nodeStates[n.id] = 'inactive');
+
+            if (stepId === 's11') {
+                nodeStates[0] = 'active';
+                for(let i=1; i<nodes.length; i++) nodeStates[i] = 'hidden';
+            } else if (stepId === 's12') {
+                nodeStates[0] = 'completed';
+                nodeStates[1] = 'active';
+                nodeStates[2] = 'active';
+                for(let i=3; i<nodes.length; i++) nodeStates[i] = 'hidden';
+            } else if (stepId === 's13') {
+                nodeStates[0] = 'completed';
+                nodeStates[1] = 'completed';
+                nodeStates[2] = 'completed';
+                nodeStates[3] = 'active';
+                nodeStates[4] = 'active';
+                nodeStates[5] = 'active';
+                nodeStates[6] = 'active';
+                for(let i=7; i<nodes.length; i++) nodeStates[i] = 'hidden';
+            } else if (stepId === 's14') {
+                for(let i=0; i<7; i++) nodeStates[i] = 'completed';
+                for(let i=7; i<15; i++) nodeStates[i] = 'active';
+                nodeStates[15] = 'hidden';
+                nodeStates[16] = 'hidden';
+            } else if (stepId === 's15') {
+                for(let i=0; i<15; i++) nodeStates[i] = 'completed';
+                nodeStates[15] = 'active';
+                nodeStates[16] = 'active';
+            } else if (stepId === 's21') {
+                for(let i=0; i<nodes.length; i++) nodeStates[i] = 'completed';
+                nodeStates[7] = 'merged';
+                nodeStates[4] = 'merged';
+                nodeStates[5] = 'merged';
+                nodeStates[6] = 'merged';
+                nodeStates[15] = 'inactive';
+                nodeStates[16] = 'inactive';
+                nodeStates[9] = 'inactive';
+                nodeStates[10] = 'inactive';
+                nodeStates[11] = 'inactive';
+                nodeStates[12] = 'inactive';
+                nodeStates[13] = 'inactive';
+                nodeStates[14] = 'inactive';
+            } else if (stepId === 's22') {
+                for(let i=0; i<nodes.length; i++) nodeStates[i] = 'completed';
+                nodeStates[3] = 'merged';
+                nodeStates[7] = 'inactive';
+                nodeStates[8] = 'inactive';
+                nodeStates[15] = 'inactive'; nodeStates[16] = 'inactive';
+            } else if (stepId === 's23') {
+                for(let i=0; i<nodes.length; i++) nodeStates[i] = 'completed';
+                nodeStates[1] = 'merged';
+                nodeStates[2] = 'merged';
+                nodeStates[3] = 'inactive'; nodeStates[4] = 'inactive';
+                nodeStates[5] = 'inactive'; nodeStates[6] = 'inactive';
+                nodeStates[7] = 'inactive'; nodeStates[8] = 'inactive';
+                nodeStates[9] = 'inactive'; nodeStates[10] = 'inactive';
+                nodeStates[11] = 'inactive'; nodeStates[12] = 'inactive';
+                nodeStates[13] = 'inactive'; nodeStates[14] = 'inactive';
+                nodeStates[15] = 'inactive'; nodeStates[16] = 'inactive';
+            } else if (stepId === 's24') {
+                for(let i=0; i<nodes.length; i++) nodeStates[i] = 'inactive';
+                nodeStates[0] = 'merged';
+            }
+
+            // Draw connection lines
+            ctx.strokeStyle = '#cbd5e1';
+            ctx.lineWidth = 1.5;
+            nodes.forEach(n => {
+                if (n.parent !== null) {
+                    const parentNode = nodes.find(p => p.id === n.parent);
+                    const parentState = nodeStates[parentNode.id];
+                    const childState = nodeStates[n.id];
+                    
+                    if (parentState !== 'hidden' && childState !== 'hidden') {
+                        ctx.beginPath();
+                        ctx.moveTo(parentNode.x + 15, parentNode.y + 15);
+                        ctx.lineTo(n.x + 15, n.y + 15);
+                        ctx.stroke();
+                    }
+                }
+            });
+
+            // Draw nodes
+            nodes.forEach(n => {
+                const state = nodeStates[n.id];
+                if (state === 'hidden') return;
+                
+                const isSorted = (state === 'merged' || state === 'completed' || stepId.startsWith('s2'));
+                const currentArr = isSorted ? n.sortedArr : n.arr;
+                
+                const cellW = 20;
+                const cellH = 24;
+                const totalW = currentArr.length * cellW;
+                
+                const nx = n.x - totalW / 2 + 15;
+                const ny = n.y;
+                
+                let fill = '#eff6ff';
+                let stroke = '#1e3a8a';
+                let textFill = '#1e293b';
+                
+                if (state === 'active') {
+                    fill = '#fef3c7'; // Active warning amber
+                    stroke = '#d97706';
+                    textFill = '#92400e';
+                    
+                    // Glow pulse
+                    ctx.strokeStyle = '#fbbf24';
+                    ctx.lineWidth = 3;
+                    ctx.strokeRect(nx - 3, ny - 3, totalW + 6, cellH + 6);
+                } else if (state === 'merged') {
+                    fill = '#dcfce7'; // Merged success green
+                    stroke = '#15803d';
+                    textFill = '#166534';
+                    
+                    // Draw merge arrows pointing up from kids
+                    ctx.strokeStyle = '#15803d';
+                    ctx.lineWidth = 2;
+                    const children = nodes.filter(c => c.parent === n.id);
+                    children.forEach(c => {
+                        if (nodeStates[c.id] === 'inactive') {
+                            ctx.beginPath();
+                            ctx.moveTo(c.x + 15, c.y - 2);
+                            ctx.lineTo(n.x + 15, n.y + cellH + 2);
+                            ctx.stroke();
+                        }
+                    });
+                } else if (state === 'inactive') {
+                    fill = '#f1f5f9'; // Inactive muted gray
+                    stroke = '#cbd5e1';
+                    textFill = '#94a3b8';
+                }
+                
+                ctx.lineWidth = 1.5;
+                currentArr.forEach((val, idx) => {
+                    const cx = nx + idx * cellW;
+                    ctx.fillStyle = fill;
+                    ctx.strokeStyle = stroke;
+                    ctx.fillRect(cx, ny, cellW, cellH);
+                    ctx.strokeRect(cx, ny, cellW, cellH);
+                    
+                    ctx.fillStyle = textFill;
+                    ctx.font = 'bold 11px Inter';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(val, cx + cellW/2, ny + 15);
+                });
+            });
+        }
+
+        function drawMergeSortTree() {
+            drawMergeTreeState('merge-split-1', 's11');
+            drawMergeTreeState('merge-split-2', 's12');
+            drawMergeTreeState('merge-split-3', 's13');
+            drawMergeTreeState('merge-split-4', 's14');
+            drawMergeTreeState('merge-split-5', 's15');
+            drawMergeTreeState('merge-merge-1', 's21');
+            drawMergeTreeState('merge-merge-2', 's22');
+            drawMergeTreeState('merge-merge-3', 's23');
+            drawMergeTreeState('merge-merge-4', 's24');
         }
 
         // -------------------------------------------------------------

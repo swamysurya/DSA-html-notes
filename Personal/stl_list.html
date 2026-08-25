@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STL Containers: std::list - Digital Lecture Notes</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Kalam:wght@300;400;700&family=Patrick+Hand&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        notebookBg: '#cbd5e1',
+                        notebookPaper: '#FAF6EE',
+                        inkBlue: '#1A365D',
+                        inkRed: '#9B2C2C',
+                        pencilGray: '#4A5568',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Shared Notebook Styles -->
+    <link rel="stylesheet" href="../notebook.css">
+    
+    <style>
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+
+<body class="font-notes-body text-2xl text-slate-800 antialiased transition-all duration-300">
+
+    <!-- Sticky Header -->
+    <header class="sticky top-0 z-50 bg-[#FAF6EE] shadow-md border-b-2 border-amber-200 px-4 py-3 no-print">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-3">
+            <div class="flex items-center space-x-3">
+                <span class="text-3xl font-bold text-inkBlue tracking-wide font-heading">📖 STL: std::list (Doubly Linked)</span>
+                <span class="bg-purple-100 text-purple-800 text-xs font-bold px-2.5 py-1 rounded-full border border-purple-300 font-sans uppercase">STL Containers</span>
+            </div>
+            <button id="styleBtn" onclick="toggleStyleMode()" class="px-4 py-1.5 rounded-full text-sm font-bold bg-inkBlue text-white hover:bg-opacity-90 transition font-sans shadow-sm">
+                ✍️ Switch to Clean Print Font
+            </button>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <nav class="max-w-6xl mx-auto mt-3 flex flex-wrap gap-1 border-t border-amber-200 pt-2 text-base md:text-lg">
+            <button onclick="switchTab('definitions')" id="tab-definitions" class="nav-tab px-4 py-2 rounded-t-lg font-bold bg-amber-200 text-inkBlue border-b-2 border-inkBlue">
+                1. Definitions & Concepts
+            </button>
+            <button onclick="switchTab('step-by-step')" id="tab-step-by-step" class="nav-tab px-4 py-2 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
+                2. Step-by-Step Insert
+            </button>
+            <button onclick="switchTab('complexity')" id="tab-complexity" class="nav-tab px-4 py-2 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
+                3. Complexity & Methods
+            </button>
+            <button onclick="switchTab('visualization')" id="tab-visualization" class="nav-tab px-4 py-2 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
+                4. Interactive Simulator
+            </button>
+        </nav>
+    </header>
+
+    <!-- Main Notebook Container -->
+    <main class="max-w-6xl mx-auto flex relative bg-notebookPaper rounded-xl shadow-2xl overflow-hidden min-h-[900px] border border-amber-200 my-8">
+        
+        <!-- Left Binder Column -->
+        <div class="w-10 sm:w-16 bg-amber-50 border-r-2 border-amber-200 flex flex-col items-center py-8 select-none shrink-0 no-print space-y-6 z-10 shadow-[inset_-5px_0_10px_rgba(0,0,0,0.05)]">
+            <script>
+                for (let i = 0; i < 40; i++) document.write('<div class="spiral-ring"></div>');
+            </script>
+        </div>
+
+        <!-- Notebook Content Area -->
+        <div class="flex-1 lined-paper p-4 sm:p-8 notebook-margin sm:pl-8 overflow-hidden z-0">
+
+            <!-- TAB 1: DEFINITIONS & CONCEPTS -->
+            <section id="sec-definitions" class="tab-content active space-y-8">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                        Doubly Linked Lists & Linked Memory</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 1</span>
+                </div>
+
+                <div class="space-y-6">
+                    <div>
+                        <h3 class="text-3xl font-bold text-inkRed font-heading pen-underline mb-2">What is std::list?</h3>
+                        <p class="leading-relaxed">
+                            In C++, <code class="bg-amber-100 px-1 rounded text-slate-900 font-sans text-lg font-semibold">std::list</code> is a sequence container implemented as a **Doubly Linked List**. Unlike vectors, list elements are stored in non-contiguous blocks of memory (scattered throughout the heap). Nodes are connected through explicit memory pointers.
+                        </p>
+                    </div>
+
+                    <div class="note-box p-5 space-y-3">
+                        <h4 class="text-2xl font-bold text-inkBlue font-heading">🔑 Node Structure & Pointers</h4>
+                        <p class="text-xl">
+                            Each element in a doubly linked list is wrapped in a **Node** structure containing:
+                        </p>
+                        <ul class="list-disc list-inside space-y-2 text-xl ml-4">
+                            <li><strong>Data:</strong> The actual stored value.</li>
+                            <li><strong>Next Pointer:</strong> A pointer to the next node in the list (or NIL if it is the tail).</li>
+                            <li><strong>Prev Pointer:</strong> A pointer to the previous node in the list (or NIL if it is the head).</li>
+                        </ul>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-center my-6">
+                        <div class="space-y-4">
+                            <h3 class="text-2xl font-bold text-inkRed font-heading pen-underline">No Random Access</h3>
+                            <p class="text-xl leading-relaxed">
+                                Because memory is non-contiguous, we cannot perform address arithmetic to find an element in O(1) time. Finding element `[i]` requires starting at the head (or tail) and sequentially traversing pointer links, taking **O(N)** time.
+                            </p>
+                            <p class="text-xl leading-relaxed">
+                                However, if we already hold a pointer to a node, insertion or deletion takes strictly **O(1)** time since it only requires swapping four pointers.
+                            </p>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <span class="text-sm font-sans font-bold text-pencilGray mb-1">Conceptual Node Connections:</span>
+                            <canvas id="concept-canvas" class="border border-slate-300 rounded bg-white shadow-sm" style="width: 100%; height: 180px;"></canvas>
+                            <span class="text-xs text-pencilGray mt-1">Bidirectional pointer lines link nodes dynamically.</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 2: STEP-BY-STEP EXAMPLE -->
+            <section id="sec-step-by-step" class="tab-content space-y-8">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                        Step-by-Step Middle Insertion</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 2</span>
+                </div>
+
+                <div class="space-y-6">
+                    <p class="leading-relaxed">
+                        Let us trace inserting node **15** in the middle of a doubly linked list containing elements **10** and **20** (linked as <span class="bg-blue-50 px-2 py-0.5 rounded text-sm font-sans font-bold">10 &harr; 20</span>).
+                    </p>
+
+                    <div class="space-y-8 border-l-4 border-dashed border-amber-300 pl-4 py-2">
+                        
+                        <!-- Step 1 -->
+                        <div class="space-y-2 break-inside-avoid">
+                            <h3 class="text-2xl font-bold text-inkRed font-heading">Step 1: Current State</h3>
+                            <p class="text-lg">
+                                Node 10 points forward to 20. Node 20 points backward to 10.
+                            </p>
+                            <div class="bg-white border border-slate-300 rounded p-2 max-w-xl shadow-sm">
+                                <canvas id="step-canvas-1" class="w-full"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Step 2 -->
+                        <div class="space-y-2 break-inside-avoid">
+                            <h3 class="text-2xl font-bold text-inkRed font-heading">Step 2: Allocate Node 15</h3>
+                            <p class="text-lg">
+                                &bull; Allocate node 15 in memory.<br>
+                                &bull; Point 15's `prev` pointer to 10, and 15's `next` pointer to 20. Nodes 10 and 20 are not modified yet.
+                            </p>
+                            <div class="bg-white border border-slate-300 rounded p-2 max-w-xl shadow-sm">
+                                <canvas id="step-canvas-2" class="w-full"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Step 3 -->
+                        <div class="space-y-2 break-inside-avoid">
+                            <h3 class="text-2xl font-bold text-inkRed font-heading">Step 3: Redirect Pointers (Insertion complete)</h3>
+                            <p class="text-lg">
+                                &bull; Redirect 10's `next` pointer to 15.<br>
+                                &bull; Redirect 20's `prev` pointer to 15.<br>
+                                &bull; The list is now linked as: <span class="bg-blue-50 px-2 py-0.5 rounded text-sm font-sans font-bold">10 &harr; 15 &harr; 20</span>.
+                            </p>
+                            <div class="bg-white border border-slate-300 rounded p-2 max-w-xl shadow-sm">
+                                <canvas id="step-canvas-3" class="w-full"></canvas>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 3: COMPLEXITY & METHODS -->
+            <section id="sec-complexity" class="tab-content space-y-8">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                        List Methods & Complexity Analysis</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 3</span>
+                </div>
+
+                <div class="space-y-6">
+                    <h3 class="text-3xl font-bold text-inkRed font-heading pen-underline">Primary std::list Operations</h3>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse border-2 border-slate-400 bg-white/95 text-base md:text-lg">
+                            <thead>
+                                <tr class="bg-blue-900 text-white font-sans text-sm uppercase">
+                                    <th class="p-3 border border-slate-400">Method</th>
+                                    <th class="p-3 border border-slate-400">Description</th>
+                                    <th class="p-3 border border-slate-400">Average Time</th>
+                                    <th class="p-3 border border-slate-400">Worst-Case Time</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-slate-900">
+                                <tr>
+                                    <td class="p-3 border border-slate-400 font-bold font-sans text-sm"><code class="bg-slate-100 px-1 rounded text-purple-900">push_front(val)</code> / <code class="bg-slate-100 px-1 rounded text-purple-900">push_back(val)</code></td>
+                                    <td class="p-3 border border-slate-400">Inserts at front/end. Direct pointer manipulation.</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-emerald-700">O(1)</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-emerald-700">O(1)</td>
+                                </tr>
+                                <tr class="bg-slate-50/50">
+                                    <td class="p-3 border border-slate-400 font-bold font-sans text-sm"><code class="bg-slate-100 px-1 rounded text-purple-900">pop_front()</code> / <code class="bg-slate-100 px-1 rounded text-purple-900">pop_back()</code></td>
+                                    <td class="p-3 border border-slate-400">Removes from front/end and deletes node block.</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-emerald-700">O(1)</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-emerald-700">O(1)</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 border border-slate-400 font-bold font-sans text-sm"><code class="bg-slate-100 px-1 rounded text-purple-900">insert(iterator, val)</code></td>
+                                    <td class="p-3 border border-slate-400">Inserts value *before* iterator position.</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-emerald-700">O(1)</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-emerald-700">O(1)</td>
+                                </tr>
+                                <tr class="bg-slate-50/50">
+                                    <td class="p-3 border border-slate-400 font-bold font-sans text-sm"><code class="bg-slate-100 px-1 rounded text-purple-900">erase(iterator)</code></td>
+                                    <td class="p-3 border border-slate-400">Removes element at iterator position.</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-emerald-700">O(1)</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-emerald-700">O(1)</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 border border-slate-400 font-bold font-sans text-sm"><code class="bg-slate-100 px-1 rounded text-purple-900">find(val)</code></td>
+                                    <td class="p-3 border border-slate-400">Traverses list node by node to search value.</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-red-700">O(N)</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-red-700">O(N)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="note-box p-4 space-y-2 mt-4">
+                        <h4 class="text-2xl font-bold text-inkRed font-heading">📝 Advantages & Drawbacks:</h4>
+                        <ul class="list-disc list-inside space-y-1 text-lg">
+                            <li><strong>Efficient Insert/Erase:</strong> No shifting of elements is ever required, unlike vectors. This avoids large memory reallocations.</li>
+                            <li><strong>Iterators Stability:</strong> Adding or removing items does not invalidate pointers to other nodes.</li>
+                            <li><strong>Poor Cache Locality:</strong> Since nodes are scattered in memory, traversing lists results in frequent CPU cache misses, making them slower in practice than vectors for iteration.</li>
+                            <li><strong>Space Overhead:</strong> Each node consumes extra memory for two pointer variables (`prev` and `next`), typically 16 bytes overhead per element.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 4: INTERACTIVE VISUALIZATION -->
+            <section id="sec-visualization" class="tab-content space-y-6">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-4 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                        Interactive Doubly Linked List Simulator</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 4</span>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                    
+                    <!-- Left Column: Controls (5 Cols) -->
+                    <div class="lg:col-span-5 space-y-4 bg-amber-50/50 p-4 rounded-xl border border-amber-300">
+                        <h3 class="text-2xl font-bold text-inkRed font-heading border-b border-amber-200 pb-1">List Operations</h3>
+                        
+                        <div class="flex items-center space-x-2">
+                            <input type="number" id="sim-input" placeholder="Enter value (integer)" class="w-full bg-white border border-slate-300 rounded px-3 py-1.5 font-sans text-sm focus:outline-none focus:border-inkBlue">
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="simPushBack()" class="bg-blue-700 hover:bg-blue-800 text-white font-sans text-sm font-bold py-2 rounded shadow transition">Push Back</button>
+                            <button onclick="simPushFront()" class="bg-blue-700 hover:bg-blue-800 text-white font-sans text-sm font-bold py-2 rounded shadow transition">Push Front</button>
+                            <button onclick="simPopBack()" class="bg-red-700 hover:bg-red-800 text-white font-sans text-sm font-bold py-2 rounded shadow transition">Pop Back</button>
+                            <button onclick="simPopFront()" class="bg-red-700 hover:bg-red-800 text-white font-sans text-sm font-bold py-2 rounded shadow transition">Pop Front</button>
+                        </div>
+
+                        <div class="flex justify-between items-center pt-2">
+                            <button onclick="simClear()" class="bg-slate-500 hover:bg-slate-600 text-white font-sans text-sm font-bold py-1.5 px-3 rounded shadow transition">Clear List</button>
+                        </div>
+
+                        <!-- Stats Dashboard -->
+                        <div class="bg-white border border-slate-300 rounded-lg p-3 space-y-1.5 shadow-sm text-base md:text-lg">
+                            <h4 class="font-bold text-inkBlue font-sans text-sm uppercase tracking-wider border-b border-slate-100 pb-1">List Info</h4>
+                            <div class="flex justify-between">
+                                <span class="font-bold">Elements count (N):</span>
+                                <span id="lbl-size" class="font-sans font-bold text-slate-800">0</span>
+                            </div>
+                        </div>
+
+                        <!-- Status Log -->
+                        <div class="bg-white border border-slate-300 rounded-lg p-3 shadow-sm">
+                            <h4 class="font-bold text-pencilGray font-sans text-sm uppercase tracking-wider mb-1">Execution Trace:</h4>
+                            <p id="sim-status" class="text-base text-inkRed font-semibold min-h-[45px] leading-snug">Insert values to watch pointers link dynamically.</p>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Canvas Output (7 Cols) -->
+                    <div class="lg:col-span-7 flex flex-col items-center">
+                        <div class="w-full bg-white border border-slate-300 rounded-lg shadow-md p-3 relative">
+                            <canvas id="simulator-canvas" style="width: 100%; height: 350px;"></canvas>
+                        </div>
+                        <span class="text-xs text-pencilGray mt-1.5 text-center block w-full font-sans italic">
+                            * Visual guides: Node cells represent `[prev | data | next]`. Bidirectional arrows connect adjacent nodes.
+                        </span>
+                    </div>
+
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- JavaScript Controllers -->
+    <script>
+        let isCleanFont = false;
+        
+        function toggleStyleMode() {
+            isCleanFont = !isCleanFont;
+            const body = document.body;
+            const styleBtn = document.getElementById('styleBtn');
+            if (isCleanFont) {
+                body.classList.remove('font-notes-body');
+                body.classList.add('font-clean');
+                styleBtn.innerText = "✍️ Switch to Handwritten Font";
+            } else {
+                body.classList.remove('font-clean');
+                body.classList.add('font-notes-body');
+                styleBtn.innerText = "✍️ Switch to Clean Print Font";
+            }
+            drawConceptDiagram();
+            drawStepCanvases();
+            drawSimulator();
+        }
+
+        let currentTab = 'definitions';
+        function switchTab(tabId) {
+            currentTab = tabId;
+            document.querySelectorAll('.tab-content').forEach(sec => {
+                sec.classList.remove('active');
+            });
+            document.getElementById('sec-' + tabId).classList.add('active');
+            
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('bg-amber-200', 'text-inkBlue', 'border-b-2', 'border-inkBlue');
+                tab.classList.add('text-gray-600', 'hover:text-inkBlue');
+            });
+            
+            const activeTab = document.getElementById('tab-' + tabId);
+            if (activeTab) {
+                activeTab.classList.remove('text-gray-600', 'hover:text-inkBlue');
+                activeTab.classList.add('bg-amber-200', 'text-inkBlue', 'border-b-2', 'border-inkBlue');
+            }
+            
+            setTimeout(() => {
+                if (tabId === 'definitions') drawConceptDiagram();
+                if (tabId === 'step-by-step') drawStepCanvases();
+                if (tabId === 'visualization') drawSimulator();
+            }, 50);
+        }
+
+        window.onresize = () => {
+            if (currentTab === 'definitions') drawConceptDiagram();
+            if (currentTab === 'step-by-step') drawStepCanvases();
+            if (currentTab === 'visualization') drawSimulator();
+        };
+
+        // Draw bidirection arrow helper
+        function drawDoubleArrow(ctx, x1, y1, x2, y2) {
+            const headlen = 5;
+            ctx.strokeStyle = '#1A365D';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(x1, y1 - 2);
+            ctx.lineTo(x2, y1 - 2);
+            ctx.stroke();
+
+            // Right head
+            ctx.fillStyle = '#1A365D';
+            ctx.beginPath();
+            ctx.moveTo(x2, y1 - 2);
+            ctx.lineTo(x2 - headlen, y1 - 2 - headlen/1.3);
+            ctx.lineTo(x2 - headlen, y1 - 2 + headlen/1.3);
+            ctx.fill();
+
+            // Left arrow (lower line)
+            ctx.beginPath();
+            ctx.moveTo(x2, y1 + 2);
+            ctx.lineTo(x1, y1 + 2);
+            ctx.stroke();
+
+            // Left head
+            ctx.beginPath();
+            ctx.moveTo(x1, y1 + 2);
+            ctx.lineTo(x1 + headlen, y1 + 2 - headlen/1.3);
+            ctx.lineTo(x1 + headlen, y1 + 2 + headlen/1.3);
+            ctx.fill();
+        }
+
+        // Draw node block
+        function drawListNode(ctx, x, y, value, isHighlighted = false) {
+            const width = 64;
+            const height = 24;
+            
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = '#1A365D';
+            ctx.fillStyle = isHighlighted ? '#FEF3C7' : '#FFFFFF';
+            ctx.fillRect(x, y, width, height);
+            ctx.strokeRect(x, y, width, height);
+
+            // Sub divisions
+            ctx.beginPath();
+            ctx.moveTo(x + 18, y);
+            ctx.lineTo(x + 18, y + height);
+            ctx.moveTo(x + width - 18, y);
+            ctx.lineTo(x + width - 18, y + height);
+            ctx.stroke();
+
+            // Inner data value
+            ctx.fillStyle = '#1A365D';
+            ctx.font = isCleanFont ? 'bold 12px Inter' : 'bold 14px Kalam';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(String(value), x + width/2, y + height/2);
+
+            // prev / next tags
+            ctx.fillStyle = '#9CA3AF';
+            ctx.font = '9px sans-serif';
+            ctx.fillText('P', x + 9, y + height/2);
+            ctx.fillText('N', x + width - 9, y + height/2);
+        }
+
+        /* ----------------------------------------------------------------------
+           TAB 1: CONCEPT DRAWING
+        ---------------------------------------------------------------------- */
+        function drawConceptDiagram() {
+            const canvas = document.getElementById('concept-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            
+            const width = canvas.parentElement.clientWidth || 400;
+            const height = 180;
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            ctx.scale(dpr, dpr);
+            
+            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = '#FCFBF9';
+            ctx.fillRect(0, 0, width, height);
+
+            // Draw three linked nodes: 10 <-> 20 <-> 30
+            const y = 80;
+            const spacing = 100;
+            const startX = 40;
+            
+            ctx.fillStyle = '#9B2C2C';
+            ctx.font = isCleanFont ? 'bold 11px Inter' : 'bold 13px Kalam';
+            ctx.fillText("NIL", startX - 25, y + 12);
+            ctx.fillText("NIL", startX + 2 * spacing + 64 + 10, y + 12);
+
+            // Links to NIL
+            ctx.strokeStyle = '#9B2C2C';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(startX, y + 12); ctx.lineTo(startX - 10, y + 12);
+            ctx.moveTo(startX + 2 * spacing + 64, y + 12); ctx.lineTo(startX + 2 * spacing + 64 + 10, y + 12);
+            ctx.stroke();
+
+            // Inter node connections
+            drawDoubleArrow(ctx, startX + 64, y + 12, startX + spacing, y + 12);
+            drawDoubleArrow(ctx, startX + 64 + spacing, y + 12, startX + 2 * spacing, y + 12);
+
+            drawListNode(ctx, startX, y, 10);
+            drawListNode(ctx, startX + spacing, y, 20);
+            drawListNode(ctx, startX + 2 * spacing, y, 30);
+        }
+
+        /* ----------------------------------------------------------------------
+           TAB 2: STEP-BY-STEP CANVASES
+        ---------------------------------------------------------------------- */
+        function drawStepCanvases() {
+            // Step 1: 10 <-> 20
+            const c1 = document.getElementById('step-canvas-1');
+            if (c1) {
+                const ctx = c1.getContext('2d');
+                const w = c1.parentElement.clientWidth || 400;
+                setupCanvas(c1, w, 110);
+                drawDoubleArrow(ctx, 50 + 64, 45, 50 + 100, 45);
+                drawListNode(ctx, 50, 33, 10);
+                drawListNode(ctx, 50 + 100, 33, 20);
+            }
+            // Step 2: Node 15 allocated separately
+            const c2 = document.getElementById('step-canvas-2');
+            if (c2) {
+                const ctx = c2.getContext('2d');
+                const w = c2.parentElement.clientWidth || 400;
+                setupCanvas(c2, w, 140);
+                // 10 <-> 20
+                drawDoubleArrow(ctx, 50 + 64, 30, 50 + 120, 30);
+                drawListNode(ctx, 50, 18, 10);
+                drawListNode(ctx, 50 + 120, 18, 20);
+
+                // Newly allocated node 15 below
+                drawListNode(ctx, 50 + 60, 80, 15, true);
+                
+                // Temp pointers pointing up
+                ctx.strokeStyle = '#9B2C2C';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(50 + 60, 80 + 12); ctx.lineTo(50 + 35, 18 + 24);
+                ctx.moveTo(50 + 60 + 64, 80 + 12); ctx.lineTo(50 + 120 + 20, 18 + 24);
+                ctx.stroke();
+            }
+            // Step 3: Inserted complete
+            const c3 = document.getElementById('step-canvas-3');
+            if (c3) {
+                const ctx = c3.getContext('2d');
+                const w = c3.parentElement.clientWidth || 400;
+                setupCanvas(c3, w, 110);
+                drawDoubleArrow(ctx, 50 + 64, 45, 50 + 95, 45);
+                drawDoubleArrow(ctx, 50 + 95 + 64, 45, 50 + 190, 45);
+                drawListNode(ctx, 50, 33, 10);
+                drawListNode(ctx, 50 + 95, 33, 15);
+                drawListNode(ctx, 50 + 190, 33, 20);
+            }
+        }
+
+        function setupCanvas(canvas, width, height) {
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            ctx.scale(dpr, dpr);
+            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = '#FCFBF9';
+            ctx.fillRect(0, 0, width, height);
+        }
+
+        /* ----------------------------------------------------------------------
+           TAB 4: SIMULATOR SYSTEM
+        ---------------------------------------------------------------------- */
+        const simList = [10, 20, 30];
+        let recentHighlightVal = null;
+
+        function simPushBack() {
+            const input = document.getElementById('sim-input');
+            const val = parseInt(input.value);
+            const status = document.getElementById('sim-status');
+            
+            if (isNaN(val)) {
+                status.innerText = "⚠️ Please enter a valid integer.";
+                return;
+            }
+
+            simList.push(val);
+            recentHighlightVal = val;
+            status.innerText = `Pushed node ${val} to back. Allocation created, next pointer of previous tail redirected, new node's prev pointed to tail.`;
+            input.value = '';
+            drawSimulator();
+        }
+
+        function simPushFront() {
+            const input = document.getElementById('sim-input');
+            const val = parseInt(input.value);
+            const status = document.getElementById('sim-status');
+            
+            if (isNaN(val)) {
+                status.innerText = "⚠️ Please enter a valid integer.";
+                return;
+            }
+
+            simList.unshift(val);
+            recentHighlightVal = val;
+            status.innerText = `Pushed node ${val} to front. Allocation created, old head's prev redirected, new node's next pointed to old head.`;
+            input.value = '';
+            drawSimulator();
+        }
+
+        function simPopBack() {
+            const status = document.getElementById('sim-status');
+            if (simList.length === 0) {
+                status.innerText = "⚠️ List is already empty.";
+                return;
+            }
+            const val = simList.pop();
+            status.innerText = `Popped back node ${val}. Allocated memory freed, new tail's next pointer redirected to NIL.`;
+            recentHighlightVal = null;
+            drawSimulator();
+        }
+
+        function simPopFront() {
+            const status = document.getElementById('sim-status');
+            if (simList.length === 0) {
+                status.innerText = "⚠️ List is already empty.";
+                return;
+            }
+            const val = simList.shift();
+            status.innerText = `Popped front node ${val}. Allocated memory freed, new head's prev pointer redirected to NIL.`;
+            recentHighlightVal = null;
+            drawSimulator();
+        }
+
+        function simClear() {
+            simList.length = 0;
+            recentHighlightVal = null;
+            document.getElementById('sim-status').innerText = "List cleared. Memory freed.";
+            drawSimulator();
+        }
+
+        function drawSimulator() {
+            const canvas = document.getElementById('simulator-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            
+            const width = canvas.parentElement.clientWidth || 500;
+            const height = 350;
+            
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            ctx.scale(dpr, dpr);
+            
+            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = '#FCFBF9';
+            ctx.fillRect(0, 0, width, height);
+
+            ctx.fillStyle = '#1A365D';
+            ctx.font = isCleanFont ? 'bold 13px Inter' : 'bold 15px Kalam';
+            ctx.textAlign = 'left';
+            ctx.fillText("Dynamic Doubly Linked Nodes representation:", 20, 50);
+
+            // Render list
+            if (simList.length === 0) {
+                ctx.fillStyle = '#9B2C2C';
+                ctx.fillText("Empty list.", width/2 - 30, height/2);
+            } else {
+                const y = height/2 - 12;
+                const spacing = Math.min(95, (width - 60 - 64) / Math.max(1, simList.length - 1));
+                const startX = 35;
+
+                // Draw NIL indicators
+                ctx.fillStyle = '#9B2C2C';
+                ctx.font = 'bold 12px sans-serif';
+                ctx.fillText("NIL", startX - 25, y + 12);
+                ctx.fillText("NIL", startX + (simList.length - 1) * spacing + 64 + 10, y + 12);
+
+                ctx.strokeStyle = '#9B2C2C';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.moveTo(startX, y + 12); ctx.lineTo(startX - 10, y + 12);
+                ctx.moveTo(startX + (simList.length - 1) * spacing + 64, y + 12); ctx.lineTo(startX + (simList.length - 1) * spacing + 64 + 10, y + 12);
+                ctx.stroke();
+
+                for (let i = 0; i < simList.length; i++) {
+                    const x = startX + i * spacing;
+                    const isHigh = simList[i] === recentHighlightVal;
+                    
+                    if (i < simList.length - 1) {
+                        drawDoubleArrow(ctx, x + 64, y + 12, x + spacing, y + 12);
+                    }
+                    drawListNode(ctx, x, y, simList[i], isHigh);
+                }
+            }
+
+            document.getElementById('lbl-size').innerText = simList.length;
+        }
+
+        window.onload = () => {
+            drawConceptDiagram();
+            drawStepCanvases();
+            drawSimulator();
+        };
+    </script>
+</body>
+
+</html>

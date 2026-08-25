@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STL Containers: std::set (Ordered Set) - Digital Lecture Notes</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts for Handwritten & Print typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Kalam:wght@300;400;700&family=Patrick+Hand&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        notebookBg: '#cbd5e1',
+                        notebookPaper: '#FAF6EE',
+                        inkBlue: '#1A365D',
+                        inkRed: '#9B2C2C',
+                        pencilGray: '#4A5568',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Shared Notebook Styles -->
+    <link rel="stylesheet" href="../notebook.css">
+    
+    <style>
+        /* Extra custom styles for layout styling */
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+
+<body class="font-notes-body text-2xl text-slate-800 antialiased transition-all duration-300">
+
+    <!-- Sticky Header containing Title & Font Toggle -->
+    <header class="sticky top-0 z-50 bg-[#FAF6EE] shadow-md border-b-2 border-amber-200 px-4 py-3 no-print">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-3">
+            <div class="flex items-center space-x-3">
+                <span class="text-3xl font-bold text-inkBlue tracking-wide font-heading">📖 STL: std::set (Ordered Set)</span>
+                <span class="bg-purple-100 text-purple-800 text-xs font-bold px-2.5 py-1 rounded-full border border-purple-300 font-sans uppercase">STL Containers</span>
+            </div>
+            <button id="styleBtn" onclick="toggleStyleMode()" class="px-4 py-1.5 rounded-full text-sm font-bold bg-inkBlue text-white hover:bg-opacity-90 transition font-sans shadow-sm">
+                ✍️ Switch to Clean Print Font
+            </button>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <nav class="max-w-6xl mx-auto mt-3 flex flex-wrap gap-1 border-t border-amber-200 pt-2 text-base md:text-lg">
+            <button onclick="switchTab('definitions')" id="tab-definitions" class="nav-tab px-4 py-2 rounded-t-lg font-bold bg-amber-200 text-inkBlue border-b-2 border-inkBlue">
+                1. Definitions & Concepts
+            </button>
+            <button onclick="switchTab('step-by-step')" id="tab-step-by-step" class="nav-tab px-4 py-2 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
+                2. Step-by-Step Balancing
+            </button>
+            <button onclick="switchTab('complexity')" id="tab-complexity" class="nav-tab px-4 py-2 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
+                3. Complexity & Methods
+            </button>
+            <button onclick="switchTab('visualization')" id="tab-visualization" class="nav-tab px-4 py-2 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
+                4. Interactive Simulator
+            </button>
+        </nav>
+    </header>
+
+    <!-- Main Notebook Container -->
+    <main class="max-w-6xl mx-auto flex relative bg-notebookPaper rounded-xl shadow-2xl overflow-hidden min-h-[900px] border border-amber-200 my-8">
+        
+        <!-- Left Binder Column (Spiral Rings) -->
+        <div class="w-10 sm:w-16 bg-amber-50 border-r-2 border-amber-200 flex flex-col items-center py-8 select-none shrink-0 no-print space-y-6 z-10 shadow-[inset_-5px_0_10px_rgba(0,0,0,0.05)]">
+            <script>
+                for (let i = 0; i < 40; i++) document.write('<div class="spiral-ring"></div>');
+            </script>
+        </div>
+
+        <!-- Notebook Content Area -->
+        <div class="flex-1 lined-paper p-4 sm:p-8 notebook-margin sm:pl-8 overflow-hidden z-0">
+
+            <!-- TAB 1: DEFINITIONS & CONCEPTS -->
+            <section id="sec-definitions" class="tab-content active space-y-8">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                        Ordered Set Concepts & Red-Black Trees</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 1</span>
+                </div>
+
+                <div class="space-y-6">
+                    <div>
+                        <h3 class="text-3xl font-bold text-inkRed font-heading pen-underline mb-2">What is std::set?</h3>
+                        <p class="leading-relaxed">
+                            In C++, <code class="bg-amber-100 px-1 rounded text-slate-900 font-sans text-lg font-semibold">std::set</code> is an associative container that stores unique elements in a strict sorted order (by default, ascending order). Unlike <code class="bg-amber-100 px-1 rounded text-slate-900 font-sans text-lg font-semibold">std::unordered_set</code> (which uses a Hash Table), the ordered set is implemented using a <span class="highlighter font-bold">Red-Black Tree</span> under the hood.
+                        </p>
+                    </div>
+
+                    <div class="note-box p-5 space-y-3">
+                        <h4 class="text-2xl font-bold text-inkBlue font-heading">🌳 Under-the-Hood Data Structure: Red-Black Tree</h4>
+                        <p class="text-xl">
+                            A Red-Black Tree is a self-balancing Binary Search Tree (BST). Each node in the tree stores a key, pointers to left/right children, and a **color attribute** (Red or Black). The tree balances itself during inserts/deletions by enforcing 5 strict properties:
+                        </p>
+                        <ol class="list-decimal list-inside space-y-2 text-xl ml-4">
+                            <li><strong>Node Color:</strong> Every node is either <span class="text-red-600 font-bold">Red</span> or <strong>Black</strong>.</li>
+                            <li><strong>Root Property:</strong> The Root node is always <strong>Black</strong>.</li>
+                            <li><strong>Leaf Property:</strong> Every leaf node (NIL/null pointer) is considered <strong>Black</strong>.</li>
+                            <li><strong>Red Violation Rule:</strong> If a node is <span class="text-red-600 font-bold">Red</span>, then both of its children must be <strong>Black</strong> (no consecutive red nodes allowed).</li>
+                            <li><strong>Black Height Property:</strong> For each node, all simple paths from the node to descendant leaves contain the same number of <strong>Black</strong> nodes.</li>
+                        </ol>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-center my-6">
+                        <div class="space-y-4">
+                            <h3 class="text-2xl font-bold text-inkRed font-heading pen-underline">Why Use a Self-Balancing Tree?</h3>
+                            <p class="text-xl leading-relaxed">
+                                In a standard BST, if elements are inserted in a sorted sequence (e.g., 10, 20, 30, 40), the tree becomes a skewed linear chain. The search complexity degrades to O(N).
+                            </p>
+                            <p class="text-xl leading-relaxed">
+                                Red-Black Tree properties guarantee that the longest path from root to leaf is no more than twice as long as the shortest path. This ensures that the tree height remains logarithmic: <span class="bg-white border border-blue-200 px-2 py-0.5 rounded font-sans text-base font-bold text-inkRed">Height &le; 2 &times; log<sub>2</sub>(N + 1)</span>, maintaining strict <strong class="text-inkBlue font-sans">O(log N)</strong> lookup, insert, and delete operations.
+                            </p>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <span class="text-sm font-sans font-bold text-pencilGray mb-1">Standard Red-Black Tree Structure:</span>
+                            <canvas id="concept-canvas" class="border border-slate-300 rounded bg-white shadow-sm" style="width: 100%; height: 220px;"></canvas>
+                            <span class="text-xs text-pencilGray mt-1">Leaves are NIL nodes. Red nodes cannot have red children.</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 2: STEP-BY-STEP EXAMPLE -->
+            <section id="sec-step-by-step" class="tab-content space-y-8">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                        Step-by-Step BST Balancing & Rotations</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 2</span>
+                </div>
+
+                <div class="space-y-6">
+                    <p class="leading-relaxed">
+                        Let us trace the step-by-step insertion of values <strong class="text-inkBlue font-sans">10, 20, 30</strong> in sorted sequence into an empty <code class="bg-amber-100 px-1 rounded text-slate-900 font-sans text-sm font-semibold">std::set</code>. We will watch how a double-red violation is resolved using a **Left Rotation** and **Recoloring**.
+                    </p>
+
+                    <div class="space-y-8 border-l-4 border-dashed border-amber-300 pl-4 py-2">
+                        
+                        <!-- Step 1 -->
+                        <div class="space-y-2 break-inside-avoid">
+                            <h3 class="text-2xl font-bold text-inkRed font-heading">Step 1: Insert 10</h3>
+                            <p class="text-lg">
+                                &bull; The tree is empty. 10 is inserted as the root node.<br>
+                                &bull; By Property 2, the root must be recolored <strong>Black</strong>.
+                            </p>
+                            <div class="bg-white border border-slate-300 rounded p-2 max-w-xl shadow-sm">
+                                <canvas id="step-canvas-1" class="w-full"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Step 2 -->
+                        <div class="space-y-2 break-inside-avoid">
+                            <h3 class="text-2xl font-bold text-inkRed font-heading">Step 2: Insert 20</h3>
+                            <p class="text-lg">
+                                &bull; 20 is greater than 10, so it goes to the right child slot.<br>
+                                &bull; Newly inserted nodes are colored <span class="text-red-600 font-bold">Red</span>. No properties are violated.
+                            </p>
+                            <div class="bg-white border border-slate-300 rounded p-2 max-w-xl shadow-sm">
+                                <canvas id="step-canvas-2" class="w-full"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Step 3 -->
+                        <div class="space-y-2 break-inside-avoid">
+                            <h3 class="text-2xl font-bold text-inkRed font-heading">Step 3: Insert 30 (Violation!)</h3>
+                            <p class="text-lg">
+                                &bull; 30 goes to the right child of 20, colored <span class="text-red-600 font-bold">Red</span>.<br>
+                                &bull; <span class="text-red-600 font-bold">Violation:</span> Node 20 and node 30 are consecutive red nodes (violates Property 4).<br>
+                                &bull; Since the uncle node (left child of 10) is NIL (Black) and 30 is an outer grandchild, we require a <strong>Left Rotation</strong> at grandparent 10.
+                            </p>
+                            <div class="bg-white border border-slate-300 rounded p-2 max-w-xl shadow-sm">
+                                <canvas id="step-canvas-3" class="w-full"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Step 4 -->
+                        <div class="space-y-2 break-inside-avoid">
+                            <h3 class="text-2xl font-bold text-inkRed font-heading">Step 4: Rotate & Recolor (Balanced)</h3>
+                            <p class="text-lg">
+                                &bull; We perform a **Left Rotation** around parent 10: 20 moves up to become parent, 10 moves down to become left child of 20.<br>
+                                &bull; **Recoloring:** The new parent (20) is colored <strong>Black</strong>, and its children (10, 30) are colored <span class="text-red-600 font-bold">Red</span>.<br>
+                                &bull; All Red-Black Tree properties are now satisfied!
+                            </p>
+                            <div class="bg-white border border-slate-300 rounded p-2 max-w-xl shadow-sm">
+                                <canvas id="step-canvas-4" class="w-full"></canvas>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 3: COMPLEXITY & METHODS -->
+            <section id="sec-complexity" class="tab-content space-y-8">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                        STL Methods & Complexity Analysis</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 3</span>
+                </div>
+
+                <div class="space-y-6">
+                    <h3 class="text-3xl font-bold text-inkRed font-heading pen-underline">Primary std::set Operations</h3>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse border-2 border-slate-400 bg-white/95 text-base md:text-lg">
+                            <thead>
+                                <tr class="bg-blue-900 text-white font-sans text-sm uppercase">
+                                    <th class="p-3 border border-slate-400">Method</th>
+                                    <th class="p-3 border border-slate-400">Description</th>
+                                    <th class="p-3 border border-slate-400">Average Time</th>
+                                    <th class="p-3 border border-slate-400">Worst-Case Time</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-slate-900">
+                                <tr>
+                                    <td class="p-3 border border-slate-400 font-bold font-sans text-sm"><code class="bg-slate-100 px-1 rounded text-purple-900">insert(val)</code></td>
+                                    <td class="p-3 border border-slate-400">Inserts the value in sorted position. Checks for duplicates.</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-emerald-700">O(log N)</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-emerald-700">O(log N)</td>
+                                </tr>
+                                <tr class="bg-slate-50/50">
+                                    <td class="p-3 border border-slate-400 font-bold font-sans text-sm"><code class="bg-slate-100 px-1 rounded text-purple-900">erase(key)</code></td>
+                                    <td class="p-3 border border-slate-400">Removes the element matching the key, triggers rebalance.</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-emerald-700">O(log N)</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-emerald-700">O(log N)</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 border border-slate-400 font-bold font-sans text-sm"><code class="bg-slate-100 px-1 rounded text-purple-900">find(key)</code></td>
+                                    <td class="p-3 border border-slate-400">Searches the key using BST traversal. Returns iterator.</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-emerald-700">O(log N)</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-emerald-700">O(log N)</td>
+                                </tr>
+                                <tr class="bg-slate-50/50">
+                                    <td class="p-3 border border-slate-400 font-bold font-sans text-sm"><code class="bg-slate-100 px-1 rounded text-purple-900">lower_bound(k)</code></td>
+                                    <td class="p-3 border border-slate-400">Returns iterator to the first element that is <strong>&ge; k</strong>.</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-emerald-700">O(log N)</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-emerald-700">O(log N)</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 border border-slate-400 font-bold font-sans text-sm"><code class="bg-slate-100 px-1 rounded text-purple-900">upper_bound(k)</code></td>
+                                    <td class="p-3 border border-slate-400">Returns iterator to the first element that is <strong>&gt; k</strong>.</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-emerald-700">O(log N)</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-emerald-700">O(log N)</td>
+                                </tr>
+                                <tr class="bg-slate-50/50">
+                                    <td class="p-3 border border-slate-400 font-bold font-sans text-sm"><code class="bg-slate-100 px-1 rounded text-purple-900">size()</code></td>
+                                    <td class="p-3 border border-slate-400">Returns total number of elements in the tree.</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-emerald-700">O(1)</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-emerald-700">O(1)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="note-box p-4 space-y-2 mt-4">
+                        <h4 class="text-2xl font-bold text-inkRed font-heading">📝 Rationale behind complexities:</h4>
+                        <ul class="list-disc list-inside space-y-1 text-lg">
+                            <li><strong>Guaranteed Logarithmic Heights:</strong> Because of the Red-Black Tree constraints, the height is mathematically capped. Even in the worst-case configuration, operations are guaranteed to visit no more than <span class="font-sans font-bold">2 &times; log<sub>2</sub>(N)</span> levels.</li>
+                            <li><strong>Comparison to std::unordered_set:</strong>
+                                <ul class="list-disc list-inside ml-6 mt-1 space-y-1">
+                                    <li>`unordered_set` has a faster average case (O(1)) but a degraded worst-case (O(N)).</li>
+                                    <li>`std::set` has a slightly slower average case (O(log N)) but guarantees O(log N) worst-case performance, making it highly predictable for real-time systems.</li>
+                                    <li>`std::set` keeps keys sorted, which is necessary for range queries (`lower_bound` / `upper_bound`), while `unordered_set` has arbitrary order.</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 4: INTERACTIVE VISUALIZATION -->
+            <section id="sec-visualization" class="tab-content space-y-6">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-4 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                        Interactive Red-Black Tree Simulator</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 4</span>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                    
+                    <!-- Left Column: Controls & Stats (5 Cols) -->
+                    <div class="lg:col-span-5 space-y-4 bg-amber-50/50 p-4 rounded-xl border border-amber-300">
+                        <h3 class="text-2xl font-bold text-inkRed font-heading border-b border-amber-200 pb-1">Tree Operations</h3>
+                        
+                        <div class="flex items-center space-x-2">
+                            <input type="number" id="sim-input" placeholder="Enter key (integer)" class="w-full bg-white border border-slate-300 rounded px-3 py-1.5 font-sans text-sm focus:outline-none focus:border-inkBlue">
+                        </div>
+
+                        <div class="grid grid-cols-3 gap-2">
+                            <button onclick="simInsert()" class="bg-blue-700 hover:bg-blue-800 text-white font-sans text-sm font-bold py-2 rounded shadow transition">Insert</button>
+                            <button onclick="simDelete()" class="bg-red-700 hover:bg-red-800 text-white font-sans text-sm font-bold py-2 rounded shadow transition">Delete</button>
+                            <button onclick="simFind()" class="bg-emerald-700 hover:bg-emerald-800 text-white font-sans text-sm font-bold py-2 rounded shadow transition">Find</button>
+                        </div>
+
+                        <div class="flex justify-between items-center pt-2">
+                            <button onclick="simClear()" class="bg-slate-500 hover:bg-slate-600 text-white font-sans text-sm font-bold py-1.5 px-3 rounded shadow transition">Clear Set</button>
+                            <span class="text-xs text-pencilGray font-sans font-bold">Max Depth = <span id="lbl-depth">0</span></span>
+                        </div>
+
+                        <!-- Stats Dashboard -->
+                        <div class="bg-white border border-slate-300 rounded-lg p-3 space-y-1.5 shadow-sm text-base md:text-lg">
+                            <h4 class="font-bold text-inkBlue font-sans text-sm uppercase tracking-wider border-b border-slate-100 pb-1">Tree Stats</h4>
+                            <div class="flex justify-between">
+                                <span class="font-bold">Elements count (N):</span>
+                                <span id="lbl-size" class="font-sans font-bold text-slate-800">0</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="font-bold">Tree Balanced:</span>
+                                <span class="font-bold text-emerald-700">Yes (Auto RBT)</span>
+                            </div>
+                        </div>
+
+                        <!-- Status Log -->
+                        <div class="bg-white border border-slate-300 rounded-lg p-3 shadow-sm">
+                            <h4 class="font-bold text-pencilGray font-sans text-sm uppercase tracking-wider mb-1">Execution Trace:</h4>
+                            <p id="sim-status" class="text-base text-inkRed font-semibold min-h-[45px] leading-snug">Enter an integer and click Insert to begin.</p>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Canvas Output (7 Cols) -->
+                    <div class="lg:col-span-7 flex flex-col items-center">
+                        <div class="w-full bg-white border border-slate-300 rounded-lg shadow-md p-3 relative">
+                            <canvas id="simulator-canvas" style="width: 100%; height: 420px;"></canvas>
+                        </div>
+                        <span class="text-xs text-pencilGray mt-1.5 text-center block w-full font-sans italic">
+                            * Visual guides: Nodes colored <span class="text-red-600 font-bold">Red</span> or <strong>Black</strong>. A <span class="text-yellow-600 font-bold">Yellow glow</span> indicates path nodes traversed during searches.
+                        </span>
+                    </div>
+
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- JavaScript Controllers -->
+    <script>
+        // Global Style/Font Toggle State
+        let isCleanFont = false;
+        
+        function toggleStyleMode() {
+            isCleanFont = !isCleanFont;
+            const body = document.body;
+            const styleBtn = document.getElementById('styleBtn');
+            if (isCleanFont) {
+                body.classList.remove('font-notes-body');
+                body.classList.add('font-clean');
+                styleBtn.innerText = "✍️ Switch to Handwritten Font";
+            } else {
+                body.classList.remove('font-clean');
+                body.classList.add('font-notes-body');
+                styleBtn.innerText = "✍️ Switch to Clean Print Font";
+            }
+            // Redraw everything
+            drawConceptDiagram();
+            drawStepCanvases();
+            drawSimulator();
+        }
+
+        // Tab Navigation Controller
+        let currentTab = 'definitions';
+        function switchTab(tabId) {
+            currentTab = tabId;
+            
+            // Toggle active sections
+            document.querySelectorAll('.tab-content').forEach(sec => {
+                sec.classList.remove('active');
+            });
+            document.getElementById('sec-' + tabId).classList.add('active');
+            
+            // Toggle tab buttons visual state
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('bg-amber-200', 'text-inkBlue', 'border-b-2', 'border-inkBlue');
+                tab.classList.add('text-gray-600', 'hover:text-inkBlue');
+            });
+            
+            const activeTab = document.getElementById('tab-' + tabId);
+            if (activeTab) {
+                activeTab.classList.remove('text-gray-600', 'hover:text-inkBlue');
+                activeTab.classList.add('bg-amber-200', 'text-inkBlue', 'border-b-2', 'border-inkBlue');
+            }
+            
+            // Redraw canvas after display toggle updates client widths
+            setTimeout(() => {
+                if (tabId === 'definitions') drawConceptDiagram();
+                if (tabId === 'step-by-step') drawStepCanvases();
+                if (tabId === 'visualization') drawSimulator();
+            }, 50);
+        }
+
+        // Resize Listener
+        window.onresize = () => {
+            if (currentTab === 'definitions') drawConceptDiagram();
+            if (currentTab === 'step-by-step') drawStepCanvases();
+            if (currentTab === 'visualization') drawSimulator();
+        };
+
+        /* ----------------------------------------------------------------------
+           REDBLACK TREE IMPLEMENTATION (FOR SIMULATOR)
+        ---------------------------------------------------------------------- */
+        class RBTNode {
+            constructor(value) {
+                this.value = value;
+                this.color = 'RED'; // default
+                this.left = null;
+                this.right = null;
+                this.parent = null;
+            }
+        }
+
+        class RedBlackTree {
+            constructor() {
+                this.NIL = { value: null, color: 'BLACK', left: null, right: null, parent: null };
+                this.root = this.NIL;
+            }
+
+            leftRotate(x) {
+                let y = x.right;
+                x.right = y.left;
+                if (y.left !== this.NIL) {
+                    y.left.parent = x;
+                }
+                y.parent = x.parent;
+                if (x.parent === this.NIL) {
+                    this.root = y;
+                } else if (x === x.parent.left) {
+                    x.parent.left = y;
+                } else {
+                    x.parent.right = y;
+                }
+                y.left = x;
+                x.parent = y;
+            }
+
+            rightRotate(y) {
+                let x = y.left;
+                y.left = x.right;
+                if (x.right !== this.NIL) {
+                    x.right.parent = y;
+                }
+                x.parent = y.parent;
+                if (y.parent === this.NIL) {
+                    this.root = x;
+                } else if (y === y.parent.left) {
+                    y.parent.left = x;
+                } else {
+                    y.parent.right = x;
+                }
+                x.right = y;
+                y.parent = x;
+            }
+
+            insert(value) {
+                let node = new RBTNode(value);
+                node.left = this.NIL;
+                node.right = this.NIL;
+                node.parent = this.NIL;
+
+                let y = this.NIL;
+                let x = this.root;
+
+                while (x !== this.NIL) {
+                    y = x;
+                    if (node.value < x.value) {
+                        x = x.left;
+                    } else if (node.value > x.value) {
+                        x = x.right;
+                    } else {
+                        return false; // Duplicate
+                    }
+                }
+
+                node.parent = y;
+                if (y === this.NIL) {
+                    this.root = node;
+                } else if (node.value < y.value) {
+                    y.left = node;
+                } else {
+                    y.right = node;
+                }
+
+                node.left = this.NIL;
+                node.right = this.NIL;
+                node.color = 'RED';
+
+                this.insertFixup(node);
+                return true;
+            }
+
+            insertFixup(z) {
+                while (z.parent.color === 'RED') {
+                    if (z.parent === z.parent.parent.left) {
+                        let y = z.parent.parent.right; // uncle
+                        if (y.color === 'RED') {
+                            // Uncle is RED -> recolor
+                            z.parent.color = 'BLACK';
+                            y.color = 'BLACK';
+                            z.parent.parent.color = 'RED';
+                            z = z.parent.parent;
+                        } else {
+                            if (z === z.parent.right) {
+                                z = z.parent;
+                                this.leftRotate(z);
+                            }
+                            z.parent.color = 'BLACK';
+                            z.parent.parent.color = 'RED';
+                            this.rightRotate(z.parent.parent);
+                        }
+                    } else {
+                        let y = z.parent.parent.left; // uncle
+                        if (y.color === 'RED') {
+                            z.parent.color = 'BLACK';
+                            y.color = 'BLACK';
+                            z.parent.parent.color = 'RED';
+                            z = z.parent.parent;
+                        } else {
+                            if (z === z.parent.left) {
+                                z = z.parent;
+                                this.rightRotate(z);
+                            }
+                            z.parent.color = 'BLACK';
+                            z.parent.parent.color = 'RED';
+                            this.leftRotate(z.parent.parent);
+                        }
+                    }
+                }
+                this.root.color = 'BLACK';
+            }
+
+            find(value) {
+                let path = [];
+                let current = this.root;
+                while (current !== this.NIL) {
+                    path.push(current);
+                    if (value === current.value) {
+                        return { found: true, path: path };
+                    } else if (value < current.value) {
+                        current = current.left;
+                    } else {
+                        current = current.right;
+                    }
+                }
+                return { found: false, path: path };
+            }
+
+            getDepth(node) {
+                if (node === this.NIL) return 0;
+                return 1 + Math.max(this.getDepth(node.left), this.getDepth(node.right));
+            }
+        }
+
+        // Draw node function
+        function drawNode(ctx, x, y, val, color, isHighlighted = false) {
+            const radius = 17;
+            
+            // Outer glow if searched/found
+            if (isHighlighted) {
+                ctx.strokeStyle = '#D97706'; // Amber highlight glow
+                ctx.lineWidth = 4;
+                ctx.beginPath();
+                ctx.arc(x, y, radius + 3, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, Math.PI * 2);
+            if (color === 'RED') {
+                ctx.fillStyle = '#FCA5A5'; // soft red fill
+                ctx.strokeStyle = '#9B2C2C'; // deep red ink line
+            } else {
+                ctx.fillStyle = '#1E293B'; // dark slate fill
+                ctx.strokeStyle = '#0F172A'; // black edge line
+            }
+            ctx.lineWidth = 2.5;
+            ctx.fill();
+            ctx.stroke();
+
+            // Label text inside node circle
+            ctx.fillStyle = (color === 'RED') ? '#7F1D1D' : '#FFFFFF';
+            ctx.font = isCleanFont ? 'bold 12px Inter' : 'bold 14px Kalam';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(String(val), x, y);
+        }
+
+        function drawNILLeaf(ctx, x, y) {
+            const side = 10;
+            ctx.fillStyle = '#1E293B';
+            ctx.strokeStyle = '#0F172A';
+            ctx.lineWidth = 1.5;
+            ctx.fillRect(x - side/2, y - side/2, side, side);
+            ctx.strokeRect(x - side/2, y - side/2, side, side);
+        }
+
+        /* ----------------------------------------------------------------------
+           TAB 1: CONCEPT TREE DRAWING
+        ---------------------------------------------------------------------- */
+        function drawConceptDiagram() {
+            const canvas = document.getElementById('concept-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            
+            const width = canvas.parentElement.clientWidth || 400;
+            const height = 220;
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            ctx.scale(dpr, dpr);
+            
+            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = '#FCFBF9';
+            ctx.fillRect(0, 0, width, height);
+
+            // Let's hardcode a static Red-Black tree diagram (20 black root, left 10 red, right 30 red)
+            const rx = width / 2;
+            const ry = 40;
+            const lx = rx - 60;
+            const rx30 = rx + 60;
+            const yOffset = 70;
+
+            // Draw link lines
+            ctx.strokeStyle = '#4A5568';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(rx, ry);
+            ctx.lineTo(lx, ry + yOffset);
+            ctx.moveTo(rx, ry);
+            ctx.lineTo(rx30, ry + yOffset);
+            
+            // Draw lines to leaf NILs
+            ctx.moveTo(lx, ry + yOffset);
+            ctx.lineTo(lx - 25, ry + yOffset + 50);
+            ctx.moveTo(lx, ry + yOffset);
+            ctx.lineTo(lx + 25, ry + yOffset + 50);
+            
+            ctx.moveTo(rx30, ry + yOffset);
+            ctx.lineTo(rx30 - 25, ry + yOffset + 50);
+            ctx.moveTo(rx30, ry + yOffset);
+            ctx.lineTo(rx30 + 25, ry + yOffset + 50);
+            ctx.stroke();
+
+            // Draw Nodes
+            drawNode(ctx, rx, ry, 20, 'BLACK');
+            drawNode(ctx, lx, ry + yOffset, 10, 'RED');
+            drawNode(ctx, rx30, ry + yOffset, 30, 'RED');
+
+            // Draw NILs
+            drawNILLeaf(ctx, lx - 25, ry + yOffset + 50);
+            drawNILLeaf(ctx, lx + 25, ry + yOffset + 50);
+            drawNILLeaf(ctx, rx30 - 25, ry + yOffset + 50);
+            drawNILLeaf(ctx, rx30 + 25, ry + yOffset + 50);
+        }
+
+        /* ----------------------------------------------------------------------
+           TAB 2: STEP-BY-STEP CANVASES
+        ---------------------------------------------------------------------- */
+        function drawStepCanvases() {
+            // Steps sequence drawing:
+            // Step 1: Root 10 (Black)
+            // Step 2: Root 10 (Black) -> R 20 (Red)
+            // Step 3: Root 10 (Black) -> R 20 (Red) -> RR 30 (Red) [Double red violation]
+            // Step 4: Root 20 (Black), L 10 (Red), R 30 (Red)
+
+            // Step 1
+            let c1 = document.getElementById('step-canvas-1');
+            if (c1) {
+                let ctx = c1.getContext('2d');
+                let w = c1.parentElement.clientWidth || 400;
+                setupCanvasSize(c1, w, 110);
+                drawNode(ctx, w/2, 35, 10, 'BLACK');
+                drawNILLeaf(ctx, w/2 - 25, 80);
+                drawNILLeaf(ctx, w/2 + 25, 80);
+                ctx.strokeStyle = '#4A5568';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.moveTo(w/2, 35); ctx.lineTo(w/2 - 25, 80);
+                ctx.moveTo(w/2, 35); ctx.lineTo(w/2 + 25, 80);
+                ctx.stroke();
+                drawNode(ctx, w/2, 35, 10, 'BLACK');
+            }
+
+            // Step 2
+            let c2 = document.getElementById('step-canvas-2');
+            if (c2) {
+                let ctx = c2.getContext('2d');
+                let w = c2.parentElement.clientWidth || 400;
+                setupCanvasSize(c2, w, 140);
+                ctx.strokeStyle = '#4A5568';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.moveTo(w/2, 35); ctx.lineTo(w/2 - 40, 85);
+                ctx.moveTo(w/2, 35); ctx.lineTo(w/2 + 40, 85);
+                ctx.stroke();
+                drawNode(ctx, w/2, 35, 10, 'BLACK');
+                drawNode(ctx, w/2 + 40, 85, 20, 'RED');
+                drawNILLeaf(ctx, w/2 - 40, 85);
+            }
+
+            // Step 3
+            let c3 = document.getElementById('step-canvas-3');
+            if (c3) {
+                let ctx = c3.getContext('2d');
+                let w = c3.parentElement.clientWidth || 400;
+                setupCanvasSize(c3, w, 180);
+                ctx.strokeStyle = '#4A5568';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.moveTo(w/2, 30); ctx.lineTo(w/2 - 45, 75);
+                ctx.moveTo(w/2, 30); ctx.lineTo(w/2 + 45, 75);
+                ctx.moveTo(w/2 + 45, 75); ctx.lineTo(w/2 + 90, 125);
+                ctx.stroke();
+                
+                drawNode(ctx, w/2, 30, 10, 'BLACK');
+                drawNode(ctx, w/2 + 45, 75, 20, 'RED');
+                drawNode(ctx, w/2 + 90, 125, 30, 'RED', true); // Glow on violation node
+                drawNILLeaf(ctx, w/2 - 45, 75);
+            }
+
+            // Step 4
+            let c4 = document.getElementById('step-canvas-4');
+            if (c4) {
+                let ctx = c4.getContext('2d');
+                let w = c4.parentElement.clientWidth || 400;
+                setupCanvasSize(c4, w, 140);
+                ctx.strokeStyle = '#4A5568';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.moveTo(w/2, 35); ctx.lineTo(w/2 - 50, 85);
+                ctx.moveTo(w/2, 35); ctx.lineTo(w/2 + 50, 85);
+                ctx.stroke();
+                drawNode(ctx, w/2, 35, 20, 'BLACK');
+                drawNode(ctx, w/2 - 50, 85, 10, 'RED');
+                drawNode(ctx, w/2 + 50, 85, 30, 'RED');
+            }
+        }
+
+        function setupCanvasSize(canvas, width, height) {
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            ctx.scale(dpr, dpr);
+            
+            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = '#FCFBF9';
+            ctx.fillRect(0, 0, width, height);
+        }
+
+        /* ----------------------------------------------------------------------
+           TAB 4: INTERACTIVE SIMULATOR SYSTEM
+        ---------------------------------------------------------------------- */
+        const activeTree = new RedBlackTree();
+        const activeKeysList = [];
+        
+        // Initial insert items
+        [15, 8, 25, 5, 12, 30, 20].forEach(k => {
+            activeTree.insert(k);
+            activeKeysList.push(k);
+        });
+
+        // Search variables
+        let searchHighlightPath = [];
+        let searchKeyFound = false;
+
+        function updateStatsDashboard() {
+            document.getElementById('lbl-size').innerText = activeKeysList.length;
+            document.getElementById('lbl-depth').innerText = activeTree.getDepth(activeTree.root);
+        }
+
+        function drawSimulator() {
+            const canvas = document.getElementById('simulator-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            
+            const width = canvas.parentElement.clientWidth || 500;
+            const height = 420;
+            
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            ctx.scale(dpr, dpr);
+            
+            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = '#FCFBF9';
+            ctx.fillRect(0, 0, width, height);
+
+            if (activeTree.root === activeTree.NIL) {
+                // Empty tree notice
+                ctx.fillStyle = '#9B2C2C';
+                ctx.font = isCleanFont ? 'bold 15px Inter' : 'bold 18px Kalam';
+                ctx.textAlign = 'center';
+                ctx.fillText("Empty Set (insert numbers above)", width/2, height/2);
+                updateStatsDashboard();
+                return;
+            }
+
+            // Draw lines & connections recursively
+            function drawSubtreeLines(node, x, y, dx) {
+                ctx.strokeStyle = '#4A5568';
+                ctx.lineWidth = 2;
+                
+                if (node.left !== activeTree.NIL) {
+                    ctx.beginPath();
+                    ctx.moveTo(x, y);
+                    ctx.lineTo(x - dx, y + 65);
+                    ctx.stroke();
+                    drawSubtreeLines(node.left, x - dx, y + 65, dx / 2);
+                } else {
+                    // Draw small NIL leaves
+                    ctx.beginPath();
+                    ctx.moveTo(x, y);
+                    ctx.lineTo(x - dx/2, y + 45);
+                    ctx.stroke();
+                    drawNILLeaf(ctx, x - dx/2, y + 45);
+                }
+                
+                if (node.right !== activeTree.NIL) {
+                    ctx.beginPath();
+                    ctx.moveTo(x, y);
+                    ctx.lineTo(x + dx, y + 65);
+                    ctx.stroke();
+                    drawSubtreeLines(node.right, x + dx, y + 65, dx / 2);
+                } else {
+                    ctx.beginPath();
+                    ctx.moveTo(x, y);
+                    ctx.lineTo(x + dx/2, y + 45);
+                    ctx.stroke();
+                    drawNILLeaf(ctx, x + dx/2, y + 45);
+                }
+            }
+
+            // Draw nodes recursively
+            function drawSubtreeNodes(node, x, y, dx) {
+                const isVisited = searchHighlightPath.includes(node);
+                drawNode(ctx, x, y, node.value, node.color, isVisited);
+
+                if (node.left !== activeTree.NIL) {
+                    drawSubtreeNodes(node.left, x - dx, y + 65, dx / 2);
+                }
+                if (node.right !== activeTree.NIL) {
+                    drawSubtreeNodes(node.right, x + dx, y + 65, dx / 2);
+                }
+            }
+
+            // Trigger drawings
+            drawSubtreeLines(activeTree.root, width/2, 35, width/4.2);
+            drawSubtreeNodes(activeTree.root, width/2, 35, width/4.2);
+            
+            updateStatsDashboard();
+        }
+
+        function simInsert() {
+            const input = document.getElementById('sim-input');
+            const val = parseInt(input.value);
+            const status = document.getElementById('sim-status');
+            
+            if (isNaN(val)) {
+                status.innerText = "⚠️ Please enter a valid integer.";
+                return;
+            }
+            
+            if (activeKeysList.includes(val)) {
+                status.innerText = `⚠️ Key ${val} already exists in the set. std::set stores unique keys.`;
+                return;
+            }
+
+            activeKeysList.push(val);
+            activeTree.insert(val);
+            
+            status.innerText = `Inserted key ${val}. Tree self-balanced recursively using Red-Black rotations and coloring.`;
+            input.value = '';
+            
+            // Highlight insertion target node
+            const searchRes = activeTree.find(val);
+            searchHighlightPath = searchRes.path;
+            
+            drawSimulator();
+            
+            setTimeout(() => {
+                searchHighlightPath = [];
+                drawSimulator();
+            }, 2500);
+        }
+
+        function simDelete() {
+            const input = document.getElementById('sim-input');
+            const val = parseInt(input.value);
+            const status = document.getElementById('sim-status');
+            
+            if (isNaN(val)) {
+                status.innerText = "⚠️ Please enter a valid integer.";
+                return;
+            }
+
+            const itemIdx = activeKeysList.indexOf(val);
+            if (itemIdx === -1) {
+                status.innerText = `⚠️ Key ${val} not found in the set.`;
+                return;
+            }
+
+            // BST deletion logic simplified: remove value from list and rebuild the Red-Black tree
+            // to ensure correctness and stability of RBT balance properties
+            activeKeysList.splice(itemIdx, 1);
+            
+            activeTree.clear();
+            activeKeysList.forEach(k => activeTree.insert(k));
+
+            status.innerText = `Removed key ${val} and rebalanced Red-Black Tree properties successfully.`;
+            input.value = '';
+            searchHighlightPath = [];
+            
+            drawSimulator();
+        }
+
+        function simFind() {
+            const input = document.getElementById('sim-input');
+            const val = parseInt(input.value);
+            const status = document.getElementById('sim-status');
+            
+            if (isNaN(val)) {
+                status.innerText = "⚠️ Please enter a valid integer.";
+                return;
+            }
+
+            const searchRes = activeTree.find(val);
+            searchHighlightPath = searchRes.path;
+            
+            if (searchRes.found) {
+                status.innerHTML = `<strong>Trace:</strong> Searched for ${val}. <br>` +
+                                   `Path: Root ${searchRes.path.map(n => n.value).join(' &rarr; ')}. <br>` +
+                                   `Element found successfully!`;
+            } else {
+                status.innerHTML = `<strong>Trace:</strong> Searched for ${val}. <br>` +
+                                   `Path: Root ${searchRes.path.map(n => n.value).join(' &rarr; ')} &rarr; NIL. <br>` +
+                                   `Element is not present in the set.`;
+            }
+            
+            input.value = '';
+            drawSimulator();
+            
+            setTimeout(() => {
+                searchHighlightPath = [];
+                drawSimulator();
+            }, 3500);
+        }
+
+        function simClear() {
+            activeTree.clear();
+            activeKeysList.length = 0;
+            document.getElementById('sim-status').innerText = "Simulator reset. Set cleared.";
+            searchHighlightPath = [];
+            drawSimulator();
+        }
+
+        RedBlackTree.prototype.clear = function() {
+            this.root = this.NIL;
+        };
+
+        // Render initially
+        window.onload = () => {
+            drawConceptDiagram();
+            drawStepCanvases();
+            drawSimulator();
+        };
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STL Containers: std::unordered_set - Digital Lecture Notes</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts for Handwritten & Print typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Kalam:wght@300;400;700&family=Patrick+Hand&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        notebookBg: '#cbd5e1',
+                        notebookPaper: '#FAF6EE',
+                        inkBlue: '#1A365D',
+                        inkRed: '#9B2C2C',
+                        pencilGray: '#4A5568',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Shared Notebook Styles -->
+    <link rel="stylesheet" href="../notebook.css">
+    
+    <style>
+        /* Extra custom styles for layout styling */
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+
+<body class="font-notes-body text-2xl text-slate-800 antialiased transition-all duration-300">
+
+    <!-- Sticky Header containing Title & Font Toggle -->
+    <header class="sticky top-0 z-50 bg-[#FAF6EE] shadow-md border-b-2 border-amber-200 px-4 py-3 no-print">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-3">
+            <div class="flex items-center space-x-3">
+                <span class="text-3xl font-bold text-inkBlue tracking-wide font-heading">📖 STL: std::unordered_set</span>
+                <span class="bg-purple-100 text-purple-800 text-xs font-bold px-2.5 py-1 rounded-full border border-purple-300 font-sans uppercase">STL Containers</span>
+            </div>
+            <button id="styleBtn" onclick="toggleStyleMode()" class="px-4 py-1.5 rounded-full text-sm font-bold bg-inkBlue text-white hover:bg-opacity-90 transition font-sans shadow-sm">
+                ✍️ Switch to Clean Print Font
+            </button>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <nav class="max-w-6xl mx-auto mt-3 flex flex-wrap gap-1 border-t border-amber-200 pt-2 text-base md:text-lg">
+            <button onclick="switchTab('definitions')" id="tab-definitions" class="nav-tab px-4 py-2 rounded-t-lg font-bold bg-amber-200 text-inkBlue border-b-2 border-inkBlue">
+                1. Definitions & Concepts
+            </button>
+            <button onclick="switchTab('step-by-step')" id="tab-step-by-step" class="nav-tab px-4 py-2 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
+                2. Step-by-Step Chaining
+            </button>
+            <button onclick="switchTab('complexity')" id="tab-complexity" class="nav-tab px-4 py-2 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
+                3. Complexity & Methods
+            </button>
+            <button onclick="switchTab('visualization')" id="tab-visualization" class="nav-tab px-4 py-2 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
+                4. Interactive Simulator
+            </button>
+        </nav>
+    </header>
+
+    <!-- Main Notebook Container -->
+    <main class="max-w-6xl mx-auto flex relative bg-notebookPaper rounded-xl shadow-2xl overflow-hidden min-h-[900px] border border-amber-200 my-8">
+        
+        <!-- Left Binder Column (Spiral Rings) -->
+        <div class="w-10 sm:w-16 bg-amber-50 border-r-2 border-amber-200 flex flex-col items-center py-8 select-none shrink-0 no-print space-y-6 z-10 shadow-[inset_-5px_0_10px_rgba(0,0,0,0.05)]">
+            <script>
+                for (let i = 0; i < 40; i++) document.write('<div class="spiral-ring"></div>');
+            </script>
+        </div>
+
+        <!-- Notebook Content Area -->
+        <div class="flex-1 lined-paper p-4 sm:p-8 notebook-margin sm:pl-8 overflow-hidden z-0">
+
+            <!-- TAB 1: DEFINITIONS & CONCEPTS -->
+            <section id="sec-definitions" class="tab-content active space-y-8">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                        Hashing Concepts & Buckets</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 1</span>
+                </div>
+
+                <div class="space-y-6">
+                    <div>
+                        <h3 class="text-3xl font-bold text-inkRed font-heading pen-underline mb-2">What is std::unordered_set?</h3>
+                        <p class="leading-relaxed">
+                            In C++, <code class="bg-amber-100 px-1 rounded text-slate-900 font-sans text-lg font-semibold">std::unordered_set</code> is an associative container that stores unique elements in no particular order. Unlike <code class="bg-amber-100 px-1 rounded text-slate-900 font-sans text-lg font-semibold">std::set</code> (which uses a self-balancing Red-Black Tree to maintain sorted order), the unordered set is implemented using a <span class="highlighter font-bold">Hash Table</span> under the hood.
+                        </p>
+                    </div>
+
+                    <div class="note-box p-5 space-y-3">
+                        <h4 class="text-2xl font-bold text-inkBlue font-heading">🔑 Under-the-Hood Data Structure: Buckets & Chains</h4>
+                        <p class="text-xl">
+                            The hash table is essentially an array of slots called <strong>Buckets</strong>. When we insert an element, the container performs the following operations:
+                        </p>
+                        <ol class="list-decimal list-inside space-y-2 text-xl ml-4">
+                            <li><strong>Hash Computation:</strong> It applies a hash function (like <code class="bg-white px-1.5 py-0.5 rounded border text-sm font-sans font-bold">std::hash&lt;T&gt;</code>) to the element's key to get an integer value.</li>
+                            <li><strong>Modulo Arithmetic:</strong> It maps this hash value to a specific bucket index: <span class="bg-white px-2 py-0.5 rounded border border-slate-300 font-sans text-base font-bold text-inkRed">index = hash(key) % bucket_count</span>.</li>
+                            <li><strong>Chaining for Collision Resolution:</strong> If multiple elements map to the same bucket index (called a <em>collision</em>), they are stored in a singly-linked list (chain) associated with that bucket.</li>
+                        </ol>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-center my-6">
+                        <div class="space-y-4">
+                            <h3 class="text-2xl font-bold text-inkRed font-heading pen-underline">Concepts of Load Factor & Rehashing</h3>
+                            <p class="text-xl">
+                                💡 <strong>Load Factor:</strong> The ratio of the number of elements in the container to the number of buckets:
+                            </p>
+                            <p class="font-sans font-bold text-2xl text-center bg-white border border-blue-200 py-2 rounded max-w-sm mx-auto my-2 text-inkBlue">
+                                Load Factor (&alpha;) = N / B
+                            </p>
+                            <p class="text-lg text-pencilGray leading-relaxed">
+                                Where <strong>N</strong> is the number of active elements and <strong>B</strong> is the bucket count. If &alpha; grows too large (typically exceeding <span class="highlighter">1.0</span>), searching degrades to linear scanning. To prevent this, the set triggers <strong>Rehashing</strong>, which allocates more buckets and redistributes all keys.
+                            </p>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <span class="text-sm font-sans font-bold text-pencilGray mb-1">Conceptual Bucket Chain Visualization:</span>
+                            <canvas id="concept-canvas" class="border border-slate-300 rounded bg-white shadow-sm" style="width: 100%; height: 200px;"></canvas>
+                            <span class="text-xs text-pencilGray mt-1">Collisions are handled by creating linked lists in each bucket slot.</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 2: STEP-BY-STEP EXAMPLE -->
+            <section id="sec-step-by-step" class="tab-content space-y-8">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                        Step-by-Step Chaining Walkthrough</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 2</span>
+                </div>
+
+                <div class="space-y-6">
+                    <p class="leading-relaxed">
+                        Let us walk through the process of inserting a sequence of numbers into an empty <code class="bg-amber-100 px-1 rounded text-slate-900 font-sans text-sm font-semibold">std::unordered_set</code> with <strong>5 buckets</strong>. We assume our hash function is the identity: <span class="highlighter font-semibold font-sans text-sm text-slate-900">hash(x) = x</span>. 
+                        Therefore, <span class="font-bold text-inkRed">Bucket Index = x % 5</span>.
+                    </p>
+
+                    <div class="space-y-8 border-l-4 border-dashed border-amber-300 pl-4 py-2">
+                        
+                        <!-- Step 0 -->
+                        <div class="space-y-2 break-inside-avoid">
+                            <h3 class="text-2xl font-bold text-inkRed font-heading">Step 1: Initial Empty Hash Table</h3>
+                            <p class="text-lg">We start with a clean table of 5 buckets. All buckets contain null pointers (represent NIL pointers).</p>
+                            <div class="bg-white border border-slate-300 rounded p-2 max-w-xl shadow-sm">
+                                <canvas id="step-canvas-0" class="w-full"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Step 1 -->
+                        <div class="space-y-2 break-inside-avoid">
+                            <h3 class="text-2xl font-bold text-inkRed font-heading">Step 2: Insert 12</h3>
+                            <p class="text-lg">
+                                &bull; <span class="font-bold">hash(12) = 12</span>. Bucket Index = <span class="font-sans font-bold">12 % 5 = 2</span>.<br>
+                                &bull; Since bucket 2 is empty, we create a new node and insert it at index 2.
+                            </p>
+                            <div class="bg-white border border-slate-300 rounded p-2 max-w-xl shadow-sm">
+                                <canvas id="step-canvas-1" class="w-full"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Step 2 -->
+                        <div class="space-y-2 break-inside-avoid">
+                            <h3 class="text-2xl font-bold text-inkRed font-heading">Step 3: Insert 7 (Collision!)</h3>
+                            <p class="text-lg">
+                                &bull; <span class="font-bold">hash(7) = 7</span>. Bucket Index = <span class="font-sans font-bold">7 % 5 = 2</span>.<br>
+                                &bull; Bucket 2 already contains 12! We resolve this collision by inserting 7 at the head of the chain.
+                            </p>
+                            <div class="bg-white border border-slate-300 rounded p-2 max-w-xl shadow-sm">
+                                <canvas id="step-canvas-2" class="w-full"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Step 3 -->
+                        <div class="space-y-2 break-inside-avoid">
+                            <h3 class="text-2xl font-bold text-inkRed font-heading">Step 4: Insert 22 (Collision!)</h3>
+                            <p class="text-lg">
+                                &bull; <span class="font-bold">hash(22) = 22</span>. Bucket Index = <span class="font-sans font-bold">22 % 5 = 2</span>.<br>
+                                &bull; Bucket 2 has another collision. We insert 22 at the head of the chain: <span class="bg-blue-50 px-2 py-0.5 rounded text-sm font-sans font-bold">22 &rarr; 7 &rarr; 12</span>.
+                            </p>
+                            <div class="bg-white border border-slate-300 rounded p-2 max-w-xl shadow-sm">
+                                <canvas id="step-canvas-3" class="w-full"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Step 4 -->
+                        <div class="space-y-2 break-inside-avoid">
+                            <h3 class="text-2xl font-bold text-inkRed font-heading">Step 5: Insert 15</h3>
+                            <p class="text-lg">
+                                &bull; <span class="font-bold">hash(15) = 15</span>. Bucket Index = <span class="font-sans font-bold">15 % 5 = 0</span>.<br>
+                                &bull; Index 0 is empty, so we insert 15 directly.
+                            </p>
+                            <div class="bg-white border border-slate-300 rounded p-2 max-w-xl shadow-sm">
+                                <canvas id="step-canvas-4" class="w-full"></canvas>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 3: COMPLEXITY & METHODS -->
+            <section id="sec-complexity" class="tab-content space-y-8">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                        STL Methods & Complexity Analysis</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 3</span>
+                </div>
+
+                <div class="space-y-6">
+                    <h3 class="text-3xl font-bold text-inkRed font-heading pen-underline">Primary std::unordered_set Operations</h3>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse border-2 border-slate-400 bg-white/95 text-base md:text-lg">
+                            <thead>
+                                <tr class="bg-blue-900 text-white font-sans text-sm uppercase">
+                                    <th class="p-3 border border-slate-400">Method</th>
+                                    <th class="p-3 border border-slate-400">Description</th>
+                                    <th class="p-3 border border-slate-400">Average Time</th>
+                                    <th class="p-3 border border-slate-400">Worst-Case Time</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-slate-900">
+                                <tr>
+                                    <td class="p-3 border border-slate-400 font-bold font-sans text-sm"><code class="bg-slate-100 px-1 rounded text-purple-900">insert(val)</code></td>
+                                    <td class="p-3 border border-slate-400">Inserts the value into the set if it doesn't already exist.</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-emerald-700">O(1)</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-red-700">O(N)*</td>
+                                </tr>
+                                <tr class="bg-slate-50/50">
+                                    <td class="p-3 border border-slate-400 font-bold font-sans text-sm"><code class="bg-slate-100 px-1 rounded text-purple-900">erase(key)</code></td>
+                                    <td class="p-3 border border-slate-400">Removes the element matching the key.</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-emerald-700">O(1)</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-red-700">O(N)</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 border border-slate-400 font-bold font-sans text-sm"><code class="bg-slate-100 px-1 rounded text-purple-900">find(key)</code></td>
+                                    <td class="p-3 border border-slate-400">Returns an iterator to the element if found, or <code class="text-xs font-sans font-bold">end()</code> if not.</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-emerald-700">O(1)</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-red-700">O(N)</td>
+                                </tr>
+                                <tr class="bg-slate-50/50">
+                                    <td class="p-3 border border-slate-400 font-bold font-sans text-sm"><code class="bg-slate-100 px-1 rounded text-purple-900">count(key)</code></td>
+                                    <td class="p-3 border border-slate-400">Returns 1 if the element is present, else 0 (since keys are unique).</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-emerald-700">O(1)</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-red-700">O(N)</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 border border-slate-400 font-bold font-sans text-sm"><code class="bg-slate-100 px-1 rounded text-purple-900">bucket_count()</code></td>
+                                    <td class="p-3 border border-slate-400">Returns the total number of buckets in the container.</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-emerald-700">O(1)</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-emerald-700">O(1)</td>
+                                </tr>
+                                <tr class="bg-slate-50/50">
+                                    <td class="p-3 border border-slate-400 font-bold font-sans text-sm"><code class="bg-slate-100 px-1 rounded text-purple-900">load_factor()</code></td>
+                                    <td class="p-3 border border-slate-400">Returns the average size of buckets: <span class="text-sm font-sans font-semibold">size() / bucket_count()</span>.</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-emerald-700">O(1)</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-emerald-700">O(1)</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 border border-slate-400 font-bold font-sans text-sm"><code class="bg-slate-100 px-1 rounded text-purple-900">rehash(n)</code></td>
+                                    <td class="p-3 border border-slate-400">Sets the bucket count to at least <span class="font-sans font-bold">n</span> and rebuilds the hash table.</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-inkBlue">O(N)</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-red-700">O(N<sup>2</sup>)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="note-box p-4 space-y-2 mt-4">
+                        <h4 class="text-2xl font-bold text-inkRed font-heading">📝 Rationale behind complexities:</h4>
+                        <ul class="list-disc list-inside space-y-1 text-lg">
+                            <li><strong>Average Case O(1):</strong> In a well-designed hash table, keys are distributed uniformly across buckets. The average length of each linked list is limited to the load factor threshold (&le; 1.0). Finding an element requires calculating the hash index (O(1)) and scanning a list of length &le; 1 (O(1)).</li>
+                            <li><strong>Worst Case O(N):</strong> Occurs when the hash function is poor and maps all elements to the exact same bucket. The container degrades to a single linked list, causing insertion, deletion, and searches to take linear scan time, <span class="font-bold text-inkRed">O(N)</span>.</li>
+                            <li><strong>* Rehashing overhead:</strong> When insertion triggers rehashing, the time complexity for that specific insertion becomes O(N) because every element must be hashed again and moved to a new bucket. Amortized over many inserts, it is still O(1).</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 4: INTERACTIVE VISUALIZATION -->
+            <section id="sec-visualization" class="tab-content space-y-6">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-4 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                        Interactive Hash Table Simulator</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 4</span>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                    
+                    <!-- Left Column: Controls & Stats (5 Cols) -->
+                    <div class="lg:col-span-5 space-y-4 bg-amber-50/50 p-4 rounded-xl border border-amber-300">
+                        <h3 class="text-2xl font-bold text-inkRed font-heading border-b border-amber-200 pb-1">Set Operations</h3>
+                        
+                        <div class="flex items-center space-x-2">
+                            <input type="number" id="sim-input" placeholder="Enter key (integer)" class="w-full bg-white border border-slate-300 rounded px-3 py-1.5 font-sans text-sm focus:outline-none focus:border-inkBlue">
+                        </div>
+
+                        <div class="grid grid-cols-3 gap-2">
+                            <button onclick="simInsert()" class="bg-blue-700 hover:bg-blue-800 text-white font-sans text-sm font-bold py-2 rounded shadow transition">Insert</button>
+                            <button onclick="simDelete()" class="bg-red-700 hover:bg-red-800 text-white font-sans text-sm font-bold py-2 rounded shadow transition">Delete</button>
+                            <button onclick="simFind()" class="bg-emerald-700 hover:bg-emerald-800 text-white font-sans text-sm font-bold py-2 rounded shadow transition">Find</button>
+                        </div>
+
+                        <div class="flex justify-between items-center pt-2">
+                            <button onclick="simClear()" class="bg-slate-500 hover:bg-slate-600 text-white font-sans text-sm font-bold py-1.5 px-3 rounded shadow transition">Clear Set</button>
+                            <label class="flex items-center space-x-2 text-sm font-bold font-sans cursor-pointer text-slate-700 select-none">
+                                <input type="checkbox" id="sim-auto-rehash" checked onchange="drawSimulator()" class="w-4 h-4 text-purple-600 border-slate-300 rounded">
+                                <span>Auto-Rehash (&alpha; &gt; 1.0)</span>
+                            </label>
+                        </div>
+
+                        <!-- Stats Dashboard -->
+                        <div class="bg-white border border-slate-300 rounded-lg p-3 space-y-1.5 shadow-sm text-base md:text-lg">
+                            <h4 class="font-bold text-inkBlue font-sans text-sm uppercase tracking-wider border-b border-slate-100 pb-1">Container Metadata</h4>
+                            <div class="flex justify-between">
+                                <span class="font-bold">Elements count (N):</span>
+                                <span id="lbl-size" class="font-sans font-bold text-slate-800">0</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="font-bold">Buckets count (B):</span>
+                                <span id="lbl-buckets" class="font-sans font-bold text-slate-800">5</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="font-bold">Load Factor (&alpha;):</span>
+                                <span id="lbl-lf" class="font-sans font-bold text-slate-800">0.00</span>
+                            </div>
+                        </div>
+
+                        <!-- Status Log -->
+                        <div class="bg-white border border-slate-300 rounded-lg p-3 shadow-sm">
+                            <h4 class="font-bold text-pencilGray font-sans text-sm uppercase tracking-wider mb-1">Execution Trace:</h4>
+                            <p id="sim-status" class="text-base text-inkRed font-semibold min-h-[45px] leading-snug">Enter an integer and click Insert to begin.</p>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Canvas Output (7 Cols) -->
+                    <div class="lg:col-span-7 flex flex-col items-center">
+                        <div class="w-full bg-white border border-slate-300 rounded-lg shadow-md p-3 relative">
+                            <canvas id="simulator-canvas" style="width: 100%; height: 420px;"></canvas>
+                        </div>
+                        <span class="text-xs text-pencilGray mt-1.5 text-center block w-full font-sans italic">
+                            * Highlight colors: <span class="text-emerald-700 font-bold">Green</span> nodes represent matching query elements, <span class="text-yellow-600 font-bold">Orange</span> indicates active search scans.
+                        </span>
+                    </div>
+
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- JavaScript Controllers -->
+    <script>
+        // Global Style/Font Toggle State
+        let isCleanFont = false;
+        
+        function toggleStyleMode() {
+            isCleanFont = !isCleanFont;
+            const body = document.body;
+            const styleBtn = document.getElementById('styleBtn');
+            if (isCleanFont) {
+                body.classList.remove('font-notes-body');
+                body.classList.add('font-clean');
+                styleBtn.innerText = "✍️ Switch to Handwritten Font";
+            } else {
+                body.classList.remove('font-clean');
+                body.classList.add('font-notes-body');
+                styleBtn.innerText = "✍️ Switch to Clean Print Font";
+            }
+            // Redraw everything
+            drawConceptDiagram();
+            drawStepCanvases();
+            drawSimulator();
+        }
+
+        // Tab Navigation Controller
+        let currentTab = 'definitions';
+        function switchTab(tabId) {
+            currentTab = tabId;
+            
+            // Toggle active sections
+            document.querySelectorAll('.tab-content').forEach(sec => {
+                sec.classList.remove('active');
+            });
+            document.getElementById('sec-' + tabId).classList.add('active');
+            
+            // Toggle tab buttons visual state
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('bg-amber-200', 'text-inkBlue', 'border-b-2', 'border-inkBlue');
+                tab.classList.add('text-gray-600', 'hover:text-inkBlue');
+            });
+            
+            const activeTab = document.getElementById('tab-' + tabId);
+            if (activeTab) {
+                activeTab.classList.remove('text-gray-600', 'hover:text-inkBlue');
+                activeTab.classList.add('bg-amber-200', 'text-inkBlue', 'border-b-2', 'border-inkBlue');
+            }
+            
+            // Redraw canvas after display toggle updates client widths
+            setTimeout(() => {
+                if (tabId === 'definitions') drawConceptDiagram();
+                if (tabId === 'step-by-step') drawStepCanvases();
+                if (tabId === 'visualization') drawSimulator();
+            }, 50);
+        }
+
+        // Resize Listener
+        window.onresize = () => {
+            if (currentTab === 'definitions') drawConceptDiagram();
+            if (currentTab === 'step-by-step') drawStepCanvases();
+            if (currentTab === 'visualization') drawSimulator();
+        };
+
+        // Arrow drawing utility
+        function drawArrow(ctx, fromx, fromy, tox, toy, color = '#1A365D') {
+            const headlen = 7;
+            const dx = tox - fromx;
+            const dy = toy - fromy;
+            const angle = Math.atan2(dy, dx);
+            
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(fromx, fromy);
+            ctx.lineTo(tox, toy);
+            ctx.stroke();
+            
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.moveTo(tox, toy);
+            ctx.lineTo(tox - headlen * Math.cos(angle - Math.PI / 6), toy - headlen * Math.sin(angle - Math.PI / 6));
+            ctx.lineTo(tox - headlen * Math.cos(angle + Math.PI / 6), toy - headlen * Math.sin(angle + Math.PI / 6));
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        /* ----------------------------------------------------------------------
+           TAB 1: CONCEPT CANVAS DRAWING
+        ---------------------------------------------------------------------- */
+        function drawConceptDiagram() {
+            const canvas = document.getElementById('concept-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            
+            const width = canvas.parentElement.clientWidth || 400;
+            const height = 200;
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            ctx.scale(dpr, dpr);
+            
+            ctx.clearRect(0, 0, width, height);
+            
+            // Warm background
+            ctx.fillStyle = '#FCFBF9';
+            ctx.fillRect(0, 0, width, height);
+            
+            const buckets = 4;
+            const bucketX = 80;
+            const startY = 25;
+            const bucketH = 26;
+            const bucketW = 50;
+            const spacingY = 40;
+            
+            ctx.font = isCleanFont ? 'bold 12px Inter' : 'bold 15px Kalam';
+            ctx.textBaseline = 'middle';
+            
+            const fakeData = {
+                0: [5, 25],
+                1: [],
+                2: [18],
+                3: [9, 13, 29]
+            };
+            
+            for (let i = 0; i < buckets; i++) {
+                const y = startY + i * spacingY;
+                
+                // Index label
+                ctx.fillStyle = '#4A5568';
+                ctx.textAlign = 'right';
+                ctx.fillText(`Bucket ${i}`, bucketX - 8, y + bucketH/2);
+                
+                // Bucket block
+                ctx.strokeStyle = '#1A365D';
+                ctx.lineWidth = 2;
+                ctx.fillStyle = '#FFFFFF';
+                ctx.fillRect(bucketX, y, bucketW, bucketH);
+                ctx.strokeRect(bucketX, y, bucketW, bucketH);
+                
+                // Bullet anchor
+                ctx.fillStyle = '#1A365D';
+                ctx.beginPath();
+                ctx.arc(bucketX + bucketW/2, y + bucketH/2, 4, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Linked List items
+                const chain = fakeData[i];
+                let prevX = bucketX + bucketW/2;
+                let prevY = y + bucketH/2;
+                let currentX = bucketX + bucketW + 35;
+                
+                for (let j = 0; j < chain.length; j++) {
+                    drawArrow(ctx, prevX, prevY, currentX, y + bucketH/2);
+                    
+                    const nodeW = 32;
+                    const nodeH = 22;
+                    
+                    ctx.fillStyle = '#EBF8FF';
+                    ctx.strokeStyle = '#1A365D';
+                    ctx.lineWidth = 1.5;
+                    ctx.fillRect(currentX, y + (bucketH - nodeH)/2, nodeW, nodeH);
+                    ctx.strokeRect(currentX, y + (bucketH - nodeH)/2, nodeW, nodeH);
+                    
+                    ctx.fillStyle = '#1A365D';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(String(chain[j]), currentX + nodeW/2, y + bucketH/2);
+                    
+                    prevX = currentX + nodeW;
+                    prevY = y + bucketH/2;
+                    currentX = prevX + 35;
+                }
+                
+                if (chain.length > 0) {
+                    drawArrow(ctx, prevX, prevY, currentX - 12, y + bucketH/2);
+                    ctx.fillStyle = '#9B2C2C';
+                    ctx.textAlign = 'left';
+                    ctx.fillText('NIL', currentX - 5, y + bucketH/2);
+                } else {
+                    // Null indicator
+                    ctx.strokeStyle = '#9B2C2C';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(bucketX + 6, y + bucketH - 6);
+                    ctx.lineTo(bucketX + bucketW - 6, y + 6);
+                    ctx.stroke();
+                }
+            }
+        }
+
+        /* ----------------------------------------------------------------------
+           TAB 2: STEP-BY-STEP CANVASES
+        ---------------------------------------------------------------------- */
+        function drawStepCanvases() {
+            const stepStates = [
+                { 0:[], 1:[], 2:[], 3:[], 4:[] },
+                { 0:[], 1:[], 2:[12], 3:[], 4:[] },
+                { 0:[], 1:[], 2:[7, 12], 3:[], 4:[] },
+                { 0:[], 1:[], 2:[22, 7, 12], 3:[], 4:[] },
+                { 0:[15], 1:[], 2:[22, 7, 12], 3:[], 4:[] }
+            ];
+            
+            stepStates.forEach((state, idx) => {
+                const canvas = document.getElementById(`step-canvas-${idx}`);
+                if (!canvas) return;
+                const ctx = canvas.getContext('2d');
+                const dpr = window.devicePixelRatio || 1;
+                
+                const width = canvas.parentElement.clientWidth || 400;
+                const height = 150;
+                canvas.style.width = width + 'px';
+                canvas.style.height = height + 'px';
+                canvas.width = width * dpr;
+                canvas.height = height * dpr;
+                ctx.scale(dpr, dpr);
+                
+                ctx.clearRect(0, 0, width, height);
+                ctx.fillStyle = '#FCFBF9';
+                ctx.fillRect(0, 0, width, height);
+                
+                const buckets = 5;
+                const bucketX = 60;
+                const startY = 12;
+                const bucketH = 20;
+                const bucketW = 34;
+                const spacingY = 24;
+                
+                ctx.font = isCleanFont ? 'bold 11px Inter' : 'bold 13px Kalam';
+                ctx.textBaseline = 'middle';
+                
+                for (let i = 0; i < buckets; i++) {
+                    const y = startY + i * spacingY;
+                    
+                    // index
+                    ctx.fillStyle = '#4A5568';
+                    ctx.textAlign = 'right';
+                    ctx.fillText(`[${i}]`, bucketX - 6, y + bucketH/2);
+                    
+                    // bucket
+                    ctx.strokeStyle = '#1A365D';
+                    ctx.lineWidth = 1.5;
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.fillRect(bucketX, y, bucketW, bucketH);
+                    ctx.strokeRect(bucketX, y, bucketW, bucketH);
+                    
+                    // anchor
+                    ctx.fillStyle = '#1A365D';
+                    ctx.beginPath();
+                    ctx.arc(bucketX + bucketW/2, y + bucketH/2, 3, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    const chain = state[i];
+                    let prevX = bucketX + bucketW/2;
+                    let prevY = y + bucketH/2;
+                    let currentX = bucketX + bucketW + 25;
+                    
+                    for (let j = 0; j < chain.length; j++) {
+                        drawArrow(ctx, prevX, prevY, currentX, y + bucketH/2);
+                        
+                        const nodeW = 28;
+                        const nodeH = 18;
+                        
+                        ctx.fillStyle = '#EBF8FF';
+                        ctx.strokeStyle = '#1A365D';
+                        ctx.lineWidth = 1.5;
+                        ctx.fillRect(currentX, y + (bucketH - nodeH)/2, nodeW, nodeH);
+                        ctx.strokeRect(currentX, y + (bucketH - nodeH)/2, nodeW, nodeH);
+                        
+                        ctx.fillStyle = '#1A365D';
+                        ctx.textAlign = 'center';
+                        ctx.fillText(String(chain[j]), currentX + nodeW/2, y + bucketH/2);
+                        
+                        prevX = currentX + nodeW;
+                        prevY = y + bucketH/2;
+                        currentX = prevX + 25;
+                    }
+                    
+                    if (chain.length > 0) {
+                        drawArrow(ctx, prevX, prevY, currentX - 10, y + bucketH/2);
+                        ctx.fillStyle = '#9B2C2C';
+                        ctx.textAlign = 'left';
+                        ctx.fillText('NIL', currentX - 4, y + bucketH/2);
+                    } else {
+                        // Null line
+                        ctx.strokeStyle = '#9B2C2C';
+                        ctx.lineWidth = 1.5;
+                        ctx.beginPath();
+                        ctx.moveTo(bucketX + 4, y + bucketH - 4);
+                        ctx.lineTo(bucketX + bucketW - 4, y + 4);
+                        ctx.stroke();
+                    }
+                }
+            });
+        }
+
+        /* ----------------------------------------------------------------------
+           TAB 4: INTERACTIVE SIMULATOR SYSTEM
+        ---------------------------------------------------------------------- */
+        class UnorderedSetSim {
+            constructor() {
+                this.bucketCount = 5;
+                this.buckets = Array.from({ length: this.bucketCount }, () => []);
+                this.size = 0;
+                
+                // Animation/Highlight variables
+                this.activeSearchKey = null;
+                this.activeSearchSteps = [];
+                this.foundNode = null; // { bucketIdx, chainIdx }
+            }
+            
+            getLoadFactor() {
+                return (this.size / this.bucketCount);
+            }
+            
+            hash(key) {
+                // Identity hash for clear modular explanation
+                return Math.abs(parseInt(key)) || 0;
+            }
+            
+            getBucketIndex(key) {
+                return this.hash(key) % this.bucketCount;
+            }
+            
+            insert(key) {
+                const idx = this.getBucketIndex(key);
+                if (this.buckets[idx].includes(key)) {
+                    return { success: false, msg: `Key ${key} already exists in the set (Duplicates not allowed).` };
+                }
+                
+                // Insert at head
+                this.buckets[idx].unshift(key);
+                this.size++;
+                
+                let rehashed = false;
+                const oldBuckets = this.bucketCount;
+                const autoRehash = document.getElementById('sim-auto-rehash').checked;
+                
+                if (autoRehash && this.getLoadFactor() > 1.0) {
+                    this.rehash();
+                    rehashed = true;
+                }
+                
+                return {
+                    success: true,
+                    rehashed: rehashed,
+                    msg: rehashed 
+                        ? `Inserted ${key} at bucket ${idx}. Load factor exceeded 1.0! Auto-rehashed from ${oldBuckets} to ${this.bucketCount} buckets.`
+                        : `Inserted ${key} at bucket ${idx} successfully.`
+                };
+            }
+            
+            delete(key) {
+                const idx = this.getBucketIndex(key);
+                const chain = this.buckets[idx];
+                const itemIdx = chain.indexOf(key);
+                
+                if (itemIdx === -1) {
+                    return { success: false, msg: `Key ${key} not found in the set.` };
+                }
+                
+                chain.splice(itemIdx, 1);
+                this.size--;
+                return { success: true, msg: `Removed key ${key} from bucket ${idx}.` };
+            }
+            
+            find(key) {
+                const idx = this.getBucketIndex(key);
+                const chain = this.buckets[idx];
+                const itemIdx = chain.indexOf(key);
+                
+                if (itemIdx !== -1) {
+                    this.foundNode = { bucketIdx: idx, chainIdx: itemIdx };
+                    return { success: true, bucketIdx: idx, chainIdx: itemIdx, msg: `Key ${key} found in bucket ${idx} at chain position ${itemIdx}.` };
+                } else {
+                    this.foundNode = null;
+                    return { success: false, bucketIdx: idx, msg: `Key ${key} hashes to bucket ${idx}, but is not present in the chain.` };
+                }
+            }
+            
+            rehash() {
+                // Primes sequence for sizing: 5, 11, 23, 47
+                const primes = [5, 11, 23, 47, 97];
+                let nextIndex = primes.indexOf(this.bucketCount) + 1;
+                if (nextIndex >= primes.length) {
+                    this.bucketCount = this.bucketCount * 2 + 1;
+                } else {
+                    this.bucketCount = primes[nextIndex];
+                }
+                
+                // Redistribute
+                const allKeys = [];
+                this.buckets.forEach(c => allKeys.push(...c));
+                
+                this.buckets = Array.from({ length: this.bucketCount }, () => []);
+                allKeys.forEach(key => {
+                    const newIdx = this.getBucketIndex(key);
+                    this.buckets[newIdx].push(key); // Rehash elements
+                });
+            }
+            
+            clear() {
+                this.bucketCount = 5;
+                this.buckets = Array.from({ length: this.bucketCount }, () => []);
+                this.size = 0;
+                this.foundNode = null;
+                this.activeSearchKey = null;
+            }
+        }
+        
+        // Instance creation
+        const simSet = new UnorderedSetSim();
+        
+        // Pre-populate with a few numbers for a nice initial screen
+        [10, 24, 7, 18, 3].forEach(val => simSet.insert(val));
+        
+        function updateStatsDashboard() {
+            document.getElementById('lbl-size').innerText = simSet.size;
+            document.getElementById('lbl-buckets').innerText = simSet.bucketCount;
+            
+            const lf = simSet.getLoadFactor();
+            const lblLf = document.getElementById('lbl-lf');
+            lblLf.innerText = lf.toFixed(2);
+            
+            if (lf > 1.0) {
+                lblLf.className = "font-sans font-bold text-red-600";
+            } else {
+                lblLf.className = "font-sans font-bold text-slate-800";
+            }
+        }
+        
+        function drawSimulator() {
+            const canvas = document.getElementById('simulator-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            
+            const width = canvas.parentElement.clientWidth || 500;
+            
+            // Adjust canvas height dynamically based on bucket count
+            const startY = 25;
+            const spacingY = Math.max(26, Math.min(36, 380 / simSet.bucketCount));
+            const height = Math.max(420, startY + simSet.bucketCount * spacingY + 20);
+            
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            ctx.scale(dpr, dpr);
+            
+            ctx.clearRect(0, 0, width, height);
+            
+            // Drawing background
+            ctx.fillStyle = '#FCFBF9';
+            ctx.fillRect(0, 0, width, height);
+            
+            const bucketX = 85;
+            const bucketH = 22;
+            const bucketW = 44;
+            
+            ctx.font = isCleanFont ? 'bold 12px Inter' : 'bold 14px Kalam';
+            ctx.textBaseline = 'middle';
+            
+            for (let i = 0; i < simSet.bucketCount; i++) {
+                const y = startY + i * spacingY;
+                
+                // Check if this bucket index is being queried/searched
+                let isBucketHighlighted = false;
+                if (simSet.activeSearchKey !== null) {
+                    const searchIdx = simSet.getBucketIndex(simSet.activeSearchKey);
+                    if (searchIdx === i) {
+                        isBucketHighlighted = true;
+                    }
+                }
+                
+                // Index text
+                ctx.fillStyle = isBucketHighlighted ? '#9B2C2C' : '#4A5568';
+                ctx.textAlign = 'right';
+                ctx.fillText(`Bucket ${i}`, bucketX - 8, y + bucketH/2);
+                
+                // Draw bucket box
+                ctx.strokeStyle = isBucketHighlighted ? '#D97706' : '#1A365D'; // Orange when highlighted
+                ctx.lineWidth = isBucketHighlighted ? 2.5 : 2;
+                ctx.fillStyle = isBucketHighlighted ? '#FEF3C7' : '#FFFFFF'; // Amber wash
+                ctx.fillRect(bucketX, y, bucketW, bucketH);
+                ctx.strokeRect(bucketX, y, bucketW, bucketH);
+                
+                // Bullet anchor
+                ctx.fillStyle = isBucketHighlighted ? '#D97706' : '#1A365D';
+                ctx.beginPath();
+                ctx.arc(bucketX + bucketW/2, y + bucketH/2, 3.5, 0, Math.PI * 2);
+                ctx.fill();
+                
+                const chain = simSet.buckets[i];
+                let prevX = bucketX + bucketW/2;
+                let prevY = y + bucketH/2;
+                let currentX = bucketX + bucketW + 30;
+                
+                for (let j = 0; j < chain.length; j++) {
+                    const val = chain[j];
+                    
+                    // Check search highlighting
+                    let isNodeHighlighted = false;
+                    let highlightColor = '#EBF8FF'; // Neutral pastel blue
+                    let borderStroke = '#1A365D';
+                    
+                    if (simSet.activeSearchKey !== null) {
+                        const searchIdx = simSet.getBucketIndex(simSet.activeSearchKey);
+                        if (searchIdx === i) {
+                            // Check if this node is the one we search for
+                            if (val === simSet.activeSearchKey) {
+                                isNodeHighlighted = true;
+                                highlightColor = '#DEF7EC'; // Green background
+                                borderStroke = '#03543F';
+                            } else {
+                                // Scanned path node
+                                highlightColor = '#FEF3C7'; // Yellow background
+                                borderStroke = '#D97706';
+                            }
+                        }
+                    }
+                    
+                    drawArrow(ctx, prevX, prevY, currentX, y + bucketH/2, borderStroke);
+                    
+                    const nodeW = 32;
+                    const nodeH = 18;
+                    
+                    ctx.fillStyle = highlightColor;
+                    ctx.strokeStyle = borderStroke;
+                    ctx.lineWidth = isNodeHighlighted ? 2 : 1.5;
+                    ctx.fillRect(currentX, y + (bucketH - nodeH)/2, nodeW, nodeH);
+                    ctx.strokeRect(currentX, y + (bucketH - nodeH)/2, nodeW, nodeH);
+                    
+                    ctx.fillStyle = borderStroke;
+                    ctx.textAlign = 'center';
+                    ctx.fillText(String(val), currentX + nodeW/2, y + bucketH/2);
+                    
+                    prevX = currentX + nodeW;
+                    prevY = y + bucketH/2;
+                    currentX = prevX + 30;
+                }
+                
+                if (chain.length > 0) {
+                    const strokeCol = isBucketHighlighted ? '#D97706' : '#1A365D';
+                    drawArrow(ctx, prevX, prevY, currentX - 10, y + bucketH/2, strokeCol);
+                    ctx.fillStyle = '#9B2C2C';
+                    ctx.textAlign = 'left';
+                    ctx.fillText('NIL', currentX - 4, y + bucketH/2);
+                } else {
+                    // Null cross
+                    ctx.strokeStyle = '#9B2C2C';
+                    ctx.lineWidth = 1.5;
+                    ctx.beginPath();
+                    ctx.moveTo(bucketX + 4, y + bucketH - 4);
+                    ctx.lineTo(bucketX + bucketW - 4, y + 4);
+                    ctx.stroke();
+                }
+            }
+            updateStatsDashboard();
+        }
+        
+        function simInsert() {
+            const input = document.getElementById('sim-input');
+            const val = parseInt(input.value);
+            const status = document.getElementById('sim-status');
+            
+            if (isNaN(val)) {
+                status.innerText = "⚠️ Please enter a valid integer.";
+                return;
+            }
+            
+            simSet.activeSearchKey = val;
+            const res = simSet.insert(val);
+            status.innerText = res.msg;
+            input.value = '';
+            
+            drawSimulator();
+            
+            // Fade highlight after a short delay
+            setTimeout(() => {
+                simSet.activeSearchKey = null;
+                drawSimulator();
+            }, 2500);
+        }
+        
+        function simDelete() {
+            const input = document.getElementById('sim-input');
+            const val = parseInt(input.value);
+            const status = document.getElementById('sim-status');
+            
+            if (isNaN(val)) {
+                status.innerText = "⚠️ Please enter a valid integer.";
+                return;
+            }
+            
+            simSet.activeSearchKey = val;
+            drawSimulator(); // Draw search trace first
+            
+            setTimeout(() => {
+                const res = simSet.delete(val);
+                status.innerText = res.msg;
+                simSet.activeSearchKey = null;
+                input.value = '';
+                drawSimulator();
+            }, 600);
+        }
+        
+        function simFind() {
+            const input = document.getElementById('sim-input');
+            const val = parseInt(input.value);
+            const status = document.getElementById('sim-status');
+            
+            if (isNaN(val)) {
+                status.innerText = "⚠️ Please enter a valid integer.";
+                return;
+            }
+            
+            simSet.activeSearchKey = val;
+            const res = simSet.find(val);
+            
+            status.innerHTML = `<strong>Trace:</strong> 1. Computed hash(${val}) = ${val}. <br>` +
+                               `2. Index = ${val} % ${simSet.bucketCount} = <strong>${res.bucketIdx}</strong>.<br>` +
+                               `3. ${res.msg}`;
+            input.value = '';
+            drawSimulator();
+            
+            // Fade highlight after delay
+            setTimeout(() => {
+                simSet.activeSearchKey = null;
+                drawSimulator();
+            }, 3500);
+        }
+        
+        function simClear() {
+            simSet.clear();
+            document.getElementById('sim-status').innerText = "Simulator reset. Set cleared.";
+            drawSimulator();
+        }
+
+        // Run drawings on load
+        window.onload = () => {
+            drawConceptDiagram();
+            drawStepCanvases();
+            drawSimulator();
+        };
+    </script>
+</body>
+
+</html>

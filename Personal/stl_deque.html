@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STL Containers: std::deque - Digital Lecture Notes</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Kalam:wght@300;400;700&family=Patrick+Hand&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        notebookBg: '#cbd5e1',
+                        notebookPaper: '#FAF6EE',
+                        inkBlue: '#1A365D',
+                        inkRed: '#9B2C2C',
+                        pencilGray: '#4A5568',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Shared Notebook Styles -->
+    <link rel="stylesheet" href="../notebook.css">
+    
+    <style>
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+
+<body class="font-notes-body text-2xl text-slate-800 antialiased transition-all duration-300">
+
+    <!-- Sticky Header -->
+    <header class="sticky top-0 z-50 bg-[#FAF6EE] shadow-md border-b-2 border-amber-200 px-4 py-3 no-print">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-3">
+            <div class="flex items-center space-x-3">
+                <span class="text-3xl font-bold text-inkBlue tracking-wide font-heading">📖 STL: std::deque (Double-ended Queue)</span>
+                <span class="bg-purple-100 text-purple-800 text-xs font-bold px-2.5 py-1 rounded-full border border-purple-300 font-sans uppercase">STL Containers</span>
+            </div>
+            <button id="styleBtn" onclick="toggleStyleMode()" class="px-4 py-1.5 rounded-full text-sm font-bold bg-inkBlue text-white hover:bg-opacity-90 transition font-sans shadow-sm">
+                ✍️ Switch to Clean Print Font
+            </button>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <nav class="max-w-6xl mx-auto mt-3 flex flex-wrap gap-1 border-t border-amber-200 pt-2 text-base md:text-lg">
+            <button onclick="switchTab('definitions')" id="tab-definitions" class="nav-tab px-4 py-2 rounded-t-lg font-bold bg-amber-200 text-inkBlue border-b-2 border-inkBlue">
+                1. Definitions & Concepts
+            </button>
+            <button onclick="switchTab('step-by-step')" id="tab-step-by-step" class="nav-tab px-4 py-2 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
+                2. Step-by-Step Growth
+            </button>
+            <button onclick="switchTab('complexity')" id="tab-complexity" class="nav-tab px-4 py-2 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
+                3. Complexity & Methods
+            </button>
+            <button onclick="switchTab('visualization')" id="tab-visualization" class="nav-tab px-4 py-2 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
+                4. Interactive Simulator
+            </button>
+        </nav>
+    </header>
+
+    <!-- Main Notebook Container -->
+    <main class="max-w-6xl mx-auto flex relative bg-notebookPaper rounded-xl shadow-2xl overflow-hidden min-h-[900px] border border-amber-200 my-8">
+        
+        <!-- Left Binder Column -->
+        <div class="w-10 sm:w-16 bg-amber-50 border-r-2 border-amber-200 flex flex-col items-center py-8 select-none shrink-0 no-print space-y-6 z-10 shadow-[inset_-5px_0_10px_rgba(0,0,0,0.05)]">
+            <script>
+                for (let i = 0; i < 40; i++) document.write('<div class="spiral-ring"></div>');
+            </script>
+        </div>
+
+        <!-- Notebook Content Area -->
+        <div class="flex-1 lined-paper p-4 sm:p-8 notebook-margin sm:pl-8 overflow-hidden z-0">
+
+            <!-- TAB 1: DEFINITIONS & CONCEPTS -->
+            <section id="sec-definitions" class="tab-content active space-y-8">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                        Chunked Memory Maps & Double-Ended Queues</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 1</span>
+                </div>
+
+                <div class="space-y-6">
+                    <div>
+                        <h3 class="text-3xl font-bold text-inkRed font-heading pen-underline mb-2">What is std::deque?</h3>
+                        <p class="leading-relaxed">
+                            In C++, <code class="bg-amber-100 px-1 rounded text-slate-900 font-sans text-lg font-semibold">std::deque</code> (stands for <strong>Double-Ended Queue</strong>) is a sequence container that allows fast insertion and deletion at both the beginning and the end.
+                        </p>
+                    </div>
+
+                    <div class="note-box p-5 space-y-3">
+                        <h4 class="text-2xl font-bold text-inkBlue font-heading">🔑 Under-the-hood: Map of Chunk Pointers</h4>
+                        <p class="text-xl">
+                            Unlike vectors which use a single contiguous memory block, a deque uses a **central map of pointer blocks** pointing to several independent fixed-size contiguous memory blocks called **chunks**:
+                        </p>
+                        <ul class="list-disc list-inside space-y-2 text-xl ml-4">
+                            <li><strong>Chunk blocks:</strong> Fixed-size contiguous arrays (e.g., 512 bytes or 8 element slots).</li>
+                            <li><strong>Map Array:</strong> A central array containing pointers to these chunk arrays.</li>
+                            <li><strong>Two-way Grow bounds:</strong> Pushing at the back fills the right-side chunks. Pushing at the front fills the left-side chunks. If we run out of slots, we simply allocate a new chunk block and add its address in the central map.</li>
+                        </ul>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-center my-6">
+                        <div class="space-y-4">
+                            <h3 class="text-2xl font-bold text-inkRed font-heading pen-underline">Key Architecture Benefits</h3>
+                            <p class="text-xl leading-relaxed">
+                                💡 <strong>Constant Time push/pop:</strong> Adding or removing at either end takes strictly **O(1)** time and never requires shifting other elements (unlike vector's front inserts).
+                            </p>
+                            <p class="text-xl leading-relaxed">
+                                💡 <strong>Index access O(1):</strong> To read `deque[i]`, the library computes which chunk stores the element in constant time: <span class="bg-white border px-1 font-sans text-sm font-bold">chunk = (i + offset) / chunk_size</span>, keeping random access fast.
+                            </p>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <span class="text-sm font-sans font-bold text-pencilGray mb-1">Conceptual Pointer Map Layout:</span>
+                            <canvas id="concept-canvas" class="border border-slate-300 rounded bg-white shadow-sm" style="width: 100%; height: 180px;"></canvas>
+                            <span class="text-xs text-pencilGray mt-1">Central Map pointers point to horizontal memory blocks.</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 2: STEP-BY-STEP EXAMPLE -->
+            <section id="sec-step-by-step" class="tab-content space-y-8">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                        Step-by-Step Chunks Allocation</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 2</span>
+                </div>
+
+                <div class="space-y-6">
+                    <p class="leading-relaxed">
+                        Let us trace pushing values at the front and back of a deque using **chunk size = 3**.
+                    </p>
+
+                    <div class="space-y-8 border-l-4 border-dashed border-amber-300 pl-4 py-2">
+                        
+                        <!-- Step 1 -->
+                        <div class="space-y-2 break-inside-avoid">
+                            <h3 class="text-2xl font-bold text-inkRed font-heading">Step 1: Empty State</h3>
+                            <p class="text-lg">
+                                Central map points to a single allocated chunk in the center. All elements are null.
+                            </p>
+                            <div class="bg-white border border-slate-300 rounded p-2 max-w-xl shadow-sm">
+                                <canvas id="step-canvas-1" class="w-full"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Step 2 -->
+                        <div class="space-y-2 break-inside-avoid">
+                            <h3 class="text-2xl font-bold text-inkRed font-heading">Step 2: Push Back 10, Push Back 20</h3>
+                            <p class="text-lg">
+                                Items are filled in the center chunk slots.
+                            </p>
+                            <div class="bg-white border border-slate-300 rounded p-2 max-w-xl shadow-sm">
+                                <canvas id="step-canvas-2" class="w-full"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Step 3 -->
+                        <div class="space-y-2 break-inside-avoid">
+                            <h3 class="text-2xl font-bold text-inkRed font-heading">Step 3: Push Front 30, Push Front 40 (Allocates left chunk!)</h3>
+                            <p class="text-lg">
+                                &bull; Pushing 30 fills the first slot of the center chunk.<br>
+                                &bull; Pushing 40 runs out of left space! The deque allocates a new chunk to the left of the map index, and writes 40 in it.
+                            </p>
+                            <div class="bg-white border border-slate-300 rounded p-2 max-w-xl shadow-sm">
+                                <canvas id="step-canvas-3" class="w-full"></canvas>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 3: COMPLEXITY & METHODS -->
+            <section id="sec-complexity" class="tab-content space-y-8">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                        Deque Methods & Complexity Analysis</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 3</span>
+                </div>
+
+                <div class="space-y-6">
+                    <h3 class="text-3xl font-bold text-inkRed font-heading pen-underline">Primary std::deque Operations</h3>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse border-2 border-slate-400 bg-white/95 text-base md:text-lg">
+                            <thead>
+                                <tr class="bg-blue-900 text-white font-sans text-sm uppercase">
+                                    <th class="p-3 border border-slate-400">Method</th>
+                                    <th class="p-3 border border-slate-400">Description</th>
+                                    <th class="p-3 border border-slate-400">Average Time</th>
+                                    <th class="p-3 border border-slate-400">Worst-Case Time</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-slate-900">
+                                <tr>
+                                    <td class="p-3 border border-slate-400 font-bold font-sans text-sm"><code class="bg-slate-100 px-1 rounded text-purple-900">push_back(val)</code> / <code class="bg-slate-100 px-1 rounded text-purple-900">push_front(val)</code></td>
+                                    <td class="p-3 border border-slate-400">Adds element to the back or front boundaries.</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-emerald-700">O(1)</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-emerald-700">O(1)</td>
+                                </tr>
+                                <tr class="bg-slate-50/50">
+                                    <td class="p-3 border border-slate-400 font-bold font-sans text-sm"><code class="bg-slate-100 px-1 rounded text-purple-900">pop_back()</code> / <code class="bg-slate-100 px-1 rounded text-purple-900">pop_front()</code></td>
+                                    <td class="p-3 border border-slate-400">Removes element from back or front.</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-emerald-700">O(1)</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-emerald-700">O(1)</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 border border-slate-400 font-bold font-sans text-sm"><code class="bg-slate-100 px-1 rounded text-purple-900">operator[idx]</code></td>
+                                    <td class="p-3 border border-slate-400">Returns element at index. Computes chunk offset.</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-emerald-700">O(1)</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-emerald-700">O(1)</td>
+                                </tr>
+                                <tr class="bg-slate-50/50">
+                                    <td class="p-3 border border-slate-400 font-bold font-sans text-sm"><code class="bg-slate-100 px-1 rounded text-purple-900">insert()</code> / <code class="bg-slate-100 px-1 rounded text-purple-900">erase()</code></td>
+                                    <td class="p-3 border border-slate-400">Insert/erase in middle. Shifts elements in closest direction.</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-red-700">O(N)</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-red-700">O(N)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="note-box p-4 space-y-2 mt-4">
+                        <h4 class="text-2xl font-bold text-inkRed font-heading">📝 Deque vs. Vector:</h4>
+                        <ul class="list-disc list-inside space-y-1 text-lg">
+                            <li><strong>No resizing copies:</strong> Because elements are added by allocating new chunks, deque insertion does not copy existing elements to new blocks (unlike vector).</li>
+                            <li><strong>Non-contiguous items:</strong> Elements are contiguous inside individual chunks, but chunks themselves are not contiguous. Thus, passing `&amp;deque[0]` to an API requiring a raw C-pointer is invalid.</li>
+                            <li><strong>Double-ended optimization:</strong> Perfect choice for implementing stacks, queues, or sliding window problems.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 4: INTERACTIVE VISUALIZATION -->
+            <section id="sec-visualization" class="tab-content space-y-6">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-4 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                        Interactive Deque Simulator</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 4</span>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                    
+                    <!-- Left Column: Controls (5 Cols) -->
+                    <div class="lg:col-span-5 space-y-4 bg-amber-50/50 p-4 rounded-xl border border-amber-300">
+                        <h3 class="text-2xl font-bold text-inkRed font-heading border-b border-amber-200 pb-1">Deque Operations</h3>
+                        
+                        <div class="flex items-center space-x-2">
+                            <input type="number" id="sim-input" placeholder="Enter value (integer)" class="w-full bg-white border border-slate-300 rounded px-3 py-1.5 font-sans text-sm focus:outline-none focus:border-inkBlue">
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="simPushBack()" class="bg-blue-700 hover:bg-blue-800 text-white font-sans text-sm font-bold py-2 rounded shadow transition">Push Back</button>
+                            <button onclick="simPushFront()" class="bg-blue-700 hover:bg-blue-800 text-white font-sans text-sm font-bold py-2 rounded shadow transition">Push Front</button>
+                            <button onclick="simPopBack()" class="bg-red-700 hover:bg-red-800 text-white font-sans text-sm font-bold py-2 rounded shadow transition">Pop Back</button>
+                            <button onclick="simPopFront()" class="bg-red-700 hover:bg-red-800 text-white font-sans text-sm font-bold py-2 rounded shadow transition">Pop Front</button>
+                        </div>
+
+                        <div class="flex justify-between items-center pt-2">
+                            <button onclick="simClear()" class="bg-slate-500 hover:bg-slate-600 text-white font-sans text-sm font-bold py-1.5 px-3 rounded shadow transition">Clear Deque</button>
+                        </div>
+
+                        <!-- Stats Dashboard -->
+                        <div class="bg-white border border-slate-300 rounded-lg p-3 space-y-1.5 shadow-sm text-base md:text-lg">
+                            <h4 class="font-bold text-inkBlue font-sans text-sm uppercase tracking-wider border-b border-slate-100 pb-1">Container Info</h4>
+                            <div class="flex justify-between">
+                                <span class="font-bold">Total elements (N):</span>
+                                <span id="lbl-size" class="font-sans font-bold text-slate-800">0</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="font-bold">Allocated Chunks:</span>
+                                <span id="lbl-chunks" class="font-sans font-bold text-slate-800">1</span>
+                            </div>
+                        </div>
+
+                        <!-- Status Log -->
+                        <div class="bg-white border border-slate-300 rounded-lg p-3 shadow-sm">
+                            <h4 class="font-bold text-pencilGray font-sans text-sm uppercase tracking-wider mb-1">Execution Trace:</h4>
+                            <p id="sim-status" class="text-base text-inkRed font-semibold min-h-[45px] leading-snug">Insert items to see chunk boundaries grow dynamically.</p>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Canvas Output (7 Cols) -->
+                    <div class="lg:col-span-7 flex flex-col items-center">
+                        <div class="w-full bg-white border border-slate-300 rounded-lg shadow-md p-3 relative">
+                            <canvas id="simulator-canvas" style="width: 100%; height: 380px;"></canvas>
+                        </div>
+                        <span class="text-xs text-pencilGray mt-1.5 text-center block w-full font-sans italic">
+                            * Visual guides: The central index map points to chunk memory buffers (size = 3 elements per chunk).
+                        </span>
+                    </div>
+
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- JavaScript Controllers -->
+    <script>
+        let isCleanFont = false;
+        
+        function toggleStyleMode() {
+            isCleanFont = !isCleanFont;
+            const body = document.body;
+            const styleBtn = document.getElementById('styleBtn');
+            if (isCleanFont) {
+                body.classList.remove('font-notes-body');
+                body.classList.add('font-clean');
+                styleBtn.innerText = "✍️ Switch to Handwritten Font";
+            } else {
+                body.classList.remove('font-clean');
+                body.classList.add('font-notes-body');
+                styleBtn.innerText = "✍️ Switch to Clean Print Font";
+            }
+            drawConceptDiagram();
+            drawStepCanvases();
+            drawSimulator();
+        }
+
+        let currentTab = 'definitions';
+        function switchTab(tabId) {
+            currentTab = tabId;
+            document.querySelectorAll('.tab-content').forEach(sec => {
+                sec.classList.remove('active');
+            });
+            document.getElementById('sec-' + tabId).classList.add('active');
+            
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('bg-amber-200', 'text-inkBlue', 'border-b-2', 'border-inkBlue');
+                tab.classList.add('text-gray-600', 'hover:text-inkBlue');
+            });
+            
+            const activeTab = document.getElementById('tab-' + tabId);
+            if (activeTab) {
+                activeTab.classList.remove('text-gray-600', 'hover:text-inkBlue');
+                activeTab.classList.add('bg-amber-200', 'text-inkBlue', 'border-b-2', 'border-inkBlue');
+            }
+            
+            setTimeout(() => {
+                if (tabId === 'definitions') drawConceptDiagram();
+                if (tabId === 'step-by-step') drawStepCanvases();
+                if (tabId === 'visualization') drawSimulator();
+            }, 50);
+        }
+
+        window.onresize = () => {
+            if (currentTab === 'definitions') drawConceptDiagram();
+            if (currentTab === 'step-by-step') drawStepCanvases();
+            if (currentTab === 'visualization') drawSimulator();
+        };
+
+        // Draw pointer line
+        function drawPointerLine(ctx, fromX, fromY, toX, toY) {
+            ctx.strokeStyle = '#D97706';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(fromX, fromY);
+            ctx.lineTo(toX, toY);
+            ctx.stroke();
+
+            // circle at end
+            ctx.fillStyle = '#D97706';
+            ctx.beginPath();
+            ctx.arc(toX, toY, 3, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // Draw chunk array block
+        function drawChunkArray(ctx, x, y, chunkElements = [], size = 3) {
+            const blockW = 32;
+            const blockH = 22;
+            ctx.strokeStyle = '#1A365D';
+            ctx.lineWidth = 1.5;
+
+            for (let i = 0; i < size; i++) {
+                const bx = x + i * blockW;
+                const val = chunkElements[i];
+
+                ctx.fillStyle = (val !== undefined && val !== null) ? '#DEF7EC' : '#F3F4F6';
+                ctx.fillRect(bx, y, blockW, blockH);
+                ctx.strokeRect(bx, y, blockW, blockH);
+
+                if (val !== undefined && val !== null) {
+                    ctx.fillStyle = '#03543F';
+                    ctx.font = isCleanFont ? 'bold 11px Inter' : 'bold 13px Kalam';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(String(val), bx + blockW/2, y + blockH/2);
+                }
+            }
+        }
+
+        /* ----------------------------------------------------------------------
+           TAB 1: CONCEPT DRAWING
+        ---------------------------------------------------------------------- */
+        function drawConceptDiagram() {
+            const canvas = document.getElementById('concept-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            
+            const width = canvas.parentElement.clientWidth || 400;
+            const height = 180;
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            ctx.scale(dpr, dpr);
+            
+            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = '#FCFBF9';
+            ctx.fillRect(0, 0, width, height);
+
+            // Draw central map index column
+            const mapX = 30;
+            const mapY = 40;
+            const mapW = 40;
+            const mapH = 20;
+
+            ctx.font = isCleanFont ? 'bold 11px Inter' : 'bold 13px Kalam';
+            ctx.fillStyle = '#1A365D';
+            ctx.fillText("Map Array", mapX, mapY - 12);
+
+            // Draw 3 map slots
+            for (let i = 0; i < 3; i++) {
+                const my = mapY + i * mapH;
+                ctx.strokeStyle = '#1A365D';
+                ctx.fillStyle = (i === 1) ? '#FEF3C7' : '#F3F4F6';
+                ctx.fillRect(mapX, my, mapW, mapH);
+                ctx.strokeRect(mapX, my, mapW, mapH);
+                ctx.fillStyle = '#1A365D';
+                ctx.fillText(`ptr[${i}]`, mapX + 5, my + mapH/2 + 2);
+
+                if (i === 1) {
+                    drawPointerLine(ctx, mapX + mapW, my + mapH/2, mapX + mapW + 50, my + mapH/2);
+                    drawChunkArray(ctx, mapX + mapW + 50, my + mapH/2 - 11, [10, 20]);
+                }
+            }
+        }
+
+        /* ----------------------------------------------------------------------
+           TAB 2: STEP-BY-STEP CANVASES
+        ---------------------------------------------------------------------- */
+        function drawStepCanvases() {
+            // Step 1: Empty center chunk
+            const c1 = document.getElementById('step-canvas-1');
+            if (c1) {
+                const ctx = c1.getContext('2d');
+                const w = c1.parentElement.clientWidth || 400;
+                setupCanvas(c1, w, 110);
+                drawChunkArray(ctx, w/2 - 48, 45, []);
+                ctx.fillStyle = '#1A365D';
+                ctx.font = isCleanFont ? 'bold 11px Inter' : 'bold 13px Kalam';
+                ctx.fillText("Center Chunk (Empty)", w/2 - 48, 30);
+            }
+            // Step 2: 10, 20
+            const c2 = document.getElementById('step-canvas-2');
+            if (c2) {
+                const ctx = c2.getContext('2d');
+                const w = c2.parentElement.clientWidth || 400;
+                setupCanvas(c2, w, 110);
+                drawChunkArray(ctx, w/2 - 48, 45, [null, 10, 20]);
+            }
+            // Step 3: Pushed 30, 40 -> Allocated left chunk
+            const c3 = document.getElementById('step-canvas-3');
+            if (c3) {
+                const ctx = c3.getContext('2d');
+                const w = c3.parentElement.clientWidth || 400;
+                setupCanvas(c3, w, 130);
+                ctx.fillStyle = '#1A365D';
+                ctx.font = isCleanFont ? 'bold 10px Inter' : 'bold 12px Kalam';
+                ctx.fillText("Left Chunk (New)", w/2 - 120, 30);
+                ctx.fillText("Center Chunk", w/2 + 20, 30);
+
+                drawChunkArray(ctx, w/2 - 120, 45, [null, null, 40]);
+                drawChunkArray(ctx, w/2 + 20, 45, [30, 10, 20]);
+            }
+        }
+
+        function setupCanvas(canvas, width, height) {
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            ctx.scale(dpr, dpr);
+            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = '#FCFBF9';
+            ctx.fillRect(0, 0, width, height);
+        }
+
+        /* ----------------------------------------------------------------------
+           TAB 4: SIMULATOR SYSTEM
+        ---------------------------------------------------------------------- */
+        // We simulate a deque index layout with chunk capacity = 3.
+        // Map size = 5.
+        // Initially: Map has 5 slots: index 2 points to center chunk [null, 10, 20].
+        let simMap = [null, null, [null, 10, 20], null, null];
+        let simHead = { chunk: 2, slot: 1 };
+        let simTail = { chunk: 2, slot: 2 };
+        let elementCount = 2;
+
+        function simPushBack() {
+            const input = document.getElementById('sim-input');
+            const val = parseInt(input.value);
+            const status = document.getElementById('sim-status');
+            
+            if (isNaN(val)) {
+                status.innerText = "⚠️ Please enter a valid integer.";
+                return;
+            }
+
+            let text = `Pushed back value: ${val}. `;
+            
+            // Check if tail slot can advance in current chunk
+            if (simTail.slot < 2) {
+                simTail.slot++;
+                simMap[simTail.chunk][simTail.slot] = val;
+                text += "Element added in existing tail chunk.";
+            } else {
+                // Allocate next chunk
+                const nextChunk = simTail.chunk + 1;
+                if (nextChunk >= 5) {
+                    text += "⚠️ Simulator map limit reached (max 5 chunks).";
+                    status.innerText = text;
+                    return;
+                }
+                simMap[nextChunk] = [val, null, null];
+                simTail.chunk = nextChunk;
+                simTail.slot = 0;
+                text += `Tail chunk full! Allocated new chunk ptr[${nextChunk}] and wrote ${val}.`;
+            }
+
+            elementCount++;
+            status.innerText = text;
+            input.value = '';
+            drawSimulator();
+        }
+
+        function simPushFront() {
+            const input = document.getElementById('sim-input');
+            const val = parseInt(input.value);
+            const status = document.getElementById('sim-status');
+            
+            if (isNaN(val)) {
+                status.innerText = "⚠️ Please enter a valid integer.";
+                return;
+            }
+
+            let text = `Pushed front value: ${val}. `;
+            
+            // Check if head slot can slide left in current chunk
+            if (simHead.slot > 0) {
+                simHead.slot--;
+                simMap[simHead.chunk][simHead.slot] = val;
+                text += "Element added in existing head chunk.";
+            } else {
+                // Allocate prev chunk
+                const prevChunk = simHead.chunk - 1;
+                if (prevChunk < 0) {
+                    text += "⚠️ Simulator map limit reached (max 5 chunks).";
+                    status.innerText = text;
+                    return;
+                }
+                simMap[prevChunk] = [null, null, val];
+                simHead.chunk = prevChunk;
+                simHead.slot = 2;
+                text += `Head chunk full! Allocated new chunk ptr[${prevChunk}] and wrote ${val}.`;
+            }
+
+            elementCount++;
+            status.innerText = text;
+            input.value = '';
+            drawSimulator();
+        }
+
+        function simPopBack() {
+            const status = document.getElementById('sim-status');
+            if (elementCount === 0) {
+                status.innerText = "⚠️ Deque is empty.";
+                return;
+            }
+
+            const val = simMap[simTail.chunk][simTail.slot];
+            simMap[simTail.chunk][simTail.slot] = null;
+
+            let text = `Popped back node ${val}. `;
+
+            if (simTail.slot > 0) {
+                simTail.slot--;
+            } else {
+                // Free chunk if it was the first element
+                simMap[simTail.chunk] = null;
+                simTail.chunk--;
+                simTail.slot = 2;
+                text += `Tail chunk empty, deallocated memory block.`;
+            }
+
+            elementCount--;
+            status.innerText = text;
+            drawSimulator();
+        }
+
+        function simPopFront() {
+            const status = document.getElementById('sim-status');
+            if (elementCount === 0) {
+                status.innerText = "⚠️ Deque is empty.";
+                return;
+            }
+
+            const val = simMap[simHead.chunk][simHead.slot];
+            simMap[simHead.chunk][simHead.slot] = null;
+
+            let text = `Popped front node ${val}. `;
+
+            if (simHead.slot < 2) {
+                simHead.slot++;
+            } else {
+                simMap[simHead.chunk] = null;
+                simHead.chunk++;
+                simHead.slot = 0;
+                text += `Head chunk empty, deallocated memory block.`;
+            }
+
+            elementCount--;
+            status.innerText = text;
+            drawSimulator();
+        }
+
+        function simClear() {
+            simMap = [null, null, [null, 10, 20], null, null];
+            simHead = { chunk: 2, slot: 1 };
+            simTail = { chunk: 2, slot: 2 };
+            elementCount = 2;
+            document.getElementById('sim-status').innerText = "Deque cleared. Reset map index.";
+            drawSimulator();
+        }
+
+        function drawSimulator() {
+            const canvas = document.getElementById('simulator-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            
+            const width = canvas.parentElement.clientWidth || 500;
+            const height = 380;
+            
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            ctx.scale(dpr, dpr);
+            
+            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = '#FCFBF9';
+            ctx.fillRect(0, 0, width, height);
+
+            ctx.fillStyle = '#1A365D';
+            ctx.font = isCleanFont ? 'bold 13px Inter' : 'bold 15px Kalam';
+            ctx.textAlign = 'left';
+            ctx.fillText("Dynamic Chunks & Map Index representation:", 20, 40);
+
+            // Draw map slots on left
+            const mapX = 35;
+            const mapY = 80;
+            const mapW = 55;
+            const mapH = 28;
+            let activeChunksCount = 0;
+
+            for (let i = 0; i < 5; i++) {
+                const my = mapY + i * mapH;
+                const chunk = simMap[i];
+                
+                ctx.strokeStyle = '#1A365D';
+                ctx.lineWidth = 1.5;
+                ctx.fillStyle = (chunk !== null) ? '#FEF3C7' : '#F3F4F6';
+                ctx.fillRect(mapX, my, mapW, mapH);
+                ctx.strokeRect(mapX, my, mapW, mapH);
+
+                ctx.fillStyle = '#1A365D';
+                ctx.font = isCleanFont ? 'bold 10px Inter' : 'bold 12px Kalam';
+                ctx.fillText(`map_ptr[${i}]`, mapX + 4, my + mapH/2 + 2);
+
+                if (chunk !== null) {
+                    activeChunksCount++;
+                    drawPointerLine(ctx, mapX + mapW, my + mapH/2, mapX + mapW + 60, my + mapH/2);
+                    drawChunkArray(ctx, mapX + mapW + 60, my + mapH/2 - 11, chunk);
+                }
+            }
+
+            document.getElementById('lbl-size').innerText = elementCount;
+            document.getElementById('lbl-chunks').innerText = activeChunksCount;
+        }
+
+        window.onload = () => {
+            drawConceptDiagram();
+            drawStepCanvases();
+            drawSimulator();
+        };
+    </script>
+</body>
+
+</html>

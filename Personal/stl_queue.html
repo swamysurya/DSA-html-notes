@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STL Containers: std::queue - Digital Lecture Notes</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Kalam:wght@300;400;700&family=Patrick+Hand&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        notebookBg: '#cbd5e1',
+                        notebookPaper: '#FAF6EE',
+                        inkBlue: '#1A365D',
+                        inkRed: '#9B2C2C',
+                        pencilGray: '#4A5568',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Shared Notebook Styles -->
+    <link rel="stylesheet" href="../notebook.css">
+    
+    <style>
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+
+<body class="font-notes-body text-2xl text-slate-800 antialiased transition-all duration-300">
+
+    <!-- Sticky Header -->
+    <header class="sticky top-0 z-50 bg-[#FAF6EE] shadow-md border-b-2 border-amber-200 px-4 py-3 no-print">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-3">
+            <div class="flex items-center space-x-3">
+                <span class="text-3xl font-bold text-inkBlue tracking-wide font-heading">📖 STL: std::queue (FIFO Adapter)</span>
+                <span class="bg-purple-100 text-purple-800 text-xs font-bold px-2.5 py-1 rounded-full border border-purple-300 font-sans uppercase">STL Containers</span>
+            </div>
+            <button id="styleBtn" onclick="toggleStyleMode()" class="px-4 py-1.5 rounded-full text-sm font-bold bg-inkBlue text-white hover:bg-opacity-90 transition font-sans shadow-sm">
+                ✍️ Switch to Clean Print Font
+            </button>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <nav class="max-w-6xl mx-auto mt-3 flex flex-wrap gap-1 border-t border-amber-200 pt-2 text-base md:text-lg">
+            <button onclick="switchTab('definitions')" id="tab-definitions" class="nav-tab px-4 py-2 rounded-t-lg font-bold bg-amber-200 text-inkBlue border-b-2 border-inkBlue">
+                1. Definitions & Concepts
+            </button>
+            <button onclick="switchTab('step-by-step')" id="tab-step-by-step" class="nav-tab px-4 py-2 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
+                2. Step-by-Step Operations
+            </button>
+            <button onclick="switchTab('complexity')" id="tab-complexity" class="nav-tab px-4 py-2 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
+                3. Complexity & Methods
+            </button>
+            <button onclick="switchTab('visualization')" id="tab-visualization" class="nav-tab px-4 py-2 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
+                4. Interactive Simulator
+            </button>
+        </nav>
+    </header>
+
+    <!-- Main Notebook Container -->
+    <main class="max-w-6xl mx-auto flex relative bg-notebookPaper rounded-xl shadow-2xl overflow-hidden min-h-[900px] border border-amber-200 my-8">
+        
+        <!-- Left Binder Column -->
+        <div class="w-10 sm:w-16 bg-amber-50 border-r-2 border-amber-200 flex flex-col items-center py-8 select-none shrink-0 no-print space-y-6 z-10 shadow-[inset_-5px_0_10px_rgba(0,0,0,0.05)]">
+            <script>
+                for (let i = 0; i < 40; i++) document.write('<div class="spiral-ring"></div>');
+            </script>
+        </div>
+
+        <!-- Notebook Content Area -->
+        <div class="flex-1 lined-paper p-4 sm:p-8 notebook-margin sm:pl-8 overflow-hidden z-0">
+
+            <!-- TAB 1: DEFINITIONS & CONCEPTS -->
+            <section id="sec-definitions" class="tab-content active space-y-8">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                        First-In, First-Out (FIFO) queue Adapters</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 1</span>
+                </div>
+
+                <div class="space-y-6">
+                    <div>
+                        <h3 class="text-3xl font-bold text-inkRed font-heading pen-underline mb-2">What is std::queue?</h3>
+                        <p class="leading-relaxed">
+                            In C++, <code class="bg-amber-100 px-1 rounded text-slate-900 font-sans text-lg font-semibold">std::queue</code> is a **container adapter** designed to operate in a **FIFO (First In First Out)** context. Elements are inserted at the back and removed from the front.
+                        </p>
+                    </div>
+
+                    <div class="note-box p-5 space-y-3">
+                        <h4 class="text-2xl font-bold text-inkBlue font-heading">🔑 FIFO Interface Restriction</h4>
+                        <p class="text-xl">
+                            A queue acts like a checkout line in a store. The first person to join the line is the first one served:
+                        </p>
+                        <ul class="list-disc list-inside space-y-2 text-xl ml-4">
+                            <li><strong>Push (Enqueue):</strong> Adds a new element at the **back** (tail) of the queue.</li>
+                            <li><strong>Pop (Dequeue):</strong> Removes the element at the **front** (head) of the queue.</li>
+                            <li><strong>Front:</strong> Accesses the value of the front-most element.</li>
+                            <li><strong>Back:</strong> Accesses the value of the back-most element.</li>
+                            <li><strong>No random access:</strong> Direct indexing (`queue[i]`) is disabled to guarantee queue behavior.</li>
+                        </ul>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-center my-6">
+                        <div class="space-y-4">
+                            <h3 class="text-2xl font-bold text-inkRed font-heading pen-underline">Underlying Container</h3>
+                            <p class="text-xl leading-relaxed">
+                                Similar to stacks, `std::queue` wraps an underlying container (default <code class="text-sm font-sans font-bold">std::deque</code>, but can also wrap <code class="text-sm font-sans font-bold">std::list</code>).
+                            </p>
+                            <ul class="list-disc list-inside ml-4 text-lg text-pencilGray space-y-1">
+                                <li>`queue::push` delegates to `container::push_back`.</li>
+                                <li>`queue::pop` delegates to `container::pop_front`.</li>
+                            </ul>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <span class="text-sm font-sans font-bold text-pencilGray mb-1">Conceptual Horizontal Queue:</span>
+                            <canvas id="concept-canvas" class="border border-slate-300 rounded bg-white shadow-sm" style="width: 100%; height: 160px;"></canvas>
+                            <span class="text-xs text-pencilGray mt-1">Elements enter from the right (back) and leave from the left (front).</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 2: STEP-BY-STEP EXAMPLE -->
+            <section id="sec-step-by-step" class="tab-content space-y-8">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                        Step-by-Step Queue Operations</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 2</span>
+                </div>
+
+                <div class="space-y-6">
+                    <p class="leading-relaxed">
+                        Let us trace pushing values **10, 20, 30** and then popping once.
+                    </p>
+
+                    <div class="space-y-8 border-l-4 border-dashed border-amber-300 pl-4 py-2">
+                        
+                        <!-- Step 1 -->
+                        <div class="space-y-2 break-inside-avoid">
+                            <h3 class="text-2xl font-bold text-inkRed font-heading">Step 1: Empty Queue</h3>
+                            <p class="text-lg">Empty horizontal queue tube.</p>
+                            <div class="bg-white border border-slate-300 rounded p-2 max-w-xl shadow-sm mx-auto">
+                                <canvas id="step-canvas-1" class="w-full"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Step 2 -->
+                        <div class="space-y-2 break-inside-avoid">
+                            <h3 class="text-2xl font-bold text-inkRed font-heading">Step 2: Push 10 (Front = 10, Back = 10)</h3>
+                            <p class="text-lg">10 enters from the right and moves to the front.</p>
+                            <div class="bg-white border border-slate-300 rounded p-2 max-w-xl shadow-sm mx-auto">
+                                <canvas id="step-canvas-2" class="w-full"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Step 3 -->
+                        <div class="space-y-2 break-inside-avoid">
+                            <h3 class="text-2xl font-bold text-inkRed font-heading">Step 3: Push 20 & Push 30</h3>
+                            <p class="text-lg">20 enters from the right behind 10, followed by 30. Front = 10, Back = 30.</p>
+                            <div class="bg-white border border-slate-300 rounded p-2 max-w-xl shadow-sm mx-auto">
+                                <canvas id="step-canvas-3" class="w-full"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Step 4 -->
+                        <div class="space-y-2 break-inside-avoid">
+                            <h3 class="text-2xl font-bold text-inkRed font-heading">Step 4: Pop (Front is removed)</h3>
+                            <p class="text-lg">The front element (10) exits from the left. 20 slides to the front. New Front = 20, Back = 30.</p>
+                            <div class="bg-white border border-slate-300 rounded p-2 max-w-xl shadow-sm mx-auto">
+                                <canvas id="step-canvas-4" class="w-full"></canvas>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 3: COMPLEXITY & METHODS -->
+            <section id="sec-complexity" class="tab-content space-y-8">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                        Queue Methods & Complexity Analysis</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 3</span>
+                </div>
+
+                <div class="space-y-6">
+                    <h3 class="text-3xl font-bold text-inkRed font-heading pen-underline">Primary std::queue Operations</h3>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse border-2 border-slate-400 bg-white/95 text-base md:text-lg">
+                            <thead>
+                                <tr class="bg-blue-900 text-white font-sans text-sm uppercase">
+                                    <th class="p-3 border border-slate-400">Method</th>
+                                    <th class="p-3 border border-slate-400">Description</th>
+                                    <th class="p-3 border border-slate-400">Average Time</th>
+                                    <th class="p-3 border border-slate-400">Worst-Case Time</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-slate-900">
+                                <tr>
+                                    <td class="p-3 border border-slate-400 font-bold font-sans text-sm"><code class="bg-slate-100 px-1 rounded text-purple-900">push(val)</code></td>
+                                    <td class="p-3 border border-slate-400">Enqueues element at the back of the queue.</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-emerald-700">O(1)</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-emerald-700">O(1)</td>
+                                </tr>
+                                <tr class="bg-slate-50/50">
+                                    <td class="p-3 border border-slate-400 font-bold font-sans text-sm"><code class="bg-slate-100 px-1 rounded text-purple-900">pop()</code></td>
+                                    <td class="p-3 border border-slate-400">Dequeues element from the front of the queue.</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-emerald-700">O(1)</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-emerald-700">O(1)</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 border border-slate-400 font-bold font-sans text-sm"><code class="bg-slate-100 px-1 rounded text-purple-900">front()</code> / <code class="bg-slate-100 px-1 rounded text-purple-900">back()</code></td>
+                                    <td class="p-3 border border-slate-400">Accesses value of front-most or back-most element.</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-emerald-700">O(1)</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-emerald-700">O(1)</td>
+                                </tr>
+                                <tr class="bg-slate-50/50">
+                                    <td class="p-3 border border-slate-400 font-bold font-sans text-sm"><code class="bg-slate-100 px-1 rounded text-purple-900">size()</code> / <code class="bg-slate-100 px-1 rounded text-purple-900">empty()</code></td>
+                                    <td class="p-3 border border-slate-400">Returns element count or checks if queue is empty.</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-emerald-700">O(1)</td>
+                                    <td class="p-3 border border-slate-400 font-bold text-emerald-700">O(1)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="note-box p-4 space-y-2 mt-4">
+                        <h4 class="text-2xl font-bold text-inkRed font-heading">📝 Queue Usage Contexts:</h4>
+                        <ul class="list-disc list-inside space-y-1 text-lg">
+                            <li>All modifications run in strictly **O(1)** time.</li>
+                            <li>Queues are essential for Breadth-First Searches (BFS) on graphs, buffer management (FIFO pools), spooling logs, and task schedulers.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 4: INTERACTIVE VISUALIZATION -->
+            <section id="sec-visualization" class="tab-content space-y-6">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-4 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                        Interactive Queue Simulator</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 4</span>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                    
+                    <!-- Left Column: Controls (5 Cols) -->
+                    <div class="lg:col-span-5 space-y-4 bg-amber-50/50 p-4 rounded-xl border border-amber-300">
+                        <h3 class="text-2xl font-bold text-inkRed font-heading border-b border-amber-200 pb-1">Queue Operations</h3>
+                        
+                        <div class="flex items-center space-x-2">
+                            <input type="number" id="sim-input" placeholder="Enter value (integer)" class="w-full bg-white border border-slate-300 rounded px-3 py-1.5 font-sans text-sm focus:outline-none focus:border-inkBlue">
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="simPush()" class="bg-blue-700 hover:bg-blue-800 text-white font-sans text-sm font-bold py-2 rounded shadow transition">Push (Back)</button>
+                            <button onclick="simPop()" class="bg-red-700 hover:bg-red-800 text-white font-sans text-sm font-bold py-2 rounded shadow transition">Pop (Front)</button>
+                        </div>
+
+                        <div class="flex justify-between items-center pt-2">
+                            <button onclick="simClear()" class="bg-slate-500 hover:bg-slate-600 text-white font-sans text-sm font-bold py-1.5 px-3 rounded shadow transition">Clear Queue</button>
+                        </div>
+
+                        <!-- Stats Dashboard -->
+                        <div class="bg-white border border-slate-300 rounded-lg p-3 space-y-1.5 shadow-sm text-base md:text-lg">
+                            <h4 class="font-bold text-inkBlue font-sans text-sm uppercase tracking-wider border-b border-slate-100 pb-1">Queue Info</h4>
+                            <div class="flex justify-between">
+                                <span class="font-bold">Queue Size (N):</span>
+                                <span id="lbl-size" class="font-sans font-bold text-slate-800">0</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="font-bold">Front Value:</span>
+                                <span id="lbl-front" class="font-sans font-bold text-slate-800">NIL</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="font-bold">Back Value:</span>
+                                <span id="lbl-back" class="font-sans font-bold text-slate-800">NIL</span>
+                            </div>
+                        </div>
+
+                        <!-- Status Log -->
+                        <div class="bg-white border border-slate-300 rounded-lg p-3 shadow-sm">
+                            <h4 class="font-bold text-pencilGray font-sans text-sm uppercase tracking-wider mb-1">Execution Trace:</h4>
+                            <p id="sim-status" class="text-base text-inkRed font-semibold min-h-[45px] leading-snug">Enter a value and click Push.</p>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Canvas Output (7 Cols) -->
+                    <div class="lg:col-span-7 flex flex-col items-center">
+                        <div class="w-full bg-white border border-slate-300 rounded-lg shadow-md p-3 relative">
+                            <canvas id="simulator-canvas" style="width: 100%; height: 350px;"></canvas>
+                        </div>
+                        <span class="text-xs text-pencilGray mt-1.5 text-center block w-full font-sans italic">
+                            * Visual guides: Items slide in from the right (Back) and exit from the left (Front).
+                        </span>
+                    </div>
+
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- JavaScript Controllers -->
+    <script>
+        let isCleanFont = false;
+        
+        function toggleStyleMode() {
+            isCleanFont = !isCleanFont;
+            const body = document.body;
+            const styleBtn = document.getElementById('styleBtn');
+            if (isCleanFont) {
+                body.classList.remove('font-notes-body');
+                body.classList.add('font-clean');
+                styleBtn.innerText = "✍️ Switch to Handwritten Font";
+            } else {
+                body.classList.remove('font-clean');
+                body.classList.add('font-notes-body');
+                styleBtn.innerText = "✍️ Switch to Clean Print Font";
+            }
+            drawConceptDiagram();
+            drawStepCanvases();
+            drawSimulator();
+        }
+
+        let currentTab = 'definitions';
+        function switchTab(tabId) {
+            currentTab = tabId;
+            document.querySelectorAll('.tab-content').forEach(sec => {
+                sec.classList.remove('active');
+            });
+            document.getElementById('sec-' + tabId).classList.add('active');
+            
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('bg-amber-200', 'text-inkBlue', 'border-b-2', 'border-inkBlue');
+                tab.classList.add('text-gray-600', 'hover:text-inkBlue');
+            });
+            
+            const activeTab = document.getElementById('tab-' + tabId);
+            if (activeTab) {
+                activeTab.classList.remove('text-gray-600', 'hover:text-inkBlue');
+                activeTab.classList.add('bg-amber-200', 'text-inkBlue', 'border-b-2', 'border-inkBlue');
+            }
+            
+            setTimeout(() => {
+                if (tabId === 'definitions') drawConceptDiagram();
+                if (tabId === 'step-by-step') drawStepCanvases();
+                if (tabId === 'visualization') drawSimulator();
+            }, 50);
+        }
+
+        window.onresize = () => {
+            if (currentTab === 'definitions') drawConceptDiagram();
+            if (currentTab === 'step-by-step') drawStepCanvases();
+            if (currentTab === 'visualization') drawSimulator();
+        };
+
+        // Draw horizontal tube
+        function drawHorizontalTube(ctx, cx, cy, w, h, elements = [], highlightBack = false) {
+            // Draw horizontal tube walls
+            ctx.strokeStyle = '#1A365D';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(cx - w/2, cy - h/2); // top left
+            ctx.lineTo(cx + w/2, cy - h/2); // top right
+            ctx.moveTo(cx - w/2, cy + h/2); // bottom left
+            ctx.lineTo(cx + w/2, cy + h/2); // bottom right
+            ctx.stroke();
+
+            // Label ends
+            ctx.fillStyle = '#9B2C2C';
+            ctx.font = 'bold 9px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('Front (Pop)', cx - w/2 - 25, cy + 4);
+            ctx.fillText('Back (Push)', cx + w/2 + 25, cy + 4);
+
+            const blockW = 40;
+            const blockH = 30;
+            const spacing = 4;
+            const maxCapacity = 7;
+
+            // Draw nodes inside the queue
+            for (let i = 0; i < elements.length; i++) {
+                if (i >= maxCapacity) break;
+                const val = elements[i];
+                const bx = cx - w/2 + 10 + i * (blockW + spacing);
+                const isBack = i === elements.length - 1;
+
+                ctx.fillStyle = (isBack && highlightBack) ? '#FEF3C7' : '#DEF7EC';
+                ctx.strokeStyle = (isBack && highlightBack) ? '#D97706' : '#03543F';
+                ctx.lineWidth = 1.5;
+
+                ctx.fillRect(bx, cy - blockH/2, blockW, blockH);
+                ctx.strokeRect(bx, cy - blockH/2, blockW, blockH);
+
+                ctx.fillStyle = (isBack && highlightBack) ? '#D97706' : '#03543F';
+                ctx.font = isCleanFont ? 'bold 12px Inter' : 'bold 14px Kalam';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(String(val), bx + blockW/2, cy);
+
+                // Indicators
+                if (i === 0) {
+                    ctx.fillStyle = '#1A365D';
+                    ctx.font = '9px sans-serif';
+                    ctx.fillText('← Front', bx + blockW/2, cy - blockH/2 - 10);
+                }
+                if (isBack && elements.length > 1) {
+                    ctx.fillStyle = '#1A365D';
+                    ctx.font = '9px sans-serif';
+                    ctx.fillText('Back →', bx + blockW/2, cy + blockH/2 + 12);
+                }
+            }
+        }
+
+        /* ----------------------------------------------------------------------
+           TAB 1: CONCEPT DRAWING
+        ---------------------------------------------------------------------- */
+        function drawConceptDiagram() {
+            const canvas = document.getElementById('concept-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            
+            const width = canvas.parentElement.clientWidth || 400;
+            const height = 160;
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            ctx.scale(dpr, dpr);
+            
+            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = '#FCFBF9';
+            ctx.fillRect(0, 0, width, height);
+
+            drawHorizontalTube(ctx, width/2, height/2, 280, 50, [10, 20, 30]);
+        }
+
+        /* ----------------------------------------------------------------------
+           TAB 2: STEP-BY-STEP CANVASES
+        ---------------------------------------------------------------------- */
+        function drawStepCanvases() {
+            // Step 1: Empty
+            const c1 = document.getElementById('step-canvas-1');
+            if (c1) {
+                const ctx = c1.getContext('2d');
+                const w = c1.parentElement.clientWidth || 400;
+                setupCanvas(c1, w, 100);
+                drawHorizontalTube(ctx, w/2, 50, 180, 44, []);
+            }
+            // Step 2: Push 10
+            const c2 = document.getElementById('step-canvas-2');
+            if (c2) {
+                const ctx = c2.getContext('2d');
+                const w = c2.parentElement.clientWidth || 400;
+                setupCanvas(c2, w, 100);
+                drawHorizontalTube(ctx, w/2, 50, 180, 44, [10]);
+            }
+            // Step 3: Push 20, 30
+            const c3 = document.getElementById('step-canvas-3');
+            if (c3) {
+                const ctx = c3.getContext('2d');
+                const w = c3.parentElement.clientWidth || 400;
+                setupCanvas(c3, w, 100);
+                drawHorizontalTube(ctx, w/2, 50, 240, 44, [10, 20, 30]);
+            }
+            // Step 4: Pop
+            const c4 = document.getElementById('step-canvas-4');
+            if (c4) {
+                const ctx = c4.getContext('2d');
+                const w = c4.parentElement.clientWidth || 400;
+                setupCanvas(c4, w, 100);
+                drawHorizontalTube(ctx, w/2, 50, 180, 44, [20, 30]);
+            }
+        }
+
+        function setupCanvas(canvas, width, height) {
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            ctx.scale(dpr, dpr);
+            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = '#FCFBF9';
+            ctx.fillRect(0, 0, width, height);
+        }
+
+        /* ----------------------------------------------------------------------
+           TAB 4: SIMULATOR SYSTEM
+        ---------------------------------------------------------------------- */
+        const simQueue = [10, 20];
+        let flashBack = false;
+
+        function simPush() {
+            const input = document.getElementById('sim-input');
+            const val = parseInt(input.value);
+            const status = document.getElementById('sim-status');
+            
+            if (isNaN(val)) {
+                status.innerText = "⚠️ Please enter a valid integer.";
+                return;
+            }
+
+            if (simQueue.length >= 7) {
+                status.innerText = "⚠️ Simulator queue limit reached (max 7 elements).";
+                return;
+            }
+
+            simQueue.push(val);
+            flashBack = true;
+            status.innerText = `Enqueued value ${val} at the back. Back pointer redirected.`;
+            input.value = '';
+            drawSimulator();
+
+            setTimeout(() => {
+                flashBack = false;
+                drawSimulator();
+            }, 1200);
+        }
+
+        function simPop() {
+            const status = document.getElementById('sim-status');
+            if (simQueue.length === 0) {
+                status.innerText = "⚠️ Queue is empty.";
+                return;
+            }
+            const val = simQueue.shift();
+            status.innerText = `Dequeued front element ${val}. Front pointer redirected, remaining elements slide left.`;
+            flashBack = false;
+            drawSimulator();
+        }
+
+        function simClear() {
+            simQueue.length = 0;
+            flashBack = false;
+            document.getElementById('sim-status').innerText = "Queue cleared.";
+            drawSimulator();
+        }
+
+        function drawSimulator() {
+            const canvas = document.getElementById('simulator-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            
+            const width = canvas.parentElement.clientWidth || 500;
+            const height = 350;
+            
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            ctx.scale(dpr, dpr);
+            
+            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = '#FCFBF9';
+            ctx.fillRect(0, 0, width, height);
+
+            ctx.fillStyle = '#1A365D';
+            ctx.font = isCleanFont ? 'bold 13px Inter' : 'bold 15px Kalam';
+            ctx.textAlign = 'left';
+            ctx.fillText("Dynamic Queue Buffer representation:", 25, 45);
+
+            drawHorizontalTube(ctx, width/2, height/2, 340, 52, simQueue, flashBack);
+
+            document.getElementById('lbl-size').innerText = simQueue.length;
+            document.getElementById('lbl-front').innerText = (simQueue.length > 0) ? simQueue[0] : "NIL";
+            document.getElementById('lbl-back').innerText = (simQueue.length > 0) ? simQueue[simQueue.length - 1] : "NIL";
+        }
+
+        window.onload = () => {
+            drawConceptDiagram();
+            drawStepCanvases();
+            drawSimulator();
+        };
+    </script>
+</body>
+
+</html>

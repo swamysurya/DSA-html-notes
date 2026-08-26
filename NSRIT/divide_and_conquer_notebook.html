@@ -1,18 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Divide and Conquer - Lecture Notes</title>
-    
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
+
     <!-- Google Fonts for Handwriting & Print -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Kalam:wght@300;400;700&family=Patrick+Hand&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
+    <link
+        href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Kalam:wght@300;400;700&family=Patrick+Hand&family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+
     <!-- Tailwind Configuration -->
     <script>
         tailwind.config = {
@@ -28,7 +31,7 @@
             }
         }
     </script>
-    
+
     <!-- Shared Notebook Styles -->
     <link rel="stylesheet" href="../notebook.css">
 </head>
@@ -40,37 +43,46 @@
         <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-3">
             <div class="flex items-center space-x-3">
                 <span class="text-3xl font-bold text-inkBlue tracking-wide">📖 Part III: Divide and Conquer</span>
-                <span class="bg-amber-100 text-inkRed text-sm font-bold px-3 py-1 rounded-full border border-amber-300 font-sans">Design Paradigms</span>
+                <span
+                    class="bg-amber-100 text-inkRed text-sm font-bold px-3 py-1 rounded-full border border-amber-300 font-sans">Design
+                    Paradigms</span>
             </div>
         </div>
 
         <!-- Navigation Tabs -->
         <nav class="max-w-6xl mx-auto mt-3 flex flex-wrap gap-1 border-t border-amber-200 pt-2 text-base md:text-lg">
-            <button onclick="switchTab('general-method')" id="tab-general-method" class="nav-tab px-3 py-1.5 rounded-t-lg font-bold bg-amber-200 text-inkBlue border-b-2 border-inkBlue">
+            <button onclick="switchTab('general-method')" id="tab-general-method"
+                class="nav-tab px-3 py-1.5 rounded-t-lg font-bold bg-amber-200 text-inkBlue border-b-2 border-inkBlue">
                 1. General Method
             </button>
-            <button onclick="switchTab('merge-sort')" id="tab-merge-sort" class="nav-tab px-3 py-1.5 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
+            <button onclick="switchTab('merge-sort')" id="tab-merge-sort"
+                class="nav-tab px-3 py-1.5 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
                 2. Merge Sort
             </button>
-            <button onclick="switchTab('quick-sort')" id="tab-quick-sort" class="nav-tab px-3 py-1.5 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
+            <button onclick="switchTab('quick-sort')" id="tab-quick-sort"
+                class="nav-tab px-3 py-1.5 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
                 3. Quick Sort
             </button>
-            <button onclick="switchTab('strassen')" id="tab-strassen" class="nav-tab px-3 py-1.5 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
+            <button onclick="switchTab('strassen')" id="tab-strassen"
+                class="nav-tab px-3 py-1.5 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
                 4. Strassen's Matrix
             </button>
-            <button onclick="switchTab('convex-hull')" id="tab-convex-hull" class="nav-tab px-3 py-1.5 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
+            <button onclick="switchTab('convex-hull')" id="tab-convex-hull"
+                class="nav-tab px-3 py-1.5 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
                 5. Convex Hull
             </button>
         </nav>
     </header>
 
     <!-- Main Notebook Container -->
-    <main class="max-w-6xl mx-auto flex relative bg-notebookPaper rounded-xl shadow-2xl overflow-hidden min-h-[1000px] border border-amber-200 my-8">
-        
+    <main
+        class="max-w-6xl mx-auto flex relative bg-notebookPaper rounded-xl shadow-2xl overflow-hidden min-h-[1000px] border border-amber-200 my-8">
+
         <!-- Left Binder Column (Spiral Rings) -->
-        <div class="w-10 sm:w-16 bg-amber-50 border-r-2 border-amber-200 flex flex-col items-center py-8 select-none shrink-0 no-print space-y-6 z-10 shadow-[inset_-5px_0_10px_rgba(0,0,0,0.05)]">
+        <div
+            class="w-10 sm:w-16 bg-amber-50 border-r-2 border-amber-200 flex flex-col items-center py-8 select-none shrink-0 no-print space-y-6 z-10 shadow-[inset_-5px_0_10px_rgba(0,0,0,0.05)]">
             <script>
-                for(let i=0; i<45; i++) document.write('<div class="spiral-ring"></div>');
+                for (let i = 0; i < 45; i++) document.write('<div class="spiral-ring"></div>');
             </script>
         </div>
 
@@ -80,7 +92,8 @@
             <!-- SECTION 1: GENERAL METHOD & AVL TREES -->
             <section id="sec-general-method" class="tab-content block space-y-8">
                 <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
-                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">Divide & Conquer Method & AVL Trees</h1>
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                        Divide & Conquer Method & AVL Trees</h1>
                     <span class="text-xl text-inkRed font-semibold">Page 1</span>
                 </div>
 
@@ -90,9 +103,12 @@
                         Divide and Conquer is a fundamental algorithm design paradigm. It works by:
                     </p>
                     <ul class="list-disc list-inside space-y-2 ml-4">
-                        <li><strong>Divide:</strong> The main problem is broken down into smaller, similar sub-problems.</li>
-                        <li><strong>Conquer:</strong> The sub-problems are solved recursively. If they are small enough, they are solved directly (base case).</li>
-                        <li><strong>Combine:</strong> The solutions of all sub-problems are merged back together to formulate the final answer.</li>
+                        <li><strong>Divide:</strong> The main problem is broken down into smaller, similar sub-problems.
+                        </li>
+                        <li><strong>Conquer:</strong> The sub-problems are solved recursively. If they are small enough,
+                            they are solved directly (base case).</li>
+                        <li><strong>Combine:</strong> The solutions of all sub-problems are merged back together to
+                            formulate the final answer.</li>
                     </ul>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 my-6">
@@ -111,7 +127,8 @@ DAC(p) {
                         </div>
                         <div class="flex flex-col items-center">
                             <span class="text-lg text-pencilGray font-bold mb-2">Recursive Partitioning Flow:</span>
-                            <canvas id="dac-canvas" width="400" height="230" class="border border-slate-300 rounded bg-white shadow"></canvas>
+                            <canvas id="dac-canvas" width="400" height="230"
+                                class="border border-slate-300 rounded bg-white shadow"></canvas>
                         </div>
                     </div>
 
@@ -122,13 +139,15 @@ DAC(p) {
             <!-- SECTION 2: MERGE SORT -->
             <section id="sec-merge-sort" class="tab-content hidden space-y-8">
                 <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
-                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">Merge Sort Sort & Division Tree</h1>
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                        Merge Sort Sort & Division Tree</h1>
                     <span class="text-xl text-inkRed font-semibold">Page 2</span>
                 </div>
 
                 <div class="space-y-4">
                     <p>
-                        Merge sort is a recursive algorithm that repeatedly divides a list in half until individual elements are isolated, then merges them back in sorted order.
+                        Merge sort is a recursive algorithm that repeatedly divides a list in half until individual
+                        elements are isolated, then merges them back in sorted order.
                     </p>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 my-4">
@@ -163,10 +182,54 @@ Algorithm Merge(l, mid, h) {
                         </div>
                     </div>
 
+                    <!-- Interactive Merge Simulator -->
+                    <div class="border-t-2 border-dashed border-slate-300 pt-6">
+                        <h3 class="text-3xl font-bold text-inkBlue mb-4">Interactive Merge Function Simulator:</h3>
+                        <p class="mb-4 text-lg">
+                            Input two sorted arrays below to visualize how the two-pointer <code>Merge</code> algorithm compares and combines them step-by-step.
+                        </p>
+
+                        <div class="bg-white p-4 rounded-lg border border-slate-300 shadow-sm flex flex-col items-center">
+                            <!-- Inputs and Controls -->
+                            <div class="flex flex-wrap gap-4 items-center justify-center w-full max-w-2xl mb-4 font-sans text-sm">
+                                <div class="flex flex-col">
+                                    <label class="font-bold text-inkBlue mb-1">List 1 (Sorted):</label>
+                                    <input type="text" id="merge-input-1" value="12, 18, 25"
+                                        class="border border-slate-300 w-36 rounded px-2 py-1 text-center font-semibold">
+                                </div>
+                                <div class="flex flex-col">
+                                    <label class="font-bold text-inkRed mb-1">List 2 (Sorted):</label>
+                                    <input type="text" id="merge-input-2" value="10, 15, 30, 45"
+                                        class="border border-slate-300 w-36 rounded px-2 py-1 text-center font-semibold">
+                                </div>
+                                <div class="flex gap-2 self-end">
+                                    <button onclick="stepMergeSim()"
+                                        class="bg-inkBlue text-white hover:bg-slate-700 font-bold px-4 py-2 rounded transition shadow">Step Merge</button>
+                                    <button onclick="resetMergeSim()"
+                                        class="bg-inkRed text-white hover:bg-red-800 font-bold px-4 py-2 rounded transition shadow">Reset</button>
+                                </div>
+                            </div>
+                            <!-- Validation / Error messages -->
+                            <div id="merge-sim-warning" class="text-red-600 font-bold text-sm mb-2 font-sans hidden"></div>
+                            
+                            <!-- Canvas -->
+                            <canvas id="merge-sim-canvas" width="650" height="240"
+                                class="border border-slate-200 rounded bg-slate-50/50 max-w-full"></canvas>
+                            
+                            <!-- Status Info -->
+                            <div id="merge-sim-status" class="mt-3 text-sm font-sans font-bold text-pencilGray text-center px-4">
+                                Enter sorted lists and click "Step Merge" to begin.
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="space-y-6 pt-4 border-t border-dashed border-slate-300">
-                        <h3 class="text-3xl font-bold text-inkRed underline">Dry Run Example: Step-by-Step Execution</h3>
+                        <h3 class="text-3xl font-bold text-inkRed underline">Dry Run Example: Step-by-Step Execution
+                        </h3>
                         <p class="mb-4">
-                            Let's trace the execution of Merge Sort on the array: <span class="bg-white border border-slate-300 font-sans font-bold px-2 py-0.5 rounded">[29, 13, 27, 25, 36, 54, 98, 20, 42]</span>.
+                            Let's trace the execution of Merge Sort on the array: <span
+                                class="bg-white border border-slate-300 font-sans font-bold px-2 py-0.5 rounded">[29,
+                                13, 27, 25, 36, 54, 98, 20, 42]</span>.
                         </p>
 
                         <!-- PHASE 1: SPLITTING -->
@@ -177,48 +240,62 @@ Algorithm Merge(l, mid, h) {
                             </p>
 
                             <!-- Split Step 1 -->
-                            <div class="bg-white/60 p-4 rounded border border-slate-200 flex flex-col md:flex-row items-center justify-between gap-4">
+                            <div
+                                class="bg-white/60 p-4 rounded border border-slate-200 flex flex-col md:flex-row items-center justify-between gap-4">
                                 <div class="flex-1 space-y-1">
                                     <h5 class="text-xl font-bold text-inkRed">Step 1.1: Initial State</h5>
                                     <p class="text-base">The unsorted array of size 9 is loaded into memory.</p>
                                 </div>
-                                <canvas id="merge-split-1" width="450" height="250" class="border border-slate-200 rounded bg-slate-50/50"></canvas>
+                                <canvas id="merge-split-1" width="450" height="250"
+                                    class="border border-slate-200 rounded bg-slate-50/50"></canvas>
                             </div>
 
                             <!-- Split Step 2 -->
-                            <div class="bg-white/60 p-4 rounded border border-slate-200 flex flex-col md:flex-row items-center justify-between gap-4">
+                            <div
+                                class="bg-white/60 p-4 rounded border border-slate-200 flex flex-col md:flex-row items-center justify-between gap-4">
                                 <div class="flex-1 space-y-1">
                                     <h5 class="text-xl font-bold text-inkRed">Step 1.2: First Split</h5>
-                                    <p class="text-base">Split at index 4: Left half `[29, 13, 27, 25, 36]` and Right half `[54, 98, 20, 42]`.</p>
+                                    <p class="text-base">Split at index 4: Left half <code class="bg-white border border-slate-200 px-1 py-0.5 rounded font-sans font-bold text-sm">[29, 13, 27, 25, 36]</code> and Right
+                                        half <code class="bg-white border border-slate-200 px-1 py-0.5 rounded font-sans font-bold text-sm">[54, 98, 20, 42]</code>.</p>
                                 </div>
-                                <canvas id="merge-split-2" width="450" height="250" class="border border-slate-200 rounded bg-slate-50/50"></canvas>
+                                <canvas id="merge-split-2" width="450" height="250"
+                                    class="border border-slate-200 rounded bg-slate-50/50"></canvas>
                             </div>
 
                             <!-- Split Step 3 -->
-                            <div class="bg-white/60 p-4 rounded border border-slate-200 flex flex-col md:flex-row items-center justify-between gap-4">
+                            <div
+                                class="bg-white/60 p-4 rounded border border-slate-200 flex flex-col md:flex-row items-center justify-between gap-4">
                                 <div class="flex-1 space-y-1">
                                     <h5 class="text-xl font-bold text-inkRed">Step 1.3: Second Level Split</h5>
-                                    <p class="text-base">Left splits into `[29, 13, 27]` and `[25, 36]`. Right splits into `[54, 98]` and `[20, 42]`.</p>
+                                    <p class="text-base">Left splits into <code class="bg-white border border-slate-200 px-1 py-0.5 rounded font-sans font-bold text-sm">[29, 13, 27]</code> and <code class="bg-white border border-slate-200 px-1 py-0.5 rounded font-sans font-bold text-sm">[25, 36]</code>. Right splits
+                                        into <code class="bg-white border border-slate-200 px-1 py-0.5 rounded font-sans font-bold text-sm">[54, 98]</code> and <code class="bg-white border border-slate-200 px-1 py-0.5 rounded font-sans font-bold text-sm">[20, 42]</code>.</p>
                                 </div>
-                                <canvas id="merge-split-3" width="450" height="250" class="border border-slate-200 rounded bg-slate-50/50"></canvas>
+                                <canvas id="merge-split-3" width="450" height="250"
+                                    class="border border-slate-200 rounded bg-slate-50/50"></canvas>
                             </div>
 
                             <!-- Split Step 4 -->
-                            <div class="bg-white/60 p-4 rounded border border-slate-200 flex flex-col md:flex-row items-center justify-between gap-4">
+                            <div
+                                class="bg-white/60 p-4 rounded border border-slate-200 flex flex-col md:flex-row items-center justify-between gap-4">
                                 <div class="flex-1 space-y-1">
                                     <h5 class="text-xl font-bold text-inkRed">Step 1.4: Third Level Split</h5>
-                                    <p class="text-base">Sub-arrays split further: `[29, 13]` & `[27]`, `[25]` & `[36]`, `[54]` & `[98]`, and `[20]` & `[42]`.</p>
+                                    <p class="text-base">Sub-arrays split further: <code class="bg-white border border-slate-200 px-1 py-0.5 rounded font-sans font-bold text-sm">[29, 13]</code> & <code class="bg-white border border-slate-200 px-1 py-0.5 rounded font-sans font-bold text-sm">[27]</code>, <code class="bg-white border border-slate-200 px-1 py-0.5 rounded font-sans font-bold text-sm">[25]</code> & <code class="bg-white border border-slate-200 px-1 py-0.5 rounded font-sans font-bold text-sm">[36]</code>,
+                                        <code class="bg-white border border-slate-200 px-1 py-0.5 rounded font-sans font-bold text-sm">[54]</code> & <code class="bg-white border border-slate-200 px-1 py-0.5 rounded font-sans font-bold text-sm">[98]</code>, and <code class="bg-white border border-slate-200 px-1 py-0.5 rounded font-sans font-bold text-sm">[20]</code> & <code class="bg-white border border-slate-200 px-1 py-0.5 rounded font-sans font-bold text-sm">[42]</code>.</p>
                                 </div>
-                                <canvas id="merge-split-4" width="450" height="250" class="border border-slate-200 rounded bg-slate-50/50"></canvas>
+                                <canvas id="merge-split-4" width="450" height="250"
+                                    class="border border-slate-200 rounded bg-slate-50/50"></canvas>
                             </div>
 
                             <!-- Split Step 5 -->
-                            <div class="bg-white/60 p-4 rounded border border-slate-200 flex flex-col md:flex-row items-center justify-between gap-4">
+                            <div
+                                class="bg-white/60 p-4 rounded border border-slate-200 flex flex-col md:flex-row items-center justify-between gap-4">
                                 <div class="flex-1 space-y-1">
                                     <h5 class="text-xl font-bold text-inkRed">Step 1.5: Deepest Split</h5>
-                                    <p class="text-base">All items are split into individual sorted elements of size 1 (singletons).</p>
+                                    <p class="text-base">All items are split into individual sorted elements of size 1
+                                        (singletons).</p>
                                 </div>
-                                <canvas id="merge-split-5" width="450" height="250" class="border border-slate-200 rounded bg-slate-50/50"></canvas>
+                                <canvas id="merge-split-5" width="450" height="250"
+                                    class="border border-slate-200 rounded bg-slate-50/50"></canvas>
                             </div>
                         </div>
 
@@ -230,39 +307,52 @@ Algorithm Merge(l, mid, h) {
                             </p>
 
                             <!-- Merge Step 1 -->
-                            <div class="bg-white/60 p-4 rounded border border-slate-200 flex flex-col md:flex-row items-center justify-between gap-4">
+                            <div
+                                class="bg-white/60 p-4 rounded border border-slate-200 flex flex-col md:flex-row items-center justify-between gap-4">
                                 <div class="flex-1 space-y-1">
                                     <h5 class="text-xl font-bold text-emerald-800">Step 2.1: First Level Merges</h5>
-                                    <p class="text-base">Merge singletons: `[29]` and `[13]` $\rightarrow$ `[13, 29]` (sorted). `[25]` and `[36]` $\rightarrow$ `[25, 36]` (sorted). `[54]` and `[98]` $\rightarrow$ `[54, 98]`. `[20]` and `[42]` $\rightarrow$ `[20, 42]`.</p>
+                                    <p class="text-base">Merge singletons: <code class="bg-white border border-slate-200 px-1 py-0.5 rounded font-sans font-bold text-sm">[29]</code> and <code class="bg-white border border-slate-200 px-1 py-0.5 rounded font-sans font-bold text-sm">[13]</code> &rarr; <code class="bg-white border border-slate-200 px-1 py-0.5 rounded font-sans font-bold text-sm">[13, 29]</code>
+                                        (sorted). <code class="bg-white border border-slate-200 px-1 py-0.5 rounded font-sans font-bold text-sm">[25]</code> and <code class="bg-white border border-slate-200 px-1 py-0.5 rounded font-sans font-bold text-sm">[36]</code> &rarr; <code class="bg-white border border-slate-200 px-1 py-0.5 rounded font-sans font-bold text-sm">[25, 36]</code> (sorted). <code class="bg-white border border-slate-200 px-1 py-0.5 rounded font-sans font-bold text-sm">[54]</code> and <code class="bg-white border border-slate-200 px-1 py-0.5 rounded font-sans font-bold text-sm">[98]</code>
+                                        &rarr; <code class="bg-white border border-slate-200 px-1 py-0.5 rounded font-sans font-bold text-sm">[54, 98]</code>. <code class="bg-white border border-slate-200 px-1 py-0.5 rounded font-sans font-bold text-sm">[20]</code> and <code class="bg-white border border-slate-200 px-1 py-0.5 rounded font-sans font-bold text-sm">[42]</code> &rarr; <code class="bg-white border border-slate-200 px-1 py-0.5 rounded font-sans font-bold text-sm">[20, 42]</code>.</p>
                                 </div>
-                                <canvas id="merge-merge-1" width="450" height="250" class="border border-slate-200 rounded bg-slate-50/50"></canvas>
+                                <canvas id="merge-merge-1" width="450" height="250"
+                                    class="border border-slate-200 rounded bg-slate-50/50"></canvas>
                             </div>
 
                             <!-- Merge Step 2 -->
-                            <div class="bg-white/60 p-4 rounded border border-slate-200 flex flex-col md:flex-row items-center justify-between gap-4">
+                            <div
+                                class="bg-white/60 p-4 rounded border border-slate-200 flex flex-col md:flex-row items-center justify-between gap-4">
                                 <div class="flex-1 space-y-1">
                                     <h5 class="text-xl font-bold text-emerald-800">Step 2.2: Left Tree Merge</h5>
-                                    <p class="text-base">Merge left elements: `[13, 29]` and `[27]` $\rightarrow$ `[13, 27, 29]` (sorted).</p>
+                                    <p class="text-base">Merge left elements: <code class="bg-white border border-slate-200 px-1 py-0.5 rounded font-sans font-bold text-sm">[13, 29]</code> and <code class="bg-white border border-slate-200 px-1 py-0.5 rounded font-sans font-bold text-sm">[27]</code> &rarr; <code class="bg-white border border-slate-200 px-1 py-0.5 rounded font-sans font-bold text-sm">[13, 27, 29]</code> (sorted).</p>
                                 </div>
-                                <canvas id="merge-merge-2" width="450" height="250" class="border border-slate-200 rounded bg-slate-50/50"></canvas>
+                                <canvas id="merge-merge-2" width="450" height="250"
+                                    class="border border-slate-200 rounded bg-slate-50/50"></canvas>
                             </div>
 
                             <!-- Merge Step 3 -->
-                            <div class="bg-white/60 p-4 rounded border border-slate-200 flex flex-col md:flex-row items-center justify-between gap-4">
+                            <div
+                                class="bg-white/60 p-4 rounded border border-slate-200 flex flex-col md:flex-row items-center justify-between gap-4">
                                 <div class="flex-1 space-y-1">
-                                    <h5 class="text-xl font-bold text-emerald-800">Step 2.3: Sub-array Halves Merged</h5>
-                                    <p class="text-base">Merge sub-arrays: Left half `[13, 27, 29]` and `[25, 36]` $\rightarrow$ `[13, 25, 27, 29, 36]`. Right half `[54, 98]` and `[20, 42]` $\rightarrow$ `[20, 42, 54, 98]`.</p>
+                                    <h5 class="text-xl font-bold text-emerald-800">Step 2.3: Sub-array Halves Merged
+                                    </h5>
+                                    <p class="text-base">Merge sub-arrays: Left half <code class="bg-white border border-slate-200 px-1 py-0.5 rounded font-sans font-bold text-sm">[13, 27, 29]</code> and <code class="bg-white border border-slate-200 px-1 py-0.5 rounded font-sans font-bold text-sm">[25, 36]</code>
+                                        &rarr; <code class="bg-white border border-slate-200 px-1 py-0.5 rounded font-sans font-bold text-sm">[13, 25, 27, 29, 36]</code>. Right half <code class="bg-white border border-slate-200 px-1 py-0.5 rounded font-sans font-bold text-sm">[54, 98]</code> and <code class="bg-white border border-slate-200 px-1 py-0.5 rounded font-sans font-bold text-sm">[20, 42]</code>
+                                        &rarr; <code class="bg-white border border-slate-200 px-1 py-0.5 rounded font-sans font-bold text-sm">[20, 42, 54, 98]</code>.</p>
                                 </div>
-                                <canvas id="merge-merge-3" width="450" height="250" class="border border-slate-200 rounded bg-slate-50/50"></canvas>
+                                <canvas id="merge-merge-3" width="450" height="250"
+                                    class="border border-slate-200 rounded bg-slate-50/50"></canvas>
                             </div>
 
                             <!-- Merge Step 4 -->
-                            <div class="bg-white/60 p-4 rounded border border-slate-200 flex flex-col md:flex-row items-center justify-between gap-4">
+                            <div
+                                class="bg-white/60 p-4 rounded border border-slate-200 flex flex-col md:flex-row items-center justify-between gap-4">
                                 <div class="flex-1 space-y-1">
                                     <h5 class="text-xl font-bold text-emerald-800">Step 2.4: Final Merge</h5>
-                                    <p class="text-base">Merge both sorted halves `[13, 25, 27, 29, 36]` and `[20, 42, 54, 98]` to get the final sorted array.</p>
+                                    <p class="text-base">Merge both sorted halves <code class="bg-white border border-slate-200 px-1 py-0.5 rounded font-sans font-bold text-sm">[13, 25, 27, 29, 36]</code> and <code class="bg-white border border-slate-200 px-1 py-0.5 rounded font-sans font-bold text-sm">[20, 42, 54, 98]</code> to get the final sorted array.</p>
                                 </div>
-                                <canvas id="merge-merge-4" width="450" height="250" class="border border-slate-200 rounded bg-slate-50/50"></canvas>
+                                <canvas id="merge-merge-4" width="450" height="250"
+                                    class="border border-slate-200 rounded bg-slate-50/50"></canvas>
                             </div>
                         </div>
                     </div>
@@ -272,13 +362,15 @@ Algorithm Merge(l, mid, h) {
             <!-- SECTION 3: QUICK SORT -->
             <section id="sec-quick-sort" class="tab-content hidden space-y-8">
                 <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
-                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">Quick Sort & Partitioning Simulator</h1>
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                        Quick Sort & Partitioning Simulator</h1>
                     <span class="text-xl text-inkRed font-semibold">Page 3</span>
                 </div>
 
                 <div class="space-y-4">
                     <p>
-                        Quick Sort operates by selecting a pivot element and partitioning the array so that elements smaller than the pivot go to the left, and elements larger go to the right.
+                        Quick Sort operates by selecting a pivot element and partitioning the array so that elements
+                        smaller than the pivot go to the left, and elements larger go to the right.
                     </p>
 
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 my-4">
@@ -309,21 +401,103 @@ Partition(A, l, h) {
 }</pre>
                         </div>
                     </div>
-
                     <div class="border-t-2 border-dashed border-slate-300 pt-6">
-                        <h3 class="text-3xl font-bold text-inkBlue mb-4">Interactive Partition Pointer Stepper:</h3>
+                        <h3 class="text-3xl font-bold text-inkBlue mb-4">How Partition Positions the Pivot:</h3>
                         <p class="mb-4">
-                            Click "Step" to witness how index pointers $i$ and $j$ increment and decrement against the pivot. Swap actions are triggered when both pointers stall on partition violations.
+                            Partitioning works by selecting a <strong>pivot</strong> element and rearranging the other elements so that all values smaller than the pivot go to its left, and all values larger go to its right. Click the step button below to see how pivot <code>50</code> positions itself in its final sorted location.
                         </p>
-                        
+
                         <div class="bg-white p-4 rounded-lg border border-slate-300 shadow-sm flex flex-col items-center">
-                            <div class="flex gap-2 mb-4">
-                                <button onclick="stepQuickSort()" class="bg-inkBlue text-white hover:bg-slate-700 font-bold px-4 py-1.5 rounded transition shadow">Step Partition</button>
-                                <button onclick="resetQuickSort()" class="bg-inkRed text-white hover:bg-red-800 font-bold px-4 py-1.5 rounded transition shadow">Reset</button>
+                            <div class="w-full flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b pb-2">
+                                <span class="text-lg font-bold text-inkBlue">Pivot Placement Simulation (Pivot: 50)</span>
+                                <div class="flex gap-2">
+                                    <button onclick="stepPivotSim()" class="bg-inkBlue text-white hover:bg-slate-700 font-bold px-4 py-1.5 text-xs rounded transition shadow">Step</button>
+                                    <button onclick="resetPivotSim()" class="bg-inkRed text-white hover:bg-red-800 font-bold px-4 py-1.5 text-xs rounded transition shadow">Reset</button>
+                                </div>
                             </div>
-                            <canvas id="quick-canvas" width="600" height="200" class="border border-slate-200 rounded bg-slate-50/50 max-w-full"></canvas>
-                            <div id="quick-status" class="mt-2 text-sm font-sans font-bold text-pencilGray">Press Step to start partitioning. Pivot = 30.</div>
+                            
+                            <canvas id="pivot-sim-canvas" width="450" height="110" class="border border-slate-200 rounded bg-slate-50/50 max-w-full mt-4"></canvas>
+                            <div id="pivot-sim-status" class="text-xs font-sans font-bold text-pencilGray w-full text-center bg-slate-50 border border-slate-200 rounded p-1.5 mt-2">Initialized pointers: i = 0, j = 6. Pivot = 50.</div>
+
+                            <div class="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-lg text-sm text-pencilGray space-y-2 w-full max-w-xl text-left">
+                                <strong class="text-inkRed font-bold">💡 Why does this work? (Key Intuition)</strong>
+                                <ul class="list-disc pl-5 space-y-1">
+                                    <li>Pointers <code>i</code> and <code>j</code> partition the elements: everything left of <code>j</code> gets swapped to be <code>&le; pivot</code>, and everything right of <code>i</code> gets swapped to be <code>&gt; pivot</code>.</li>
+                                    <li>When pointers cross (<code>i &ge; j</code>), index <code>j</code> marks the boundary of the left group. Since <code>A[j] &le; pivot</code>, swapping the pivot with <code>A[j]</code> places the pivot exactly on this boundary.</li>
+                                    <li>After the swap, the pivot at index <code>j</code> has only smaller elements on its left and larger elements on its right. Thus, the pivot reaches its <strong>exact final sorted position</strong>.</li>
+                                </ul>
+                            </div>
                         </div>
+                    </div>
+                    <div class="space-y-8 pt-4 border-t border-dashed border-slate-300">
+                        <h3 class="text-3xl font-bold text-inkRed underline">Dry Run Example: Level Partition Simulations</h3>
+                        <p class="mb-4 text-lg text-pencilGray">
+                            Instead of static traces, click through the independent simulation step buttons below to visualize the pointer movements (<code>i</code> and <code>j</code>) and values swapping for each level of the partitioning recursion on the array <code>[10, 80, 30, 90, 40, 50, 60]</code>.
+                        </p>
+
+                        <!-- LEVEL 1 -->
+                        <div class="bg-white p-5 rounded-lg border border-slate-300 shadow-sm space-y-4 flex flex-col items-center">
+                            <div class="w-full flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b pb-2">
+                                <h4 class="text-2xl font-bold text-inkBlue">Level 1 Partitioning (Pivot: 10)</h4>
+                                <div class="flex gap-2">
+                                    <button onclick="stepLvlSort(1)" class="bg-inkBlue text-white hover:bg-slate-700 font-bold px-3 py-1 text-xs rounded transition shadow">Step</button>
+                                    <button onclick="resetLvlSort(1)" class="bg-inkRed text-white hover:bg-red-800 font-bold px-3 py-1 text-xs rounded transition shadow">Reset</button>
+                                </div>
+                            </div>
+                            <p class="text-sm text-pencilGray w-full">We choose the first element <code>10</code> as pivot. Active partition range: <code>[0, 6]</code> (all elements blue).</p>
+                            <canvas id="quick-canvas-lvl-1" width="450" height="110" class="border border-slate-200 rounded bg-slate-50/50 max-w-full"></canvas>
+                            <div id="quick-status-lvl-1" class="text-xs font-sans font-bold text-pencilGray w-full text-center bg-slate-50 border border-slate-200 rounded p-1.5 mt-1">Initialized. Pivot = 10. Press Step to begin scanning.</div>
+                        </div>
+
+                        <!-- LEVEL 2 -->
+                        <div class="bg-white p-5 rounded-lg border border-slate-300 shadow-sm space-y-4 flex flex-col items-center">
+                            <div class="w-full flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b pb-2">
+                                <h4 class="text-2xl font-bold text-inkBlue">Level 2 Partitioning (Pivot: 80)</h4>
+                                <div class="flex gap-2">
+                                    <button onclick="stepLvlSort(2)" class="bg-inkBlue text-white hover:bg-slate-700 font-bold px-3 py-1 text-xs rounded transition shadow">Step</button>
+                                    <button onclick="resetLvlSort(2)" class="bg-inkRed text-white hover:bg-red-800 font-bold px-3 py-1 text-xs rounded transition shadow">Reset</button>
+                                </div>
+                            </div>
+                            <p class="text-sm text-pencilGray w-full">Partitioning the sub-array <code>[80, 30, 90, 40, 50, 60]</code> (index range <code>[1, 6]</code>). Pivot is <code>80</code> (red). Element <code>10</code> is already sorted (green).</p>
+                            <canvas id="quick-canvas-lvl-2" width="450" height="110" class="border border-slate-200 rounded bg-slate-50/50 max-w-full"></canvas>
+                            <div id="quick-status-lvl-2" class="text-xs font-sans font-bold text-pencilGray w-full text-center bg-slate-50 border border-slate-200 rounded p-1.5 mt-1">Initialized. Pivot = 80. Press Step to begin scanning.</div>
+                        </div>
+
+                        <!-- LEVEL 3 -->
+                        <div class="bg-white p-5 rounded-lg border border-slate-300 shadow-sm space-y-4 flex flex-col items-center">
+                            <div class="w-full flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b pb-2">
+                                <h4 class="text-2xl font-bold text-inkBlue">Level 3 Partitioning (Pivot: 50)</h4>
+                                <div class="flex gap-2">
+                                    <button onclick="stepLvlSort(3)" class="bg-inkBlue text-white hover:bg-slate-700 font-bold px-3 py-1 text-xs rounded transition shadow">Step</button>
+                                    <button onclick="resetLvlSort(3)" class="bg-inkRed text-white hover:bg-red-800 font-bold px-3 py-1 text-xs rounded transition shadow">Reset</button>
+                                </div>
+                            </div>
+                            <p class="text-sm text-pencilGray w-full">Partitioning the sub-array <code>[50, 30, 60, 40]</code> (index range <code>[1, 4]</code>). Pivot is <code>50</code>. Elements <code>10</code>, <code>80</code>, and <code>90</code> are already sorted (green).</p>
+                            <canvas id="quick-canvas-lvl-3" width="450" height="110" class="border border-slate-200 rounded bg-slate-50/50 max-w-full"></canvas>
+                            <div id="quick-status-lvl-3" class="text-xs font-sans font-bold text-pencilGray w-full text-center bg-slate-50 border border-slate-200 rounded p-1.5 mt-1">Initialized. Pivot = 50. Press Step to begin scanning.</div>
+                        </div>
+
+                        <!-- LEVEL 4 -->
+                        <div class="bg-white p-5 rounded-lg border border-slate-300 shadow-sm space-y-4 flex flex-col items-center">
+                            <div class="w-full flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b pb-2">
+                                <h4 class="text-2xl font-bold text-inkBlue">Level 4 Partitioning (Pivot: 40)</h4>
+                                <div class="flex gap-2">
+                                    <button onclick="stepLvlSort(4)" class="bg-inkBlue text-white hover:bg-slate-700 font-bold px-3 py-1 text-xs rounded transition shadow">Step</button>
+                                    <button onclick="resetLvlSort(4)" class="bg-inkRed text-white hover:bg-red-800 font-bold px-3 py-1 text-xs rounded transition shadow">Reset</button>
+                                </div>
+                            </div>
+                            <p class="text-sm text-pencilGray w-full">Partitioning the sub-array <code>[40, 30]</code> (index range <code>[1, 2]</code>). Pivot is <code>40</code>. Elements <code>10, 50, 60, 80, 90</code> are sorted (green).</p>
+                            <canvas id="quick-canvas-lvl-4" width="450" height="110" class="border border-slate-200 rounded bg-slate-50/50 max-w-full"></canvas>
+                            <div id="quick-status-lvl-4" class="text-xs font-sans font-bold text-pencilGray w-full text-center bg-slate-50 border border-slate-200 rounded p-1.5 mt-1">Initialized. Pivot = 40. Press Step to begin scanning.</div>
+                        </div>
+
+                        <!-- LEVEL 5 -->
+                        <div class="bg-white p-5 rounded-lg border border-slate-300 shadow-sm space-y-4 flex flex-col items-center">
+                            <div class="w-full border-b pb-2">
+                                <h4 class="text-2xl font-bold text-emerald-800">Level 5: Final Sorted Array State</h4>
+                            </div>
+                            <p class="text-sm text-pencilGray w-full font-sans">All recursive partitions are resolved. The array is fully sorted (all elements green).</p>
+                            <canvas id="quick-canvas-lvl-5" width="450" height="110" class="border border-slate-200 rounded bg-slate-50/50 max-w-full"></canvas>
                     </div>
                 </div>
             </section>
@@ -331,13 +505,16 @@ Partition(A, l, h) {
             <!-- SECTION 4: STRASSEN'S MATRIX MULTIPLICATION -->
             <section id="sec-strassen" class="tab-content hidden space-y-8">
                 <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
-                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">Strassen's Matrix Multiplication</h1>
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                        Strassen's Matrix Multiplication</h1>
                     <span class="text-xl text-inkRed font-semibold">Page 4</span>
                 </div>
 
                 <div class="space-y-4">
                     <p>
-                        Standard matrix multiplication requires $O(n^3)$ operations. Strassen's algorithm uses divide-and-conquer block partitions to reduce multiplications from 8 to 7, resulting in a time complexity of $O(n^{\log_2 7}) \approx O(n^{2.81})$.
+                        Standard matrix multiplication requires $O(n^3)$ operations. Strassen's algorithm uses
+                        divide-and-conquer block partitions to reduce multiplications from 8 to 7, resulting in a time
+                        complexity of $O(n^{\log_2 7}) \approx O(n^{2.81})$.
                     </p>
 
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 my-4">
@@ -360,34 +537,46 @@ Partition(A, l, h) {
                                 <li>$C_{22} = P + R - Q + U$</li>
                             </div>
                         </div>
-                        
-                        <div class="bg-white p-6 rounded-lg border border-slate-300 shadow-sm flex flex-col items-center">
-                            <span class="text-lg text-pencilGray font-bold mb-3">Interactive Matrix Solver (Edit values to compute):</span>
-                            
+
+                        <div
+                            class="bg-white p-6 rounded-lg border border-slate-300 shadow-sm flex flex-col items-center">
+                            <span class="text-lg text-pencilGray font-bold mb-3">Interactive Matrix Solver (Edit values
+                                to compute):</span>
+
                             <div class="flex items-center gap-4 text-sm font-sans mb-4">
                                 <div>
                                     <span class="font-bold block mb-1">Matrix A:</span>
                                     <div class="grid grid-cols-2 gap-1 w-24">
-                                        <input type="number" id="ma-11" value="1" class="border border-slate-300 w-10 text-center rounded p-0.5">
-                                        <input type="number" id="ma-12" value="2" class="border border-slate-300 w-10 text-center rounded p-0.5">
-                                        <input type="number" id="ma-21" value="3" class="border border-slate-300 w-10 text-center rounded p-0.5">
-                                        <input type="number" id="ma-22" value="4" class="border border-slate-300 w-10 text-center rounded p-0.5">
+                                        <input type="number" id="ma-11" value="1"
+                                            class="border border-slate-300 w-10 text-center rounded p-0.5">
+                                        <input type="number" id="ma-12" value="2"
+                                            class="border border-slate-300 w-10 text-center rounded p-0.5">
+                                        <input type="number" id="ma-21" value="3"
+                                            class="border border-slate-300 w-10 text-center rounded p-0.5">
+                                        <input type="number" id="ma-22" value="4"
+                                            class="border border-slate-300 w-10 text-center rounded p-0.5">
                                     </div>
                                 </div>
                                 <div class="text-xl font-bold">×</div>
                                 <div>
                                     <span class="font-bold block mb-1">Matrix B:</span>
                                     <div class="grid grid-cols-2 gap-1 w-24">
-                                        <input type="number" id="mb-11" value="2" class="border border-slate-300 w-10 text-center rounded p-0.5">
-                                        <input type="number" id="mb-12" value="2" class="border border-slate-300 w-10 text-center rounded p-0.5">
-                                        <input type="number" id="mb-21" value="3" class="border border-slate-300 w-10 text-center rounded p-0.5">
-                                        <input type="number" id="mb-22" value="1" class="border border-slate-300 w-10 text-center rounded p-0.5">
+                                        <input type="number" id="mb-11" value="2"
+                                            class="border border-slate-300 w-10 text-center rounded p-0.5">
+                                        <input type="number" id="mb-12" value="2"
+                                            class="border border-slate-300 w-10 text-center rounded p-0.5">
+                                        <input type="number" id="mb-21" value="3"
+                                            class="border border-slate-300 w-10 text-center rounded p-0.5">
+                                        <input type="number" id="mb-22" value="1"
+                                            class="border border-slate-300 w-10 text-center rounded p-0.5">
                                     </div>
                                 </div>
-                                <button onclick="calculateStrassen()" class="bg-inkBlue text-white font-bold py-1.5 px-3 rounded shadow hover:bg-slate-700 transition">Solve</button>
+                                <button onclick="calculateStrassen()"
+                                    class="bg-inkBlue text-white font-bold py-1.5 px-3 rounded shadow hover:bg-slate-700 transition">Solve</button>
                             </div>
-                            
-                            <canvas id="strassen-canvas" width="450" height="150" class="border border-slate-200 rounded bg-slate-50/50 max-w-full"></canvas>
+
+                            <canvas id="strassen-canvas" width="450" height="150"
+                                class="border border-slate-200 rounded bg-slate-50/50 max-w-full"></canvas>
                         </div>
                     </div>
                 </div>
@@ -396,35 +585,47 @@ Partition(A, l, h) {
             <!-- SECTION 5: CONVEX HULL -->
             <section id="sec-convex-hull" class="tab-content hidden space-y-8">
                 <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
-                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">Convex Hull - Divide & Conquer</h1>
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                        Convex Hull - Divide & Conquer</h1>
                     <span class="text-xl text-inkRed font-semibold">Page 5</span>
                 </div>
 
                 <div class="space-y-4">
                     <p>
-                        The Convex Hull of a set of 2D points is the smallest convex polygon enclosing all points. The divide and conquer approach splits the points, recursively computes the hulls of left and right halves, and merges them using **upper and lower tangents**.
+                        The Convex Hull of a set of 2D points is the smallest convex polygon enclosing all points. The
+                        divide and conquer approach splits the points, recursively computes the hulls of left and right
+                        halves, and merges them using **upper and lower tangents**.
                     </p>
 
                     <div class="bg-amber-50/50 p-6 rounded-lg border border-amber-200">
                         <h3 class="text-3xl font-bold text-inkBlue mb-2">tangent Merging & Base Cases:</h3>
                         <ul class="list-disc list-inside space-y-1">
-                            <li><strong>Tangent Finding:</strong> Tangents are segments connecting left hull A and right hull B without intersecting either interior.</li>
-                            <li><strong>Brute Force Base Case:</strong> Small sets of points ($\le 5$) are solved directly using brute-force algorithms to prevent infinite tangent-matching loops when merging small pairs.</li>
+                            <li><strong>Tangent Finding:</strong> Tangents are segments connecting left hull A and right
+                                hull B without intersecting either interior.</li>
+                            <li><strong>Brute Force Base Case:</strong> Small sets of points ($\le 5$) are solved
+                                directly using brute-force algorithms to prevent infinite tangent-matching loops when
+                                merging small pairs.</li>
                         </ul>
                     </div>
 
                     <div class="border-t-2 border-dashed border-slate-300 pt-6">
                         <h3 class="text-3xl font-bold text-inkRed mb-4">Interactive Convex Hull Sandbox:</h3>
                         <p class="mb-4">
-                            Click anywhere inside the gray workspace canvas to add coordinates. The Divide-and-Conquer Convex Hull algorithm will automatically compute and draw the enclosing boundary line.
+                            Click anywhere inside the gray workspace canvas to add coordinates. The Divide-and-Conquer
+                            Convex Hull algorithm will automatically compute and draw the enclosing boundary line.
                         </p>
-                        
-                        <div class="bg-white p-4 rounded-lg border border-slate-300 shadow-sm flex flex-col items-center">
+
+                        <div
+                            class="bg-white p-4 rounded-lg border border-slate-300 shadow-sm flex flex-col items-center">
                             <div class="mb-4 flex gap-4">
-                                <button onclick="clearHullPoints()" class="bg-inkRed text-white font-bold py-1.5 px-4 rounded shadow hover:bg-red-800 transition">Clear Points</button>
-                                <span class="text-sm font-sans mt-2 text-pencilGray font-bold" id="hull-status">Click inside workspace to plot. Points count: 0</span>
+                                <button onclick="clearHullPoints()"
+                                    class="bg-inkRed text-white font-bold py-1.5 px-4 rounded shadow hover:bg-red-800 transition">Clear
+                                    Points</button>
+                                <span class="text-sm font-sans mt-2 text-pencilGray font-bold" id="hull-status">Click
+                                    inside workspace to plot. Points count: 0</span>
                             </div>
-                            <canvas id="hull-canvas" width="600" height="300" class="border border-slate-300 rounded bg-slate-50 cursor-crosshair"></canvas>
+                            <canvas id="hull-canvas" width="600" height="300"
+                                class="border border-slate-300 rounded bg-slate-50 cursor-crosshair"></canvas>
                         </div>
                     </div>
                 </div>
@@ -445,23 +646,26 @@ Partition(A, l, h) {
             });
             document.getElementById('sec-' + tabId).classList.remove('hidden');
             document.getElementById('sec-' + tabId).classList.add('block');
-            
+
             document.querySelectorAll('.nav-tab').forEach(tab => {
                 tab.classList.remove('bg-amber-200', 'text-inkBlue', 'border-b-2', 'border-inkBlue');
                 tab.classList.add('text-gray-600', 'hover:text-inkBlue');
             });
-            
+
             const activeTab = document.getElementById('tab-' + tabId);
-            if(activeTab) {
+            if (activeTab) {
                 activeTab.classList.remove('text-gray-600', 'hover:text-inkBlue');
                 activeTab.classList.add('bg-amber-200', 'text-inkBlue', 'border-b-2', 'border-inkBlue');
             }
-            
+
             // Redraw active tab canvas elements
             setTimeout(() => {
                 drawDacFlow();
                 drawMergeSortTree();
-                drawQuickSortStepper();
+                resetMergeSim();
+                resetPivotSim();
+                resetAllLvlSorts();
+                drawAllQuickSteps();
                 calculateStrassen();
                 drawConvexHull();
             }, 50);
@@ -470,7 +674,9 @@ Partition(A, l, h) {
         window.onresize = () => {
             drawDacFlow();
             drawMergeSortTree();
-            drawQuickSortStepper();
+            drawMergeSim();
+            drawAllQuickSteps();
+            drawPivotSim();
             calculateStrassen();
             drawConvexHull();
         };
@@ -483,10 +689,10 @@ Partition(A, l, h) {
             if (!canvas) return;
             const ctx = canvas.getContext('2d');
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
+
             ctx.font = 'bold 13px Inter';
             ctx.lineWidth = 1.5;
-            
+
             // Problem box
             ctx.strokeStyle = '#1e3a8a';
             ctx.fillStyle = '#eff6ff';
@@ -495,7 +701,7 @@ Partition(A, l, h) {
             ctx.fillStyle = '#1a365d';
             ctx.textAlign = 'center';
             ctx.fillText("Problem (Size N)", 200, 35);
-            
+
             // Sub-problems
             ctx.strokeStyle = '#1e3a8a';
             ctx.fillStyle = '#eff6ff';
@@ -506,7 +712,7 @@ Partition(A, l, h) {
             ctx.fillStyle = '#1a365d';
             ctx.fillText("Sub-prob 1 (N/2)", 95, 105);
             ctx.fillText("Sub-prob 2 (N/2)", 305, 105);
-            
+
             // Solutions
             ctx.strokeStyle = '#059669';
             ctx.fillStyle = '#ecfdf5';
@@ -517,7 +723,7 @@ Partition(A, l, h) {
             ctx.fillStyle = '#065f46';
             ctx.fillText("Solution 1", 95, 165);
             ctx.fillText("Solution 2", 305, 165);
-            
+
             // Combined Solution
             ctx.strokeStyle = '#059669';
             ctx.fillStyle = '#ecfdf5';
@@ -525,7 +731,7 @@ Partition(A, l, h) {
             ctx.fillRect(140, 195, 120, 30);
             ctx.fillStyle = '#065f46';
             ctx.fillText("Final Solution", 200, 215);
-            
+
             // Arrow lines
             ctx.strokeStyle = '#475569';
             ctx.beginPath();
@@ -538,7 +744,7 @@ Partition(A, l, h) {
             ctx.moveTo(95, 175); ctx.lineTo(200, 195);
             ctx.moveTo(305, 175); ctx.lineTo(200, 195);
             ctx.stroke();
-            
+
             // Side annotation labels
             ctx.fillStyle = '#b91c1c';
             ctx.font = 'italic 11px Kalam';
@@ -559,7 +765,7 @@ Partition(A, l, h) {
             const w = canvas.width;
             const h = canvas.height;
             ctx.clearRect(0, 0, w, h);
-            
+
             // Nodes data with coordinates structured as a binary tree
             const nodes = [
                 { id: 0, arr: [29, 13, 27, 25, 36, 54, 98, 20, 42], sortedArr: [13, 20, 25, 27, 29, 36, 42, 54, 98], x: 225, y: 15, parent: null },
@@ -586,12 +792,12 @@ Partition(A, l, h) {
 
             if (stepId === 's11') {
                 nodeStates[0] = 'active';
-                for(let i=1; i<nodes.length; i++) nodeStates[i] = 'hidden';
+                for (let i = 1; i < nodes.length; i++) nodeStates[i] = 'hidden';
             } else if (stepId === 's12') {
                 nodeStates[0] = 'completed';
                 nodeStates[1] = 'active';
                 nodeStates[2] = 'active';
-                for(let i=3; i<nodes.length; i++) nodeStates[i] = 'hidden';
+                for (let i = 3; i < nodes.length; i++) nodeStates[i] = 'hidden';
             } else if (stepId === 's13') {
                 nodeStates[0] = 'completed';
                 nodeStates[1] = 'completed';
@@ -600,18 +806,18 @@ Partition(A, l, h) {
                 nodeStates[4] = 'active';
                 nodeStates[5] = 'active';
                 nodeStates[6] = 'active';
-                for(let i=7; i<nodes.length; i++) nodeStates[i] = 'hidden';
+                for (let i = 7; i < nodes.length; i++) nodeStates[i] = 'hidden';
             } else if (stepId === 's14') {
-                for(let i=0; i<7; i++) nodeStates[i] = 'completed';
-                for(let i=7; i<15; i++) nodeStates[i] = 'active';
+                for (let i = 0; i < 7; i++) nodeStates[i] = 'completed';
+                for (let i = 7; i < 15; i++) nodeStates[i] = 'active';
                 nodeStates[15] = 'hidden';
                 nodeStates[16] = 'hidden';
             } else if (stepId === 's15') {
-                for(let i=0; i<15; i++) nodeStates[i] = 'completed';
+                for (let i = 0; i < 15; i++) nodeStates[i] = 'completed';
                 nodeStates[15] = 'active';
                 nodeStates[16] = 'active';
             } else if (stepId === 's21') {
-                for(let i=0; i<nodes.length; i++) nodeStates[i] = 'completed';
+                for (let i = 0; i < nodes.length; i++) nodeStates[i] = 'completed';
                 nodeStates[7] = 'merged';
                 nodeStates[4] = 'merged';
                 nodeStates[5] = 'merged';
@@ -625,13 +831,16 @@ Partition(A, l, h) {
                 nodeStates[13] = 'inactive';
                 nodeStates[14] = 'inactive';
             } else if (stepId === 's22') {
-                for(let i=0; i<nodes.length; i++) nodeStates[i] = 'completed';
+                for (let i = 0; i < nodes.length; i++) nodeStates[i] = 'completed';
                 nodeStates[3] = 'merged';
                 nodeStates[7] = 'inactive';
                 nodeStates[8] = 'inactive';
                 nodeStates[15] = 'inactive'; nodeStates[16] = 'inactive';
+                nodeStates[9] = 'inactive'; nodeStates[10] = 'inactive';
+                nodeStates[11] = 'inactive'; nodeStates[12] = 'inactive';
+                nodeStates[13] = 'inactive'; nodeStates[14] = 'inactive';
             } else if (stepId === 's23') {
-                for(let i=0; i<nodes.length; i++) nodeStates[i] = 'completed';
+                for (let i = 0; i < nodes.length; i++) nodeStates[i] = 'completed';
                 nodeStates[1] = 'merged';
                 nodeStates[2] = 'merged';
                 nodeStates[3] = 'inactive'; nodeStates[4] = 'inactive';
@@ -642,7 +851,7 @@ Partition(A, l, h) {
                 nodeStates[13] = 'inactive'; nodeStates[14] = 'inactive';
                 nodeStates[15] = 'inactive'; nodeStates[16] = 'inactive';
             } else if (stepId === 's24') {
-                for(let i=0; i<nodes.length; i++) nodeStates[i] = 'inactive';
+                for (let i = 0; i < nodes.length; i++) nodeStates[i] = 'inactive';
                 nodeStates[0] = 'merged';
             }
 
@@ -654,7 +863,7 @@ Partition(A, l, h) {
                     const parentNode = nodes.find(p => p.id === n.parent);
                     const parentState = nodeStates[parentNode.id];
                     const childState = nodeStates[n.id];
-                    
+
                     if (parentState !== 'hidden' && childState !== 'hidden') {
                         ctx.beginPath();
                         ctx.moveTo(parentNode.x + 15, parentNode.y + 15);
@@ -668,26 +877,26 @@ Partition(A, l, h) {
             nodes.forEach(n => {
                 const state = nodeStates[n.id];
                 if (state === 'hidden') return;
-                
+
                 const isSorted = (state === 'merged' || state === 'completed' || stepId.startsWith('s2'));
                 const currentArr = isSorted ? n.sortedArr : n.arr;
-                
+
                 const cellW = 20;
                 const cellH = 24;
                 const totalW = currentArr.length * cellW;
-                
+
                 const nx = n.x - totalW / 2 + 15;
                 const ny = n.y;
-                
+
                 let fill = '#eff6ff';
                 let stroke = '#1e3a8a';
                 let textFill = '#1e293b';
-                
+
                 if (state === 'active') {
                     fill = '#fef3c7'; // Active warning amber
                     stroke = '#d97706';
                     textFill = '#92400e';
-                    
+
                     // Glow pulse
                     ctx.strokeStyle = '#fbbf24';
                     ctx.lineWidth = 3;
@@ -696,7 +905,7 @@ Partition(A, l, h) {
                     fill = '#dcfce7'; // Merged success green
                     stroke = '#15803d';
                     textFill = '#166534';
-                    
+
                     // Draw merge arrows pointing up from kids
                     ctx.strokeStyle = '#15803d';
                     ctx.lineWidth = 2;
@@ -714,7 +923,7 @@ Partition(A, l, h) {
                     stroke = '#cbd5e1';
                     textFill = '#94a3b8';
                 }
-                
+
                 ctx.lineWidth = 1.5;
                 currentArr.forEach((val, idx) => {
                     const cx = nx + idx * cellW;
@@ -722,11 +931,11 @@ Partition(A, l, h) {
                     ctx.strokeStyle = stroke;
                     ctx.fillRect(cx, ny, cellW, cellH);
                     ctx.strokeRect(cx, ny, cellW, cellH);
-                    
+
                     ctx.fillStyle = textFill;
                     ctx.font = 'bold 11px Inter';
                     ctx.textAlign = 'center';
-                    ctx.fillText(val, cx + cellW/2, ny + 15);
+                    ctx.fillText(val, cx + cellW / 2, ny + 15);
                 });
             });
         }
@@ -744,129 +953,458 @@ Partition(A, l, h) {
         }
 
         // -------------------------------------------------------------
-        // 3. Quick Sort Stepper Canvas
+        // Merge Function Stepper Simulator
         // -------------------------------------------------------------
-        let quickArray = [30, 80, 10, 90, 40, 50, 60];
-        let quickState = {
-            pivot: 30,
+        let mergeSimState = {
+            list1: [12, 18, 25],
+            list2: [10, 15, 30, 45],
+            temp: [],
             i: 0,
-            j: 6,
-            stepIndex: 0,
-            swapped: false,
-            done: false
+            j: 0,
+            k: 0,
+            activeComparison: null, // { i, j }
+            activeCopy: null, // { list, index }
+            statusText: "Enter sorted lists and click 'Step Merge' to begin.",
+            isDone: false,
+            isValid: true
         };
 
-        function resetQuickSort() {
-            quickArray = [30, 80, 10, 90, 40, 50, 60];
-            quickState = {
-                pivot: 30,
-                i: 0,
-                j: 6,
-                stepIndex: 0,
-                swapped: false,
-                done: false
-            };
-            document.getElementById('quick-status').innerText = "Simulator reset. Array = [30, 80, 10, 90, 40, 50, 60], Pivot = 30.";
-            drawQuickSortStepper();
-        }
+        function resetMergeSim() {
+            const warningEl = document.getElementById('merge-sim-warning');
+            const statusEl = document.getElementById('merge-sim-status');
+            if (!warningEl || !statusEl) return;
+            
+            warningEl.classList.add('hidden');
+            warningEl.innerText = "";
 
-        function stepQuickSort() {
-            const status = document.getElementById('quick-status');
-            if (quickState.done) {
-                status.innerText = "Partition finished! Reset to try again.";
+            // Parse inputs
+            const val1Raw = document.getElementById('merge-input-1').value;
+            const val2Raw = document.getElementById('merge-input-2').value;
+
+            const parseList = (str, label) => {
+                const arr = str.split(',').map(s => parseFloat(s.trim())).filter(n => !isNaN(n));
+                if (arr.length === 0) {
+                    throw new Error(`${label} cannot be empty and must contain valid numbers.`);
+                }
+                // Check if sorted
+                for (let idx = 0; idx < arr.length - 1; idx++) {
+                    if (arr[idx] > arr[idx + 1]) {
+                        throw new Error(`${label} must be sorted in ascending order.`);
+                    }
+                }
+                return arr;
+            };
+
+            try {
+                const list1 = parseList(val1Raw, "List 1");
+                const list2 = parseList(val2Raw, "List 2");
+
+                mergeSimState = {
+                    list1: list1,
+                    list2: list2,
+                    temp: Array(list1.length + list2.length).fill(null),
+                    i: 0,
+                    j: 0,
+                    k: 0,
+                    activeComparison: null,
+                    activeCopy: null,
+                    statusText: "Ready. Click 'Step Merge' to begin the first comparison.",
+                    isDone: false,
+                    isValid: true
+                };
+            } catch (err) {
+                mergeSimState.isValid = false;
+                warningEl.innerText = err.message;
+                warningEl.classList.remove('hidden');
+                statusEl.innerText = "Error: Please fix input lists.";
+                drawMergeSim();
                 return;
             }
-            
-            const pivot = quickState.pivot;
-            let i = quickState.i;
-            let j = quickState.j;
-            
-            if (quickState.stepIndex === 0) {
-                // Find element greater than pivot from left
-                while (i < 6 && quickArray[i] <= pivot) { i++; }
-                quickState.i = i;
-                status.innerText = `[Step 1]: i pointer moves forward to index ${i} (value ${quickArray[i]} > pivot).`;
-                quickState.stepIndex = 1;
-            } else if (quickState.stepIndex === 1) {
-                // Find element smaller than pivot from right
-                while (j > 0 && quickArray[j] > pivot) { j--; }
-                quickState.j = j;
-                status.innerText = `[Step 2]: j pointer moves backward to index ${j} (value ${quickArray[j]} <= pivot).`;
-                quickState.stepIndex = 2;
-            } else if (quickState.stepIndex === 2) {
-                if (i < j) {
-                    // Swap values at i and j
-                    const temp = quickArray[i];
-                    quickArray[i] = quickArray[j];
-                    quickArray[j] = temp;
-                    status.innerText = `[Step 3]: Since i (${i}) < j (${j}), we swap values. Array becomes [${quickArray.join(", ")}].`;
-                    quickState.stepIndex = 0; // return to scanning
-                } else {
-                    // Cross detected, swap pivot with j
-                    const temp = quickArray[0];
-                    quickArray[0] = quickArray[j];
-                    quickArray[j] = temp;
-                    quickState.done = true;
-                    status.innerText = `[Partition Done]: Pointers crossed (i >= j). Swap pivot with A[j] (index ${j}). Final array: [${quickArray.join(", ")}].`;
-                }
-            }
-            drawQuickSortStepper();
+
+            statusEl.innerText = mergeSimState.statusText;
+            drawMergeSim();
         }
 
-        function drawQuickSortStepper() {
-            const canvas = document.getElementById('quick-canvas');
+        function stepMergeSim() {
+            if (!mergeSimState.isValid) {
+                resetMergeSim();
+                if (!mergeSimState.isValid) return;
+            }
+
+            const statusEl = document.getElementById('merge-sim-status');
+            if (mergeSimState.isDone) {
+                statusEl.innerText = "Merge completed! Final sorted array is in the Temp buffer. Reset to try again.";
+                return;
+            }
+
+            const l1 = mergeSimState.list1;
+            const l2 = mergeSimState.list2;
+            const i = mergeSimState.i;
+            const j = mergeSimState.j;
+            const k = mergeSimState.k;
+
+            if (i < l1.length && j < l2.length) {
+                const val1 = l1[i];
+                const val2 = l2[j];
+                mergeSimState.activeComparison = { i, j };
+
+                if (val1 <= val2) {
+                    mergeSimState.temp[k] = val1;
+                    mergeSimState.activeCopy = { list: 1, index: i };
+                    mergeSimState.statusText = `[Compare] L1[i] (${val1}) \u2264 L2[j] (${val2}). Copy L1[i] (${val1}) to Temp[k] (index ${k}). Increment i and k.`;
+                    mergeSimState.i++;
+                } else {
+                    mergeSimState.temp[k] = val2;
+                    mergeSimState.activeCopy = { list: 2, index: j };
+                    mergeSimState.statusText = `[Compare] L2[j] (${val2}) < L1[i] (${val1}). Copy L2[j] (${val2}) to Temp[k] (index ${k}). Increment j and k.`;
+                    mergeSimState.j++;
+                }
+                mergeSimState.k++;
+            } else if (i < l1.length) {
+                const val1 = l1[i];
+                mergeSimState.activeComparison = null;
+                mergeSimState.activeCopy = { list: 1, index: i };
+                mergeSimState.temp[k] = val1;
+                mergeSimState.statusText = `[Exhausted] List 2 is fully merged. Copy remaining L1[i] (${val1}) to Temp[k] (index ${k}). Increment i and k.`;
+                mergeSimState.i++;
+                mergeSimState.k++;
+            } else if (j < l2.length) {
+                const val2 = l2[j];
+                mergeSimState.activeComparison = null;
+                mergeSimState.activeCopy = { list: 2, index: j };
+                mergeSimState.temp[k] = val2;
+                mergeSimState.statusText = `[Exhausted] List 1 is fully merged. Copy remaining L2[j] (${val2}) to Temp[k] (index ${k}). Increment j and k.`;
+                mergeSimState.j++;
+                mergeSimState.k++;
+            }
+
+            if (mergeSimState.k >= l1.length + l2.length) {
+                mergeSimState.isDone = true;
+                mergeSimState.activeComparison = null;
+                mergeSimState.activeCopy = null;
+                mergeSimState.statusText = "Merge completed! Final sorted array is in the Temp buffer. Reset to try again.";
+            }
+
+            statusEl.innerText = mergeSimState.statusText;
+            drawMergeSim();
+        }
+
+        function drawMergeSim() {
+            const canvas = document.getElementById('merge-sim-canvas');
             if (!canvas) return;
             const ctx = canvas.getContext('2d');
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            const startX = 60;
-            const startY = 60;
-            const itemW = 60;
-            const itemH = 50;
-            
-            quickArray.forEach((val, idx) => {
-                const x = startX + idx * itemW;
-                
-                // Highlight states
-                if (idx === 0) {
-                    ctx.fillStyle = '#fee2e2'; // Pivot node (red)
-                    ctx.strokeStyle = '#b91c1c';
-                } else if (idx === quickState.i) {
-                    ctx.fillStyle = '#e0f2fe'; // i pointer (blue)
-                    ctx.strokeStyle = '#0284c7';
-                } else if (idx === quickState.j) {
-                    ctx.fillStyle = '#dcfce7'; // j pointer (green)
-                    ctx.strokeStyle = '#15803d';
+
+            const logicalWidth = 650;
+            const logicalHeight = 240;
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = logicalWidth * dpr;
+            canvas.height = logicalHeight * dpr;
+            canvas.style.width = logicalWidth + 'px';
+            canvas.style.height = logicalHeight + 'px';
+            ctx.scale(dpr, dpr);
+
+            ctx.clearRect(0, 0, logicalWidth, logicalHeight);
+
+            const startX = 140;
+            const itemW = 45;
+            const itemH = 34;
+
+            const l1 = mergeSimState.list1;
+            const l2 = mergeSimState.list2;
+            const temp = mergeSimState.temp;
+            const iPtr = mergeSimState.i;
+            const jPtr = mergeSimState.j;
+            const kPtr = mergeSimState.k;
+
+            const drawArray = (arr, startY, label, ptrIdx, ptrLabel, ptrColor, listNum) => {
+                ctx.fillStyle = '#1a365d';
+                ctx.font = 'bold 13px Inter';
+                ctx.textAlign = 'right';
+                ctx.fillText(label, startX - 20, startY + 22);
+
+                arr.forEach((val, idx) => {
+                    const x = startX + idx * itemW;
+
+                    let fill = '#f8fafc';
+                    let stroke = '#64748b';
+                    let textFill = '#1e293b';
+                    let isHighlighted = false;
+
+                    if (mergeSimState.activeComparison && listNum === 1 && idx === mergeSimState.activeComparison.i) {
+                        fill = '#fef3c7';
+                        stroke = '#d97706';
+                        textFill = '#92400e';
+                        isHighlighted = true;
+                    }
+                    if (mergeSimState.activeComparison && listNum === 2 && idx === mergeSimState.activeComparison.j) {
+                        fill = '#fef3c7';
+                        stroke = '#d97706';
+                        textFill = '#92400e';
+                        isHighlighted = true;
+                    }
+
+                    if (mergeSimState.activeCopy && mergeSimState.activeCopy.list === listNum && mergeSimState.activeCopy.index === idx) {
+                        fill = '#dcfce7';
+                        stroke = '#15803d';
+                        textFill = '#166534';
+                        isHighlighted = true;
+                    }
+
+                    if (listNum === 3 && idx === kPtr - 1 && val !== null) {
+                        fill = '#ecfdf5';
+                        stroke = '#059669';
+                        textFill = '#065f46';
+                    }
+
+                    ctx.lineWidth = isHighlighted ? 2.5 : 1.5;
+                    ctx.fillStyle = fill;
+                    ctx.strokeStyle = stroke;
+                    ctx.fillRect(x, startY, itemW, itemH);
+                    ctx.strokeRect(x, startY, itemW, itemH);
+
+                    if (val !== null && val !== undefined) {
+                        ctx.fillStyle = textFill;
+                        ctx.font = 'bold 12px Inter';
+                        ctx.textAlign = 'center';
+                        ctx.fillText(val, x + itemW / 2, startY + 21);
+                    }
+                });
+
+                if (ptrIdx < arr.length && !mergeSimState.isDone) {
+                    const px = startX + ptrIdx * itemW + itemW / 2;
+                    ctx.fillStyle = ptrColor;
+                    ctx.font = 'bold 12px Inter';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(`\u2191 ${ptrLabel}`, px, startY + itemH + 15);
+                }
+            };
+
+            drawArray(l1, 20, "List 1 (i):", iPtr, "i", "#0284c7", 1);
+            drawArray(l2, 90, "List 2 (j):", jPtr, "j", "#b91c1c", 2);
+            drawArray(temp, 160, "Temp (k):", kPtr, "k", "#15803d", 3);
+        }
+
+        // -------------------------------------------------------------
+        // 3. Quick Sort Stepper Canvas
+        // -------------------------------------------------------------
+        let pivotSimState = {
+            arr: [50, 80, 30, 90, 40, 10, 60],
+            pivotIdx: 0,
+            pivotVal: 50,
+            activeStart: 0,
+            activeEnd: 6,
+            i: 0,
+            j: 6,
+            phase: 'init',
+            done: false,
+            showSwapArrows: false,
+            fromSwap: undefined,
+            toSwap: undefined
+        };
+
+        function resetPivotSim() {
+            const statusEl = document.getElementById('pivot-sim-status');
+            if (!statusEl) return;
+
+            pivotSimState = {
+                arr: [50, 80, 30, 90, 40, 10, 60],
+                pivotIdx: 0,
+                pivotVal: 50,
+                activeStart: 0,
+                activeEnd: 6,
+                i: 0,
+                j: 6,
+                phase: 'init',
+                done: false,
+                showSwapArrows: false,
+                fromSwap: undefined,
+                toSwap: undefined
+            };
+
+            statusEl.innerText = `Initialized pointers: i = 0, j = 6. Pivot = 50. Press Step to begin scanning.`;
+            drawPivotSim();
+        }
+
+        function stepPivotSim() {
+            const state = pivotSimState;
+            const statusEl = document.getElementById('pivot-sim-status');
+            if (!state || !statusEl) return;
+
+            if (state.done) {
+                statusEl.innerText = "Partition complete! Pivot 50 is locked in its final location.";
+                return;
+            }
+
+            const pivot = state.pivotVal;
+            const pivotIdx = state.pivotIdx;
+            let i = state.i;
+            let j = state.j;
+
+            if (state.phase === 'init') {
+                state.phase = 'scan_i';
+                statusEl.innerText = `Scanning i starting. Pointers at i = ${i}, j = ${j}. Press Step to move i right.`;
+            } 
+            else if (state.phase === 'scan_i') {
+                if (i < state.activeEnd && state.arr[i] <= pivot) {
+                    i++;
+                    state.i = i;
+                    statusEl.innerText = `Scanning i: Index ${i-1} (value ${state.arr[i-1]} \u2264 pivot ${pivot}). Move i right to index ${i}.`;
                 } else {
-                    ctx.fillStyle = '#f8fafc';
-                    ctx.strokeStyle = '#64748b';
+                    state.phase = 'scan_j';
+                    if (state.arr[i] > pivot) {
+                        statusEl.innerText = `i stopped at index ${i} (value ${state.arr[i]} > pivot ${pivot}). Now scanning j left.`;
+                    } else {
+                        statusEl.innerText = `i reached end range at index ${i}. Now scanning j left.`;
+                    }
                 }
-                
-                ctx.lineWidth = 2.5;
-                ctx.strokeRect(x, startY, itemW, itemH);
+            } 
+            else if (state.phase === 'scan_j') {
+                if (j > state.activeStart && state.arr[j] > pivot) {
+                    j--;
+                    state.j = j;
+                    statusEl.innerText = `Scanning j: Index ${j+1} (value ${state.arr[j+1]} > pivot ${pivot}). Move j left to index ${j}.`;
+                } else {
+                    state.phase = 'check_cross';
+                    if (state.arr[j] <= pivot) {
+                        statusEl.innerText = `j stopped at index ${j} (value ${state.arr[j]} \u2264 pivot ${pivot}). Checking if crossed.`;
+                    } else {
+                        statusEl.innerText = `j reached start range at index ${j}. Checking if crossed.`;
+                    }
+                }
+            } 
+            else if (state.phase === 'check_cross') {
+                if (i < j) {
+                    state.showSwapArrows = true;
+                    state.fromSwap = i;
+                    state.toSwap = j;
+                    state.phase = 'swap_exec';
+                    statusEl.innerText = `Pointers have not crossed (i = ${i} < j = ${j}). We will swap A[i] (${state.arr[i]}) and A[j] (${state.arr[j]}). Press Step to swap.`;
+                } else {
+                    state.showSwapArrows = true;
+                    state.fromSwap = pivotIdx;
+                    state.toSwap = j;
+                    state.phase = 'cross_exec';
+                    statusEl.innerText = `Pointers crossed (i = ${i} \u2265 j = ${j}). We will swap pivot at index ${pivotIdx} (${state.arr[pivotIdx]}) with A[j] (${state.arr[j]}). Press Step to swap.`;
+                }
+            } 
+            else if (state.phase === 'swap_exec') {
+                const temp = state.arr[i];
+                state.arr[i] = state.arr[j];
+                state.arr[j] = temp;
+                state.showSwapArrows = false;
+                state.phase = 'scan_i';
+                statusEl.innerText = `Swapped values at indices ${i} and ${j}. Resuming i scan.`;
+            } 
+            else if (state.phase === 'cross_exec') {
+                const temp = state.arr[pivotIdx];
+                state.arr[pivotIdx] = state.arr[j];
+                state.arr[j] = temp;
+                state.showSwapArrows = false;
+                state.done = true;
+                state.phase = 'done';
+                statusEl.innerText = `Pivot swap complete! Pivot 50 is now at its final proper sorted location (index ${j}).`;
+            }
+
+            drawPivotSim();
+        }
+
+        function drawPivotSim() {
+            const canvas = document.getElementById('pivot-sim-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+
+            const logicalWidth = 450;
+            const logicalHeight = 110;
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = logicalWidth * dpr;
+            canvas.height = logicalHeight * dpr;
+            canvas.style.width = logicalWidth + 'px';
+            canvas.style.height = logicalHeight + 'px';
+            ctx.scale(dpr, dpr);
+
+            ctx.clearRect(0, 0, logicalWidth, logicalHeight);
+
+            const state = pivotSimState;
+            const arr = state.arr;
+            const startX = 25;
+            const startY = 32;
+            const itemW = 54;
+            const itemH = 36;
+
+            arr.forEach((val, idx) => {
+                const x = startX + idx * itemW;
+
+                let fill = '#f1f5f9';
+                let stroke = '#cbd5e1';
+                let textFill = '#94a3b8';
+
+                if (state.done && idx === state.j) {
+                    fill = '#dcfce7';
+                    stroke = '#15803d';
+                    textFill = '#166534';
+                } else {
+                    fill = '#e0f2fe';
+                    stroke = '#0284c7';
+                    textFill = '#0369a1';
+                }
+
+                if (!state.done && idx === state.pivotIdx) {
+                    fill = '#fee2e2';
+                    stroke = '#b91c1c';
+                    textFill = '#991b1b';
+                }
+
+                ctx.lineWidth = (idx === state.pivotIdx || (state.done && idx === state.j)) ? 2.5 : 1.5;
+                ctx.fillStyle = fill;
+                ctx.strokeStyle = stroke;
                 ctx.fillRect(x, startY, itemW, itemH);
-                
-                ctx.fillStyle = '#1e293b';
-                ctx.font = 'bold 15px Inter';
+                ctx.strokeRect(x, startY, itemW, itemH);
+
+                ctx.fillStyle = textFill;
+                ctx.font = 'bold 12px Inter';
                 ctx.textAlign = 'center';
-                ctx.fillText(val, x + itemW/2, startY + 30);
-                
-                // Labels below nodes
-                ctx.font = '10px Inter';
-                if (idx === 0) {
+                ctx.fillText(val, x + itemW / 2, startY + 22);
+
+                ctx.font = '9px Inter';
+                if (!state.done && idx === state.pivotIdx) {
                     ctx.fillStyle = '#b91c1c';
-                    ctx.fillText("Pivot", x + itemW/2, startY - 10);
-                }
-                
-                if (idx === quickState.i) {
-                    ctx.fillStyle = '#0284c7';
-                    ctx.fillText("↑ i", x + itemW/2, startY + itemH + 20);
-                }
-                if (idx === quickState.j) {
+                    ctx.fillText("Pivot", x + itemW / 2, startY - 8);
+                } else if (state.done && idx === state.j) {
                     ctx.fillStyle = '#15803d';
-                    ctx.fillText("↑ j", x + itemW/2, startY + itemH + 35);
+                    ctx.fillText("Sorted Pivot", x + itemW / 2, startY - 8);
+                }
+
+                if (!state.done) {
+                    if (idx === state.i) {
+                        ctx.fillStyle = '#0284c7';
+                        ctx.fillText("\u2191 i", x + itemW / 2, startY + itemH + 13);
+                    }
+                    if (idx === state.j) {
+                        ctx.fillStyle = '#15803d';
+                        ctx.fillText("\u2191 j", x + itemW / 2, startY + itemH + 25);
+                    }
                 }
             });
+
+            if (state.showSwapArrows && state.fromSwap !== undefined && state.toSwap !== undefined) {
+                const x1 = startX + state.fromSwap * itemW + itemW / 2;
+                const x2 = startX + state.toSwap * itemW + itemW / 2;
+
+                const midX = (x1 + x2) / 2;
+                const controlY = startY - 15 - Math.min(30, Math.abs(x2 - x1) * 0.3);
+
+                ctx.strokeStyle = '#b91c1c';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([3, 3]);
+                ctx.beginPath();
+                ctx.moveTo(x1, startY);
+                ctx.quadraticCurveTo(midX, controlY, x2, startY);
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                drawArrowheadDown(ctx, x1, startY);
+                drawArrowheadDown(ctx, x2, startY);
+            }
         }
 
         // -------------------------------------------------------------
@@ -877,18 +1415,18 @@ Partition(A, l, h) {
             if (!canvas) return;
             const ctx = canvas.getContext('2d');
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
+
             // Read inputs
             const a11 = parseFloat(document.getElementById('ma-11').value) || 0;
             const a12 = parseFloat(document.getElementById('ma-12').value) || 0;
             const a21 = parseFloat(document.getElementById('ma-21').value) || 0;
             const a22 = parseFloat(document.getElementById('ma-22').value) || 0;
-            
+
             const b11 = parseFloat(document.getElementById('mb-11').value) || 0;
             const b12 = parseFloat(document.getElementById('mb-12').value) || 0;
             const b21 = parseFloat(document.getElementById('mb-21').value) || 0;
             const b22 = parseFloat(document.getElementById('mb-22').value) || 0;
-            
+
             // Compute P to V variables
             const P = (a11 + a22) * (b11 + b22);
             const Q = (a21 + a22) * b11;
@@ -897,18 +1435,18 @@ Partition(A, l, h) {
             const T = (a11 + a12) * b22;
             const U = (a21 - a11) * (b11 + b12);
             const V = (a12 - a22) * (b21 + b22);
-            
+
             // Compute Result Matrix elements
             const c11 = P + S - T + V;
             const c12 = R + T;
             const c21 = Q + S;
             const c22 = P + R - Q + U;
-            
+
             // Draw details inside canvas
             ctx.font = 'bold 12px Inter';
             ctx.fillStyle = '#475569';
             ctx.textAlign = 'left';
-            
+
             // Column 1 variables output
             ctx.fillText(`P = (A11+A22)(B11+B22) = ${P}`, 15, 25);
             ctx.fillText(`Q = (A21+A22)B11 = ${Q}`, 15, 45);
@@ -916,14 +1454,14 @@ Partition(A, l, h) {
             ctx.fillText(`S = A22(B21-B11) = ${S}`, 15, 85);
             ctx.fillText(`T = (A11+A12)B22 = ${T}`, 15, 105);
             ctx.fillText(`U = (A21-A11)(B11+B12) = ${U}`, 15, 125);
-            
+
             ctx.fillText(`V = (A12-A22)(B21+B22) = ${V}`, 250, 25);
-            
+
             // Draw Resulting Matrix C
             ctx.fillStyle = '#0f172a';
             ctx.font = 'bold 14px Kalam';
             ctx.fillText("Result Matrix C:", 250, 55);
-            
+
             ctx.strokeStyle = '#0f172a';
             ctx.lineWidth = 2.5;
             // Draw square brackets
@@ -931,7 +1469,7 @@ Partition(A, l, h) {
             ctx.moveTo(270, 70); ctx.lineTo(260, 70); ctx.lineTo(260, 130); ctx.lineTo(270, 130);
             ctx.moveTo(350, 70); ctx.lineTo(360, 70); ctx.lineTo(360, 130); ctx.lineTo(350, 130);
             ctx.stroke();
-            
+
             ctx.font = 'bold 14px Inter';
             ctx.fillText(c11, 280, 90);
             ctx.fillText(c12, 320, 90);
@@ -950,8 +1488,8 @@ Partition(A, l, h) {
                 const rect = hullCanvas.getBoundingClientRect();
                 const x = e.clientX - rect.left;
                 const y = e.clientY - rect.top;
-                
-                hullPoints.push({x, y});
+
+                hullPoints.push({ x, y });
                 document.getElementById('hull-status').innerText = `Click inside workspace to plot. Points count: ${hullPoints.length}`;
                 drawConvexHull();
             });
@@ -966,12 +1504,12 @@ Partition(A, l, h) {
         // Compute Convex Hull using monotone chain algorithm
         function computeConvexHull(pts) {
             if (pts.length <= 1) return pts;
-            
+
             // Sort points by x, then by y
             const sorted = pts.slice().sort((a, b) => a.x === b.x ? a.y - b.y : a.x - b.x);
-            
+
             const crossProduct = (o, a, b) => (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
-            
+
             const lower = [];
             for (let i = 0; i < sorted.length; i++) {
                 while (lower.length >= 2 && crossProduct(lower[lower.length - 2], lower[lower.length - 1], sorted[i]) <= 0) {
@@ -979,7 +1517,7 @@ Partition(A, l, h) {
                 }
                 lower.push(sorted[i]);
             }
-            
+
             const upper = [];
             for (let i = sorted.length - 1; i >= 0; i--) {
                 while (upper.length >= 2 && crossProduct(upper[upper.length - 2], upper[upper.length - 1], sorted[i]) <= 0) {
@@ -987,29 +1525,331 @@ Partition(A, l, h) {
                 }
                 upper.push(sorted[i]);
             }
-            
+
             upper.pop();
             lower.pop();
             return lower.concat(upper);
+        }
+
+        let quickLvlStates = {
+            1: {
+                arr: [10, 80, 30, 90, 40, 50, 60],
+                pivotIdx: 0, pivotVal: 10, activeStart: 0, activeEnd: 6, sortedIdxs: [],
+                i: 0, j: 6, phase: 'init', done: false, showSwapArrows: false
+            },
+            2: {
+                arr: [10, 80, 30, 90, 40, 50, 60],
+                pivotIdx: 1, pivotVal: 80, activeStart: 1, activeEnd: 6, sortedIdxs: [0],
+                i: 1, j: 6, phase: 'init', done: false, showSwapArrows: false
+            },
+            3: {
+                arr: [10, 50, 30, 60, 40, 80, 90],
+                pivotIdx: 1, pivotVal: 50, activeStart: 1, activeEnd: 4, sortedIdxs: [0, 5, 6],
+                i: 1, j: 4, phase: 'init', done: false, showSwapArrows: false
+            },
+            4: {
+                arr: [10, 40, 30, 50, 60, 80, 90],
+                pivotIdx: 1, pivotVal: 40, activeStart: 1, activeEnd: 2, sortedIdxs: [0, 3, 4, 5, 6],
+                i: 1, j: 2, phase: 'init', done: false, showSwapArrows: false
+            }
+        };
+
+        function resetLvlSort(lvl) {
+            const statusEl = document.getElementById(`quick-status-lvl-${lvl}`);
+            if (!statusEl) return;
+
+            if (lvl === 1) {
+                quickLvlStates[1] = {
+                    arr: [10, 80, 30, 90, 40, 50, 60],
+                    pivotIdx: 0, pivotVal: 10, activeStart: 0, activeEnd: 6, sortedIdxs: [],
+                    i: 0, j: 6, phase: 'init', done: false, showSwapArrows: false
+                };
+            } else if (lvl === 2) {
+                quickLvlStates[2] = {
+                    arr: [10, 80, 30, 90, 40, 50, 60],
+                    pivotIdx: 1, pivotVal: 80, activeStart: 1, activeEnd: 6, sortedIdxs: [0],
+                    i: 1, j: 6, phase: 'init', done: false, showSwapArrows: false
+                };
+            } else if (lvl === 3) {
+                quickLvlStates[3] = {
+                    arr: [10, 50, 30, 60, 40, 80, 90],
+                    pivotIdx: 1, pivotVal: 50, activeStart: 1, activeEnd: 4, sortedIdxs: [0, 5, 6],
+                    i: 1, j: 4, phase: 'init', done: false, showSwapArrows: false
+                };
+            } else if (lvl === 4) {
+                quickLvlStates[4] = {
+                    arr: [10, 40, 30, 50, 60, 80, 90],
+                    pivotIdx: 1, pivotVal: 40, activeStart: 1, activeEnd: 2, sortedIdxs: [0, 3, 4, 5, 6],
+                    i: 1, j: 2, phase: 'init', done: false, showSwapArrows: false
+                };
+            }
+
+            statusEl.innerText = `Initialized pointers: i = ${quickLvlStates[lvl].i}, j = ${quickLvlStates[lvl].j}. Pivot = ${quickLvlStates[lvl].pivotVal}.`;
+            drawLvlSort(lvl);
+        }
+
+        function stepLvlSort(lvl) {
+            const state = quickLvlStates[lvl];
+            const statusEl = document.getElementById(`quick-status-lvl-${lvl}`);
+            if (!state || !statusEl) return;
+
+            if (state.done) {
+                statusEl.innerText = "Partition finished! Reset to try again.";
+                return;
+            }
+
+            const pivot = state.pivotVal;
+            const pivotIdx = state.pivotIdx;
+            let i = state.i;
+            let j = state.j;
+
+            if (state.phase === 'init') {
+                state.phase = 'scan_i';
+                statusEl.innerText = `Scanning i starting. Pointers at i = ${i}, j = ${j}. Press Step to move i.`;
+            } 
+            else if (state.phase === 'scan_i') {
+                if (i < state.activeEnd && state.arr[i] <= pivot) {
+                    i++;
+                    state.i = i;
+                    statusEl.innerText = `Scanning i: Index ${i-1} (value ${state.arr[i-1]} \u2264 pivot ${pivot}). Move i right to index ${i}.`;
+                } else {
+                    state.phase = 'scan_j';
+                    if (state.arr[i] > pivot) {
+                        statusEl.innerText = `i stopped at index ${i} (value ${state.arr[i]} > pivot ${pivot}). Now scanning j.`;
+                    } else {
+                        statusEl.innerText = `i reached end range at index ${i}. Now scanning j.`;
+                    }
+                }
+            } 
+            else if (state.phase === 'scan_j') {
+                if (j > state.activeStart && state.arr[j] > pivot) {
+                    j--;
+                    state.j = j;
+                    statusEl.innerText = `Scanning j: Index ${j+1} (value ${state.arr[j+1]} > pivot ${pivot}). Move j left to index ${j}.`;
+                } else {
+                    state.phase = 'check_cross';
+                    if (state.arr[j] <= pivot) {
+                        statusEl.innerText = `j stopped at index ${j} (value ${state.arr[j]} \u2264 pivot ${pivot}). Checking if crossed.`;
+                    } else {
+                        statusEl.innerText = `j reached start range at index ${j}. Checking if crossed.`;
+                    }
+                }
+            } 
+            else if (state.phase === 'check_cross') {
+                if (i < j) {
+                    state.showSwapArrows = true;
+                    state.fromSwap = i;
+                    state.toSwap = j;
+                    state.phase = 'swap_exec';
+                    statusEl.innerText = `Pointers have not crossed (i = ${i} < j = ${j}). We will swap A[i] (${state.arr[i]}) and A[j] (${state.arr[j]}). Press Step to swap.`;
+                } else {
+                    state.showSwapArrows = true;
+                    state.fromSwap = pivotIdx;
+                    state.toSwap = j;
+                    state.phase = 'cross_exec';
+                    statusEl.innerText = `Pointers crossed (i = ${i} \u2265 j = ${j}). We will swap pivot at index ${pivotIdx} (${state.arr[pivotIdx]}) with A[j] (${state.arr[j]}). Press Step to swap.`;
+                }
+            } 
+            else if (state.phase === 'swap_exec') {
+                const temp = state.arr[i];
+                state.arr[i] = state.arr[j];
+                state.arr[j] = temp;
+                state.showSwapArrows = false;
+                state.phase = 'scan_i';
+                statusEl.innerText = `Swapped A[${i}] and A[${j}]. Resuming i scan.`;
+            } 
+            else if (state.phase === 'cross_exec') {
+                const temp = state.arr[pivotIdx];
+                state.arr[pivotIdx] = state.arr[j];
+                state.arr[j] = temp;
+                state.showSwapArrows = false;
+                state.done = true;
+                state.phase = 'done';
+                statusEl.innerText = `Partition complete! Pivot placed at index ${j}. Result: [${state.arr.join(", ")}].`;
+            }
+
+            drawLvlSort(lvl);
+        }
+
+        function drawArrowheadDown(ctx, x, y) {
+            const size = 5;
+            ctx.fillStyle = '#b91c1c';
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.lineTo(x - size, y - size * 1.5);
+            ctx.lineTo(x + size, y - size * 1.5);
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        function drawLvlSort(lvl) {
+            const canvas = document.getElementById(`quick-canvas-lvl-${lvl}`);
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+
+            const logicalWidth = 450;
+            const logicalHeight = 110;
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = logicalWidth * dpr;
+            canvas.height = logicalHeight * dpr;
+            canvas.style.width = logicalWidth + 'px';
+            canvas.style.height = logicalHeight + 'px';
+            ctx.scale(dpr, dpr);
+
+            ctx.clearRect(0, 0, logicalWidth, logicalHeight);
+
+            const state = quickLvlStates[lvl];
+            const arr = state.arr;
+            const startX = 25;
+            const startY = 32;
+            const itemW = 54;
+            const itemH = 36;
+
+            arr.forEach((val, idx) => {
+                const x = startX + idx * itemW;
+
+                let fill = '#f1f5f9';
+                let stroke = '#cbd5e1';
+                let textFill = '#94a3b8';
+
+                if (state.sortedIdxs.includes(idx) || (state.done && idx === state.j)) {
+                    fill = '#dcfce7';
+                    stroke = '#15803d';
+                    textFill = '#166534';
+                } else if (idx >= state.activeStart && idx <= state.activeEnd) {
+                    fill = '#e0f2fe';
+                    stroke = '#0284c7';
+                    textFill = '#0369a1';
+                }
+
+                if (!state.done && idx === state.pivotIdx) {
+                    fill = '#fee2e2';
+                    stroke = '#b91c1c';
+                    textFill = '#991b1b';
+                }
+
+                ctx.lineWidth = (idx === state.pivotIdx || state.sortedIdxs.includes(idx) || (state.done && idx === state.j)) ? 2.5 : 1.5;
+                ctx.fillStyle = fill;
+                ctx.strokeStyle = stroke;
+                ctx.fillRect(x, startY, itemW, itemH);
+                ctx.strokeRect(x, startY, itemW, itemH);
+
+                ctx.fillStyle = textFill;
+                ctx.font = 'bold 12px Inter';
+                ctx.textAlign = 'center';
+                ctx.fillText(val, x + itemW / 2, startY + 22);
+
+                ctx.font = '9px Inter';
+                if (!state.done && idx === state.pivotIdx) {
+                    ctx.fillStyle = '#b91c1c';
+                    ctx.fillText("Pivot", x + itemW / 2, startY - 8);
+                } else if (state.sortedIdxs.includes(idx) || (state.done && idx === state.j)) {
+                    ctx.fillStyle = '#15803d';
+                    ctx.fillText("Sorted", x + itemW / 2, startY - 8);
+                }
+
+                if (!state.done) {
+                    if (idx === state.i) {
+                        ctx.fillStyle = '#0284c7';
+                        ctx.fillText("\u2191 i", x + itemW / 2, startY + itemH + 13);
+                    }
+                    if (idx === state.j) {
+                        ctx.fillStyle = '#15803d';
+                        ctx.fillText("\u2191 j", x + itemW / 2, startY + itemH + 25);
+                    }
+                }
+            });
+
+            // Draw swap arrows if active
+            if (state.showSwapArrows && state.fromSwap !== undefined && state.toSwap !== undefined) {
+                const x1 = startX + state.fromSwap * itemW + itemW / 2;
+                const x2 = startX + state.toSwap * itemW + itemW / 2;
+
+                const midX = (x1 + x2) / 2;
+                const controlY = startY - 15 - Math.min(30, Math.abs(x2 - x1) * 0.3);
+
+                ctx.strokeStyle = '#b91c1c';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([3, 3]);
+                ctx.beginPath();
+                ctx.moveTo(x1, startY);
+                ctx.quadraticCurveTo(midX, controlY, x2, startY);
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                drawArrowheadDown(ctx, x1, startY);
+                drawArrowheadDown(ctx, x2, startY);
+            }
+        }
+
+        function resetAllLvlSorts() {
+            resetLvlSort(1);
+            resetLvlSort(2);
+            resetLvlSort(3);
+            resetLvlSort(4);
+        }
+
+        function drawAllQuickSteps() {
+            drawLvlSort(1);
+            drawLvlSort(2);
+            drawLvlSort(3);
+            drawLvlSort(4);
+
+            const canvas5 = document.getElementById('quick-canvas-lvl-5');
+            if (canvas5) {
+                const ctx = canvas5.getContext('2d');
+                const logicalWidth = 450;
+                const logicalHeight = 110;
+                const dpr = window.devicePixelRatio || 1;
+                canvas5.width = logicalWidth * dpr;
+                canvas5.height = logicalHeight * dpr;
+                canvas5.style.width = logicalWidth + 'px';
+                canvas5.style.height = logicalHeight + 'px';
+                ctx.scale(dpr, dpr);
+                ctx.clearRect(0, 0, logicalWidth, logicalHeight);
+
+                const arr = [10, 30, 40, 50, 60, 80, 90];
+                const startX = 25;
+                const startY = 32;
+                const itemW = 54;
+                const itemH = 36;
+
+                arr.forEach((val, idx) => {
+                    const x = startX + idx * itemW;
+                    ctx.lineWidth = 2.5;
+                    ctx.fillStyle = '#dcfce7';
+                    ctx.strokeStyle = '#15803d';
+                    ctx.fillRect(x, startY, itemW, itemH);
+                    ctx.strokeRect(x, startY, itemW, itemH);
+
+                    ctx.fillStyle = '#166534';
+                    ctx.font = 'bold 12px Inter';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(val, x + itemW / 2, startY + 22);
+
+                    ctx.font = '9px Inter';
+                    ctx.fillText("Sorted", x + itemW / 2, startY - 8);
+                });
+            }
         }
 
         function drawConvexHull() {
             if (!hullCanvas) return;
             const ctx = hullCanvas.getContext('2d');
             ctx.clearRect(0, 0, hullCanvas.width, hullCanvas.height);
-            
+
             // Draw points
             hullPoints.forEach(p => {
                 ctx.fillStyle = '#1e3a8a';
                 ctx.beginPath();
-                ctx.arc(p.x, p.y, 5, 0, Math.PI*2);
+                ctx.arc(p.x, p.y, 5, 0, Math.PI * 2);
                 ctx.fill();
             });
-            
+
             // Compute and draw hull polygon
             if (hullPoints.length >= 3) {
                 const hull = computeConvexHull(hullPoints);
-                
+
                 ctx.strokeStyle = '#b91c1c';
                 ctx.fillStyle = '#fee2e255';
                 ctx.lineWidth = 2.5;
@@ -1030,4 +1870,5 @@ Partition(A, l, h) {
         };
     </script>
 </body>
+
 </html>

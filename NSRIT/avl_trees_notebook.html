@@ -1,0 +1,1619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit II - Part II: AVL Tree Lecture Notes</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts for Handwritten and Clean typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Kalam:wght@300;400;700&family=Patrick+Hand&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        notebookPaper: '#FAF6EE',
+                        inkBlue: '#1A365D',
+                        inkRed: '#9B2C2C',
+                        pencilGray: '#4A5568',
+                        marginRed: '#E53E3E',
+                    },
+                    fontFamily: {
+                        handwriting: ['Caveat', 'cursive'],
+                        clean: ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Shared Notebook Styles -->
+    <link rel="stylesheet" href="../notebook.css">
+</head>
+
+<body class="font-notes-body text-2xl text-slate-800 antialiased transition-all duration-300">
+
+    <!-- Header Navigation Bar -->
+    <header class="sticky top-0 z-50 bg-[#FAF6EE] shadow-md border-b-2 border-amber-200 px-4 py-3 no-print">
+        <div class="max-w-6xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-3">
+            <div class="flex items-center space-x-3">
+                <span class="text-3xl font-bold text-inkBlue tracking-wide">📖 Unit II (Part II): AVL Trees</span>
+                <span class="bg-amber-100 text-inkRed text-sm font-bold px-3 py-1 rounded-full border border-amber-300 font-sans font-bold">Data Structures</span>
+            </div>
+            <button id="styleBtn" onclick="toggleStyleMode()" class="px-4 py-1.5 rounded-full text-sm font-bold bg-[#1A365D] text-white hover:bg-opacity-90 transition font-sans shadow-sm">
+                ✍️ Switch to Clean Print Font
+            </button>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <nav class="max-w-6xl mx-auto mt-3 flex flex-wrap gap-1 border-t border-amber-200 pt-2 text-base md:text-lg">
+            <button onclick="switchTab('definitions')" id="tab-definitions" class="nav-tab px-3 py-1.5 rounded-t-lg font-bold bg-amber-200 text-inkBlue border-b-2 border-inkBlue">
+                1. Definitions & Concepts
+            </button>
+            <button onclick="switchTab('insertion')" id="tab-insertion" class="nav-tab px-3 py-1.5 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
+                2. Step-by-Step Insertion
+            </button>
+            <button onclick="switchTab('deletion')" id="tab-deletion" class="nav-tab px-3 py-1.5 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
+                3. Step-by-Step Deletion
+            </button>
+            <button onclick="switchTab('complexity')" id="tab-complexity" class="nav-tab px-3 py-1.5 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
+                4. Complexity Analysis
+            </button>
+            <button onclick="switchTab('playground')" id="tab-playground" class="nav-tab px-3 py-1.5 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
+                5. Interactive Simulator
+            </button>
+        </nav>
+    </header>
+
+    <!-- Main Notebook Container -->
+    <main class="max-w-6xl mx-auto flex relative bg-notebookPaper rounded-xl shadow-2xl overflow-hidden min-h-[1000px] border border-amber-200 my-8">
+        
+        <!-- Left Binder Column (Spiral Rings) -->
+        <div class="w-10 sm:w-16 bg-amber-50 border-r-2 border-amber-200 flex flex-col items-center py-8 select-none shrink-0 no-print space-y-6 z-10 shadow-[inset_-5px_0_10px_rgba(0,0,0,0.05)]">
+            <script>
+                for(let i=0; i<45; i++) document.write('<div class="spiral-ring"></div>');
+            </script>
+        </div>
+
+        <!-- Notebook Content Area -->
+        <div class="flex-1 lined-paper p-4 sm:p-8 notebook-margin sm:pl-8 overflow-hidden z-0">
+
+            <!-- SECTION 1: DEFINITIONS & CONCEPTS -->
+            <section id="sec-definitions" class="tab-content block space-y-8">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4 font-heading">The Ultimate Guide to AVL Trees</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 1</span>
+                </div>
+
+                <div class="space-y-6">
+                    <h2 class="text-3xl sm:text-4xl font-bold text-inkRed mb-2 font-heading">1. What is an AVL Tree?</h2>
+                    
+                    <p class="leading-relaxed">
+                        The AVL tree was introduced in the year <span class="highlighter font-bold text-slate-900">1962</span> by its inventors, <span class="font-bold">Adelson-Velsky and Landis</span> (which is where the name "AVL" comes from).
+                    </p>
+                    
+                    <p class="leading-relaxed">
+                        An AVL tree is a <span class="pen-underline font-bold text-inkRed">height-balanced binary search tree</span>. This means that while it follows all the rules of a normal Binary Search Tree (BST) — where smaller numbers go to the left and larger numbers go to the right — it has one extra superpower: <span class="font-bold">it keeps itself balanced</span>.
+                    </p>
+
+                    <h3 class="text-3xl font-bold text-inkBlue mt-6 font-heading">The Balance Factor</h3>
+                    
+                    <p class="leading-relaxed">
+                        To know if the tree is balanced, every node in an AVL tree calculates a "Balance Factor".
+                    </p>
+
+                    <div class="my-4 text-center">
+                        <div class="font-sans font-bold text-lg sm:text-xl bg-white/70 inline-block px-4 py-2 rounded-lg border border-slate-300 shadow-sm text-inkBlue">
+                            Formula: Balance Factor = [Height of Left Sub-tree] - [Height of Right Sub-tree]
+                        </div>
+                    </div>
+
+                    <p class="leading-relaxed">
+                        For an AVL tree to be considered balanced, the balance factor for all nodes must be either <span class="highlighter font-bold text-slate-900">0, 1, or -1</span>.
+                    </p>
+
+                    <div class="note-box p-5 my-6 text-xl sm:text-2xl font-bold leading-normal text-slate-700">
+                        ✍️ Note: Please don't count the number of nodes! Just count the height (the longest path of edges from the node down to the furthest leaf).
+                    </div>
+
+                    <!-- Comparison Diagram -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 my-8 pt-4">
+                        <div class="flex flex-col items-center p-4 bg-white/50 border border-slate-200 rounded-lg shadow-sm">
+                            <span class="font-bold text-inkBlue mb-2">Balanced BST (AVL Tree)</span>
+                            <div class="w-full max-w-[280px] flex justify-center"><canvas id="canvas-def-balanced"></canvas></div>
+                            <span class="text-sm font-bold text-pencilGray mt-2">All balance factors are 0, 1, or -1</span>
+                        </div>
+                        <div class="flex flex-col items-center p-4 bg-white/50 border border-slate-200 rounded-lg shadow-sm">
+                            <span class="font-bold text-inkRed mb-2">Unbalanced BST (Non-AVL)</span>
+                            <div class="w-full max-w-[280px] flex justify-center"><canvas id="canvas-def-unbalanced"></canvas></div>
+                            <span class="text-sm font-bold text-inkRed mt-2 font-sans font-bold">Root node has BF = -2 (Rule Broken!)</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-blue-50 border-l-4 border-l-amber-500 p-5 my-6 font-bold shadow-sm rounded-r-lg text-inkBlue">
+                        💡 Making the Connection: So, what happens if we add a new number to our tree, and suddenly a node gets a balance factor of 2 or -2? The tree is no longer an AVL tree! To fix this rule-breaking, we have to adjust the tree using a technique called "Rotation." Let's learn about that next.
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 2: STEP-BY-STEP INSERTION -->
+            <section id="sec-insertion" class="tab-content hidden space-y-8">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4 font-heading">AVL Tree Insertion & Rotations</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 2</span>
+                </div>
+
+                <div class="space-y-8">
+                    <!-- Heading 2 -->
+                    <div>
+                        <h2 class="text-3xl sm:text-4xl font-bold text-inkRed mb-2 font-heading">2. AVL Tree Rotations</h2>
+                        <p class="leading-relaxed">
+                            Rotations are the process of moving nodes either from left to right, or right to left, to make the tree balanced again. Rotations are used to convert a larger tree height into a smaller tree height.
+                        </p>
+                        <p class="leading-relaxed mt-2 font-bold text-inkBlue">
+                            There are four rotations, and they are classified into two types:
+                        </p>
+                        <ul class="list-disc list-inside space-y-1 ml-4 mt-2 font-bold text-pencilGray">
+                            <li>Single Rotation: Left Rotation and Right Rotation</li>
+                            <li>Double Rotation: Left-Right Rotation and Right-Left Rotation</li>
+                        </ul>
+                    </div>
+
+                    <!-- ROTATION A -->
+                    <div class="pt-6 border-t border-dashed border-amber-200">
+                        <h3 class="text-3xl font-bold text-inkBlue font-heading">A. Single Left Rotation (or LL Rotation)</h3>
+                        <p class="leading-relaxed mt-2">
+                            In this rotation, every node moves one position to the left from its current position. To understand single left rotation, let us consider the following insertion operation: <span class="highlighter font-bold">insert 1, 2, 3</span>.
+                        </p>
+                        
+                        <!-- Rot A Canvas Grid -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 my-6">
+                            <div class="flex flex-col items-center bg-white/40 p-4 border border-slate-200 rounded">
+                                <span class="font-bold text-inkRed">Step 1 (Unbalanced)</span>
+                                <div class="w-full max-w-[280px] flex justify-center"><canvas id="canvas-rot-a-1"></canvas></div>
+                            </div>
+                            <div class="flex flex-col items-center bg-white/40 p-4 border border-slate-200 rounded">
+                                <span class="font-bold text-inkBlue">Step 2 (After Left Rotation)</span>
+                                <div class="w-full max-w-[280px] flex justify-center"><canvas id="canvas-rot-a-2"></canvas></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ROTATION B -->
+                    <div class="pt-6 border-t border-dashed border-amber-200">
+                        <h3 class="text-3xl font-bold text-inkBlue font-heading">B. Single Right Rotation (or RR Rotation)</h3>
+                        <p class="leading-relaxed mt-2">
+                            In RR Rotation, every node moves one position to the right from its current position. To understand RR rotation, let us consider the following insertion: <span class="highlighter font-bold">insert 3, 2, 1</span>.
+                        </p>
+                        
+                        <!-- Rot B Canvas Grid -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 my-6">
+                            <div class="flex flex-col items-center bg-white/40 p-4 border border-slate-200 rounded">
+                                <span class="font-bold text-inkRed">Step 1 (Unbalanced)</span>
+                                <div class="w-full max-w-[280px] flex justify-center"><canvas id="canvas-rot-b-1"></canvas></div>
+                            </div>
+                            <div class="flex flex-col items-center bg-white/40 p-4 border border-slate-200 rounded">
+                                <span class="font-bold text-inkBlue">Step 2 (After Right Rotation)</span>
+                                <div class="w-full max-w-[280px] flex justify-center"><canvas id="canvas-rot-b-2"></canvas></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ROTATION C -->
+                    <div class="pt-6 border-t border-dashed border-amber-200">
+                        <h3 class="text-3xl font-bold text-inkBlue font-heading">C. Left-Right Rotation (LR Rotation)</h3>
+                        <p class="leading-relaxed mt-2">
+                            In this rotation, it is a sequence of a single left rotation followed by a single right rotation. At first, every node moves one position to the left, and then one position to the right from the current position. To understand LR rotation, let us consider inserting <span class="highlighter font-bold">3, 1, 2</span>.
+                        </p>
+                        
+                        <!-- Rot C Canvas Grid -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 my-6">
+                            <div class="flex flex-col items-center bg-white/40 p-3 border border-slate-200 rounded">
+                                <span class="font-bold text-inkRed text-lg">Initial Tree</span>
+                                <div class="w-full max-w-[300px] flex justify-center"><canvas id="canvas-rot-c-1"></canvas></div>
+                            </div>
+                            <div class="flex flex-col items-center bg-white/40 p-3 border border-slate-200 rounded">
+                                <span class="font-bold text-amber-800 text-lg">Step 1: Left Rotate (on 1 & 2)</span>
+                                <div class="w-full max-w-[300px] flex justify-center"><canvas id="canvas-rot-c-2"></canvas></div>
+                            </div>
+                            <div class="flex flex-col items-center bg-white/40 p-3 border border-slate-200 rounded">
+                                <span class="font-bold text-inkBlue text-lg">Step 2: Right Rotate -> Result</span>
+                                <div class="w-full max-w-[300px] flex justify-center"><canvas id="canvas-rot-c-3"></canvas></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ROTATION D -->
+                    <div class="pt-6 border-t border-dashed border-amber-200">
+                        <h3 class="text-3xl font-bold text-inkBlue font-heading">D. Right-Left Rotation (RL Rotation)</h3>
+                        <p class="leading-relaxed mt-2">
+                            The RL rotation is a sequence of a single right rotation followed by a single left rotation. At first, every node moves one position to the right, and then one position to the left. Let us consider inserting <span class="highlighter font-bold">1, 3, 2</span>.
+                        </p>
+                        
+                        <!-- Rot D Canvas Grid -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 my-6">
+                            <div class="flex flex-col items-center bg-white/40 p-3 border border-slate-200 rounded">
+                                <span class="font-bold text-inkRed text-lg">Initial Tree</span>
+                                <div class="w-full max-w-[300px] flex justify-center"><canvas id="canvas-rot-d-1"></canvas></div>
+                            </div>
+                            <div class="flex flex-col items-center bg-white/40 p-3 border border-slate-200 rounded">
+                                <span class="font-bold text-amber-800 text-lg">Step 1: Right Rotate (on 3 & 2)</span>
+                                <div class="w-full max-w-[300px] flex justify-center"><canvas id="canvas-rot-d-2"></canvas></div>
+                            </div>
+                            <div class="flex flex-col items-center bg-white/40 p-3 border border-slate-200 rounded">
+                                <span class="font-bold text-inkBlue text-lg">Step 2: Left Rotate -> Result</span>
+                                <div class="w-full max-w-[300px] flex justify-center"><canvas id="canvas-rot-d-3"></canvas></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Transition Box -->
+                    <div class="bg-blue-50 border-l-4 border-l-amber-500 p-5 my-6 font-bold shadow-sm rounded-r-lg text-inkBlue">
+                        💡 Making the Connection: Up until now, we've learned how to fix broken rules using rotations. Now, let's put it all together and build a complete AVL tree step-by-step using insertion operations. We will start inserting nodes, check the rules, and if a rule breaks, we'll know exactly which rotation to apply!
+                    </div>
+
+                    <!-- OPERATIONS SECTION -->
+                    <div class="pt-6 border-t-2 border-dashed border-amber-300">
+                        <h2 class="text-3xl sm:text-4xl font-bold text-inkRed mb-2 font-heading">3. AVL Tree Operations</h2>
+                        <p class="leading-relaxed">
+                            There are two main operations in an AVL tree: <span class="font-bold text-inkBlue">Insertion</span> and <span class="font-bold text-inkRed">Deletion</span>.
+                        </p>
+                        
+                        <h3 class="text-3xl font-bold text-inkBlue mt-6 font-heading">Insertion</h3>
+                        <p class="leading-relaxed">
+                            In an AVL tree, the insertion operation is performed by adding an element in a specific location. Here are the steps:
+                        </p>
+                        <ol class="list-none space-y-2 mt-4 ml-4 font-bold text-pencilGray">
+                            <li><span class="text-inkRed font-sans font-bold">Step-1:</span> Insert the new element into the tree using standard Binary Search Tree (BST) logic.</li>
+                            <li><span class="text-inkRed font-sans font-bold">Step-2:</span> After insertion, check the balance factor of every node.</li>
+                            <li><span class="text-inkRed font-sans font-bold">Step-3:</span> If the balance factor of every node is 0, 1, or -1, then go for the next operation.</li>
+                            <li><span class="text-inkRed font-sans font-bold">Step-4:</span> If the balance factor of any node is other than 0, 1, or -1, then the tree is said to be imbalanced. In this case, we perform suitable rotations to make it balanced and then go for the next operation.</li>
+                        </ol>
+
+                        <h4 class="text-3xl font-bold text-inkRed mt-8 underline font-heading">Example: Construct an AVL Tree by inserting numbers 15, 20, 24, 10, 13.</h4>
+
+                        <!-- Step by Step Insertion Canvases -->
+                        <div class="space-y-8 mt-6">
+                            <!-- Step 1 -->
+                            <div class="bg-white/60 p-4 border border-slate-200 rounded flex flex-col md:flex-row items-center justify-between gap-6">
+                                <div class="flex-1 space-y-1">
+                                    <h5 class="text-2xl font-bold text-inkRed font-heading">Step-1: Insert 15</h5>
+                                    <p class="text-xl text-pencilGray">The tree is empty, so we create a new root node for 15. The balance factor is 0.</p>
+                                </div>
+                                <div class="w-full max-w-[280px] flex justify-center"><canvas id="canvas-insert-1"></canvas></div>
+                            </div>
+                            
+                            <!-- Step 2 -->
+                            <div class="bg-white/60 p-5 border border-slate-200 rounded space-y-6">
+                                <h5 class="text-2xl font-bold text-inkRed font-heading">Step-2: Insert 20</h5>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div class="bg-white/40 p-4 border border-slate-100 rounded flex flex-col items-center">
+                                        <span class="font-bold text-inkBlue text-lg font-heading">Step 2.1: BST Insertion Search Path</span>
+                                        <p class="text-lg text-pencilGray mb-4">Compare 20 > 15. We go right and insert 20 as the right child of 15.</p>
+                                        <div class="w-full max-w-[280px] flex justify-center"><canvas id="canvas-insert-2-1"></canvas></div>
+                                    </div>
+                                    <div class="bg-white/40 p-4 border border-slate-100 rounded flex flex-col items-center">
+                                        <span class="font-bold text-inkBlue text-lg font-heading">Step 2.2: Balance Factor Calculation</span>
+                                        <p class="text-lg text-pencilGray mb-4">Trace up: BF(20)=0, BF(15)=-1. All nodes are balanced, no rotation needed.</p>
+                                        <div class="w-full max-w-[280px] flex justify-center"><canvas id="canvas-insert-2-2"></canvas></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Step 3 -->
+                            <div class="bg-white/60 p-5 border border-slate-200 rounded space-y-6">
+                                <h5 class="text-2xl font-bold text-inkRed font-heading">Step-3: Insert 24</h5>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div class="bg-white/40 p-4 border border-slate-100 rounded flex flex-col items-center">
+                                        <span class="font-bold text-inkBlue text-lg font-heading">Step 3.1: BST Insertion</span>
+                                        <p class="text-lg text-pencilGray mb-4 text-base">Compare 24 > 15 (go right) & 24 > 20 (go right). Insert 24.</p>
+                                        <div class="w-full max-w-[300px] flex justify-center"><canvas id="canvas-insert-3-1"></canvas></div>
+                                    </div>
+                                    <div class="bg-white/40 p-4 border border-slate-100 rounded flex flex-col items-center">
+                                        <span class="font-bold text-inkRed text-lg font-heading">Step 3.2: Balance Check</span>
+                                        <p class="text-lg text-pencilGray mb-4 text-base">Trace up: BF(24)=0, BF(20)=-1, BF(15)=-2 (Imbalance!). Pivot is 15.</p>
+                                        <div class="w-full max-w-[300px] flex justify-center"><canvas id="canvas-insert-3-2"></canvas></div>
+                                    </div>
+                                    <div class="bg-white/40 p-4 border border-slate-100 rounded flex flex-col items-center">
+                                        <span class="font-bold text-inkBlue text-lg font-heading">Step 3.3: Left Rotation</span>
+                                        <p class="text-lg text-pencilGray mb-4 text-base">Right-Right path imbalance. Rotate left at 15. Root becomes 20.</p>
+                                        <div class="w-full max-w-[300px] flex justify-center"><canvas id="canvas-insert-3-c"></canvas></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Step 4 -->
+                            <div class="bg-white/60 p-5 border border-slate-200 rounded space-y-6">
+                                <h5 class="text-2xl font-bold text-inkRed font-heading">Step-4: Insert 10</h5>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div class="bg-white/40 p-4 border border-slate-100 rounded flex flex-col items-center">
+                                        <span class="font-bold text-inkBlue text-lg font-heading">Step 4.1: BST Insertion Search Path</span>
+                                        <p class="text-lg text-pencilGray mb-4">Compare 10 &lt; 20 (go left) &amp; 10 &lt; 15 (go left). Insert 10 as left child of 15.</p>
+                                        <div class="w-full max-w-[280px] flex justify-center"><canvas id="canvas-insert-4-1"></canvas></div>
+                                    </div>
+                                    <div class="bg-white/40 p-4 border border-slate-100 rounded flex flex-col items-center">
+                                        <span class="font-bold text-inkBlue text-lg font-heading">Step 4.2: Balance Factor Calculation</span>
+                                        <p class="text-lg text-pencilGray mb-4">Trace up: BF(10)=0, BF(15)=1, BF(24)=0, BF(20)=1. Tree is balanced.</p>
+                                        <div class="w-full max-w-[280px] flex justify-center"><canvas id="canvas-insert-4-2"></canvas></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Step 5 -->
+                            <div class="bg-white/60 p-5 border border-slate-200 rounded space-y-6">
+                                <h5 class="text-2xl font-bold text-inkRed font-heading">Step-5: Insert 13</h5>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                    <div class="bg-white/40 p-4 border border-slate-100 rounded flex flex-col items-center">
+                                        <span class="font-bold text-inkBlue text-lg font-heading">Step 5.1: BST Insert</span>
+                                        <p class="text-lg text-pencilGray mb-4">Compare 13: Left of 20, Left of 15, Right of 10. Insert 13.</p>
+                                        <div class="w-full max-w-[320px] flex justify-center"><canvas id="canvas-insert-5-1"></canvas></div>
+                                    </div>
+                                    <div class="bg-white/40 p-4 border border-slate-100 rounded flex flex-col items-center">
+                                        <span class="font-bold text-inkRed text-lg font-heading">Step 5.2: Balance Check</span>
+                                        <p class="text-lg text-pencilGray mb-4">BF(13)=0, BF(10)=-1, BF(15)=2 (Imbalance!). Pivot is 15.</p>
+                                        <div class="w-full max-w-[320px] flex justify-center"><canvas id="canvas-insert-5-2"></canvas></div>
+                                    </div>
+                                    <div class="bg-white/40 p-4 border border-slate-100 rounded flex flex-col items-center">
+                                        <span class="font-bold text-amber-800 text-lg font-heading">Step 5.3: LR Phase 1</span>
+                                        <p class="text-lg text-pencilGray mb-4">Left Rotate at child 10. 13 becomes 15's left child.</p>
+                                        <div class="w-full max-w-[320px] flex justify-center"><canvas id="canvas-insert-5-c"></canvas></div>
+                                    </div>
+                                    <div class="bg-white/40 p-4 border border-slate-100 rounded flex flex-col items-center">
+                                        <span class="font-bold text-inkBlue text-lg font-heading">Step 5.4: LR Phase 2</span>
+                                        <p class="text-lg text-pencilGray mb-4">Right Rotate at pivot 15. Subtree is now balanced.</p>
+                                        <div class="w-full max-w-[320px] flex justify-center"><canvas id="canvas-insert-5-d"></canvas></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Inserting into an already large tree -->
+                        <h4 class="text-3xl font-bold text-inkBlue mt-12 font-heading">Example: Inserting into an already large tree</h4>
+                        <p class="leading-relaxed">
+                            Let's see what happens when we add 250, 10, and 500 to a large, balanced tree.
+                        </p>
+
+                        <div class="space-y-8 mt-6">
+                            <div class="bg-white/60 p-4 border border-slate-200 rounded flex flex-col md:flex-row items-center justify-between gap-6 font-sans">
+                                <div class="flex-1 space-y-1 font-notes-body text-xl">
+                                    <h5 class="text-2xl font-bold text-inkRed font-heading">Action: Insert 250</h5>
+                                    <p class="text-xl text-pencilGray">Inserting 250 creates an imbalance at node 120 (BF: -2). A left rotation at 120 resolves this, raising 200 to the subtree root.</p>
+                                </div>
+                                <div class="flex gap-4">
+                                    <div class="flex flex-col items-center">
+                                        <span class="text-xs text-inkRed font-bold">Before Rotation</span>
+                                        <div class="w-[220px] flex justify-center"><canvas id="canvas-large-1a"></canvas></div>
+                                    </div>
+                                    <div class="flex flex-col items-center">
+                                        <span class="text-xs text-inkBlue font-bold">Result after Left Rotation</span>
+                                        <div class="w-[220px] flex justify-center"><canvas id="canvas-large-1b"></canvas></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-white/60 p-4 border border-slate-200 rounded flex flex-col md:flex-row items-center justify-between gap-6">
+                                <div class="flex-1 space-y-1">
+                                    <h5 class="text-2xl font-bold text-inkRed font-heading">Action: Insert 10 and 500</h5>
+                                    <p class="text-xl text-pencilGray">Inserting 10 goes to the left of 45, and 500 goes to the right of 250. The heights adjust, but all nodes remain balanced.</p>
+                                </div>
+                                <div class="w-full max-w-[340px] flex justify-center"><canvas id="canvas-large-2"></canvas></div>
+                            </div>
+                        </div>
+                           <!-- Transition Box -->
+                    <div class="bg-blue-50 border-l-4 border-l-amber-500 p-5 my-6 font-bold shadow-sm rounded-r-lg text-inkBlue font-sans">
+                        <span class="font-notes-body text-xl font-bold">💡 Making the Connection: We can successfully build and balance an AVL tree by adding numbers. But what if we made a mistake and need to remove a number? Let's check out the next tab: "3. Step-by-Step Deletion" to see how Deletion works!</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 3: STEP-BY-STEP DELETION -->
+            <section id="sec-deletion" class="tab-content hidden space-y-8">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4 font-heading">AVL Tree Deletion</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 3</span>
+                </div>
+
+                <div class="space-y-8">
+                    <h2 class="text-3xl sm:text-4xl font-bold text-inkRed mb-2 font-heading">4. Deletion Operation in AVL Tree</h2>
+                    <p class="leading-relaxed">
+                        The delete operation in an AVL tree starts just like a standard Binary Search Tree (BST) deletion. However, removing a node changes the heights of the subtrees. We must trace back up the path to the root and check the balance of every node. If a node's balance factor becomes +2 or -2, we perform rotations to restore balance.
+                    </p>
+
+                    <!-- The Balance Scale Analogy (Friendly Explanation) -->
+                    <div class="bg-amber-50/60 p-5 border border-amber-200 rounded-lg space-y-3 font-sans">
+                        <h3 class="text-2xl font-bold text-inkBlue font-heading">⚖️ AVL Deletion: The Balance Scale Analogy</h3>
+                        <p class="text-lg leading-relaxed text-slate-800 font-bold">
+                            Think of an AVL tree node as a balance scale. The left subtree sits on the left pan, and the right subtree sits on the right pan. 
+                        </p>
+                        <ul class="list-disc list-inside space-y-2 text-base text-pencilGray pl-2 font-bold">
+                            <li><strong>Deleting a node</strong> is like removing a weight from one of the pans.</li>
+                            <li>If you remove a weight from the <strong>Right Pan</strong>, the scale tilts heavily to the left. The left child becomes too heavy (BF = +2). We call this an <strong>R-Rotation</strong> case (Right side lost weight).</li>
+                            <li>If you remove a weight from the <strong>Left Pan</strong>, the scale tilts heavily to the right. The right child becomes too heavy (BF = -2). We call this an <strong>L-Rotation</strong> case (Left side lost weight).</li>
+                        </ul>
+                        <p class="text-lg leading-relaxed text-slate-800 font-bold">
+                            To re-balance the scale, we look at the heavy child. If the child is leaning in the same direction, we do a quick <strong>Single Rotation</strong>. If the child is leaning in the opposite direction, it's a zigzag imbalance, so we perform a <strong>Double Rotation</strong> to straighten it out.
+                        </p>
+                    </div>
+
+                    <!-- Row 1: R-rotations -->
+                    <div class="border-t-2 border-dashed border-amber-300 pt-6 space-y-6">
+                        <h3 class="text-3xl font-bold text-inkRed font-heading">A. R-Rotations (Left-Heavy Imbalance, BF = +2)</h3>
+                        <p class="leading-relaxed text-lg">
+                            These occur when we delete a node from the <strong>right side</strong> of a node A, leaving its left side too heavy. Let B be A's left child.
+                        </p>
+
+                        <!-- R0 Case -->
+                        <div class="bg-white/60 p-5 border border-slate-200 rounded space-y-4">
+                            <h4 class="text-2xl font-bold text-inkBlue font-heading">1. R0 Rotation (B has BF 0)</h4>
+                            <p class="text-lg text-pencilGray font-bold">
+                                B's subtrees are perfectly balanced. We perform a single <strong>Right Rotation</strong> at A to shift the weight. (Height of the subtree remains unchanged).
+                            </p>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="flex flex-col items-center bg-white/40 p-3 border border-slate-100 rounded">
+                                    <span class="font-bold text-inkRed text-base font-sans">Before R0 Rotation (BF of A is +2)</span>
+                                    <div class="w-full max-w-[300px] flex justify-center"><canvas id="canvas-del-r0-1"></canvas></div>
+                                </div>
+                                <div class="flex flex-col items-center bg-white/40 p-3 border border-slate-100 rounded">
+                                    <span class="font-bold text-inkBlue text-base font-sans">After R0 Rotation (Balanced)</span>
+                                    <div class="w-full max-w-[300px] flex justify-center"><canvas id="canvas-del-r0-2"></canvas></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- R1 Case -->
+                        <div class="bg-white/60 p-5 border border-slate-200 rounded space-y-4">
+                            <h4 class="text-2xl font-bold text-inkBlue font-heading">2. R1 Rotation (B has BF +1)</h4>
+                            <p class="text-lg text-pencilGray font-bold">
+                                B is left-heavy (leaning in the same direction). We perform a single <strong>Right Rotation</strong> at A to re-balance. (Height of the subtree decreases by 1).
+                            </p>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="flex flex-col items-center bg-white/40 p-3 border border-slate-100 rounded">
+                                    <span class="font-bold text-inkRed text-base font-sans">Before R1 Rotation (BF of A is +2)</span>
+                                    <div class="w-full max-w-[300px] flex justify-center"><canvas id="canvas-del-r1-1"></canvas></div>
+                                </div>
+                                <div class="flex flex-col items-center bg-white/40 p-3 border border-slate-100 rounded">
+                                    <span class="font-bold text-inkBlue text-base font-sans">After R1 Rotation (Balanced)</span>
+                                    <div class="w-full max-w-[300px] flex justify-center"><canvas id="canvas-del-r1-2"></canvas></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- R-1 Case -->
+                        <div class="bg-white/60 p-5 border border-slate-200 rounded space-y-4">
+                            <h4 class="text-2xl font-bold text-inkBlue font-heading">3. R-1 Rotation (B has BF -1)</h4>
+                            <p class="text-lg text-pencilGray font-bold">
+                                B is right-heavy (leaning in the opposite direction). This is a zigzag imbalance. We perform a double <strong>Left-Right (LR) Rotation</strong> (Rotate B left, then rotate A right).
+                            </p>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="flex flex-col items-center bg-white/40 p-3 border border-slate-100 rounded">
+                                    <span class="font-bold text-inkRed text-base font-sans">Before R-1 Rotation (BF of A is +2)</span>
+                                    <div class="w-full max-w-[300px] flex justify-center"><canvas id="canvas-del-rm1-1"></canvas></div>
+                                </div>
+                                <div class="flex flex-col items-center bg-white/40 p-3 border border-slate-100 rounded">
+                                    <span class="font-bold text-inkBlue text-base font-sans">After LR Rotation (Balanced)</span>
+                                    <div class="w-full max-w-[300px] flex justify-center"><canvas id="canvas-del-rm1-2"></canvas></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Row 2: L-rotations -->
+                    <div class="border-t-2 border-dashed border-amber-300 pt-6 space-y-6">
+                        <h3 class="text-3xl font-bold text-inkRed font-heading">B. L-Rotations (Right-Heavy Imbalance, BF = -2)</h3>
+                        <p class="leading-relaxed text-lg">
+                            These occur when we delete a node from the <strong>left side</strong> of a node A, leaving its right side too heavy. Let B be A's right child. They are the exact mirror images of R-Rotations.
+                        </p>
+
+                        <!-- L0 Case -->
+                        <div class="bg-white/60 p-5 border border-slate-200 rounded space-y-4">
+                            <h4 class="text-2xl font-bold text-inkBlue font-heading">1. L0 Rotation (B has BF 0)</h4>
+                            <p class="text-lg text-pencilGray font-bold">
+                                B's subtrees are perfectly balanced. We perform a single <strong>Left Rotation</strong> at A to shift the weight. (Height of the subtree remains unchanged).
+                            </p>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="flex flex-col items-center bg-white/40 p-3 border border-slate-100 rounded">
+                                    <span class="font-bold text-inkRed text-base font-sans">Before L0 Rotation (BF of A is -2)</span>
+                                    <div class="w-full max-w-[300px] flex justify-center"><canvas id="canvas-del-l0-1"></canvas></div>
+                                </div>
+                                <div class="flex flex-col items-center bg-white/40 p-3 border border-slate-100 rounded">
+                                    <span class="font-bold text-inkBlue text-base font-sans">After L0 Rotation (Balanced)</span>
+                                    <div class="w-full max-w-[300px] flex justify-center"><canvas id="canvas-del-l0-2"></canvas></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- L-1 Case -->
+                        <div class="bg-white/60 p-5 border border-slate-200 rounded space-y-4">
+                            <h4 class="text-2xl font-bold text-inkBlue font-heading">2. L-1 Rotation (B has BF -1)</h4>
+                            <p class="text-lg text-pencilGray font-bold">
+                                B is right-heavy (leaning in the same direction). We perform a single <strong>Left Rotation</strong> at A. (Height of the subtree decreases by 1).
+                            </p>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="flex flex-col items-center bg-white/40 p-3 border border-slate-100 rounded">
+                                    <span class="font-bold text-inkRed text-base font-sans">Before L-1 Rotation (BF of A is -2)</span>
+                                    <div class="w-full max-w-[300px] flex justify-center"><canvas id="canvas-del-lm1-1"></canvas></div>
+                                </div>
+                                <div class="flex flex-col items-center bg-white/40 p-3 border border-slate-100 rounded">
+                                    <span class="font-bold text-inkBlue text-base font-sans">After L-1 Rotation (Balanced)</span>
+                                    <div class="w-full max-w-[300px] flex justify-center"><canvas id="canvas-del-lm1-2"></canvas></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- L1 Case -->
+                        <div class="bg-white/60 p-5 border border-slate-200 rounded space-y-4">
+                            <h4 class="text-2xl font-bold text-inkBlue font-heading">3. L1 Rotation (B has BF +1)</h4>
+                            <p class="text-lg text-pencilGray font-bold">
+                                B is left-heavy (leaning in the opposite direction). This is a zigzag imbalance. We perform a double <strong>Right-Left (RL) Rotation</strong> (Rotate B right, then rotate A left).
+                            </p>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="flex flex-col items-center bg-white/40 p-3 border border-slate-100 rounded">
+                                    <span class="font-bold text-inkRed text-base font-sans">Before L1 Rotation (BF of A is -2)</span>
+                                    <div class="w-full max-w-[300px] flex justify-center"><canvas id="canvas-del-l1-1"></canvas></div>
+                                </div>
+                                <div class="flex flex-col items-center bg-white/40 p-3 border border-slate-100 rounded">
+                                    <span class="font-bold text-inkBlue text-base font-sans">After RL Rotation (Balanced)</span>
+                                    <div class="w-full max-w-[300px] flex justify-center"><canvas id="canvas-del-l1-2"></canvas></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Concrete Deletion Example -->
+                    <div class="border-t-2 border-dashed border-amber-300 pt-6 space-y-6">
+                        <h3 class="text-3xl font-bold text-inkRed font-heading">C. Walkthrough: Deleting Nodes from our AVL Tree</h3>
+                        <p class="leading-relaxed text-lg">
+                            Let's take the AVL tree we constructed in the Insertion tab (containing keys 15, 20, 24, 10, 13) and perform sequential deletions to see rebalancing in action!
+                        </p>
+
+                        <!-- Deletion Step 1: Delete 24 -->
+                        <div class="bg-white/60 p-5 border border-slate-200 rounded space-y-6">
+                            <h4 class="text-2xl font-bold text-inkBlue font-heading">Step 1: Delete 24 (Triggers R0 Right Rotation)</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div class="bg-white/40 p-4 border border-slate-100 rounded flex flex-col items-center">
+                                    <span class="font-bold text-inkBlue text-lg font-heading">1.1: BST Deletion of 24</span>
+                                    <p class="text-lg text-pencilGray mb-4 text-center">Locate 24 (leaf node) and remove it. Heights adjust.</p>
+                                    <div class="w-full max-w-[300px] flex justify-center"><canvas id="canvas-del-ex-1a"></canvas></div>
+                                </div>
+                                <div class="bg-white/40 p-4 border border-slate-100 rounded flex flex-col items-center">
+                                    <span class="font-bold text-inkRed text-lg font-heading">1.2: Balance Check at Root 20</span>
+                                    <p class="text-lg text-pencilGray mb-4 text-center">Root 20's left height is 2, right is 0. BF = 2 - 0 = +2 (Imbalanced!). Left child 13 has BF 0.</p>
+                                    <div class="w-full max-w-[300px] flex justify-center"><canvas id="canvas-del-ex-1b"></canvas></div>
+                                </div>
+                                <div class="bg-white/40 p-4 border border-slate-100 rounded flex flex-col items-center">
+                                    <span class="font-bold text-inkBlue text-lg font-heading">1.3: Single Right Rotation at 20</span>
+                                    <p class="text-lg text-pencilGray mb-4 text-center">Rotate right at 20. Node 13 becomes the new root of the tree.</p>
+                                    <div class="w-full max-w-[300px] flex justify-center"><canvas id="canvas-del-ex-1c"></canvas></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Deletion Step 2: Delete 10 -->
+                        <div class="bg-white/60 p-5 border border-slate-200 rounded space-y-6">
+                            <h4 class="text-2xl font-bold text-inkBlue font-heading">Step 2: Delete 10 (Triggers L1 Double Right-Left Rotation)</h4>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                                <div class="bg-white/40 p-4 border border-slate-100 rounded flex flex-col items-center">
+                                    <span class="font-bold text-inkBlue text-base font-heading text-center">2.1: BST Deletion of 10</span>
+                                    <p class="text-sm text-pencilGray mb-4 text-center">Locate and remove leaf 10. Node 13 has left child null.</p>
+                                    <div class="w-full max-w-[320px] flex justify-center"><canvas id="canvas-del-ex-2a"></canvas></div>
+                                </div>
+                                <div class="bg-white/40 p-4 border border-slate-100 rounded flex flex-col items-center">
+                                    <span class="font-bold text-inkRed text-base font-heading text-center">2.2: Balance Check at 13</span>
+                                    <p class="text-sm text-pencilGray mb-4 text-center">BF of 13 becomes 0 - 2 = -2. Right child 20 has BF +1 (opposite sign!).</p>
+                                    <div class="w-full max-w-[320px] flex justify-center"><canvas id="canvas-del-ex-2b"></canvas></div>
+                                </div>
+                                <div class="bg-white/40 p-4 border border-slate-100 rounded flex flex-col items-center">
+                                    <span class="font-bold text-amber-800 text-base font-heading text-center">2.3: Right Rotate at 20</span>
+                                    <p class="text-sm text-pencilGray mb-4 text-center">Right rotate right child 20. 15 rises up as 13's right child.</p>
+                                    <div class="w-full max-w-[320px] flex justify-center"><canvas id="canvas-del-ex-2c"></canvas></div>
+                                </div>
+                                <div class="bg-white/40 p-4 border border-slate-100 rounded flex flex-col items-center">
+                                    <span class="font-bold text-inkBlue text-base font-heading text-center">2.4: Left Rotate at 13</span>
+                                    <p class="text-sm text-pencilGray mb-4 text-center">Left rotate pivot 13. Node 15 becomes the new root of the tree.</p>
+                                    <div class="w-full max-w-[320px] flex justify-center"><canvas id="canvas-del-ex-2d"></canvas></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+            </section>
+
+            <!-- SECTION 4: COMPLEXITY ANALYSIS -->
+            <section id="sec-complexity" class="tab-content hidden space-y-8">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4 font-heading">Complexity Analysis</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 4</span>
+                </div>
+
+                <div class="space-y-6">
+                    <h2 class="text-3xl sm:text-4xl font-bold text-inkRed mb-2 font-heading">5. Complexity Analysis of AVL Tree</h2>
+                    <p class="leading-relaxed">
+                        Because an AVL tree guarantees that its height is kept logarithmic in relation to the number of nodes, it completely avoids the worst-case degradation of standard Binary Search Trees.
+                    </p>
+
+                    <!-- Complexity Table -->
+                    <div class="my-6 overflow-x-auto no-print">
+                        <table class="w-full font-sans border-collapse border-2 border-inkBlue text-left bg-white/80 shadow-md rounded">
+                            <thead>
+                                <tr class="bg-amber-100/80 border-b-2 border-inkBlue text-inkBlue text-lg">
+                                    <th class="p-3 font-bold border-r border-inkBlue">Operation</th>
+                                    <th class="p-3 font-bold border-r border-inkBlue">Best Case</th>
+                                    <th class="p-3 font-bold border-r border-inkBlue">Average Case</th>
+                                    <th class="p-3 font-bold">Worst Case</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-base sm:text-lg text-slate-900 font-medium font-bold">
+                                <tr class="border-b border-inkBlue">
+                                    <td class="p-3 font-bold border-r border-inkBlue text-inkBlue">Search</td>
+                                    <td class="p-3 border-r border-inkBlue font-mono font-bold text-pencilGray">O(1) <span class="text-xs text-slate-500 font-sans font-medium">(Root matches)</span></td>
+                                    <td class="p-3 border-r border-inkBlue font-mono font-bold text-pencilGray">O(log n)</td>
+                                    <td class="p-3 font-mono text-inkRed font-bold">O(log n)</td>
+                                </tr>
+                                <tr class="border-b border-inkBlue">
+                                    <td class="p-3 font-bold border-r border-inkBlue text-inkBlue">Insertion</td>
+                                    <td class="p-3 border-r border-inkBlue font-mono font-bold text-pencilGray">O(log n)</td>
+                                    <td class="p-3 border-r border-inkBlue font-mono font-bold text-pencilGray">O(log n)</td>
+                                    <td class="p-3 font-mono text-inkRed font-bold">O(log n)</td>
+                                </tr>
+                                <tr class="border-b border-inkBlue">
+                                    <td class="p-3 font-bold border-r border-inkBlue text-inkBlue">Deletion</td>
+                                    <td class="p-3 border-r border-inkBlue font-mono font-bold text-pencilGray">O(log n)</td>
+                                    <td class="p-3 border-r border-inkBlue font-mono font-bold text-pencilGray">O(log n)</td>
+                                    <td class="p-3 font-mono text-inkRed font-bold">O(log n)</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 font-bold border-r border-inkBlue text-inkBlue">Space Complexity</td>
+                                    <td class="p-3 border-r border-inkBlue font-mono font-bold text-pencilGray">O(n)</td>
+                                    <td class="p-3 border-r border-inkBlue font-mono font-bold text-pencilGray">O(n)</td>
+                                    <td class="p-3 font-mono text-pencilGray font-bold">O(n)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3 class="text-3xl font-bold text-inkBlue mt-6 font-heading">Key Takeaways:</h3>
+                    <ul class="list-disc list-inside space-y-3 text-xl sm:text-2xl ml-4 leading-relaxed font-bold">
+                        <li>Standard Binary Search Trees can decay to <span class="font-sans font-bold">O(n)</span> search time (becoming a degenerate linked list) if values are inserted sequentially. AVL trees <span class="font-bold text-inkRed">prevent this completely</span>.</li>
+                        <li>The space complexity is <span class="font-sans font-bold">O(n)</span> to store node values, height variables, and child pointers.</li>
+                        <li>An AVL tree insertion takes at most <span class="pen-underline font-bold">one rotation operation</span> to restore balance. Deletion may require up to <span class="font-sans font-bold">O(log n)</span> rotations as the balance updates propagate up the path to the root.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- SECTION 4: INTERACTIVE SIMULATOR (PLAYGROUND) -->
+            <section id="sec-playground" class="tab-content hidden space-y-8">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4 font-heading">Interactive Simulator</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 5</span>
+                </div>
+
+                <div class="space-y-6">
+                    <h2 class="text-3xl sm:text-4xl font-bold text-inkRed mb-2 font-heading">6. Interactive AVL Tree Simulator</h2>
+                    <p class="leading-relaxed">
+                        Add and remove elements interactively to see how the AVL tree performs rotations and keeps itself height-balanced!
+                    </p>
+
+                    <!-- Interactive Control panel -->
+                    <div class="bg-amber-50/50 border border-amber-200 p-4 rounded-lg flex flex-wrap gap-4 items-center justify-between no-print font-sans font-bold text-base">
+                        <div class="flex items-center space-x-2">
+                            <label for="node-input" class="text-lg font-bold text-inkBlue">Node Key:</label>
+                            <input type="number" id="node-input" placeholder="e.g. 15" class="w-24 bg-white border border-slate-300 rounded px-2 py-1 font-sans text-sm focus:outline-none focus:border-inkBlue text-slate-800">
+                        </div>
+                        <div class="flex gap-2 flex-wrap">
+                            <button onclick="handleInsert()" class="px-4 py-1.5 rounded bg-inkBlue text-white font-bold hover:bg-slate-800 font-sans shadow-sm transition">➕ Insert</button>
+                            <button onclick="handleDelete()" class="px-4 py-1.5 rounded bg-inkRed text-white font-bold hover:bg-red-800 font-sans shadow-sm transition">❌ Delete</button>
+                            <button onclick="handleClear()" class="px-4 py-1.5 rounded bg-slate-600 text-white font-bold hover:bg-slate-700 font-sans shadow-sm transition font-sans">🧹 Clear</button>
+                        </div>
+                    </div>
+
+                    <!-- Simulator Log Status -->
+                    <div class="p-3 bg-white/70 border border-slate-200 rounded shadow-sm flex items-center justify-between text-lg no-print font-sans font-bold">
+                        <span class="text-inkBlue">Simulator status:</span>
+                        <span id="simulator-log" class="text-inkRed font-bold font-sans">Tree initialized with default values!</span>
+                    </div>
+
+                    <!-- Canvas Visualization Box -->
+                    <div class="border border-slate-300 rounded bg-[#FAF6EE] p-4 flex justify-center shadow-inner relative overflow-hidden min-h-[300px]">
+                        <!-- Vertical margin indicator in playground view -->
+                        <div class="absolute left-6 top-0 bottom-0 border-l border-red-300 opacity-60"></div>
+                        <canvas id="playground-canvas" class="w-full max-w-[800px] h-[400px] z-10"></canvas>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Core Scripting Logic -->
+    <script>
+        // Global Style/Font Toggle State
+        let isCleanFont = false;
+        let activeCanvases = [];
+        
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(sec => {
+                sec.classList.remove('block');
+                sec.classList.add('hidden');
+            });
+            document.getElementById('sec-' + tabId).classList.remove('hidden');
+            document.getElementById('sec-' + tabId).classList.add('block');
+            
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('bg-amber-200', 'text-inkBlue', 'border-b-2', 'border-inkBlue');
+                tab.classList.add('text-gray-600', 'hover:text-inkBlue');
+            });
+            const activeTab = document.getElementById('tab-' + tabId);
+            if (activeTab) {
+                activeTab.classList.remove('text-gray-600', 'hover:text-inkBlue');
+                activeTab.classList.add('bg-amber-200', 'text-inkBlue', 'border-b-2', 'border-inkBlue');
+            }
+            
+            // Trigger redrawing of active canvases in the newly activated tab
+            setTimeout(redrawAllCanvases, 50);
+        }
+
+        function toggleStyleMode() {
+            isCleanFont = !isCleanFont;
+            const body = document.body;
+            const styleBtn = document.getElementById('styleBtn');
+            if(isCleanFont) {
+                body.classList.remove('font-notes-body');
+                body.classList.add('font-clean');
+                styleBtn.innerText = "✍️ Switch to Handwritten Font";
+            } else {
+                body.classList.remove('font-clean');
+                body.classList.add('font-notes-body');
+                styleBtn.innerText = "✍️ Switch to Clean Print Font";
+            }
+            redrawAllCanvases();
+        }
+
+        window.onresize = () => {
+            redrawAllCanvases();
+        };
+
+        /* ----------------------------------------------------------------------
+           AVL TREE DATA STRUCTURE & LOGIC
+        ---------------------------------------------------------------------- */
+        class AVLNode {
+            constructor(val) {
+                this.val = val;
+                this.left = null;
+                this.right = null;
+                this.height = 1;
+                this.isSubtree = false; // Triangles for generic subtrees
+            }
+        }
+
+        function getHeight(node) {
+            if (!node) return 0;
+            return node.height;
+        }
+
+        function updateHeight(node) {
+            if (!node) return;
+            node.height = Math.max(getHeight(node.left), getHeight(node.right)) + 1;
+        }
+
+        function getBalanceFactor(node) {
+            if (!node) return 0;
+            return getHeight(node.left) - getHeight(node.right);
+        }
+
+        function rotateRight(y) {
+            const x = y.left;
+            const T2 = x.right;
+            x.right = y;
+            y.left = T2;
+            updateHeight(y);
+            updateHeight(x);
+            return x;
+        }
+
+        function rotateLeft(x) {
+            const y = x.right;
+            const T2 = y.left;
+            y.left = x;
+            x.right = T2;
+            updateHeight(x);
+            updateHeight(y);
+            return y;
+        }
+
+        let rotationLogMessage = "";
+
+        function insertNode(node, val) {
+            if (!node) return new AVLNode(val);
+            
+            if (val < node.val) {
+                node.left = insertNode(node.left, val);
+            } else if (val > node.val) {
+                node.right = insertNode(node.right, val);
+            } else {
+                return node; // Duplicate keys not allowed
+            }
+            
+            updateHeight(node);
+            const balance = getBalanceFactor(node);
+            
+            // Left Left Case
+            if (balance > 1 && val < node.left.val) {
+                rotationLogMessage = `Single Right Rotation (RR Rotation) at node ${node.val}`;
+                return rotateRight(node);
+            }
+            // Right Right Case
+            if (balance < -1 && val > node.right.val) {
+                rotationLogMessage = `Single Left Rotation (LL Rotation) at node ${node.val}`;
+                return rotateLeft(node);
+            }
+            // Left Right Case
+            if (balance > 1 && val > node.left.val) {
+                rotationLogMessage = `Left-Right Rotation (LR Rotation) at node ${node.val}`;
+                node.left = rotateLeft(node.left);
+                return rotateRight(node);
+            }
+            // Right Left Case
+            if (balance < -1 && val < node.right.val) {
+                rotationLogMessage = `Right-Left Rotation (RL Rotation) at node ${node.val}`;
+                node.right = rotateRight(node.right);
+                return rotateLeft(node);
+            }
+            
+            return node;
+        }
+
+        function minValueNode(node) {
+            let current = node;
+            while (current.left) {
+                current = current.left;
+            }
+            return current;
+        }
+
+        function deleteNode(root, val) {
+            if (!root) return root;
+            
+            if (val < root.val) {
+                root.left = deleteNode(root.left, val);
+            } else if (val > root.val) {
+                root.right = deleteNode(root.right, val);
+            } else {
+                if (!root.left || !root.right) {
+                    let temp = root.left ? root.left : root.right;
+                    if (!temp) {
+                        root = null;
+                    } else {
+                        root = temp;
+                    }
+                } else {
+                    const temp = minValueNode(root.right);
+                    root.val = temp.val;
+                    root.right = deleteNode(root.right, temp.val);
+                }
+            }
+            
+            if (!root) return root;
+            
+            updateHeight(root);
+            const balance = getBalanceFactor(root);
+            
+            // Left Left Case
+            if (balance > 1 && getBalanceFactor(root.left) >= 0) {
+                rotationLogMessage = `Single Right Rotation at node ${root.val} (after Deletion)`;
+                return rotateRight(root);
+            }
+            // Left Right Case
+            if (balance > 1 && getBalanceFactor(root.left) < 0) {
+                rotationLogMessage = `Left-Right Rotation at node ${root.val} (after Deletion)`;
+                root.left = rotateLeft(root.left);
+                return rotateRight(root);
+            }
+            // Right Right Case
+            if (balance < -1 && getBalanceFactor(root.right) <= 0) {
+                rotationLogMessage = `Single Left Rotation at node ${root.val} (after Deletion)`;
+                return rotateLeft(root);
+            }
+            // Right Left Case
+            if (balance < -1 && getBalanceFactor(root.right) > 0) {
+                rotationLogMessage = `Right-Left Rotation at node ${root.val} (after Deletion)`;
+                root.right = rotateRight(root.right);
+                return rotateLeft(root);
+            }
+            
+            return root;
+        }
+
+        /* ----------------------------------------------------------------------
+           CANVAS ENGINE FOR DRAWING BST TREES
+        ---------------------------------------------------------------------- */
+        function drawTree(canvasId, root, highlighted = [], rotated = [], forceHeight = null) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            
+            // Track in active canvases for resize/font toggle redrawing
+            const existing = activeCanvases.find(c => c.canvasId === canvasId);
+            if (existing) {
+                existing.root = root;
+                existing.highlighted = highlighted;
+                existing.rotated = rotated;
+                existing.forceHeight = forceHeight;
+            } else {
+                activeCanvases.push({ canvasId, root, highlighted, rotated, forceHeight });
+            }
+
+            const width = canvas.parentElement.getBoundingClientRect().width || 320;
+            const treeHeight = forceHeight || (root ? root.height : 1);
+            const levelHeight = 55;
+            const height = Math.max(treeHeight * levelHeight + 35, 120);
+
+            // Set up high-DPI scaling
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            canvas.style.width = `${width}px`;
+            canvas.style.height = `${height}px`;
+            ctx.scale(dpr, dpr);
+
+            ctx.clearRect(0, 0, width, height);
+            if (!root) return;
+
+            const positions = new Map();
+            const initialDx = Math.min(width / 4, 80);
+
+            function computeCoordinates(node, x, y, dx) {
+                if (!node) return;
+                positions.set(node, { x, y });
+                const nextDx = Math.max(dx * 0.5, 18);
+                computeCoordinates(node.left, x - dx, y + levelHeight, nextDx);
+                computeCoordinates(node.right, x + dx, y + levelHeight, nextDx);
+            }
+
+            computeCoordinates(root, width / 2, 35, initialDx);
+
+            // Draw Links
+            ctx.strokeStyle = '#64748b';
+            ctx.lineWidth = 1.5;
+            positions.forEach((pos, node) => {
+                if (node.left && positions.has(node.left)) {
+                    const childPos = positions.get(node.left);
+                    ctx.beginPath();
+                    ctx.moveTo(pos.x, pos.y);
+                    ctx.lineTo(childPos.x, childPos.y);
+                    ctx.stroke();
+                }
+                if (node.right && positions.has(node.right)) {
+                    const childPos = positions.get(node.right);
+                    ctx.beginPath();
+                    ctx.moveTo(pos.x, pos.y);
+                    ctx.lineTo(childPos.x, childPos.y);
+                    ctx.stroke();
+                }
+            });
+
+            // Draw Nodes
+            positions.forEach((pos, node) => {
+                const isHighlighted = highlighted.includes(node.val);
+                const isRotated = rotated.includes(node.val);
+                const fontName = isCleanFont ? 'Inter, sans-serif' : 'Caveat, Kalam, cursive';
+
+                if (node.isSubtree) {
+                    // Draw Triangle Subtree
+                    ctx.beginPath();
+                    ctx.moveTo(pos.x, pos.y - 12);
+                    ctx.lineTo(pos.x - 22, pos.y + 22);
+                    ctx.lineTo(pos.x + 22, pos.y + 22);
+                    ctx.closePath();
+                    ctx.fillStyle = '#E2E8F0';
+                    ctx.strokeStyle = '#4A5568';
+                    ctx.lineWidth = 1.5;
+                    ctx.fill();
+                    ctx.stroke();
+
+                    ctx.fillStyle = '#4A5568';
+                    ctx.font = `bold 12px ${fontName}`;
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(node.val, pos.x, pos.y + 8);
+                } else {
+                    // Draw Node Circle
+                    ctx.beginPath();
+                    ctx.arc(pos.x, pos.y, 15, 0, 2 * Math.PI);
+                    
+                    if (isHighlighted) {
+                        ctx.fillStyle = '#FEEBC8'; // soft amber
+                        ctx.strokeStyle = '#9B2C2C'; // red ink
+                        ctx.lineWidth = 3;
+                    } else if (isRotated) {
+                        ctx.fillStyle = '#EBF8FF'; // soft blue
+                        ctx.strokeStyle = '#2B6CB0'; // deep blue ink border
+                        ctx.lineWidth = 3;
+                    } else {
+                        ctx.fillStyle = '#FAF6EE';
+                        ctx.strokeStyle = '#1A365D'; // blue ink
+                        ctx.lineWidth = 2;
+                    }
+                    ctx.fill();
+                    ctx.stroke();
+
+                    // Text value inside node
+                    ctx.fillStyle = isHighlighted ? '#9B2C2C' : '#1A365D';
+                    ctx.font = `bold 13px ${fontName}`;
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(node.val, pos.x, pos.y + 1);
+
+                    // Balance factor text above node
+                    const bf = getBalanceFactor(node);
+                    ctx.fillStyle = (Math.abs(bf) > 1) ? '#9B2C2C' : '#4A5568';
+                    ctx.font = `bold 11px ${fontName}`;
+                    ctx.textAlign = 'center';
+                    ctx.fillText(`(${bf})`, pos.x, pos.y - 22);
+                }
+            });
+        }
+
+        function redrawAllCanvases() {
+            activeCanvases.forEach(item => {
+                drawTree(item.canvasId, item.root, item.highlighted, item.rotated, item.forceHeight);
+            });
+        }
+
+        /* ----------------------------------------------------------------------
+           INTERACTIVE SIMULATOR (PLAYGROUND) CODE
+        ---------------------------------------------------------------------- */
+        let playgroundTree = null;
+
+        // Initialize Playground with elements 15, 10, 20
+        function initPlayground() {
+            playgroundTree = new AVLNode(15);
+            playgroundTree = insertNode(playgroundTree, 10);
+            playgroundTree = insertNode(playgroundTree, 20);
+            drawTree('playground-canvas', playgroundTree);
+        }
+
+        function handleInsert() {
+            const input = document.getElementById('node-input');
+            const log = document.getElementById('simulator-log');
+            const val = parseInt(input.value);
+            if (isNaN(val)) {
+                log.innerText = "Error: Please enter a valid number!";
+                return;
+            }
+            rotationLogMessage = "";
+            playgroundTree = insertNode(playgroundTree, val);
+            drawTree('playground-canvas', playgroundTree);
+            input.value = "";
+
+            if (rotationLogMessage) {
+                log.innerText = `Inserted ${val}. Rotation: ${rotationLogMessage}!`;
+            } else {
+                log.innerText = `Inserted ${val} successfully. Tree balanced.`;
+            }
+        }
+
+        function handleDelete() {
+            const input = document.getElementById('node-input');
+            const log = document.getElementById('simulator-log');
+            const val = parseInt(input.value);
+            if (isNaN(val)) {
+                log.innerText = "Error: Please enter a valid number!";
+                return;
+            }
+            rotationLogMessage = "";
+            playgroundTree = deleteNode(playgroundTree, val);
+            drawTree('playground-canvas', playgroundTree);
+            input.value = "";
+
+            if (rotationLogMessage) {
+                log.innerText = `Deleted ${val}. Rotation: ${rotationLogMessage}!`;
+            } else {
+                log.innerText = `Deleted ${val} successfully. Tree balanced.`;
+            }
+        }
+
+        function handleClear() {
+            playgroundTree = null;
+            drawTree('playground-canvas', null);
+            document.getElementById('simulator-log').innerText = "Playground tree cleared.";
+        }
+
+        /* ----------------------------------------------------------------------
+           DOCUMENT ONLOAD RENDERING SPECIFICS
+        ---------------------------------------------------------------------- */
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // Tab 1: Definitions Comparisons
+            // Balanced
+            const defBal = new AVLNode(2);
+            defBal.left = new AVLNode(1);
+            defBal.right = new AVLNode(3);
+            updateHeight(defBal);
+            drawTree('canvas-def-balanced', defBal);
+
+            // Unbalanced
+            const defUnbal = new AVLNode(1);
+            defUnbal.right = new AVLNode(2);
+            defUnbal.right.right = new AVLNode(3);
+            updateHeight(defUnbal.right);
+            updateHeight(defUnbal);
+            drawTree('canvas-def-unbalanced', defUnbal);
+
+
+            // Tab 2: Rotations Step-by-Step
+            
+            // LL Rotation
+            const rotA1 = new AVLNode(1);
+            rotA1.right = new AVLNode(2);
+            rotA1.right.right = new AVLNode(3);
+            updateHeight(rotA1.right);
+            updateHeight(rotA1);
+            drawTree('canvas-rot-a-1', rotA1, [1]); // highlight pivot node 1
+
+            const rotA2 = new AVLNode(2);
+            rotA2.left = new AVLNode(1);
+            rotA2.right = new AVLNode(3);
+            updateHeight(rotA2);
+            drawTree('canvas-rot-a-2', rotA2);
+
+            // RR Rotation
+            const rotB1 = new AVLNode(3);
+            rotB1.left = new AVLNode(2);
+            rotB1.left.left = new AVLNode(1);
+            updateHeight(rotB1.left);
+            updateHeight(rotB1);
+            drawTree('canvas-rot-b-1', rotB1, [3]); // highlight pivot 3
+
+            const rotB2 = new AVLNode(2);
+            rotB2.left = new AVLNode(1);
+            rotB2.right = new AVLNode(3);
+            updateHeight(rotB2);
+            drawTree('canvas-rot-b-2', rotB2);
+
+            // LR Rotation
+            const rotC1 = new AVLNode(3);
+            rotC1.left = new AVLNode(1);
+            rotC1.left.right = new AVLNode(2);
+            updateHeight(rotC1.left);
+            updateHeight(rotC1);
+            drawTree('canvas-rot-c-1', rotC1, [3]);
+
+            const rotC2 = new AVLNode(3);
+            rotC2.left = new AVLNode(2);
+            rotC2.left.left = new AVLNode(1);
+            updateHeight(rotC2.left);
+            updateHeight(rotC2);
+            drawTree('canvas-rot-c-2', rotC2);
+
+            const rotC3 = new AVLNode(2);
+            rotC3.left = new AVLNode(1);
+            rotC3.right = new AVLNode(3);
+            updateHeight(rotC3);
+            drawTree('canvas-rot-c-3', rotC3);
+
+            // RL Rotation
+            const rotD1 = new AVLNode(1);
+            rotD1.right = new AVLNode(3);
+            rotD1.right.left = new AVLNode(2);
+            updateHeight(rotD1.right);
+            updateHeight(rotD1);
+            drawTree('canvas-rot-d-1', rotD1, [1]);
+
+            const rotD2 = new AVLNode(1);
+            rotD2.right = new AVLNode(2);
+            rotD2.right.right = new AVLNode(3);
+            updateHeight(rotD2.right);
+            updateHeight(rotD2);
+            drawTree('canvas-rot-d-2', rotD2);
+
+            const rotD3 = new AVLNode(2);
+            rotD3.left = new AVLNode(1);
+            rotD3.right = new AVLNode(3);
+            updateHeight(rotD3);
+            drawTree('canvas-rot-d-3', rotD3);
+
+
+            // Tab 2: Operations insertions (15, 20, 24, 10, 13)
+            
+            // Step 1: Insert 15
+            const ins1 = new AVLNode(15);
+            drawTree('canvas-insert-1', ins1);
+
+            // Step 2: Insert 20
+            const ins2 = new AVLNode(15);
+            ins2.right = new AVLNode(20);
+            updateHeight(ins2);
+            drawTree('canvas-insert-2-1', ins2, [15, 20]); // Highlight search path
+            drawTree('canvas-insert-2-2', ins2);
+
+            // Step 3: Insert 24
+            const ins3a = new AVLNode(15);
+            ins3a.right = new AVLNode(20);
+            ins3a.right.right = new AVLNode(24);
+            updateHeight(ins3a.right);
+            updateHeight(ins3a);
+            drawTree('canvas-insert-3-1', ins3a, [15, 20, 24]); // Highlight search path
+            drawTree('canvas-insert-3-2', ins3a, [15]); // Highlight pivot 15
+            
+            const ins3c = new AVLNode(20);
+            ins3c.left = new AVLNode(15);
+            ins3c.right = new AVLNode(24);
+            updateHeight(ins3c);
+            drawTree('canvas-insert-3-c', ins3c);
+
+            // Step 4: Insert 10
+            const ins4a = new AVLNode(20);
+            ins4a.left = new AVLNode(15);
+            ins4a.left.left = new AVLNode(10);
+            ins4a.right = new AVLNode(24);
+            updateHeight(ins4a.left);
+            updateHeight(ins4a);
+            drawTree('canvas-insert-4-1', ins4a, [20, 15, 10]); // Highlight search path
+            drawTree('canvas-insert-4-2', ins4a);
+
+            // Step 5: Insert 13
+            const ins5a = new AVLNode(20);
+            ins5a.left = new AVLNode(15);
+            ins5a.left.left = new AVLNode(10);
+            ins5a.left.left.right = new AVLNode(13);
+            updateHeight(ins5a.left.left);
+            updateHeight(ins5a.left);
+            updateHeight(ins5a);
+            drawTree('canvas-insert-5-1', ins5a, [20, 15, 10, 13]); // Highlight search path
+            drawTree('canvas-insert-5-2', ins5a, [15]); // Highlight pivot 15
+
+            const ins5c = new AVLNode(20);
+            ins5c.left = new AVLNode(15);
+            ins5c.left.left = new AVLNode(13);
+            ins5c.left.left.left = new AVLNode(10);
+            ins5c.right = new AVLNode(24);
+            updateHeight(ins5c.left.left);
+            updateHeight(ins5c.left);
+            updateHeight(ins5c);
+            drawTree('canvas-insert-5-c', ins5c, [15]);
+
+            const ins5d = new AVLNode(20);
+            ins5d.left = new AVLNode(13);
+            ins5d.left.left = new AVLNode(10);
+            ins5d.left.right = new AVLNode(15);
+            ins5d.right = new AVLNode(24);
+            updateHeight(ins5d.left);
+            updateHeight(ins5d);
+            drawTree('canvas-insert-5-d', ins5d);
+
+
+            // Insert into a large tree (250, 10, 500)
+            
+            // Insert 250 - Before Rotation
+            const lrg1a = new AVLNode(100);
+            lrg1a.left = new AVLNode(50);
+            lrg1a.left.left = new AVLNode(45);
+            lrg1a.left.right = new AVLNode(70);
+            lrg1a.right = new AVLNode(120);
+            lrg1a.right.right = new AVLNode(200);
+            lrg1a.right.right.right = new AVLNode(250);
+            updateHeight(lrg1a.left);
+            updateHeight(lrg1a.right.right);
+            updateHeight(lrg1a.right);
+            updateHeight(lrg1a);
+            drawTree('canvas-large-1a', lrg1a, [120]);
+
+            // Insert 250 - After Rotation (Balanced)
+            const lrg1b = new AVLNode(100);
+            lrg1b.left = new AVLNode(50);
+            lrg1b.left.left = new AVLNode(45);
+            lrg1b.left.right = new AVLNode(70);
+            lrg1b.right = new AVLNode(200);
+            lrg1b.right.left = new AVLNode(120);
+            lrg1b.right.right = new AVLNode(250);
+            updateHeight(lrg1b.left);
+            updateHeight(lrg1b.right);
+            updateHeight(lrg1b);
+            drawTree('canvas-large-1b', lrg1b);
+
+            // Insert 10 and 500 (Balanced result)
+            const lrg2 = new AVLNode(100);
+            lrg2.left = new AVLNode(50);
+            lrg2.left.left = new AVLNode(45);
+            lrg2.left.left.left = new AVLNode(10);
+            lrg2.left.right = new AVLNode(70);
+            lrg2.right = new AVLNode(200);
+            lrg2.right.left = new AVLNode(120);
+            lrg2.right.right = new AVLNode(250);
+            lrg2.right.right.right = new AVLNode(500);
+            updateHeight(lrg2.left.left);
+            updateHeight(lrg2.left);
+            updateHeight(lrg2.right.right);
+            updateHeight(lrg2.right);
+            updateHeight(lrg2);
+            drawTree('canvas-large-2', lrg2);
+
+
+            // Deletion Rotations drawings
+
+            // R0 Rotation (A BF: +2, B BF: 0) -> Single Right Rotation
+            const r0A = new AVLNode('A');
+            r0A.left = new AVLNode('B');
+            r0A.left.left = new AVLNode('T1');
+            r0A.left.left.isSubtree = true;
+            r0A.left.left.height = 1;
+            r0A.left.right = new AVLNode('T2');
+            r0A.left.right.isSubtree = true;
+            r0A.left.right.height = 1;
+            r0A.right = new AVLNode('T3');
+            r0A.right.isSubtree = true;
+            r0A.right.height = 0;
+            r0A.height = 3;
+            r0A.left.height = 2;
+            drawTree('canvas-del-r0-1', r0A, ['A'], [], 3);
+
+            const r0B = new AVLNode('B');
+            r0B.left = new AVLNode('T1');
+            r0B.left.isSubtree = true;
+            r0B.left.height = 1;
+            r0B.right = new AVLNode('A');
+            r0B.right.left = new AVLNode('T2');
+            r0B.right.left.isSubtree = true;
+            r0B.right.left.height = 1;
+            r0B.right.right = new AVLNode('T3');
+            r0B.right.right.isSubtree = true;
+            r0B.right.right.height = 0;
+            r0B.height = 3;
+            r0B.right.height = 2;
+            drawTree('canvas-del-r0-2', r0B, [], [], 3);
+
+            // R1 Rotation (A BF: +2, B BF: +1) -> Single Right Rotation
+            const r1A = new AVLNode('A');
+            r1A.left = new AVLNode('B');
+            r1A.left.left = new AVLNode('T1');
+            r1A.left.left.isSubtree = true;
+            r1A.left.left.height = 1;
+            r1A.left.right = new AVLNode('T2');
+            r1A.left.right.isSubtree = true;
+            r1A.left.right.height = 0;
+            r1A.right = new AVLNode('T3');
+            r1A.right.isSubtree = true;
+            r1A.right.height = 0;
+            r1A.height = 3;
+            r1A.left.height = 2;
+            drawTree('canvas-del-r1-1', r1A, ['A'], [], 3);
+
+            const r1B = new AVLNode('B');
+            r1B.left = new AVLNode('T1');
+            r1B.left.isSubtree = true;
+            r1B.left.height = 1;
+            r1B.right = new AVLNode('A');
+            r1B.right.left = new AVLNode('T2');
+            r1B.right.left.isSubtree = true;
+            r1B.right.left.height = 0;
+            r1B.right.right = new AVLNode('T3');
+            r1B.right.right.isSubtree = true;
+            r1B.right.right.height = 0;
+            r1B.height = 3;
+            r1B.right.height = 1;
+            drawTree('canvas-del-r1-2', r1B, [], [], 3);
+
+            // R-1 Rotation (A BF: +2, B BF: -1) -> Left-Right Rotation
+            const rm1A = new AVLNode('A');
+            rm1A.left = new AVLNode('B');
+            rm1A.left.left = new AVLNode('T1');
+            rm1A.left.left.isSubtree = true;
+            rm1A.left.left.height = 0;
+            rm1A.left.right = new AVLNode('C');
+            rm1A.left.right.left = new AVLNode('T2');
+            rm1A.left.right.left.isSubtree = true;
+            rm1A.left.right.left.height = 0;
+            rm1A.left.right.right = new AVLNode('T3');
+            rm1A.left.right.right.isSubtree = true;
+            rm1A.left.right.right.height = 0;
+            rm1A.right = new AVLNode('T4');
+            rm1A.right.isSubtree = true;
+            rm1A.right.height = 0;
+            rm1A.height = 4;
+            rm1A.left.height = 3;
+            rm1A.left.right.height = 2;
+            drawTree('canvas-del-rm1-1', rm1A, ['A'], [], 4);
+
+            const rm1C = new AVLNode('C');
+            rm1C.left = new AVLNode('B');
+            rm1C.left.left = new AVLNode('T1');
+            rm1C.left.left.isSubtree = true;
+            rm1C.left.left.height = 0;
+            rm1C.left.right = new AVLNode('T2');
+            rm1C.left.right.isSubtree = true;
+            rm1C.left.right.height = 0;
+            rm1C.right = new AVLNode('A');
+            rm1C.right.left = new AVLNode('T3');
+            rm1C.right.left.isSubtree = true;
+            rm1C.right.left.height = 0;
+            rm1C.right.right = new AVLNode('T4');
+            rm1C.right.right.isSubtree = true;
+            rm1C.right.right.height = 0;
+            rm1C.height = 3;
+            rm1C.left.height = 1;
+            rm1C.right.height = 1;
+            drawTree('canvas-del-rm1-2', rm1C, [], [], 3);
+
+            // L0 Rotation (A BF: -2, B BF: 0) -> Single Left Rotation
+            const l0A = new AVLNode('A');
+            l0A.left = new AVLNode('T1');
+            l0A.left.isSubtree = true;
+            l0A.left.height = 0;
+            l0A.right = new AVLNode('B');
+            l0A.right.left = new AVLNode('T2');
+            l0A.right.left.isSubtree = true;
+            l0A.right.left.height = 1;
+            l0A.right.right = new AVLNode('T3');
+            l0A.right.right.isSubtree = true;
+            l0A.right.right.height = 1;
+            l0A.height = 3;
+            l0A.right.height = 2;
+            drawTree('canvas-del-l0-1', l0A, ['A'], [], 3);
+
+            const l0B = new AVLNode('B');
+            l0B.left = new AVLNode('A');
+            l0B.left.left = new AVLNode('T1');
+            l0B.left.left.isSubtree = true;
+            l0B.left.left.height = 0;
+            l0B.left.right = new AVLNode('T2');
+            l0B.left.right.isSubtree = true;
+            l0B.left.right.height = 1;
+            l0B.right = new AVLNode('T3');
+            l0B.right.isSubtree = true;
+            l0B.right.height = 1;
+            l0B.height = 3;
+            l0B.left.height = 2;
+            drawTree('canvas-del-l0-2', l0B, [], [], 3);
+
+            // L-1 Rotation (A BF: -2, B BF: -1) -> Single Left Rotation
+            const lm1A = new AVLNode('A');
+            lm1A.left = new AVLNode('T1');
+            lm1A.left.isSubtree = true;
+            lm1A.left.height = 0;
+            lm1A.right = new AVLNode('B');
+            lm1A.right.left = new AVLNode('T2');
+            lm1A.right.left.isSubtree = true;
+            lm1A.right.left.height = 0;
+            lm1A.right.right = new AVLNode('T3');
+            lm1A.right.right.isSubtree = true;
+            lm1A.right.right.height = 1;
+            lm1A.height = 3;
+            lm1A.right.height = 2;
+            drawTree('canvas-del-lm1-1', lm1A, ['A'], [], 3);
+
+            const lm1B = new AVLNode('B');
+            lm1B.left = new AVLNode('A');
+            lm1B.left.left = new AVLNode('T1');
+            lm1B.left.left.isSubtree = true;
+            lm1B.left.left.height = 0;
+            lm1B.left.right = new AVLNode('T2');
+            lm1B.left.right.isSubtree = true;
+            lm1B.left.right.height = 0;
+            lm1B.right = new AVLNode('T3');
+            lm1B.right.isSubtree = true;
+            lm1B.right.height = 1;
+            lm1B.height = 3;
+            lm1B.left.height = 1;
+            drawTree('canvas-del-lm1-2', lm1B, [], [], 3);
+
+            // L1 Rotation (A BF: -2, B BF: +1) -> Right-Left Rotation
+            const l1A = new AVLNode('A');
+            l1A.left = new AVLNode('T1');
+            l1A.left.isSubtree = true;
+            l1A.left.height = 0;
+            l1A.right = new AVLNode('B');
+            l1A.right.left = new AVLNode('C');
+            l1A.right.left.left = new AVLNode('T2');
+            l1A.right.left.left.isSubtree = true;
+            l1A.right.left.left.height = 0;
+            l1A.right.left.right = new AVLNode('T3');
+            l1A.right.left.right.isSubtree = true;
+            l1A.right.left.right.height = 0;
+            l1A.right.right = new AVLNode('T4');
+            l1A.right.right.isSubtree = true;
+            l1A.right.right.height = 0;
+            l1A.height = 4;
+            l1A.right.height = 3;
+            l1A.right.left.height = 2;
+            drawTree('canvas-del-l1-1', l1A, ['A'], [], 4);
+
+            const l1C = new AVLNode('C');
+            l1C.left = new AVLNode('A');
+            l1C.left.left = new AVLNode('T1');
+            l1C.left.left.isSubtree = true;
+            l1C.left.left.height = 0;
+            l1C.left.right = new AVLNode('T2');
+            l1C.left.right.isSubtree = true;
+            l1C.left.right.height = 0;
+            l1C.right = new AVLNode('B');
+            l1C.right.left = new AVLNode('T3');
+            l1C.right.left.isSubtree = true;
+            l1C.right.left.height = 0;
+            l1C.right.right = new AVLNode('T4');
+            l1C.right.right.isSubtree = true;
+            l1C.right.right.height = 0;
+            l1C.height = 3;
+            l1C.left.height = 1;
+            l1C.right.height = 1;
+            drawTree('canvas-del-l1-2', l1C, [], [], 3);
+
+            // --- CONCRETE DELETION EXAMPLE WALKTHROUGH ---
+
+            // Step 1: Delete 24
+            // 1.1 Show tree WITH 24, highlight 24 as target for deletion
+            const delex1a = new AVLNode(20);
+            delex1a.left = new AVLNode(13);
+            delex1a.left.left = new AVLNode(10);
+            delex1a.left.right = new AVLNode(15);
+            delex1a.right = new AVLNode(24);
+            updateHeight(delex1a.left);
+            updateHeight(delex1a.right);
+            updateHeight(delex1a);
+            drawTree('canvas-del-ex-1a', delex1a, [24]);
+
+            // 1.2 Show tree WITHOUT 24, highlight 20 as pivot of +2 imbalance
+            const delex1b = new AVLNode(20);
+            delex1b.left = new AVLNode(13);
+            delex1b.left.left = new AVLNode(10);
+            delex1b.left.right = new AVLNode(15);
+            updateHeight(delex1b.left);
+            updateHeight(delex1b);
+            drawTree('canvas-del-ex-1b', delex1b, [20]);
+
+            // 1.3 Balanced result
+            const delex1c = new AVLNode(13);
+            delex1c.left = new AVLNode(10);
+            delex1c.right = new AVLNode(20);
+            delex1c.right.left = new AVLNode(15);
+            updateHeight(delex1c.right);
+            updateHeight(delex1c);
+            drawTree('canvas-del-ex-1c', delex1c);
+
+            // Step 2: Delete 10
+            // 2.1 Show tree WITH 10, highlight 10 as target for deletion
+            const delex2a = new AVLNode(13);
+            delex2a.left = new AVLNode(10);
+            delex2a.right = new AVLNode(20);
+            delex2a.right.left = new AVLNode(15);
+            updateHeight(delex2a.left);
+            updateHeight(delex2a.right);
+            updateHeight(delex2a);
+            drawTree('canvas-del-ex-2a', delex2a, [10]);
+
+            // 2.2 Show tree WITHOUT 10, highlight 13 as pivot of -2 imbalance
+            const delex2b = new AVLNode(13);
+            delex2b.right = new AVLNode(20);
+            delex2b.right.left = new AVLNode(15);
+            updateHeight(delex2b.right);
+            updateHeight(delex2b);
+            drawTree('canvas-del-ex-2b', delex2b, [13]);
+
+            // 2.3 Right rotate child 20
+            const delex2c = new AVLNode(13);
+            delex2c.right = new AVLNode(15);
+            delex2c.right.right = new AVLNode(20);
+            updateHeight(delex2c.right);
+            updateHeight(delex2c);
+            drawTree('canvas-del-ex-2c', delex2c, [13]);
+
+            // 2.4 Left rotate pivot 13
+            const delex2d = new AVLNode(15);
+            delex2d.left = new AVLNode(13);
+            delex2d.right = new AVLNode(20);
+            updateHeight(delex2d.left);
+            updateHeight(delex2d.right);
+            updateHeight(delex2d);
+            drawTree('canvas-del-ex-2d', delex2d);
+
+            // Initialize playground tree values
+            initPlayground();
+        });
+    </script>
+</body>
+</html>

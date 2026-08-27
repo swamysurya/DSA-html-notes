@@ -511,30 +511,287 @@ Partition(A, l, h) {
                 </div>
 
                 <div class="space-y-4">
-                    <p>
-                        Standard matrix multiplication requires $O(n^3)$ operations. Strassen's algorithm uses
+                    <p class="text-lg">
+                        Standard matrix multiplication requires <code class="bg-white border border-slate-200 px-1 py-0.5 rounded font-sans font-bold text-sm">O(n³)</code> operations. Strassen's algorithm uses
                         divide-and-conquer block partitions to reduce multiplications from 8 to 7, resulting in a time
-                        complexity of $O(n^{\log_2 7}) \approx O(n^{2.81})$.
+                        complexity of <code class="bg-white border border-slate-200 px-1 py-0.5 rounded font-sans font-bold text-sm">O(n<sup>log₂ 7</sup>) &approx; O(n<sup>2.81</sup>)</code>.
                     </p>
+
+                    <div class="bg-amber-50/40 p-5 rounded-lg border border-amber-200 space-y-4 my-4">
+                        <p class="font-bold text-inkBlue text-lg">Multiplying Two 2 &times; 2 Matrices:</p>
+                        
+                        <div class="flex flex-wrap items-center justify-center gap-6 py-4 bg-white border border-slate-200 rounded-lg text-inkBlue select-none font-sans font-bold text-base sm:text-lg overflow-x-auto">
+                            <!-- Matrix A -->
+                            <div class="flex items-center gap-1.5">
+                                <span>A =</span>
+                                <div class="flex items-stretch">
+                                    <div class="border-y-2 border-l-2 border-inkBlue w-2.5 rounded-l"></div>
+                                    <div class="grid grid-cols-2 gap-x-3 gap-y-1.5 px-2 py-1 text-center">
+                                        <span>a₁₁</span><span>a₁₂</span>
+                                        <span>a₂₁</span><span>a₂₂</span>
+                                    </div>
+                                    <div class="border-y-2 border-r-2 border-inkBlue w-2.5 rounded-r"></div>
+                                </div>
+                                <sub class="text-xs self-end -ml-1 mb-1">2&times;2</sub>
+                            </div>
+
+                            <span class="text-xl font-bold">&times;</span>
+
+                            <!-- Matrix B -->
+                            <div class="flex items-center gap-1.5">
+                                <span>B =</span>
+                                <div class="flex items-stretch">
+                                    <div class="border-y-2 border-l-2 border-inkBlue w-2.5 rounded-l"></div>
+                                    <div class="grid grid-cols-2 gap-x-3 gap-y-1.5 px-2 py-1 text-center">
+                                        <span>b₁₁</span><span>b₁₂</span>
+                                        <span>b₂₁</span><span>b₂₂</span>
+                                    </div>
+                                    <div class="border-y-2 border-r-2 border-inkBlue w-2.5 rounded-r"></div>
+                                </div>
+                                <sub class="text-xs self-end -ml-1 mb-1">2&times;2</sub>
+                            </div>
+
+                            <span class="text-xl font-bold">=</span>
+
+                            <!-- Matrix C -->
+                            <div class="flex items-center gap-1.5">
+                                <span>C =</span>
+                                <div class="flex items-stretch">
+                                    <div class="border-y-2 border-l-2 border-inkBlue w-2.5 rounded-l"></div>
+                                    <div class="grid grid-cols-2 gap-x-3 gap-y-1.5 px-2 py-1 text-center">
+                                        <span>c₁₁</span><span>c₁₂</span>
+                                        <span>c₂₁</span><span>c₂₂</span>
+                                    </div>
+                                    <div class="border-y-2 border-r-2 border-inkBlue w-2.5 rounded-r"></div>
+                                </div>
+                                <sub class="text-xs self-end -ml-1 mb-1">2&times;2</sub>
+                            </div>
+                        </div>
+
+                        <p class="text-pencilGray text-base">
+                            The standard mathematical formula to compute each element of the resulting matrix is:
+                        </p>
+                        <div class="flex items-center justify-center gap-2 text-inkBlue font-sans font-bold text-lg sm:text-xl py-3 bg-white border border-slate-200 rounded">
+                            <span>C<sub>ij</sub> =</span>
+                            <div class="flex flex-col items-center leading-none select-none">
+                                <span class="text-xs">2</span>
+                                <span class="text-3xl font-light -my-1">&Sigma;</span>
+                                <span class="text-xs">k=1</span>
+                            </div>
+                            <span>A<sub>ik</sub> &times; B<sub>kj</sub></span>
+                        </div>
+                        <p class="text-pencilGray text-base">
+                            This represents the <strong>standard matrix multiplication formula</strong>.
+                        </p>
+
+                        <div class="border-t border-slate-200 pt-4 mt-4 space-y-3">
+                            <p class="font-bold text-inkBlue text-lg">Standard Algorithm / Pseudo Code (O(N³)):</p>
+                            <pre class="bg-slate-50 border border-slate-200 rounded p-4 font-mono text-inkBlue text-sm overflow-x-auto whitespace-pre">
+MatrixMultiply(A, B, C, n) {
+    for i = 0 to n - 1 {
+        for j = 0 to n - 1 {
+            C[i][j] = 0
+            for k = 0 to n - 1 {
+                C[i][j] = C[i][j] + A[i][k] * B[k][j]
+            }
+        }
+    }
+}</pre>
+                            <p class="text-base sm:text-lg text-pencilGray font-sans text-center">
+                                <strong>Time Complexity:</strong> <code class="bg-white border border-slate-200 px-1.5 py-0.5 rounded font-sans font-bold text-sm sm:text-base">O(N³)</code> due to the three nested loops, each iterating N times.<br>
+                                <strong>Space Complexity:</strong> <code class="bg-white border border-slate-200 px-1.5 py-0.5 rounded font-sans font-bold text-sm sm:text-base">O(1)</code> auxiliary space.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Recursive Breakdown Concept Note -->
+                    <div class="p-5 bg-amber-50/50 border border-amber-200 rounded-lg my-4">
+                        <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                            <!-- Left: Explanation Text -->
+                            <div class="md:col-span-7 space-y-2.5">
+                                <strong class="text-inkRed text-xl font-bold block underline decoration-1">📌 Divide & Conquer Block Partitioning:</strong>
+                                <p class="text-base text-pencilGray font-sans leading-relaxed">
+                                    To multiply matrices of a larger size <code class="bg-white px-1 py-0.5 rounded border border-slate-200 font-bold font-sans text-sm">N &times; N</code>, we recursively divide them into four sub-matrices of size <code class="bg-white px-1 py-0.5 rounded border border-slate-200 font-bold font-sans text-sm">N/2 &times; N/2</code>.
+                                </p>
+                                <p class="text-base text-pencilGray font-sans leading-relaxed">
+                                    The <strong>smallest breakdown case</strong> where actual computation begins is a <code class="bg-white px-1 py-0.5 rounded border border-slate-200 font-bold font-sans text-sm">2 &times; 2</code> matrix. This is because a 2 &times; 2 division yields exactly 4 quadrant block formulas: 
+                                    <code class="bg-white px-1 py-0.5 rounded border border-slate-200 font-bold font-sans text-xs">C₁₁</code>, 
+                                    <code class="bg-white px-1 py-0.5 rounded border border-slate-200 font-bold font-sans text-xs">C₁₂</code>, 
+                                    <code class="bg-white px-1 py-0.5 rounded border border-slate-200 font-bold font-sans text-xs">C₂₁</code>, and 
+                                    <code class="bg-white px-1 py-0.5 rounded border border-slate-200 font-bold font-sans text-xs">C₂₂</code>. 
+                                    These 4 equations represent the fundamental step where sub-problem solutions are merged back to construct the parent matrix.
+                                </p>
+                            </div>
+                            <!-- Right: Partition Canvas -->
+                            <div class="md:col-span-5 flex flex-col items-center">
+                                <span class="text-xs text-pencilGray font-bold mb-1 select-none font-sans">Matrix Quadrant Partitioning:</span>
+                                <canvas id="matrix-partition-canvas" width="280" height="150" class="border border-slate-200 rounded bg-white shadow-sm max-w-full"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Ordinary Divide-and-Conquer Matrix Multiplication Subsection -->
+                    <div class="bg-white p-6 rounded-lg border border-slate-300 shadow-sm space-y-6">
+                        <h3 class="text-2xl font-bold text-inkBlue underline">Ordinary Divide-and-Conquer Matrix Multiplication</h3>
+                        <p class="text-base text-pencilGray font-sans">
+                            Before introducing Strassen's optimization, we divide each matrix into 4 sub-matrices of size <code>N/2 &times; N/2</code> and recursively multiply them.
+                        </p>
+
+                        <!-- 4x4 Matrices Partition Diagram -->
+                        <div class="flex flex-col md:flex-row items-center justify-center gap-8 py-4 bg-slate-50 border border-slate-200 rounded-lg text-inkBlue font-sans font-bold text-sm sm:text-base select-none">
+                            <!-- Matrix A -->
+                            <div class="flex items-center gap-1.5">
+                                <span>A =</span>
+                                <div class="flex items-stretch relative">
+                                    <div class="border-y-2 border-l-2 border-inkBlue w-2.5 rounded-l"></div>
+                                    <div class="grid grid-cols-4 gap-x-2 gap-y-1.5 px-3 py-2 text-center">
+                                        <span>a₁₁</span><span>a₁₂</span><span class="border-l border-dashed border-slate-400 pl-2">a₁₃</span><span>a₁₄</span>
+                                        <span>a₂₁</span><span>a₂₂</span><span class="border-l border-dashed border-slate-400 pl-2">a₂₃</span><span>a₂₄</span>
+                                        <span class="col-span-4 border-t border-dashed border-slate-400 my-1 -mx-3"></span>
+                                        <span>a₃₁</span><span>a₃₂</span><span class="border-l border-dashed border-slate-400 pl-2">a₃₃</span><span>a₃₄</span>
+                                        <span>a₄₁</span><span>a₄₂</span><span class="border-l border-dashed border-slate-400 pl-2">a₄₃</span><span>a₄₄</span>
+                                    </div>
+                                    <div class="border-y-2 border-r-2 border-inkBlue w-2.5 rounded-r"></div>
+                                </div>
+                                <sub class="text-xs self-end -ml-1 mb-1">4&times;4</sub>
+                            </div>
+
+                            <!-- Matrix B -->
+                            <div class="flex items-center gap-1.5">
+                                <span>B =</span>
+                                <div class="flex items-stretch relative">
+                                    <div class="border-y-2 border-l-2 border-inkBlue w-2.5 rounded-l"></div>
+                                    <div class="grid grid-cols-4 gap-x-2 gap-y-1.5 px-3 py-2 text-center">
+                                        <span>b₁₁</span><span>b₁₂</span><span class="border-l border-dashed border-slate-400 pl-2">b₁₃</span><span>b₁₄</span>
+                                        <span>b₂₁</span><span>b₂₂</span><span class="border-l border-dashed border-slate-400 pl-2">b₂₃</span><span>b₂₄</span>
+                                        <span class="col-span-4 border-t border-dashed border-slate-400 my-1 -mx-3"></span>
+                                        <span>b₃₁</span><span>b₃₂</span><span class="border-l border-dashed border-slate-400 pl-2">b₃₃</span><span>b₃₄</span>
+                                        <span>b₄₁</span><span>b₄₂</span><span class="border-l border-dashed border-slate-400 pl-2">b₄₃</span><span>b₄₄</span>
+                                    </div>
+                                    <div class="border-y-2 border-r-2 border-inkBlue w-2.5 rounded-r"></div>
+                                </div>
+                                <sub class="text-xs self-end -ml-1 mb-1">4&times;4</sub>
+                            </div>
+                        </div>
+
+                        <p class="text-base text-pencilGray font-sans">
+                            Represented as blocks of size <code>N/2 &times; N/2</code>:
+                        </p>
+                        <div class="flex flex-wrap items-center justify-center gap-8 py-2 text-inkBlue font-sans font-bold text-base select-none">
+                            <!-- Block A -->
+                            <div class="flex items-center gap-1.5">
+                                <span>A =</span>
+                                <div class="flex items-stretch">
+                                    <div class="border-y-2 border-l-2 border-inkBlue w-2.5 rounded-l"></div>
+                                    <div class="grid grid-cols-2 gap-x-4 gap-y-1.5 px-3 py-1.5 text-center">
+                                        <span>A₁₁</span><span>A₁₂</span>
+                                        <span>A₂₁</span><span>A₂₂</span>
+                                    </div>
+                                    <div class="border-y-2 border-r-2 border-inkBlue w-2.5 rounded-r"></div>
+                                </div>
+                            </div>
+                            <!-- Block B -->
+                            <div class="flex items-center gap-1.5">
+                                <span>B =</span>
+                                <div class="flex items-stretch">
+                                    <div class="border-y-2 border-l-2 border-inkBlue w-2.5 rounded-l"></div>
+                                    <div class="grid grid-cols-2 gap-x-4 gap-y-1.5 px-3 py-1.5 text-center">
+                                        <span>B₁₁</span><span>B₁₂</span>
+                                        <span>B₂₁</span><span>B₂₂</span>
+                                    </div>
+                                    <div class="border-y-2 border-r-2 border-inkBlue w-2.5 rounded-r"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Divide and conquer formulas -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-2">
+                            <!-- Left: Algorithm MM -->
+                            <div class="space-y-2">
+                                <span class="font-bold text-inkBlue block text-lg">Algorithm MM(A, B, n):</span>
+                                <pre class="bg-slate-50 border border-slate-200 rounded p-4 font-mono text-inkBlue text-xs sm:text-sm overflow-x-auto whitespace-pre">
+Algorithm MM(A, B, n) {
+    if (n &le; 2) {
+        C = 4 formulas
+        // Base case: compute combining formulas directly
+    } else {
+        mid = n / 2
+        C₁₁ = MM(A₁₁, B₁₁, n/2) + MM(A₁₂, B₂₁, n/2)
+        C₁₂ = MM(A₁₁, B₁₂, n/2) + MM(A₁₂, B₂₂, n/2)
+        C₂₁ = MM(A₂₁, B₁₁, n/2) + MM(A₂₂, B₂₁, n/2)
+        C₂₂ = MM(A₂₁, B₁₂, n/2) + MM(A₂₂, B₂₂, n/2)
+    }
+}</pre>
+                            </div>
+                            <!-- Right: Combine Formulas -->
+                            <div class="bg-amber-50/40 p-5 rounded-lg border border-amber-200 space-y-3 font-sans font-semibold text-inkBlue text-base flex flex-col justify-center">
+                                <span class="font-bold text-inkRed block text-lg underline">Block Combining Formulas:</span>
+                                <div class="space-y-1.5 font-sans">
+                                    <div>C₁₁ = A₁₁ &times; B₁₁ + A₁₂ &times; B₂₁</div>
+                                    <div>C₁₂ = A₁₁ &times; B₁₂ + A₁₂ &times; B₂₂</div>
+                                    <div>C₂₁ = A₂₁ &times; B₁₁ + A₂₂ &times; B₂₁</div>
+                                    <div>C₂₂ = A₂₁ &times; B₁₂ + A₂₂ &times; B₂₂</div>
+                                </div>
+                                <div class="pt-3 border-t border-amber-200 text-pencilGray font-sans font-normal leading-relaxed text-xs">
+                                    <strong class="text-inkRed font-bold block text-sm mb-1.5 underline">Recurrence & Master Theorem Analysis:</strong>
+                                    
+                                    <!-- Piecewise Recurrence Relation -->
+                                    <div class="flex items-center justify-center gap-1.5 text-inkBlue font-sans font-bold text-sm sm:text-base my-2.5 bg-white p-2 border border-slate-200 rounded">
+                                        <span>T(n) = </span>
+                                        <span class="text-3xl font-light -mr-1.5 -ml-1 select-none leading-none">{</span>
+                                        <table class="text-left text-xs sm:text-sm border-collapse font-sans font-bold leading-normal">
+                                            <tr>
+                                                <td class="pr-4 py-0.5">1</td>
+                                                <td class="pl-1 py-0.5">for n &le; 2</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="pr-4 py-0.5">8T(n/2) + n&sup2;</td>
+                                                <td class="pl-1 py-0.5">for n &gt; 2</td>
+                                            </tr>
+                                        </table>
+                                    </div>
+
+                                    <!-- Parameter list -->
+                                    <div class="grid grid-cols-2 gap-y-1 gap-x-2 pl-1 bg-white p-2 border border-slate-200 rounded text-inkBlue font-sans font-bold text-xs">
+                                        <div>Sub-problems:</div>
+                                        <div>a = 8</div>
+                                        <div>Sub-problem size:</div>
+                                        <div>b = 2</div>
+                                        <div>Logarithmic limit:</div>
+                                        <div>log<sub>b</sub> a = log₂ 8 = 3</div>
+                                        <div>Work Split Function:</div>
+                                        <div>f(n) = n&sup2; (k = 2)</div>
+                                    </div>
+
+                                    <!-- Final proof text -->
+                                    <p class="mt-2.5 font-sans text-xs">
+                                        Since <code>f(n) = n&sup2;</code> (where <code>n<sup>k</sup> = n&sup2;</code>), we compare it with <code>n<sup>log<sub>b</sub>a</sup> = n&sup3;</code>.<br>
+                                        Since <strong>n&sup2; &lt; n&sup3;</strong> (Case 1 of Master Theorem), the leaf computation dominates, resulting in:
+                                        <span class="text-inkRed font-bold text-sm block text-center mt-1">T(n) &equals; O(n&sup3;)</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 my-4">
                         <div class="bg-amber-50/50 p-6 rounded-lg border border-amber-200 space-y-3 text-lg">
                             <h3 class="text-2xl font-bold text-inkRed underline">Strassen's Formulas:</h3>
-                            <ul class="list-disc list-inside space-y-1">
-                                <li>$P = (A_{11} + A_{22})(B_{11} + B_{22})$</li>
-                                <li>$Q = (A_{21} + A_{22})B_{11}$</li>
-                                <li>$R = A_{11}(B_{12} - B_{22})$</li>
-                                <li>$S = A_{22}(B_{21} - B_{11})$</li>
-                                <li>$T = (A_{11} + A_{12})B_{22}$</li>
-                                <li>$U = (A_{21} - A_{11})(B_{11} + B_{12})$</li>
-                                <li>$V = (A_{12} - A_{22})(B_{21} + B_{22})$</li>
+                            <ul class="list-disc list-inside space-y-1 font-sans font-semibold text-inkBlue text-base">
+                                <li>P = (A₁₁ + A₂₂)(B₁₁ + B₂₂)</li>
+                                <li>Q = (A₂₁ + A₂₂)B₁₁</li>
+                                <li>R = A₁₁(B₁₂ - B₂₂)</li>
+                                <li>S = A₂₂(B₂₁ - B₁₁)</li>
+                                <li>T = (A₁₁ + A₁₂)B₂₂</li>
+                                <li>U = (A₂₁ - A₁₁)(B₁₁ + B₁₂)</li>
+                                <li>V = (A₁₂ - A₂₂)(B₂₁ + B₂₂)</li>
                             </ul>
-                            <div class="border-t border-amber-200 pt-2 mt-2">
-                                <p class="font-bold">Formulating Results:</p>
-                                <li>$C_{11} = P + S - T + V$</li>
-                                <li>$C_{12} = R + T$</li>
-                                <li>$C_{21} = Q + S$</li>
-                                <li>$C_{22} = P + R - Q + U$</li>
+                            <div class="border-t border-amber-200 pt-2 mt-2 font-sans font-semibold text-inkBlue text-base space-y-1">
+                                <p class="font-bold text-inkRed text-lg">Formulating Results:</p>
+                                <div>C₁₁ = P + S - T + V</div>
+                                <div>C₁₂ = R + T</div>
+                                <div>C₂₁ = Q + S</div>
+                                <div>C₂₂ = P + R - Q + U</div>
                             </div>
                         </div>
 
@@ -667,6 +924,7 @@ Partition(A, l, h) {
                 resetAllLvlSorts();
                 drawAllQuickSteps();
                 calculateStrassen();
+                drawMatrixPartition();
                 drawConvexHull();
             }, 50);
         }
@@ -678,6 +936,7 @@ Partition(A, l, h) {
             drawAllQuickSteps();
             drawPivotSim();
             calculateStrassen();
+            drawMatrixPartition();
             drawConvexHull();
         };
 
@@ -751,6 +1010,143 @@ Partition(A, l, h) {
             ctx.fillText("Divide", 240, 65);
             ctx.fillText("Conquer", 145, 133);
             ctx.fillText("Combine", 245, 185);
+        }
+
+        // -------------------------------------------------------------
+        // 1b. Matrix Partitioning Canvas
+        // -------------------------------------------------------------
+        function drawMatrixPartition() {
+            const canvas = document.getElementById('matrix-partition-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.lineWidth = 1.5;
+            ctx.font = 'bold 12px Inter';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            // Colors
+            const colorBlue = '#1A365D'; // inkBlue
+            const colorRed = '#9B2C2C';  // inkRed
+            const colorGray = '#4A5568'; // pencilGray
+
+            // 1. Draw parent matrix A (N x N)
+            const parentX = 15;
+            const parentY = 20;
+            const parentSize = 80;
+
+            // Draw brackets
+            ctx.strokeStyle = colorBlue;
+            ctx.beginPath();
+            // Left Bracket [
+            ctx.moveTo(parentX + 8, parentY);
+            ctx.lineTo(parentX, parentY);
+            ctx.lineTo(parentX, parentY + parentSize);
+            ctx.lineTo(parentX + 8, parentY + parentSize);
+            // Right Bracket ]
+            ctx.moveTo(parentX + parentSize - 8, parentY);
+            ctx.lineTo(parentX + parentSize, parentY);
+            ctx.lineTo(parentX + parentSize, parentY + parentSize);
+            ctx.lineTo(parentX + parentSize - 8, parentY + parentSize);
+            ctx.stroke();
+
+            // Draw inner matrix quadrants dotted divider
+            ctx.strokeStyle = '#cbd5e1'; // light gray border
+            ctx.setLineDash([4, 3]);
+            ctx.beginPath();
+            // Horizontal line
+            ctx.moveTo(parentX + 8, parentY + parentSize / 2);
+            ctx.lineTo(parentX + parentSize - 8, parentY + parentSize / 2);
+            // Vertical line
+            ctx.moveTo(parentX + parentSize / 2, parentY + 8);
+            ctx.lineTo(parentX + parentSize / 2, parentY + parentSize - 8);
+            ctx.stroke();
+            ctx.setLineDash([]); // Reset line dash
+
+            // Draw quadrant labels
+            ctx.fillStyle = colorBlue;
+            ctx.fillText("A₁₁", parentX + parentSize / 4, parentY + parentSize / 4);
+            ctx.fillText("A₁₂", parentX + 3 * parentSize / 4, parentY + parentSize / 4);
+            ctx.fillText("A₂₁", parentX + parentSize / 4, parentY + 3 * parentSize / 4);
+            ctx.fillText("A₂₂", parentX + 3 * parentSize / 4, parentY + 3 * parentSize / 4);
+
+            // Matrix Dimension text below
+            ctx.fillStyle = colorGray;
+            ctx.font = '10px Inter';
+            ctx.fillText("Matrix A (N x N)", parentX + parentSize / 2, parentY + parentSize + 15);
+
+            // 2. Draw partition arrows (Red)
+            ctx.strokeStyle = colorRed;
+            ctx.fillStyle = colorRed;
+            ctx.lineWidth = 1.5;
+            
+            // Middle arrow pointing to sub-matrices
+            const arrowStartX = parentX + parentSize + 10;
+            const arrowEndX = 175;
+            const arrowY = parentY + parentSize / 2;
+
+            ctx.beginPath();
+            ctx.moveTo(arrowStartX, arrowY);
+            ctx.lineTo(arrowEndX, arrowY);
+            ctx.stroke();
+
+            // Arrow head
+            ctx.beginPath();
+            ctx.moveTo(arrowEndX, arrowY);
+            ctx.lineTo(arrowEndX - 6, arrowY - 4);
+            ctx.lineTo(arrowEndX - 6, arrowY + 4);
+            ctx.fill();
+
+            // Label on arrow
+            ctx.font = 'bold 9px Inter';
+            ctx.fillStyle = colorRed;
+            ctx.fillText("Partition", (arrowStartX + arrowEndX) / 2, arrowY - 10);
+
+            // 3. Draw 4 small sub-matrix boxes on the right (N/2 x N/2)
+            ctx.font = 'bold 10px Inter';
+            ctx.fillStyle = colorBlue;
+            ctx.strokeStyle = colorBlue;
+
+            const subSize = 30;
+            const subStartX = 195;
+            const subStartY = 12;
+            const gapX = 15;
+            const gapY = 16;
+
+            const drawSubMatrix = (x, y, label) => {
+                // Bracket Left
+                ctx.beginPath();
+                ctx.moveTo(x + 5, y);
+                ctx.lineTo(x, y);
+                ctx.lineTo(x, y + subSize);
+                ctx.lineTo(x + 5, y + subSize);
+                // Bracket Right
+                ctx.moveTo(x + subSize - 5, y);
+                ctx.lineTo(x + subSize, y);
+                ctx.lineTo(x + subSize, y + subSize);
+                ctx.lineTo(x + subSize - 5, y + subSize);
+                ctx.stroke();
+
+                // Label
+                ctx.fillText(label, x + subSize / 2, y + subSize / 2);
+            };
+
+            // Top-left
+            drawSubMatrix(subStartX, subStartY, "A₁₁");
+            // Top-right
+            drawSubMatrix(subStartX + subSize + gapX, subStartY, "A₁₂");
+            // Bottom-left
+            drawSubMatrix(subStartX, subStartY + subSize + gapY, "A₂₁");
+            // Bottom-right
+            drawSubMatrix(subStartX + subSize + gapX, subStartY + subSize + gapY, "A₂₂");
+
+            // Annotation of dimensions
+            ctx.fillStyle = colorGray;
+            ctx.font = '9px Inter';
+            ctx.fillText("Sub-blocks size:", subStartX + subSize + gapX / 2, subStartY + 2 * subSize + gapY + 12);
+            ctx.font = 'bold 10px Inter';
+            ctx.fillText("N/2 x N/2", subStartX + subSize + gapX / 2, subStartY + 2 * subSize + gapY + 24);
         }
 
 

@@ -848,21 +848,251 @@ Algorithm MM(A, B, n) {
                 </div>
 
                 <div class="space-y-4">
-                    <p>
-                        The Convex Hull of a set of 2D points is the smallest convex polygon enclosing all points. The
-                        divide and conquer approach splits the points, recursively computes the hulls of left and right
-                        halves, and merges them using **upper and lower tangents**.
-                    </p>
+                    <!-- Concept & Definition -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 my-4 text-base">
+                        <div class="bg-amber-50/50 p-5 rounded-lg border border-amber-200 space-y-2">
+                            <strong class="text-xl font-bold text-inkRed block underline">1. What is a Convex Hull?</strong>
+                            <p class="text-pencilGray font-sans leading-relaxed">
+                                <strong>Definition:</strong> It is the smallest outer boundary (a polygon in 2D or polyhedron in 3D) that completely encloses a given group of points. Think of it as stretching a rubber band around all the points; when released, the band forms the convex hull.
+                            </p>
+                        </div>
+                        <div class="bg-amber-50/50 p-5 rounded-lg border border-amber-200 space-y-2">
+                            <strong class="text-xl font-bold text-inkRed block underline">2. The Divide & Conquer Approach</strong>
+                            <p class="text-pencilGray font-sans leading-relaxed">
+                                Instead of solving the whole group of points at once, we break it down:
+                            </p>
+                            <ul class="list-disc list-inside space-y-1 text-pencilGray font-sans text-sm">
+                                <li><strong>Divide:</strong> Split points by X-coordinate into left and right halves. Keep splitting recursively.</li>
+                                <li><strong>Base Case:</strong> Solve tiny groups directly using a simple method (brute-force approach with <code class="bg-white px-1 py-0.5 rounded border border-slate-200 font-bold font-sans text-xs">O(N³)</code> complexity for groups of &le; 5 points).</li>
+                                <li><strong>Conquer (Merge):</strong> Combine left hull (Shape A) and right hull (Shape B) into a single boundary.</li>
+                            </ul>
+                        </div>
+                        <div class="bg-amber-50/50 p-5 rounded-lg border border-amber-200 space-y-2">
+                            <strong class="text-xl font-bold text-inkRed block underline">3. How Merging Works</strong>
+                            <p class="text-pencilGray font-sans leading-relaxed">
+                                To combine two separate boundaries into one complete convex hull:
+                            </p>
+                            <ul class="list-decimal list-inside space-y-1 text-pencilGray font-sans text-sm">
+                                <li>Draw the <strong>upper tangent line</strong> connecting the top of Shape A to the top of Shape B.</li>
+                                <li>Draw the <strong>lower tangent line</strong> connecting the bottom of Shape A to the bottom of Shape B.</li>
+                                <li>Remove the internal, facing lines and keep the outermost boundary.</li>
+                            </ul>
+                        </div>
+                    </div>
 
-                    <div class="bg-amber-50/50 p-6 rounded-lg border border-amber-200">
-                        <h3 class="text-3xl font-bold text-inkBlue mb-2">tangent Merging & Base Cases:</h3>
-                        <ul class="list-disc list-inside space-y-1">
-                            <li><strong>Tangent Finding:</strong> Tangents are segments connecting left hull A and right
-                                hull B without intersecting either interior.</li>
-                            <li><strong>Brute Force Base Case:</strong> Small sets of points ($\le 5$) are solved
-                                directly using brute-force algorithms to prevent infinite tangent-matching loops when
-                                merging small pairs.</li>
-                        </ul>
+                    <!-- Step-by-Step Merge Simulation (Line-Wise Rows) -->
+                    <div class="border-t border-slate-200 pt-6 space-y-8">
+                        <h3 class="text-3xl font-bold text-inkRed mb-4 underline">Detailed Step-by-Step Merging Process</h3>
+                        <p class="text-base text-pencilGray mb-6">
+                            The merging phase is the core of the Divide and Conquer Convex Hull algorithm. Here is a detailed, step-by-step trace of how points are divided, local hulls are solved, and tangents are walk-searched in clockwise and counter-clockwise directions to merge them.
+                        </p>
+
+                        <!-- Step 0 Row -->
+                        <div class="bg-white border border-slate-300 rounded-lg p-6 shadow-sm grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                            <div class="md:col-span-6 space-y-3">
+                                <span class="font-bold text-inkBlue text-lg block">Step 0: Taking Points & Dividing in Half</span>
+                                <p class="text-sm text-pencilGray font-sans leading-relaxed">
+                                    We start with a set of unsorted 2D points on the plane. To break the problem down, we sort all points by their X-coordinates and draw a vertical dividing line down the middle.
+                                </p>
+                                <ul class="list-disc list-inside text-xs text-pencilGray font-sans space-y-1 pl-2">
+                                    <li><strong>Left Half:</strong> Contains points A₁, A₂, and A₃.</li>
+                                    <li><strong>Right Half:</strong> Contains points B₁, B₂, and B₃.</li>
+                                    <li>The red dashed vertical line represents the division boundary that separates the two subsets.</li>
+                                </ul>
+                            </div>
+                            <div class="md:col-span-6 flex flex-col items-center">
+                                <span class="text-xs text-pencilGray font-bold mb-2 font-sans">Dividing Point Set in Half:</span>
+                                <canvas id="hull-step-0-canvas" width="400" height="200" class="border border-slate-200 rounded bg-slate-50 max-w-full shadow-sm"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Step 1 Row -->
+                        <div class="bg-white border border-slate-300 rounded-lg p-6 shadow-sm grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                            <div class="md:col-span-6 space-y-3">
+                                <span class="font-bold text-inkBlue text-lg block">Step 1: Compute Left & Right Base Hulls</span>
+                                <p class="text-sm text-pencilGray font-sans leading-relaxed">
+                                    We recursively divide the subproblems until each subset contains &le; 5 points. Once the base case is reached, we compute the local convex hulls directly using a brute force method.
+                                </p>
+                                <ul class="list-disc list-inside text-xs text-pencilGray font-sans space-y-1 pl-2">
+                                    <li><strong>Shape A (Left Hull):</strong> A local triangle boundary enclosing A₁, A₂, and A₃.</li>
+                                    <li><strong>Shape B (Right Hull):</strong> A local triangle boundary enclosing B₁, B₂, and B₃.</li>
+                                    <li>The blue and green dashed lines show the local enclosing hulls before merging.</li>
+                                </ul>
+                            </div>
+                            <div class="md:col-span-6 flex flex-col items-center">
+                                <span class="text-xs text-pencilGray font-bold mb-2 font-sans">Pre-computed Base Case Hulls:</span>
+                                <canvas id="hull-step-1-canvas" width="400" height="200" class="border border-slate-200 rounded bg-slate-50 max-w-full shadow-sm"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Step 2a Row -->
+                        <div class="bg-white border border-slate-300 rounded-lg p-6 shadow-sm grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                            <div class="md:col-span-6 space-y-3">
+                                <span class="font-bold text-inkBlue text-lg block">Step 2a: Upper Tangent - Initial Bridge</span>
+                                <p class="text-sm text-pencilGray font-sans leading-relaxed">
+                                    To find the upper tangent, we begin by creating an <strong>initial bridge line</strong> connecting the rightmost point of the left hull (A₃) and the leftmost point of the right hull (B₁).
+                                </p>
+                                <ul class="list-disc list-inside text-xs text-pencilGray font-sans space-y-1 pl-2">
+                                    <li><strong>Initial Pointer A:</strong> Starts at A₃.</li>
+                                    <li><strong>Initial Pointer B:</strong> Starts at B₁.</li>
+                                    <li>We draw a red dashed bridge line connecting A₃ &rarr; B₁. It is currently not a tangent because A₁ and A₂ lie above/cross it.</li>
+                                </ul>
+                            </div>
+                            <div class="md:col-span-6 flex flex-col items-center">
+                                <span class="text-xs text-pencilGray font-bold mb-2 font-sans">Initial Upper Bridge:</span>
+                                <canvas id="hull-step-2a-canvas" width="400" height="200" class="border border-slate-200 rounded bg-slate-50 max-w-full shadow-sm"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Step 2b Row -->
+                        <div class="bg-white border border-slate-300 rounded-lg p-6 shadow-sm grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                            <div class="md:col-span-6 space-y-3">
+                                <span class="font-bold text-inkBlue text-lg block">Step 2b: Upper Tangent - Move A Counter-Clockwise (CCW)</span>
+                                <p class="text-sm text-pencilGray font-sans leading-relaxed">
+                                    We move pointer A **counter-clockwise (CCW)** on the left hull to raise the left side of the bridge and increase its slope.
+                                </p>
+                                <ul class="list-disc list-inside text-xs text-pencilGray font-sans space-y-1 pl-2">
+                                    <li>We move the pointer on Shape A from A₃ &rarr; A₁ in a **counter-clockwise** direction.</li>
+                                    <li>The blue curved arrow shows the direction of this CCW step.</li>
+                                    <li>The bridge line is updated to connect A₁ to B₁.</li>
+                                </ul>
+                            </div>
+                            <div class="md:col-span-6 flex flex-col items-center">
+                                <span class="text-xs text-pencilGray font-bold mb-2 font-sans">Move Left Pointer CCW:</span>
+                                <canvas id="hull-step-2b-canvas" width="400" height="200" class="border border-slate-200 rounded bg-slate-50 max-w-full shadow-sm"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Step 2c Row -->
+                        <div class="bg-white border border-slate-300 rounded-lg p-6 shadow-sm grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                            <div class="md:col-span-6 space-y-3">
+                                <span class="font-bold text-inkBlue text-lg block">Step 2c: Upper Tangent - Test B Clockwise (CW - Rejected)</span>
+                                <p class="text-sm text-pencilGray font-sans leading-relaxed">
+                                    We test moving pointer B **clockwise (CW)** on the right hull to check if the slope can be raised further on the right side.
+                                </p>
+                                <ul class="list-disc list-inside text-xs text-pencilGray font-sans space-y-1 pl-2">
+                                    <li>We test moving pointer B from B₁ &rarr; B₂ in a **clockwise** direction.</li>
+                                    <li>Since this move would lower/decrease the slope of the bridge, it is **rejected**.</li>
+                                    <li>The green dashed arrow shows the rejected CW path (marked with a red X). Pointer B remains at B₁.</li>
+                                </ul>
+                            </div>
+                            <div class="md:col-span-6 flex flex-col items-center">
+                                <span class="text-xs text-pencilGray font-bold mb-2 font-sans">Test Right Pointer CW (Rejected):</span>
+                                <canvas id="hull-step-2c-canvas" width="400" height="200" class="border border-slate-200 rounded bg-slate-50 max-w-full shadow-sm"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Step 2d Row -->
+                        <div class="bg-white border border-slate-300 rounded-lg p-6 shadow-sm grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                            <div class="md:col-span-6 space-y-3">
+                                <span class="font-bold text-inkBlue text-lg block">Step 2d: Upper Tangent - Finalized</span>
+                                <p class="text-sm text-pencilGray font-sans leading-relaxed">
+                                    No more vertices on either hull can raise the bridge. The upper tangent is finalized and colored in **Red**.
+                                </p>
+                                <ul class="list-disc list-inside text-xs text-pencilGray font-sans space-y-1 pl-2">
+                                    <li>Finalized segment: <strong>A₁ to B₁</strong>.</li>
+                                    <li>Since no other points in either hull lie above this line, it forms the topmost boundary.</li>
+                                </ul>
+                            </div>
+                            <div class="md:col-span-6 flex flex-col items-center">
+                                <span class="text-xs text-pencilGray font-bold mb-2 font-sans">Finalized Upper Tangent (Red):</span>
+                                <canvas id="hull-step-2d-canvas" width="400" height="200" class="border border-slate-200 rounded bg-slate-50 max-w-full shadow-sm"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Step 3a Row -->
+                        <div class="bg-white border border-slate-300 rounded-lg p-6 shadow-sm grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                            <div class="md:col-span-6 space-y-3">
+                                <span class="font-bold text-inkBlue text-lg block">Step 3a: Lower Tangent - Initial Bridge</span>
+                                <p class="text-sm text-pencilGray font-sans leading-relaxed">
+                                    To find the lower tangent, we establish an **initial bridge line** connecting the same starting vertices (A₃ and B₁).
+                                </p>
+                                <ul class="list-disc list-inside text-xs text-pencilGray font-sans space-y-1 pl-2">
+                                    <li>Pointer A starts at A₃, pointer B starts at B₁.</li>
+                                    <li>We draw the bridge line from A₃ &rarr; B₁.</li>
+                                    <li>We must move the pointers such that the line is pushed downwards until all points lie above it.</li>
+                                </ul>
+                            </div>
+                            <div class="md:col-span-6 flex flex-col items-center">
+                                <span class="text-xs text-pencilGray font-bold mb-2 font-sans">Initial Lower Bridge:</span>
+                                <canvas id="hull-step-3a-canvas" width="400" height="200" class="border border-slate-200 rounded bg-slate-50 max-w-full shadow-sm"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Step 3b Row -->
+                        <div class="bg-white border border-slate-300 rounded-lg p-6 shadow-sm grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                            <div class="md:col-span-6 space-y-3">
+                                <span class="font-bold text-inkBlue text-lg block">Step 3b: Lower Tangent - Move B Counter-Clockwise (CCW)</span>
+                                <p class="text-sm text-pencilGray font-sans leading-relaxed">
+                                    We move pointer B **counter-clockwise (CCW)** on the right hull to push the right side of the bridge downwards and decrease the slope.
+                                </p>
+                                <ul class="list-disc list-inside text-xs text-pencilGray font-sans space-y-1 pl-2">
+                                    <li>We move the pointer on Shape B from B₁ &rarr; B₃ in a **counter-clockwise** direction.</li>
+                                    <li>The green curved arrow shows the direction of this CCW step.</li>
+                                    <li>The lower bridge line is updated to connect A₃ to B₃.</li>
+                                </ul>
+                            </div>
+                            <div class="md:col-span-6 flex flex-col items-center">
+                                <span class="text-xs text-pencilGray font-bold mb-2 font-sans">Move Right Pointer CCW:</span>
+                                <canvas id="hull-step-3b-canvas" width="400" height="200" class="border border-slate-200 rounded bg-slate-50 max-w-full shadow-sm"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Step 3c Row -->
+                        <div class="bg-white border border-slate-300 rounded-lg p-6 shadow-sm grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                            <div class="md:col-span-6 space-y-3">
+                                <span class="font-bold text-inkBlue text-lg block">Step 3c: Lower Tangent - Test A Clockwise (CW - Rejected)</span>
+                                <p class="text-sm text-pencilGray font-sans leading-relaxed">
+                                    We test moving pointer A **clockwise (CW)** on the left hull to check if the bridge can be pushed further downwards.
+                                </p>
+                                <ul class="list-disc list-inside text-xs text-pencilGray font-sans space-y-1 pl-2">
+                                    <li>We test moving pointer A from A₃ &rarr; A₂ in a **clockwise** direction.</li>
+                                    <li>Since this move would raise the bridge line upwards, it is **rejected**.</li>
+                                    <li>The blue dashed arrow shows the rejected CW path (marked with a red X). Pointer A remains at A₃.</li>
+                                </ul>
+                            </div>
+                            <div class="md:col-span-6 flex flex-col items-center">
+                                <span class="text-xs text-pencilGray font-bold mb-2 font-sans">Test Left Pointer CW (Rejected):</span>
+                                <canvas id="hull-step-3c-canvas" width="400" height="200" class="border border-slate-200 rounded bg-slate-50 max-w-full shadow-sm"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Step 3d Row -->
+                        <div class="bg-white border border-slate-300 rounded-lg p-6 shadow-sm grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                            <div class="md:col-span-6 space-y-3">
+                                <span class="font-bold text-inkBlue text-lg block">Step 3d: Lower Tangent - Finalized</span>
+                                <p class="text-sm text-pencilGray font-sans leading-relaxed">
+                                    No more vertices on either hull can push the bridge lower. The lower tangent is finalized and colored in **Purple/Violet**.
+                                </p>
+                                <ul class="list-disc list-inside text-xs text-pencilGray font-sans space-y-1 pl-2">
+                                    <li>Finalized segment: <strong>A₃ to B₃</strong>.</li>
+                                    <li>Since all other points in both hulls lie above this line, it forms the bottommost boundary.</li>
+                                </ul>
+                            </div>
+                            <div class="md:col-span-6 flex flex-col items-center">
+                                <span class="text-xs text-pencilGray font-bold mb-2 font-sans">Finalized Lower Tangent (Purple/Violet):</span>
+                                <canvas id="hull-step-3d-canvas" width="400" height="200" class="border border-slate-200 rounded bg-slate-50 max-w-full shadow-sm"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Step 4 Row -->
+                        <div class="bg-white border border-slate-300 rounded-lg p-6 shadow-sm grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                            <div class="md:col-span-6 space-y-3">
+                                <span class="font-bold text-inkBlue text-lg block">Step 4: Merge Boundaries & Discard Internal Edges</span>
+                                <p class="text-sm text-pencilGray font-sans leading-relaxed">
+                                    We stitch the final unified boundary polygon using the upper and lower tangents and the outermost parts of both hulls, and discard the inner facing lines.
+                                </p>
+                                <ul class="list-disc list-inside text-xs text-pencilGray font-sans space-y-1 pl-2">
+                                    <li>We walk the outermost path: <strong>A₁ &rarr; B₁ &rarr; B₂ &rarr; B₃ &rarr; A₃ &rarr; A₂ &rarr; close</strong>.</li>
+                                    <li>The internal lines <strong>A₁-A₃</strong> and <strong>B₁-B₃</strong> are discarded since they are now inside the enclosing shape.</li>
+                                    <li>This yields the final enclosing convex hull boundary.</li>
+                                </ul>
+                            </div>
+                            <div class="md:col-span-6 flex flex-col items-center">
+                                <span class="text-xs text-pencilGray font-bold mb-2 font-sans">Merged Outer Convex Hull:</span>
+                                <canvas id="hull-step-4-canvas" width="400" height="200" class="border border-slate-200 rounded bg-slate-50 max-w-full shadow-sm"></canvas>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="border-t-2 border-dashed border-slate-300 pt-6">
@@ -926,6 +1156,7 @@ Algorithm MM(A, B, n) {
                 calculateStrassen();
                 drawMatrixPartition();
                 drawConvexHull();
+                drawAllHullSteps();
             }, 50);
         }
 
@@ -938,6 +1169,7 @@ Algorithm MM(A, B, n) {
             calculateStrassen();
             drawMatrixPartition();
             drawConvexHull();
+            drawAllHullSteps();
         };
 
         // -------------------------------------------------------------
@@ -2258,6 +2490,316 @@ Algorithm MM(A, B, n) {
                 ctx.fill();
                 ctx.stroke();
             }
+        }
+
+        // -------------------------------------------------------------
+        // 5b. Step-by-Step Convex Hull Canvas Diagrams
+        // -------------------------------------------------------------
+        function drawAllHullSteps() {
+            // Canvases
+            const c0 = document.getElementById('hull-step-0-canvas');
+            const c1 = document.getElementById('hull-step-1-canvas');
+            const c2a = document.getElementById('hull-step-2a-canvas');
+            const c2b = document.getElementById('hull-step-2b-canvas');
+            const c2c = document.getElementById('hull-step-2c-canvas');
+            const c2d = document.getElementById('hull-step-2d-canvas');
+            const c3a = document.getElementById('hull-step-3a-canvas');
+            const c3b = document.getElementById('hull-step-3b-canvas');
+            const c3c = document.getElementById('hull-step-3c-canvas');
+            const c3d = document.getElementById('hull-step-3d-canvas');
+            const c4 = document.getElementById('hull-step-4-canvas');
+            
+            if (!c1 || !c2a || !c2b || !c2c || !c2d || !c3a || !c3b || !c3c || !c3d || !c4) return;
+
+            // Geometry points:
+            // Shape A (left triangle)
+            const pA = [
+                {x: 120, y: 60},  // top (A1)
+                {x: 60, y: 140},  // bottom-left (A2)
+                {x: 160, y: 150}  // bottom-right (A3)
+            ];
+            // Shape B (right triangle)
+            const pB = [
+                {x: 260, y: 70},  // top-left (B1)
+                {x: 340, y: 90},  // top-right (B2)
+                {x: 280, y: 160}  // bottom (B3)
+            ];
+
+            const drawCurvedArrow = (ctx, start, end, control, color, label) => {
+                ctx.strokeStyle = color;
+                ctx.fillStyle = color;
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.moveTo(start.x, start.y);
+                ctx.quadraticCurveTo(control.x, control.y, end.x, end.y);
+                ctx.stroke();
+
+                // Draw arrowhead
+                const angle = Math.atan2(end.y - control.y, end.x - control.x);
+                ctx.beginPath();
+                ctx.moveTo(end.x, end.y);
+                ctx.lineTo(end.x - 7 * Math.cos(angle - Math.PI / 6), end.y - 7 * Math.sin(angle - Math.PI / 6));
+                ctx.lineTo(end.x - 7 * Math.cos(angle + Math.PI / 6), end.y - 7 * Math.sin(angle + Math.PI / 6));
+                ctx.closePath();
+                ctx.fill();
+
+                if (label) {
+                    ctx.font = 'bold 9px Inter';
+                    ctx.fillText(label, control.x + 5, control.y);
+                }
+            };
+
+            const drawPointsAndHulls = (ctx, drawAOutline, drawBOutline, drawUpperTangent, drawLowerTangent, drawMergedOutline) => {
+                // Background & settings
+                ctx.lineWidth = 1.5;
+                ctx.font = '11px Inter';
+
+                // Draw points (A)
+                ctx.fillStyle = '#1A365D'; // inkBlue
+                pA.forEach((p, idx) => {
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, 4.5, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.fillText("A" + (idx + 1), p.x - 14, p.y - 6);
+                });
+
+                // Draw points (B)
+                ctx.fillStyle = '#065f46'; // green
+                pB.forEach((p, idx) => {
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, 4.5, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.fillText("B" + (idx + 1), p.x + 8, p.y - 6);
+                });
+
+                // Draw individual hulls outlines if requested
+                if (drawAOutline) {
+                    ctx.strokeStyle = '#3b82f6'; // blue
+                    ctx.setLineDash([4, 3]);
+                    ctx.beginPath();
+                    ctx.moveTo(pA[0].x, pA[0].y);
+                    ctx.lineTo(pA[1].x, pA[1].y);
+                    ctx.lineTo(pA[2].x, pA[2].y);
+                    ctx.closePath();
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+                }
+
+                if (drawBOutline) {
+                    ctx.strokeStyle = '#10b981'; // green
+                    ctx.setLineDash([4, 3]);
+                    ctx.beginPath();
+                    ctx.moveTo(pB[0].x, pB[0].y);
+                    ctx.lineTo(pB[1].x, pB[1].y);
+                    ctx.lineTo(pB[2].x, pB[2].y);
+                    ctx.closePath();
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+                }
+
+                // Draw Upper Tangent (Red)
+                if (drawUpperTangent) {
+                    ctx.strokeStyle = '#ef4444'; // red
+                    ctx.lineWidth = 2.5;
+                    ctx.beginPath();
+                    ctx.moveTo(pA[0].x, pA[0].y);
+                    ctx.lineTo(pB[0].x, pB[0].y);
+                    ctx.stroke();
+                    ctx.fillStyle = '#ef4444';
+                    ctx.font = 'bold 10px Inter';
+                    ctx.fillText("Upper Tangent (Red)", (pA[0].x + pB[0].x) / 2 - 50, (pA[0].y + pB[0].y) / 2 - 6);
+                }
+
+                // Draw Lower Tangent (Purple/Violet)
+                if (drawLowerTangent) {
+                    ctx.strokeStyle = '#7c3aed'; // purple/violet
+                    ctx.lineWidth = 2.5;
+                    ctx.beginPath();
+                    ctx.moveTo(pA[2].x, pA[2].y);
+                    ctx.lineTo(pB[2].x, pB[2].y);
+                    ctx.stroke();
+                    ctx.fillStyle = '#7c3aed';
+                    ctx.font = 'bold 10px Inter';
+                    ctx.fillText("Lower Tangent (Purple)", (pA[2].x + pB[2].x) / 2 - 50, (pA[2].y + pB[2].y) / 2 + 15);
+                }
+
+                // Draw Merged Outline
+                if (drawMergedOutline) {
+                    ctx.strokeStyle = '#059669'; // final green
+                    ctx.lineWidth = 2.5;
+                    ctx.beginPath();
+                    // Draw outer border only: pA[0] -> pB[0] -> pB[1] -> pB[2] -> pA[2] -> pA[1] -> close
+                    ctx.moveTo(pA[0].x, pA[0].y);
+                    ctx.lineTo(pB[0].x, pB[0].y);
+                    ctx.lineTo(pB[1].x, pB[1].y);
+                    ctx.lineTo(pB[2].x, pB[2].y);
+                    ctx.lineTo(pA[2].x, pA[2].y);
+                    ctx.lineTo(pA[1].x, pA[1].y);
+                    ctx.closePath();
+                    ctx.stroke();
+                }
+            };
+
+            // Step 0: Division line and raw points
+            if (c0) {
+                const ctx0 = c0.getContext('2d');
+                ctx0.clearRect(0, 0, c0.width, c0.height);
+                
+                // Draw vertical line at x = 210
+                ctx0.strokeStyle = '#ef4444';
+                ctx0.lineWidth = 1.5;
+                ctx0.setLineDash([5, 4]);
+                ctx0.beginPath();
+                ctx0.moveTo(210, 20);
+                ctx0.lineTo(210, 180);
+                ctx0.stroke();
+                ctx0.setLineDash([]);
+                
+                ctx0.fillStyle = '#ef4444';
+                ctx0.font = 'bold 10px Inter';
+                ctx0.fillText("X-Division Line (midpoint)", 150, 15);
+
+                drawPointsAndHulls(ctx0, false, false, false, false, false);
+            }
+
+            // Step 1: Base Case Outlines
+            const ctx1 = c1.getContext('2d');
+            ctx1.clearRect(0, 0, c1.width, c1.height);
+            drawPointsAndHulls(ctx1, true, true, false, false, false);
+            ctx1.fillStyle = '#3b82f6';
+            ctx1.font = 'bold 11px Inter';
+            ctx1.fillText("Shape A (Left)", 30, 30);
+            ctx1.fillStyle = '#10b981';
+            ctx1.fillText("Shape B (Right)", 290, 30);
+
+            // Step 2a: Upper Tangent - Initial Bridge (A3 to B1)
+            const ctx2a = c2a.getContext('2d');
+            ctx2a.clearRect(0, 0, c2a.width, c2a.height);
+            drawPointsAndHulls(ctx2a, true, true, false, false, false);
+            ctx2a.strokeStyle = '#ef4444';
+            ctx2a.lineWidth = 1.5;
+            ctx2a.setLineDash([3, 3]);
+            ctx2a.beginPath();
+            ctx2a.moveTo(pA[2].x, pA[2].y);
+            ctx2a.lineTo(pB[0].x, pB[0].y);
+            ctx2a.stroke();
+            ctx2a.setLineDash([]);
+            ctx2a.fillStyle = '#ef4444';
+            ctx2a.font = 'italic 10px Inter';
+            ctx2a.fillText("Initial Bridge (A3-B1)", (pA[2].x + pB[0].x) / 2 - 40, (pA[2].y + pB[0].y) / 2 - 8);
+
+            // Step 2b: Upper Tangent - Move A CCW (A3 -> A1)
+            const ctx2b = c2b.getContext('2d');
+            ctx2b.clearRect(0, 0, c2b.width, c2b.height);
+            drawPointsAndHulls(ctx2b, true, true, false, false, false);
+            // Draw temporary bridge A1-B1
+            ctx2b.strokeStyle = '#ef4444';
+            ctx2b.lineWidth = 1.5;
+            ctx2b.setLineDash([3, 3]);
+            ctx2b.beginPath();
+            ctx2b.moveTo(pA[0].x, pA[0].y);
+            ctx2b.lineTo(pB[0].x, pB[0].y);
+            ctx2b.stroke();
+            ctx2b.setLineDash([]);
+            // Draw CCW arrow on Shape A
+            drawCurvedArrow(ctx2b, pA[2], pA[0], {x: 155, y: 95}, '#3b82f6', "CCW Move A3->A1");
+
+            // Step 2c: Upper Tangent - Test B CW (B1 -> B2 - Rejected)
+            const ctx2c = c2c.getContext('2d');
+            ctx2c.clearRect(0, 0, c2c.width, c2c.height);
+            drawPointsAndHulls(ctx2c, true, true, false, false, false);
+            // Draw temporary bridge A1-B1
+            ctx2c.strokeStyle = '#ef4444';
+            ctx2c.lineWidth = 1.5;
+            ctx2c.setLineDash([3, 3]);
+            ctx2c.beginPath();
+            ctx2c.moveTo(pA[0].x, pA[0].y);
+            ctx2c.lineTo(pB[0].x, pB[0].y);
+            ctx2c.stroke();
+            ctx2c.setLineDash([]);
+            // Draw CW arrow on Shape B
+            drawCurvedArrow(ctx2c, pB[0], pB[1], {x: 300, y: 75}, '#ef4444', "CW Test B1->B2 (Rejected)");
+            // Draw Red X over B2
+            ctx2c.strokeStyle = '#ef4444';
+            ctx2c.lineWidth = 2.5;
+            ctx2c.beginPath();
+            ctx2c.moveTo(pB[1].x - 6, pB[1].y - 6); ctx2c.lineTo(pB[1].x + 6, pB[1].y + 6);
+            ctx2c.moveTo(pB[1].x + 6, pB[1].y - 6); ctx2c.lineTo(pB[1].x - 6, pB[1].y + 6);
+            ctx2c.stroke();
+
+            // Step 2d: Upper Tangent - Finalized
+            const ctx2d = c2d.getContext('2d');
+            ctx2d.clearRect(0, 0, c2d.width, c2d.height);
+            drawPointsAndHulls(ctx2d, true, true, true, false, false);
+
+            // Step 3a: Lower Tangent - Initial Bridge (A3 to B1)
+            const ctx3a = c3a.getContext('2d');
+            ctx3a.clearRect(0, 0, c3a.width, c3a.height);
+            // Draw upper tangent first
+            drawPointsAndHulls(ctx3a, true, true, true, false, false);
+            // Draw initial lower bridge (dashed purple)
+            ctx3a.strokeStyle = '#7c3aed';
+            ctx3a.lineWidth = 1.5;
+            ctx3a.setLineDash([3, 3]);
+            ctx3a.beginPath();
+            ctx3a.moveTo(pA[2].x, pA[2].y);
+            ctx3a.lineTo(pB[0].x, pB[0].y);
+            ctx3a.stroke();
+            ctx3a.setLineDash([]);
+            ctx3a.fillStyle = '#7c3aed';
+            ctx3a.font = 'italic 10px Inter';
+            ctx3a.fillText("Initial Bridge (A3-B1)", (pA[2].x + pB[0].x) / 2 - 40, (pA[2].y + pB[0].y) / 2 + 15);
+
+            // Step 3b: Lower Tangent - Move B CCW (B1 -> B3)
+            const ctx3b = c3b.getContext('2d');
+            ctx3b.clearRect(0, 0, c3b.width, c3b.height);
+            // Draw shapes and upper tangent
+            drawPointsAndHulls(ctx3b, true, true, true, false, false);
+            // Draw temporary lower bridge A3-B3 (dashed purple)
+            ctx3b.strokeStyle = '#7c3aed';
+            ctx3b.lineWidth = 1.5;
+            ctx3b.setLineDash([3, 3]);
+            ctx3b.beginPath();
+            ctx3b.moveTo(pA[2].x, pA[2].y);
+            ctx3b.lineTo(pB[2].x, pB[2].y);
+            ctx3b.stroke();
+            ctx3b.setLineDash([]);
+            // Draw CCW arrow on Shape B
+            drawCurvedArrow(ctx3b, pB[0], pB[2], {x: 265, y: 115}, '#10b981', "CCW Move B1->B3");
+
+            // Step 3c: Lower Tangent - Test A CW (A3 -> A2 - Rejected)
+            const ctx3c = c3c.getContext('2d');
+            ctx3c.clearRect(0, 0, c3c.width, c3c.height);
+            // Draw shapes, upper tangent
+            drawPointsAndHulls(ctx3c, true, true, true, false, false);
+            // Draw temporary lower bridge A3-B3
+            ctx3c.strokeStyle = '#7c3aed';
+            ctx3c.lineWidth = 1.5;
+            ctx3c.setLineDash([3, 3]);
+            ctx3c.beginPath();
+            ctx3c.moveTo(pA[2].x, pA[2].y);
+            ctx3c.lineTo(pB[2].x, pB[2].y);
+            ctx3c.stroke();
+            ctx3c.setLineDash([]);
+            // Draw CW arrow on Shape A
+            drawCurvedArrow(ctx3c, pA[2], pA[1], {x: 110, y: 155}, '#ef4444', "CW Test A3->A2 (Rejected)");
+            // Draw Red X over A2
+            ctx3c.strokeStyle = '#ef4444';
+            ctx3c.lineWidth = 2.5;
+            ctx3c.beginPath();
+            ctx3c.moveTo(pA[1].x - 6, pA[1].y - 6); ctx3c.lineTo(pA[1].x + 6, pA[1].y + 6);
+            ctx3c.moveTo(pA[1].x + 6, pA[1].y - 6); ctx3c.lineTo(pA[1].x - 6, pA[1].y + 6);
+            ctx3c.stroke();
+
+            // Step 3d: Lower Tangent - Finalized
+            const ctx3d = c3d.getContext('2d');
+            ctx3d.clearRect(0, 0, c3d.width, c3d.height);
+            drawPointsAndHulls(ctx3d, true, true, true, true, false);
+
+            // Step 4: Final Convex Hull
+            const ctx4 = c4.getContext('2d');
+            ctx4.clearRect(0, 0, c4.width, c4.height);
+            drawPointsAndHulls(ctx4, false, false, false, false, true);
         }
 
         // Initialize all diagrams on window load

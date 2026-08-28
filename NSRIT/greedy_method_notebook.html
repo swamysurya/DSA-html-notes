@@ -1,0 +1,1450 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Greedy Method - Lecture Notes</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts for Handwriting & Print -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Kalam:wght@300;400;700&family=Patrick+Hand&family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        notebookPaper: '#FAF6EE',
+                        inkBlue: '#1A365D',
+                        inkRed: '#9B2C2C',
+                        pencilGray: '#4A5568',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Shared Notebook Styles -->
+    <link rel="stylesheet" href="../notebook.css">
+
+    <!-- Custom Font Size and Spacing Overrides -->
+    <style>
+        .font-notes-body {
+            font-size: 1.45rem !important;
+            line-height: 2.5rem !important;
+        }
+
+        /* Adjust lined-paper background spacing to match larger line height */
+        .lined-paper {
+            background-size: 100% 2.5rem !important;
+            line-height: 2.5rem !important;
+        }
+
+        /* Adjust paragraph and text utilities for maximum clarity */
+        p, li {
+            font-size: inherit;
+        }
+
+        /* Top-level lecture note paragraphs and lists get standard handwriting size */
+        .tab-content > p, 
+        .tab-content > ul > li, 
+        .tab-content > ol > li,
+        .tab-content > div > p:not(.text-xs *):not(.text-sm *):not(.text-base *) {
+            font-size: 1.35rem !important;
+            line-height: 2.2rem !important;
+        }
+
+        .text-xs {
+            font-size: 1.05rem !important;
+            line-height: 1.6rem !important;
+        }
+
+        .text-xs p, .text-xs li, .text-xs span {
+            font-size: 1.05rem !important;
+            line-height: 1.6rem !important;
+        }
+
+        .text-sm {
+            font-size: 1.2rem !important;
+            line-height: 1.75rem !important;
+        }
+
+        .text-sm p, .text-sm li, .text-sm span {
+            font-size: 1.2rem !important;
+            line-height: 1.75rem !important;
+        }
+
+        .text-base {
+            font-size: 1.35rem !important;
+            line-height: 1.9rem !important;
+        }
+
+        .text-base p, .text-base li, .text-base span {
+            font-size: 1.35rem !important;
+            line-height: 1.9rem !important;
+        }
+
+        pre {
+            font-size: 1.05rem !important;
+            line-height: 1.6rem !important;
+        }
+
+        table th, table td {
+            font-size: 1.15rem !important;
+            line-height: 1.6rem !important;
+            padding: 8px 12px !important;
+        }
+    </style>
+</head>
+
+<body class="font-notes-body text-2xl text-slate-800 antialiased transition-all duration-300">
+
+    <!-- Header Navigation Bar -->
+    <header class="sticky top-0 z-50 bg-[#FAF6EE] shadow-md border-b-2 border-amber-200 px-4 py-3 no-print">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-3">
+            <div class="flex items-center space-x-3">
+                <span class="text-3xl font-bold text-inkBlue tracking-wide">📖 Part IV: Greedy Method</span>
+                <span class="bg-amber-100 text-inkRed text-sm font-bold px-3 py-1 rounded-full border border-amber-300 font-sans">Chapter 03</span>
+            </div>
+
+            <!-- Font Toggle Switcher -->
+            <button onclick="toggleFont()"
+                class="bg-amber-200 hover:bg-amber-300 text-inkBlue font-bold py-1.5 px-4 rounded-lg shadow font-sans text-sm transition">
+                Toggle Clean Font
+            </button>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <nav class="max-w-6xl mx-auto mt-3 flex flex-wrap gap-1 border-t border-amber-200 pt-2 text-base md:text-lg">
+            <button onclick="switchTab('general-method')" id="tab-general-method"
+                class="nav-tab px-3 py-1.5 rounded-t-lg font-bold bg-amber-200 text-inkBlue border-b-2 border-inkBlue">
+                1. General Method
+            </button>
+            <button onclick="switchTab('knapsack-problem')" id="tab-knapsack-problem"
+                class="nav-tab px-3 py-1.5 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
+                2. Knapsack Problem
+            </button>
+            <button onclick="switchTab('job-sequencing')" id="tab-job-sequencing"
+                class="nav-tab px-3 py-1.5 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
+                3. Job Sequencing
+            </button>
+            <button onclick="switchTab('mcst')" id="tab-mcst"
+                class="nav-tab px-3 py-1.5 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
+                4. Spanning Trees (MCST)
+            </button>
+            <button onclick="switchTab('shortest-paths')" id="tab-shortest-paths"
+                class="nav-tab px-3 py-1.5 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
+                5. Shortest Paths (Dijkstra)
+            </button>
+        </nav>
+    </header>
+
+    <!-- Main Notebook Container -->
+    <main
+        class="max-w-6xl mx-auto flex relative bg-notebookPaper rounded-xl shadow-2xl overflow-hidden min-h-[1000px] border border-amber-200 my-8">
+
+        <!-- Left Binder Column (Spiral Rings) -->
+        <div class="w-10 sm:w-16 bg-amber-50 border-r-2 border-amber-200 flex flex-col items-center py-8 select-none shrink-0 no-print space-y-6 z-10 shadow-[inset_-5px_0_10px_rgba(0,0,0,0.05)]">
+            <script>
+                for (let i = 0; i < 45; i++) document.write('<div class="spiral-ring"></div>');
+            </script>
+        </div>
+
+        <!-- Notebook Content Area -->
+        <div class="flex-1 lined-paper p-4 sm:p-8 notebook-margin sm:pl-8 overflow-hidden z-0">
+
+            <!-- SECTION 1: GENERAL METHOD -->
+            <section id="sec-general-method" class="tab-content block space-y-8">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                        Greedy Method - General Concept</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 1</span>
+                </div>
+
+                <div class="space-y-6">
+                    <!-- Concept 1 Box: What is it? -->
+                    <div class="bg-amber-50/60 p-6 rounded-lg border border-amber-200 shadow-sm space-y-3 text-base">
+                        <h3 class="text-2xl font-bold text-inkRed underline decoration-wavy">1. What is the Greedy Method?</h3>
+                        <p class="text-pencilGray font-sans leading-relaxed">
+                            The <strong>Greedy Method</strong> is a practical strategy for solving <strong>Best Choice Problems</strong> (Optimization Problems). Instead of analyzing every possible combination of decisions, it builds a solution step-by-step by always making the most attractive choice at that exact moment. We call this a <strong>heuristic shortcut</strong> because it is fast and easy to use.
+                        </p>
+                        <div class="bg-white border-l-4 border-amber-400 p-3 rounded text-sm text-pencilGray font-sans leading-relaxed">
+                            <strong class="text-inkBlue">💡 Everyday Example:</strong> 
+                            Imagine walking through a grocery store looking for snacks. A <strong>greedy shopper</strong> who wants the cheapest snacks will walk down the aisle and simply grab the lowest-priced item they see first, without checking if there are better value deals or coupons further down the aisle.
+                        </div>
+                    </div>
+
+                    <!-- Concept 2 Box: Core Concept & The Local vs. Global Drawback -->
+                    <div class="bg-amber-50/60 p-6 rounded-lg border border-amber-200 shadow-sm space-y-3 text-base">
+                        <h3 class="text-2xl font-bold text-inkRed underline decoration-wavy">2. The Core Greedy Concept</h3>
+                        <p class="text-pencilGray font-sans leading-relaxed">
+                            At each stage, the algorithm makes the <strong>locally optimal choice</strong>—meaning the best immediate decision right now based only on what is directly in front of you. It hopes that stacking these choices will lead to a <strong>globally optimal solution</strong> (the absolute best final outcome overall).
+                        </p>
+                        <p class="text-pencilGray font-sans leading-relaxed">
+                            Once a choice is made, it is permanent. The algorithm never goes back to change its mind (<strong>no backtracking</strong>). Because it only looks at immediate gains, <strong>it does not guarantee</strong> finding the best overall solution for every problem.
+                        </p>
+                        
+                        <!-- Coin Change Examples (Success vs. Failure) -->
+                        <div class="bg-white border border-amber-200 p-4 rounded text-sm text-pencilGray font-sans space-y-4 mt-3">
+                            <strong class="text-inkBlue block text-base font-heading">🪙 How Greedy Coin Selection Works:</strong>
+                            <p class="text-xs text-pencilGray font-bold">
+                                The greedy selection rule is: <strong>"Always pick the largest coin denomination that is less than or equal to the remaining change amount."</strong>
+                            </p>
+
+                            <!-- Two Scenarios Grid -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-slate-100 pt-3">
+                                <!-- Scenario A: Success -->
+                                <div class="space-y-2">
+                                    <span class="text-xs font-bold text-emerald-800 uppercase tracking-wider block">✨ Scenario 1: Where Greedy Works (Optimal)</span>
+                                    <p class="text-xs"><strong>Goal:</strong> Make change for <strong>36¢</strong> using coins: <code>[25¢, 10¢, 5¢, 1¢]</code>.</p>
+                                    <ul class="list-disc list-inside text-[11px] space-y-1 pl-1">
+                                        <li><strong>Step 1:</strong> Remaining is 36¢. Pick largest &le; 36¢: <strong>25¢</strong>. <span class="text-slate-500 font-mono">(Leftover: 11¢)</span></li>
+                                        <li><strong>Step 2:</strong> Remaining is 11¢. Pick largest &le; 11¢: <strong>10¢</strong>. <span class="text-slate-500 font-mono">(Leftover: 1¢)</span></li>
+                                        <li><strong>Step 3:</strong> Remaining is 1¢. Pick largest &le; 1¢: <strong>1¢</strong>. <span class="text-slate-500 font-mono">(Leftover: 0¢)</span></li>
+                                    </ul>
+                                    <p class="text-[11px] font-bold text-emerald-800">
+                                        Greedy Result: 3 coins (25¢ + 10¢ + 1¢). This is the best overall solution.
+                                    </p>
+                                </div>
+
+                                <!-- Scenario B: Failure -->
+                                <div class="space-y-2 border-t md:border-t-0 md:border-l border-slate-100 md:pl-4">
+                                    <span class="text-xs font-bold text-rose-800 uppercase tracking-wider block">⚠️ Scenario 2: Where Greedy Fails (Suboptimal)</span>
+                                    <p class="text-xs"><strong>Goal:</strong> Make change for <strong>40¢</strong> using coins: <code>[25¢, 20¢, 10¢, 5¢, 1¢]</code>.</p>
+                                    <ul class="list-disc list-inside text-[11px] space-y-1 pl-1">
+                                        <li><strong>Step 1:</strong> Remaining is 40¢. Pick largest &le; 40¢: <strong>25¢</strong>. <span class="text-slate-500 font-mono">(Leftover: 15¢)</span></li>
+                                        <li><strong>Step 2:</strong> Remaining is 15¢. Pick largest &le; 15¢: <strong>10¢</strong>. <span class="text-slate-500 font-mono">(Leftover: 5¢)</span></li>
+                                        <li><strong>Step 3:</strong> Remaining is 5¢. Pick largest &le; 5¢: <strong>5¢</strong>. <span class="text-slate-500 font-mono">(Leftover: 0¢)</span></li>
+                                    </ul>
+                                    <p class="text-[11px] font-bold text-rose-800">
+                                        Greedy Result: 3 coins (25¢ + 10¢ + 5¢).
+                                    </p>
+                                    <p class="text-[11px] font-bold text-emerald-800 underline">
+                                        Optimal Solution: 2 coins (20¢ + 20¢).
+                                    </p>
+                                    <p class="text-[10px] text-slate-500 italic mt-1 font-sans">
+                                        <strong>Why it failed:</strong> Greedy picked the large 25¢ coin first without checking if skipping it for the smaller 20¢ coin would yield a better final outcome.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Concept 3 Box: Feasible vs. Optimal Solutions -->
+                    <div class="bg-amber-50/60 p-6 rounded-lg border border-amber-200 shadow-sm space-y-3 text-base">
+                        <h3 class="text-2xl font-bold text-inkRed underline decoration-wavy">3. Feasible vs. Optimal Solutions</h3>
+                        <p class="text-pencilGray font-sans leading-relaxed">
+                            It is important to understand the difference between a solution that is simply <strong>allowed</strong> versus a solution that is the <strong>absolute best</strong>:
+                        </p>
+                        <ul class="list-disc list-inside space-y-2 text-sm text-pencilGray font-sans pl-2">
+                            <li><strong>Feasible Solution ("A Valid Solution"):</strong> Any plan that <strong>obeys all the rules and fits within the limits</strong> (Constraints) of the problem. It is a valid answer, but not necessarily the best one.</li>
+                            <li><strong>Optimal Solution ("The Best Solution"):</strong> The single feasible solution that achieves the <strong>best possible score</strong> (the maximum profit or the minimum cost).</li>
+                        </ul>
+                        <div class="bg-white border-l-4 border-blue-400 p-3 rounded text-xs text-pencilGray font-sans mt-2">
+                            <strong>🎒 Backpack Example:</strong> If your backpack has a weight limit of <strong>10 kg</strong>:
+                            <ul class="list-disc list-inside mt-1 space-y-1">
+                                <li>Packing books weighing <strong>7 kg</strong> is a <strong>feasible solution</strong> because it is under the weight limit (rules are obeyed).</li>
+                                <li>Packing books weighing exactly <strong>10 kg</strong> that are the most valuable books is the <strong>optimal solution</strong> because it gives you the highest value without exceeding the limit.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Concept 4 Box: The 5 Components of a Greedy Algorithm -->
+                    <div class="bg-amber-50/60 p-6 rounded-lg border border-amber-200 shadow-sm space-y-4 text-base">
+                        <h3 class="text-2xl font-bold text-inkRed underline decoration-wavy">4. The 5 Main Components</h3>
+                        <p class="text-pencilGray font-sans leading-relaxed">
+                            Every greedy algorithm uses these five simple building blocks to pick elements and construct its solution:
+                        </p>
+                        
+                        <div class="space-y-3 text-xs text-pencilGray font-sans">
+                            <!-- Component 1 -->
+                            <div class="bg-white border border-slate-200 p-3 rounded flex flex-col md:flex-row md:items-start gap-2">
+                                <span class="font-bold text-inkBlue w-48 shrink-0 text-sm">1. Candidate Set ("Option Pool"):</span>
+                                <div class="space-y-1">
+                                    <p>The starting collection of choices or inputs from which we construct our solution.</p>
+                                    <span class="text-xs text-slate-500 block">
+                                        <strong>🪙 Coin Change:</strong> All available coin denominations we are allowed to use (e.g. <code>[25¢, 10¢, 5¢, 1¢]</code>).
+                                    </span>
+                                </div>
+                            </div>
+                            <!-- Component 2 -->
+                            <div class="bg-white border border-slate-200 p-3 rounded flex flex-col md:flex-row md:items-start gap-2">
+                                <span class="font-bold text-inkBlue w-48 shrink-0 text-sm">2. Selection Function ("Picking Rule"):</span>
+                                <div class="space-y-1">
+                                    <p>The rule used to pick the single best item at the current step.</p>
+                                    <span class="text-xs text-slate-500 block">
+                                        <strong>🪙 Coin Change:</strong> "Always select the largest coin value that fits within the remaining change amount."
+                                    </span>
+                                </div>
+                            </div>
+                            <!-- Component 3 -->
+                            <div class="bg-white border border-slate-200 p-3 rounded flex flex-col md:flex-row md:items-start gap-2">
+                                <span class="font-bold text-inkBlue w-48 shrink-0 text-sm">3. Feasibility Function ("Rule Checker"):</span>
+                                <div class="space-y-1">
+                                    <p>Checks if the chosen candidate obeys all rules (e.g. does not exceed target limits).</p>
+                                    <span class="text-xs text-slate-500 block">
+                                        <strong>🪙 Coin Change:</strong> If we need 1¢ more to reach 36¢, picking a 10¢ coin is <strong>infeasible</strong> (violates the target limit) and gets rejected.
+                                    </span>
+                                </div>
+                            </div>
+                            <!-- Component 4 -->
+                            <div class="bg-white border border-slate-200 p-3 rounded flex flex-col md:flex-row md:items-start gap-2">
+                                <span class="font-bold text-inkBlue w-48 shrink-0 text-sm">4. Objective Function ("Score Calculator"):</span>
+                                <div class="space-y-1">
+                                    <p>Calculates the score or value of the solution subset at any point.</p>
+                                    <span class="text-xs text-slate-500 block">
+                                        <strong>🪙 Coin Change:</strong> Summing up the values of selected coins (e.g., 25¢ + 10¢ = 35¢) and keeping track of the total number of coins used.
+                                    </span>
+                                </div>
+                            </div>
+                            <!-- Component 5 -->
+                            <div class="bg-white border border-slate-200 p-3 rounded flex flex-col md:flex-row md:items-start gap-2">
+                                <span class="font-bold text-inkBlue w-48 shrink-0 text-sm">5. Solution Function ("Finish Line Check"):</span>
+                                <div class="space-y-1">
+                                    <p>Determines when a full, valid final solution is formed so we can stop the loop.</p>
+                                    <span class="text-xs text-slate-500 block">
+                                        <strong>🪙 Coin Change:</strong> Checking if the sum of our selected coins matches the target change amount (e.g., 36¢). If yes, we terminate.
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Flow Diagram Canvas -->
+                    <div class="border-t border-slate-200 pt-6 flex flex-col items-center">
+                        <h3 class="text-3xl font-bold text-inkRed mb-3 underline">Greedy Selection & Feasibility Filter</h3>
+                        <p class="text-base text-pencilGray mb-4 font-sans text-center max-w-2xl">
+                            Here is the visual flow of elements moving from the raw Option Pool, through the Selection and Feasibility filters, and into the final Solution Set container.
+                        </p>
+                        <canvas id="greedy-general-canvas" width="600" height="260" class="border border-slate-200 rounded bg-white shadow-sm max-w-full"></canvas>
+                    </div>
+
+                    <!-- General Structure Pseudocode -->
+                    <div class="border-t border-slate-200 pt-6 space-y-4">
+                        <h3 class="text-3xl font-bold text-inkRed underline">5. General Greedy Algorithm Structure</h3>
+                        
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                            <!-- Code block -->
+                            <div class="lg:col-span-7 space-y-2">
+                                <span class="font-bold text-inkBlue block text-lg">Algorithm Greedy(a, n):</span>
+                                <pre class="bg-slate-50 border border-slate-200 rounded p-4 font-mono text-inkBlue text-xs sm:text-sm overflow-x-auto whitespace-pre">
+Algorithm Greedy(a, n)
+{
+    solution = empty; // Start with an empty solution set
+
+    for i = 1 to n do
+    {
+        x = selection(a); // Pick the best candidate element 'x' from array 'a'
+
+        if Feasible(solution, x) then // Check if adding 'x' is valid
+        {
+            solution = solution + x; // Include 'x' into the solution set
+        }
+    }
+    return solution;
+}</pre>
+                            </div>
+
+                            <!-- Explanatory note -->
+                            <div class="lg:col-span-5 bg-amber-50/40 p-5 rounded-lg border border-amber-200 text-base space-y-3 font-sans font-semibold text-inkBlue flex flex-col justify-center leading-relaxed">
+                                <span class="font-bold text-inkRed block text-lg underline">How the Code Works:</span>
+                                <p class="text-sm text-pencilGray font-sans font-normal leading-relaxed">
+                                    The program loops through all <code>n</code> potential candidates in your array <code>a</code>. 
+                                    In each iteration:
+                                </p>
+                                <ul class="list-disc list-inside text-xs text-pencilGray font-sans font-normal space-y-2 pl-1.5 leading-relaxed">
+                                    <li>It calls <code>selection()</code> to pick the single best item <code>x</code> based on the greedy rule.</li>
+                                    <li>It passes <code>x</code> to <code>Feasible()</code> to check if including it violates any rules.</li>
+                                    <li>If <code>Feasible()</code> returns true, <code>x</code> is added to the solution set.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- SECTION 2: FRACTIONAL KNAPSACK -->
+                    <section id="sec-knapsack-problem" class="tab-content hidden space-y-6">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4 font-heading">Fractional Knapsack Problem</h1>
+                    <span class="text-xl text-inkRed font-semibold font-heading">Page 2</span>
+                </div>
+                
+                <!-- 1. Problem Overview -->
+                <div class="space-y-3">
+                    <h2 class="text-3xl sm:text-4xl font-bold text-inkRed mb-2 font-heading">1. Problem Overview</h2>
+                    <p class="leading-relaxed text-pencilGray font-sans">
+                        The <strong>Fractional Knapsack Problem</strong> is a classic optimization problem. You are given a bag (knapsack) that can hold a maximum weight capacity of <strong>M</strong>. You have a list of items, where each item has a specific weight and profit value.
+                    </p>
+                    <div class="bg-white/60 p-4 border border-slate-200 rounded text-xs text-pencilGray font-sans leading-relaxed">
+                        <strong>Key Terms Explained:</strong><br>
+                        • <strong>Knapsack Capacity (M):</strong> The maximum weight limit the bag can safely hold.<br>
+                        • <strong>Fractional Selection:</strong> Unlike the 0/1 knapsack where you must either take an item fully or leave it, here you are allowed to <strong>cut items and take a fraction</strong> of them (e.g. half a block of cheese) to maximize profit.<br>
+                        • <strong>Goal:</strong> Fill the bag to get the <strong>highest total profit</strong> without breaking the weight limit.
+                    </div>
+                </div>
+
+                <!-- 2. Step-by-Step Greedy Algorithm -->
+                <div class="space-y-3 mt-6">
+                    <h2 class="text-3xl sm:text-4xl font-bold text-inkRed mb-2 font-heading">2. Step-by-Step Greedy Algorithm</h2>
+                    <ol class="list-decimal list-inside text-xs text-pencilGray font-sans space-y-2 bg-white/60 p-4 border border-slate-200 rounded">
+                        <li><strong>Calculate Value Ratio (Profit / Weight):</strong> For every item, calculate how much profit it gives you per 1 kg. This ratio tells us how "valuable" the item is.</li>
+                        <li><strong>Sort Items:</strong> Sort all items in descending order based on their value ratio (highest ratio first). This is the greedy rule!</li>
+                        <li><strong>Pack Fully:</strong> Go down the sorted list. Take items and pack them fully into the bag as long as they fit. Reduce the remaining bag capacity accordingly.</li>
+                        <li><strong>Pack Fractionally:</strong> If the next item on the list does not fit fully, cut it! Take only the fraction of that item needed to fill the remaining capacity of the bag exactly to zero.</li>
+                        <li><strong>Compute Max Profit:</strong> Calculate the sum of profits of all full and fractional items loaded.</li>
+                    </ol>
+                </div>
+
+                <!-- 3. Example 1 Analysis -->
+                <div class="space-y-4 mt-6">
+                    <h2 class="text-3xl sm:text-4xl font-bold text-inkRed mb-2 font-heading">3. Example 1 Analysis</h2>
+                    <p class="text-xs text-pencilGray font-sans">
+                        <strong>Problem Setup:</strong> Knapsack capacity <strong>M = 15 kg</strong>, number of items <strong>n = 7</strong>.
+                    </p>
+
+                    <!-- Input Table -->
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-xs text-pencilGray font-sans border-collapse border border-slate-200 bg-white mb-2">
+                            <thead>
+                                <tr class="bg-slate-50 text-inkBlue">
+                                    <th class="border border-slate-200 px-4 py-2">Item (i)</th>
+                                    <th class="border border-slate-200 px-4 py-2">1</th>
+                                    <th class="border border-slate-200 px-4 py-2">2</th>
+                                    <th class="border border-slate-200 px-4 py-2">3</th>
+                                    <th class="border border-slate-200 px-4 py-2">4</th>
+                                    <th class="border border-slate-200 px-4 py-2">5</th>
+                                    <th class="border border-slate-200 px-4 py-2">6</th>
+                                    <th class="border border-slate-200 px-4 py-2">7</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="border border-slate-200 px-4 py-2 font-bold text-inkBlue bg-slate-50/50">Profit (pᵢ)</td>
+                                    <td class="border border-slate-200 px-4 py-2">10</td>
+                                    <td class="border border-slate-200 px-4 py-2">5</td>
+                                    <td class="border border-slate-200 px-4 py-2">15</td>
+                                    <td class="border border-slate-200 px-4 py-2">7</td>
+                                    <td class="border border-slate-200 px-4 py-2">6</td>
+                                    <td class="border border-slate-200 px-4 py-2">18</td>
+                                    <td class="border border-slate-200 px-4 py-2">3</td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-slate-200 px-4 py-2 font-bold text-inkBlue bg-slate-50/50">Weight (wᵢ)</td>
+                                    <td class="border border-slate-200 px-4 py-2">2</td>
+                                    <td class="border border-slate-200 px-4 py-2">3</td>
+                                    <td class="border border-slate-200 px-4 py-2">5</td>
+                                    <td class="border border-slate-200 px-4 py-2">7</td>
+                                    <td class="border border-slate-200 px-4 py-2">1</td>
+                                    <td class="border border-slate-200 px-4 py-2">4</td>
+                                    <td class="border border-slate-200 px-4 py-2">1</td>
+                                </tr>
+                                <tr class="bg-amber-50/30">
+                                    <td class="border border-slate-200 px-4 py-2 font-bold text-inkRed bg-slate-50/50">Ratio (p/w)</td>
+                                    <td class="border border-slate-200 px-4 py-2 font-mono">5.0</td>
+                                    <td class="border border-slate-200 px-4 py-2 font-mono">1.67</td>
+                                    <td class="border border-slate-200 px-4 py-2 font-mono">3.0</td>
+                                    <td class="border border-slate-200 px-4 py-2 font-mono">1.0</td>
+                                    <td class="border border-slate-200 px-4 py-2 font-mono">6.0</td>
+                                    <td class="border border-slate-200 px-4 py-2 font-mono">4.5</td>
+                                    <td class="border border-slate-200 px-4 py-2 font-mono">3.0</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Step 0 -->
+                    <div class="border-t border-slate-200 pt-4 grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+                        <div class="lg:col-span-8 space-y-1 text-xs text-pencilGray font-sans">
+                            <span class="font-bold text-inkBlue block text-sm">Step 0: Sorted Order by Value Ratio</span>
+                            <p><strong>Sorted Order:</strong> Object 5 (6.0), Object 1 (5.0), Object 6 (4.5), Object 3 (3.0), Object 7 (3.0), Object 2 (1.67), Object 4 (1.0).</p>
+                            <p><strong>Bag Capacity Left:</strong> 15 kg. Current Profit: 0.</p>
+                        </div>
+                        <div class="lg:col-span-4 flex flex-col items-center">
+                            <canvas id="ex1-knap-step-0" width="280" height="75" class="border border-slate-200 rounded bg-white shadow-sm max-w-full"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Step 1 -->
+                    <div class="border-t border-slate-100 pt-4 grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+                        <div class="lg:col-span-8 space-y-1 text-xs text-pencilGray font-sans">
+                            <span class="font-bold text-inkBlue block text-sm">Step 1: Pack Object 5 fully (Weight: 1 kg, Profit: 6)</span>
+                            <p>We pick Object 5 (highest ratio 6.0). Since it weighs 1 kg, it fits easily in our 15 kg bag.</p>
+                            <p><strong>Remaining capacity:</strong> 15 - 1 = 14 kg. Current Profit: 6.</p>
+                        </div>
+                        <div class="lg:col-span-4 flex flex-col items-center">
+                            <canvas id="ex1-knap-step-1" width="280" height="75" class="border border-slate-200 rounded bg-white shadow-sm max-w-full"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div class="border-t border-slate-100 pt-4 grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+                        <div class="lg:col-span-8 space-y-1 text-xs text-pencilGray font-sans">
+                            <span class="font-bold text-inkBlue block text-sm">Step 2: Pack Object 1 fully (Weight: 2 kg, Profit: 10)</span>
+                            <p>Next is Object 1 (ratio 5.0). It weighs 2 kg, which fits in our remaining 14 kg capacity.</p>
+                            <p><strong>Remaining capacity:</strong> 14 - 2 = 12 kg. Current Profit: 6 + 10 = 16.</p>
+                        </div>
+                        <div class="lg:col-span-4 flex flex-col items-center">
+                            <canvas id="ex1-knap-step-2" width="280" height="75" class="border border-slate-200 rounded bg-white shadow-sm max-w-full"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div class="border-t border-slate-100 pt-4 grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+                        <div class="lg:col-span-8 space-y-1 text-xs text-pencilGray font-sans">
+                            <span class="font-bold text-inkBlue block text-sm">Step 3: Pack Object 6 fully (Weight: 4 kg, Profit: 18)</span>
+                            <p>Next is Object 6 (ratio 4.5). It weighs 4 kg, fitting into our remaining 12 kg capacity.</p>
+                            <p><strong>Remaining capacity:</strong> 12 - 4 = 8 kg. Current Profit: 16 + 18 = 34.</p>
+                        </div>
+                        <div class="lg:col-span-4 flex flex-col items-center">
+                            <canvas id="ex1-knap-step-3" width="280" height="75" class="border border-slate-200 rounded bg-white shadow-sm max-w-full"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Step 4 -->
+                    <div class="border-t border-slate-100 pt-4 grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+                        <div class="lg:col-span-8 space-y-1 text-xs text-pencilGray font-sans">
+                            <span class="font-bold text-inkBlue block text-sm">Step 4: Pack Object 3 fully (Weight: 5 kg, Profit: 15)</span>
+                            <p>Next is Object 3 (ratio 3.0). It weighs 5 kg, fitting into our remaining 8 kg capacity.</p>
+                            <p><strong>Remaining capacity:</strong> 8 - 5 = 3 kg. Current Profit: 34 + 15 = 49.</p>
+                        </div>
+                        <div class="lg:col-span-4 flex flex-col items-center">
+                            <canvas id="ex1-knap-step-4" width="280" height="75" class="border border-slate-200 rounded bg-white shadow-sm max-w-full"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Step 5 -->
+                    <div class="border-t border-slate-100 pt-4 grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+                        <div class="lg:col-span-8 space-y-1 text-xs text-pencilGray font-sans">
+                            <span class="font-bold text-inkBlue block text-sm">Step 5: Pack Object 7 fully (Weight: 1 kg, Profit: 3)</span>
+                            <p>Next is Object 7 (ratio 3.0). It weighs 1 kg, which fits in our remaining 3 kg capacity.</p>
+                            <p><strong>Remaining capacity:</strong> 3 - 1 = 2 kg. Current Profit: 49 + 3 = 52.</p>
+                        </div>
+                        <div class="lg:col-span-4 flex flex-col items-center">
+                            <canvas id="ex1-knap-step-5" width="280" height="75" class="border border-slate-200 rounded bg-white shadow-sm max-w-full"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Step 6 -->
+                    <div class="border-t border-slate-100 pt-4 grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+                        <div class="lg:col-span-8 space-y-1 text-xs text-pencilGray font-sans">
+                            <span class="font-bold text-inkBlue block text-sm">Step 6: Pack 2/3 Fraction of Object 2 (Weight: 2 kg, Profit: 3.33)</span>
+                            <p>Next is Object 2 (ratio 1.67, weight 3 kg). We only have 2 kg capacity left. We take a fraction: 2/3 of Object 2.</p>
+                            <p><strong>Remaining capacity:</strong> 2 - (3 × 2/3) = 0 kg. Current Profit: 52 + (5 × 2/3) = 55.33.</p>
+                            <p><em>Object 4 (ratio 1.0) is not packed at all (0 fraction) since the bag is full.</em></p>
+                        </div>
+                        <div class="lg:col-span-4 flex flex-col items-center">
+                            <canvas id="ex1-knap-step-6" width="280" height="75" class="border border-slate-200 rounded bg-white shadow-sm max-w-full"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Ex 1 Final Calculations -->
+                    <div class="border-t border-slate-200 pt-4 space-y-2 text-xs text-pencilGray font-sans">
+                        <span class="font-bold text-inkBlue block text-sm underline">Final Calculation Verification:</span>
+                        <div class="bg-white/60 p-3 rounded border border-slate-200 space-y-2 font-mono">
+                            <div><strong>Solution Vector x:</strong> (x₁, x₂, x₃, x₄, x₅, x₆, x₇) = (1, 2/3, 1, 0, 1, 1, 1)</div>
+                            <div>
+                                <strong>Total Weight packed:</strong><br>
+                                &sum; x_i w_i = (2 × 1) + (3 × 2/3) + (5 × 1) + (7 × 0) + (1 × 1) + (4 × 1) + (1 × 1) = 2 + 2 + 5 + 0 + 1 + 4 + 1 = 15 kg
+                            </div>
+                            <div>
+                                <strong>Total Profit earned:</strong><br>
+                                &sum; x_i p_i = (10 × 1) + (5 × 2/3) + (15 × 1) + (7 × 0) + (6 × 1) + (18 × 1) + (3 × 1) = 10 + 3.33 + 15 + 0 + 6 + 18 + 3 = 55.33
+                            </div>
+                        </div>
+
+                        <div class="bg-emerald-50 border border-emerald-200 p-2.5 rounded text-xs text-emerald-800 font-sans mt-2 inline-block">
+                            🏆 <strong>Optimal Profit:</strong> <strong>55.33</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. Example 2 Analysis -->
+                <div class="space-y-4 mt-8">
+                    <h2 class="text-3xl sm:text-4xl font-bold text-inkRed mb-2 mt-6 font-heading font-bold">4. Example 2 Analysis</h2>
+                    <p class="text-xs text-pencilGray font-sans">
+                        <strong>Problem Setup:</strong> Knapsack capacity <strong>m = 10 kg</strong>, number of items <strong>n = 5</strong>.
+                    </p>
+
+                    <!-- Input Table -->
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-xs text-pencilGray font-sans border-collapse border border-slate-200 bg-white mb-2">
+                            <thead>
+                                <tr class="bg-slate-50 text-inkBlue">
+                                    <th class="border border-slate-200 px-4 py-2">Item (i)</th>
+                                    <th class="border border-slate-200 px-4 py-2">1</th>
+                                    <th class="border border-slate-200 px-4 py-2">2</th>
+                                    <th class="border border-slate-200 px-4 py-2">3</th>
+                                    <th class="border border-slate-200 px-4 py-2">4</th>
+                                    <th class="border border-slate-200 px-4 py-2">5</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="border border-slate-200 px-4 py-2 font-bold text-inkBlue bg-slate-50/50">Weight (w)</td>
+                                    <td class="border border-slate-200 px-4 py-2 font-mono">3</td>
+                                    <td class="border border-slate-200 px-4 py-2 font-mono">3</td>
+                                    <td class="border border-slate-200 px-4 py-2 font-mono">2</td>
+                                    <td class="border border-slate-200 px-4 py-2 font-mono">5</td>
+                                    <td class="border border-slate-200 px-4 py-2 font-mono">1</td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-slate-200 px-4 py-2 font-bold text-inkBlue bg-slate-50/50">Profit (p)</td>
+                                    <td class="border border-slate-200 px-4 py-2 font-mono">10</td>
+                                    <td class="border border-slate-200 px-4 py-2 font-mono">15</td>
+                                    <td class="border border-slate-200 px-4 py-2 font-mono">10</td>
+                                    <td class="border border-slate-200 px-4 py-2 font-mono">20</td>
+                                    <td class="border border-slate-200 px-4 py-2 font-mono">8</td>
+                                </tr>
+                                <tr class="bg-amber-50/30">
+                                    <td class="border border-slate-200 px-4 py-2 font-bold text-inkRed bg-slate-50/50">Ratio (p/w)</td>
+                                    <td class="border border-slate-200 px-4 py-2 font-mono">3.33</td>
+                                    <td class="border border-slate-200 px-4 py-2 font-mono">5.0</td>
+                                    <td class="border border-slate-200 px-4 py-2 font-mono">5.0</td>
+                                    <td class="border border-slate-200 px-4 py-2 font-mono">4.0</td>
+                                    <td class="border border-slate-200 px-4 py-2 font-mono">8.0</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Step 0 -->
+                    <div class="border-t border-slate-200 pt-4 grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+                        <div class="lg:col-span-8 space-y-1 text-xs text-pencilGray font-sans">
+                            <span class="font-bold text-inkBlue block text-sm">Step 0: Sorted Order by Value Ratio</span>
+                            <p><strong>Sorted Order:</strong> Object 5 (8.0), Object 2 (5.0), Object 3 (5.0), Object 4 (4.0), Object 1 (3.33).</p>
+                            <p><strong>Bag Capacity Left:</strong> 10 kg. Current Profit: 0.</p>
+                        </div>
+                        <div class="lg:col-span-4 flex flex-col items-center">
+                            <canvas id="ex2-knap-step-0" width="280" height="75" class="border border-slate-200 rounded bg-white shadow-sm max-w-full"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Step 1 -->
+                    <div class="border-t border-slate-100 pt-4 grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+                        <div class="lg:col-span-8 space-y-1 text-xs text-pencilGray font-sans">
+                            <span class="font-bold text-inkBlue block text-sm">Step 1: Pack Object 5 fully (Weight: 1 kg, Profit: 8)</span>
+                            <p>Object 5 has ratio 8.0. Since it weighs 1 kg, it fits in our 10 kg bag capacity.</p>
+                            <p><strong>Remaining capacity:</strong> 10 - 1 = 9 kg. Current Profit: 8.</p>
+                        </div>
+                        <div class="lg:col-span-4 flex flex-col items-center">
+                            <canvas id="ex2-knap-step-1" width="280" height="75" class="border border-slate-200 rounded bg-white shadow-sm max-w-full"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div class="border-t border-slate-100 pt-4 grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+                        <div class="lg:col-span-8 space-y-1 text-xs text-pencilGray font-sans">
+                            <span class="font-bold text-inkBlue block text-sm">Step 2: Pack Object 2 fully (Weight: 3 kg, Profit: 15)</span>
+                            <p>Next is Object 2 (ratio 5.0). It weighs 3 kg, fitting in our remaining 9 kg capacity.</p>
+                            <p><strong>Remaining capacity:</strong> 9 - 3 = 6 kg. Current Profit: 8 + 15 = 23.</p>
+                        </div>
+                        <div class="lg:col-span-4 flex flex-col items-center">
+                            <canvas id="ex2-knap-step-2" width="280" height="75" class="border border-slate-200 rounded bg-white shadow-sm max-w-full"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div class="border-t border-slate-100 pt-4 grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+                        <div class="lg:col-span-8 space-y-1 text-xs text-pencilGray font-sans">
+                            <span class="font-bold text-inkBlue block text-sm">Step 3: Pack Object 3 fully (Weight: 2 kg, Profit: 10)</span>
+                            <p>Next is Object 3 (ratio 5.0). It weighs 2 kg, fitting in our remaining 6 kg capacity.</p>
+                            <p><strong>Remaining capacity:</strong> 6 - 2 = 4 kg. Current Profit: 23 + 10 = 33.</p>
+                        </div>
+                        <div class="lg:col-span-4 flex flex-col items-center">
+                            <canvas id="ex2-knap-step-3" width="280" height="75" class="border border-slate-200 rounded bg-white shadow-sm max-w-full"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Step 4 -->
+                    <div class="border-t border-slate-100 pt-4 grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+                        <div class="lg:col-span-8 space-y-1 text-xs text-pencilGray font-sans">
+                            <span class="font-bold text-inkBlue block text-sm">Step 4: Pack 4/5 Fraction of Object 4 (Weight: 4 kg, Profit: 16)</span>
+                            <p>Next is Object 4 (ratio 4.0, weight 5 kg). We only have 4 kg capacity left. We take a fraction: 4/5 of Object 4.</p>
+                            <p><strong>Remaining capacity:</strong> 4 - (5 × 4/5) = 0 kg. Current Profit: 33 + (20 × 4/5) = 49.</p>
+                            <p><em>Object 1 is not packed (0 fraction) since the bag is full.</em></p>
+                        </div>
+                        <div class="lg:col-span-4 flex flex-col items-center">
+                            <canvas id="ex2-knap-step-4" width="280" height="75" class="border border-slate-200 rounded bg-white shadow-sm max-w-full"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Ex 2 Final Calculations -->
+                    <div class="border-t border-slate-200 pt-4 space-y-2 text-xs text-pencilGray font-sans">
+                        <span class="font-bold text-inkBlue block text-sm underline">Final Calculation Verification:</span>
+                        <div class="bg-white/60 p-3 rounded border border-slate-200 space-y-2 font-mono">
+                            <div><strong>Solution Vector x:</strong> (x₁, x₂, x₃, x₄, x₅) = (0, 1, 1, 4/5, 1)</div>
+                            <div>
+                                <strong>Total Weight packed:</strong><br>
+                                &sum; x_i w_i = (0 × 3) + (1 × 3) + (1 × 2) + (5 × 4/5) + (1 × 1) = 0 + 3 + 2 + 4 + 1 = 10 kg
+                            </div>
+                            <div>
+                                <strong>Total Profit earned:</strong><br>
+                                &sum; x_i p_i = (0 × 10) + (1 × 15) + (1 × 10) + (20 × 4/5) + (1 × 8) = 0 + 15 + 10 + 16 + 8 = 49
+                            </div>
+                        </div>
+
+                        <div class="bg-emerald-50 border border-emerald-200 p-2.5 rounded text-xs text-emerald-800 font-sans mt-2 inline-block">
+                            🏆 <strong>Optimal Profit:</strong> <strong>49</strong>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 3: JOB SEQUENCING WITH DEADLINES -->
+            <section id="sec-job-sequencing" class="tab-content hidden space-y-6">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4 font-heading">Job Sequencing with Deadlines</h1>
+                    <span class="text-xl text-inkRed font-semibold font-heading">Page 3</span>
+                </div>
+
+                <!-- 1. Problem Overview -->
+                <div class="space-y-3">
+                    <h2 class="text-3xl sm:text-4xl font-bold text-inkRed mb-2 font-heading">1. Problem Overview</h2>
+                    <p class="leading-relaxed text-pencilGray font-sans">
+                        In the <strong>Job Sequencing with Deadlines</strong> problem, you are given a set of jobs where each job takes exactly <strong>1 unit of time</strong> to complete. Each job comes with a <strong>deadline</strong> and a <strong>profit</strong> reward.
+                    </p>
+                    <div class="bg-white/60 p-4 border border-slate-200 rounded text-xs text-pencilGray font-sans leading-relaxed">
+                        <strong>Key Terms Explained:</strong><br>
+                        • <strong>Job:</strong> A task to be done. We can only work on <strong>one job at a time</strong>.<br>
+                        • <strong>Deadline:</strong> The time limit. If a job has a deadline of 3, it must finish by time 3 (so it can be scheduled in slot 1, 2, or 3). The smallest deadline is 1.<br>
+                        • <strong>Profit:</strong> The cash or score reward you get, but <strong>only</strong> if you complete the job before its deadline.<br>
+                        • <strong>Goal:</strong> Select and schedule a combination of jobs that fits the deadlines and earns the <strong>maximum possible profit</strong>.
+                    </div>
+                </div>
+
+                <!-- 2. General Greedy Algorithm Steps -->
+                <div class="space-y-3 mt-6">
+                    <h2 class="text-3xl sm:text-4xl font-bold text-inkRed mb-2 font-heading">2. General Greedy Algorithm Steps</h2>
+                    <p class="text-pencilGray font-sans leading-relaxed">
+                        The greedy strategy works by prioritizing the most profitable jobs first and placing them as late as possible before their deadlines. Here is the step-by-step procedure:
+                    </p>
+                    <ol class="list-decimal list-inside text-xs text-pencilGray font-sans space-y-2 bg-white/60 p-4 border border-slate-200 rounded">
+                        <li><strong>Find Maximum Deadline:</strong> Find the highest deadline among all jobs. This tells us the total number of time slots available (e.g. if max deadline is 4, we have 4 slots: 1, 2, 3, and 4).</li>
+                        <li><strong>Sort by Profit:</strong> Sort all jobs in descending order (highest profit first). This is the greedy choice rule!</li>
+                        <li><strong>Place in Latest Slot:</strong> Pick the sorted jobs one by one. Try to schedule each job in its <strong>latest possible slot</strong> before its deadline (e.g., if deadline is 3, try Slot 3. If taken, try Slot 2, then Slot 1). If all slots before its deadline are full, skip the job.</li>
+                        <li><strong>Calculate Profit:</strong> Sum the profits of all successfully scheduled jobs.</li>
+                    </ol>
+                </div>
+
+                <!-- 3. Example 1 Step-by-Step Scheduling -->
+                <div class="space-y-4 mt-6">
+                    <h2 class="text-3xl sm:text-4xl font-bold text-inkRed mb-2 mt-6 font-heading">3. Example 1 Step-by-Step Scheduling</h2>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-xs text-pencilGray font-sans border-collapse border border-slate-200 bg-white mb-2">
+                            <thead>
+                                <tr class="bg-slate-50 text-inkBlue">
+                                    <th class="border border-slate-200 px-4 py-2">Jobs</th>
+                                    <th class="border border-slate-200 px-4 py-2">J₁</th>
+                                    <th class="border border-slate-200 px-4 py-2">J₂</th>
+                                    <th class="border border-slate-200 px-4 py-2">J₃</th>
+                                    <th class="border border-slate-200 px-4 py-2">J₄</th>
+                                    <th class="border border-slate-200 px-4 py-2">J₅</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="border border-slate-200 px-4 py-2 font-bold text-inkBlue bg-slate-50/50">Deadline</td>
+                                    <td class="border border-slate-200 px-4 py-2">2</td>
+                                    <td class="border border-slate-200 px-4 py-2">2</td>
+                                    <td class="border border-slate-200 px-4 py-2">1</td>
+                                    <td class="border border-slate-200 px-4 py-2">3</td>
+                                    <td class="border border-slate-200 px-4 py-2">4</td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-slate-200 px-4 py-2 font-bold text-inkBlue bg-slate-50/50">Profit</td>
+                                    <td class="border border-slate-200 px-4 py-2">20</td>
+                                    <td class="border border-slate-200 px-4 py-2">60</td>
+                                    <td class="border border-slate-200 px-4 py-2">40</td>
+                                    <td class="border border-slate-200 px-4 py-2">100</td>
+                                    <td class="border border-slate-200 px-4 py-2">80</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Step 0 -->
+                    <div class="border-t border-slate-200 pt-4 grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+                        <div class="lg:col-span-7 space-y-1.5 text-xs text-pencilGray font-sans">
+                            <span class="font-bold text-inkBlue block text-sm">Step 0: Initialize & Sort</span>
+                            <p><strong>Sorted Order:</strong> J₄ (100), J₅ (80), J₂ (60), J₃ (40), J₁ (20).</p>
+                            <p><strong>Max Deadline:</strong> 4. We initialize 4 empty slots.</p>
+                        </div>
+                        <div class="lg:col-span-5 flex flex-col items-center">
+                            <canvas id="ex1-canvas-step-0" width="360" height="70" class="border border-slate-200 rounded bg-white shadow-sm max-w-full"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Step 1 -->
+                    <div class="border-t border-slate-100 pt-4 grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+                        <div class="lg:col-span-7 space-y-1.5 text-xs text-pencilGray font-sans">
+                            <span class="font-bold text-inkBlue block text-sm">Step 1: Process J₄ (Profit: 100, Deadline: 3)</span>
+                            <p>We try to place J₄. Its deadline is 3. The latest possible slot before time 3 is <strong>Slot 3</strong> (time 2 to 3). Since it is free, we schedule J₄ there.</p>
+                            <p class="text-emerald-700 font-bold">Current Profit: 100</p>
+                        </div>
+                        <div class="lg:col-span-5 flex flex-col items-center">
+                            <canvas id="ex1-canvas-step-1" width="360" height="70" class="border border-slate-200 rounded bg-white shadow-sm max-w-full"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div class="border-t border-slate-100 pt-4 grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+                        <div class="lg:col-span-7 space-y-1.5 text-xs text-pencilGray font-sans">
+                            <span class="font-bold text-inkBlue block text-sm">Step 2: Process J₅ (Profit: 80, Deadline: 4)</span>
+                            <p>We try to place J₅. Its deadline is 4. The latest possible slot before time 4 is <strong>Slot 4</strong> (time 3 to 4). Since Slot 4 is free, we schedule J₅ there.</p>
+                            <p class="text-emerald-700 font-bold">Current Profit: 100 (J₄) + 80 (J₅) = 180</p>
+                        </div>
+                        <div class="lg:col-span-5 flex flex-col items-center">
+                            <canvas id="ex1-canvas-step-2" width="360" height="70" class="border border-slate-200 rounded bg-white shadow-sm max-w-full"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div class="border-t border-slate-100 pt-4 grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+                        <div class="lg:col-span-7 space-y-1.5 text-xs text-pencilGray font-sans">
+                            <span class="font-bold text-inkBlue block text-sm">Step 3: Process J₂ (Profit: 60, Deadline: 2)</span>
+                            <p>We try to place J₂. Its deadline is 2. The latest possible slot before time 2 is <strong>Slot 2</strong> (time 1 to 2). Since Slot 2 is free, we schedule J₂ there.</p>
+                            <p class="text-emerald-700 font-bold">Current Profit: 180 + 60 (J₂) = 240</p>
+                        </div>
+                        <div class="lg:col-span-5 flex flex-col items-center">
+                            <canvas id="ex1-canvas-step-3" width="360" height="70" class="border border-slate-200 rounded bg-white shadow-sm max-w-full"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Step 4 -->
+                    <div class="border-t border-slate-100 pt-4 grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+                        <div class="lg:col-span-7 space-y-1.5 text-xs text-pencilGray font-sans">
+                            <span class="font-bold text-inkBlue block text-sm">Step 4: Process J₃ (Profit: 40, Deadline: 1)</span>
+                            <p>We try to place J₃. Its deadline is 1. The latest slot before time 1 is <strong>Slot 1</strong>. It is free, so we schedule J₃.</p>
+                            <p class="text-emerald-700 font-bold">Current Profit: 240 + 40 (J₃) = 280</p>
+                        </div>
+                        <div class="lg:col-span-5 flex flex-col items-center">
+                            <canvas id="ex1-canvas-step-4" width="360" height="70" class="border border-slate-200 rounded bg-white shadow-sm max-w-full"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Step 5 -->
+                    <div class="border-t border-slate-100 pt-4 grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+                        <div class="lg:col-span-7 space-y-1.5 text-xs text-pencilGray font-sans">
+                            <span class="font-bold text-inkBlue block text-sm">Step 5: Process J₁ (Profit: 20, Deadline: 2)</span>
+                            <p>We evaluate J₁. Its deadline is 2. We search backwards from Slot 2 to Slot 1, but both slots are already occupied (by J₂ and J₃). Thus, J₁ is skipped.</p>
+                            <div class="bg-emerald-50 border border-emerald-200 p-2.5 rounded text-xs text-emerald-800 font-sans mt-2 inline-block">
+                                <strong>Final Output:</strong> Scheduled Jobs = {J₃, J₂, J₄, J₅}<br>
+                                🏆 <strong>Optimal Profit:</strong> <strong>280</strong>
+                            </div>
+                        </div>
+                        <div class="lg:col-span-5 flex flex-col items-center">
+                            <canvas id="ex1-canvas-step-5" width="360" height="70" class="border border-slate-200 rounded bg-white shadow-sm max-w-full"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. Example 2 Step-by-Step Scheduling -->
+                <div class="space-y-4 mt-8">
+                    <h2 class="text-3xl sm:text-4xl font-bold text-inkRed mb-2 mt-6 font-heading font-bold">4. Example 2 Step-by-Step Scheduling</h2>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-xs text-pencilGray font-sans border-collapse border border-slate-200 bg-white mb-2">
+                            <thead>
+                                <tr class="bg-slate-50 text-inkBlue">
+                                    <th class="border border-slate-200 px-4 py-2">Jobs</th>
+                                    <th class="border border-slate-200 px-4 py-2">J₁</th>
+                                    <th class="border border-slate-200 px-4 py-2">J₂</th>
+                                    <th class="border border-slate-200 px-4 py-2">J₃</th>
+                                    <th class="border border-slate-200 px-4 py-2">J₄</th>
+                                    <th class="border border-slate-200 px-4 py-2">J₅</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="border border-slate-200 px-4 py-2 font-bold text-inkBlue bg-slate-50/50">Profit</td>
+                                    <td class="border border-slate-200 px-4 py-2">30</td>
+                                    <td class="border border-slate-200 px-4 py-2">40</td>
+                                    <td class="border border-slate-200 px-4 py-2">10</td>
+                                    <td class="border border-slate-200 px-4 py-2">5</td>
+                                    <td class="border border-slate-200 px-4 py-2">5</td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-slate-200 px-4 py-2 font-bold text-inkBlue bg-slate-50/50">Deadline</td>
+                                    <td class="border border-slate-200 px-4 py-2">1</td>
+                                    <td class="border border-slate-200 px-4 py-2">4</td>
+                                    <td class="border border-slate-200 px-4 py-2">1</td>
+                                    <td class="border border-slate-200 px-4 py-2">1</td>
+                                    <td class="border border-slate-200 px-4 py-2">1</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Step 0 -->
+                    <div class="border-t border-slate-200 pt-4 grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+                        <div class="lg:col-span-7 space-y-1.5 text-xs text-pencilGray font-sans">
+                            <span class="font-bold text-inkBlue block text-sm">Step 0: Initialize & Sort</span>
+                            <p><strong>Sorted Order:</strong> J₂ (40), J₁ (30), J₃ (10), J₄ (5), J₅ (5).</p>
+                            <p><strong>Max Deadline:</strong> 4. We initialize 4 empty slots.</p>
+                        </div>
+                        <div class="lg:col-span-5 flex flex-col items-center">
+                            <canvas id="ex2-canvas-step-0" width="360" height="70" class="border border-slate-200 rounded bg-white shadow-sm max-w-full"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Step 1 -->
+                    <div class="border-t border-slate-100 pt-4 grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+                        <div class="lg:col-span-7 space-y-1.5 text-xs text-pencilGray font-sans">
+                            <span class="font-bold text-inkBlue block text-sm">Step 1: Process J₂ (Profit: 40, Deadline: 4)</span>
+                            <p>We evaluate J₂ (the highest profit job). Its deadline is 4. The latest slot before time 4 is <strong>Slot 4</strong>. It is free, so we schedule J₂ there.</p>
+                            <p class="text-emerald-700 font-bold">Current Profit: 40</p>
+                        </div>
+                        <div class="lg:col-span-5 flex flex-col items-center">
+                            <canvas id="ex2-canvas-step-1" width="360" height="70" class="border border-slate-200 rounded bg-white shadow-sm max-w-full"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div class="border-t border-slate-100 pt-4 grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+                        <div class="lg:col-span-7 space-y-1.5 text-xs text-pencilGray font-sans">
+                            <span class="font-bold text-inkBlue block text-sm">Step 2: Process J₁ (Profit: 30, Deadline: 1)</span>
+                            <p>We evaluate J₁. Its deadline is 1. The latest slot before time 1 is <strong>Slot 1</strong>. It is free, so we schedule J₁ there.</p>
+                            <p class="text-emerald-700 font-bold">Current Profit: 40 (J₂) + 30 (J₁) = 70</p>
+                        </div>
+                        <div class="lg:col-span-5 flex flex-col items-center">
+                            <canvas id="ex2-canvas-step-2" width="360" height="70" class="border border-slate-200 rounded bg-white shadow-sm max-w-full"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div class="border-t border-slate-100 pt-4 grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+                        <div class="lg:col-span-7 space-y-1.5 text-xs text-pencilGray font-sans">
+                            <span class="font-bold text-inkBlue block text-sm">Step 3: Process J₃ (Profit: 10, Deadline: 1)</span>
+                            <p>We evaluate J₃. Its deadline is 1, so the only valid position is Slot 1. Since Slot 1 is already full (occupied by J₁), J₃ is skipped.</p>
+                            <p class="text-rose-700 font-bold">Status: Skipped</p>
+                        </div>
+                        <div class="lg:col-span-5 flex flex-col items-center">
+                            <canvas id="ex2-canvas-step-3" width="360" height="70" class="border border-slate-200 rounded bg-white shadow-sm max-w-full"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Step 4 -->
+                    <div class="border-t border-slate-100 pt-4 grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+                        <div class="lg:col-span-7 space-y-1.5 text-xs text-pencilGray font-sans">
+                            <span class="font-bold text-inkBlue block text-sm">Step 4: Process J₄ and J₅ (Profit: 5, Deadline: 1)</span>
+                            <p>Remaining low-profit jobs J₄ and J₅ both have a deadline of 1. Since Slot 1 is already occupied, they are skipped.</p>
+                            <div class="bg-emerald-50 border border-emerald-200 p-2.5 rounded text-xs text-emerald-800 font-sans mt-2 inline-block">
+                                <strong>Final Output:</strong> Scheduled Jobs = {J₁, J₂}<br>
+                                🏆 <strong>Optimal Profit:</strong> <strong>70</strong>
+                            </div>
+                        </div>
+                        <div class="lg:col-span-5 flex flex-col items-center">
+                            <canvas id="ex2-canvas-step-4" width="360" height="70" class="border border-slate-200 rounded bg-white shadow-sm max-w-full"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 4: PLACEHOLDER -->
+            <section id="sec-mcst" class="tab-content hidden space-y-8">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline">Minimum Cost Spanning Tree</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 4</span>
+                </div>
+                <div class="bg-amber-50/40 p-6 rounded border border-amber-200 text-lg">
+                    <p class="text-pencilGray font-sans">Lecture notes for <strong>Minimum Cost Spanning Tree (Prim's & Kruskal's)</strong> will be added here.</p>
+                </div>
+            </section>
+
+            <!-- SECTION 5: PLACEHOLDER -->
+            <section id="sec-shortest-paths" class="tab-content hidden space-y-8">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline">Single Source Shortest Paths</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 5</span>
+                </div>
+                <div class="bg-amber-50/40 p-6 rounded border border-amber-200 text-lg">
+                    <p class="text-pencilGray font-sans">Lecture notes for <strong>Dijkstra's Algorithm</strong> will be added here.</p>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Visual Drawings Javascript Code -->
+    <script>
+        // Tab switching logic
+        let currentTab = 'general-method';
+        function switchTab(tabId) {
+            currentTab = tabId;
+            document.querySelectorAll('.tab-content').forEach(sec => {
+                sec.classList.remove('block');
+                sec.classList.add('hidden');
+            });
+            document.getElementById('sec-' + tabId).classList.remove('hidden');
+            document.getElementById('sec-' + tabId).classList.add('block');
+
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('bg-amber-200', 'text-inkBlue', 'border-b-2', 'border-inkBlue');
+                tab.classList.add('text-gray-600', 'hover:text-inkBlue');
+            });
+
+            const activeTab = document.getElementById('tab-' + tabId);
+            if (activeTab) {
+                activeTab.classList.remove('text-gray-600', 'hover:text-inkBlue');
+                activeTab.classList.add('bg-amber-200', 'text-inkBlue', 'border-b-2', 'border-inkBlue');
+            }
+
+            // Redraw active tab canvas elements
+            setTimeout(() => {
+                drawGreedyGeneral();
+                drawJobSeq();
+                drawKnapsack();
+            }, 50);
+        }
+
+        // Font Toggle switcher
+        function toggleFont() {
+            body = document.body;
+            body.classList.toggle('font-clean');
+            const btn = document.querySelector('button[onclick="toggleFont()"]');
+            if (body.classList.contains('font-clean')) {
+                btn.textContent = "Toggle Handwriting Font";
+            } else {
+                btn.textContent = "Toggle Clean Font";
+            }
+        }
+
+        window.onresize = () => {
+            drawGreedyGeneral();
+            drawJobSeq();
+            drawKnapsack();
+        };
+
+        // -------------------------------------------------------------
+        // 1. General Greedy Process Canvas Diagram
+        // -------------------------------------------------------------
+        function drawGreedyGeneral() {
+            const canvas = document.getElementById('greedy-general-canvas');
+            if (!canvas) return;
+
+            const ctx = canvas.getContext('2d');
+            const logicalWidth = 600;
+            const logicalHeight = 260;
+            const dpr = window.devicePixelRatio || 1;
+
+            canvas.width = logicalWidth * dpr;
+            canvas.height = logicalHeight * dpr;
+            canvas.style.width = logicalWidth + 'px';
+            canvas.style.height = logicalHeight + 'px';
+            ctx.scale(dpr, dpr);
+            ctx.clearRect(0, 0, logicalWidth, logicalHeight);
+
+            // Left Section: Candidate Set Pool
+            ctx.fillStyle = '#f8fafc';
+            ctx.strokeStyle = '#cbd5e1';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.roundRect(20, 45, 140, 170, 8);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = '#64748b';
+            ctx.font = 'bold 11px Inter';
+            ctx.textAlign = 'center';
+            ctx.fillText("Candidate Pool", 90, 35);
+
+            // Candidate set elements
+            const pool = [
+                {x: 55, y: 75, val: "C1", fill: '#93c5fd', stroke: '#1d4ed8'},
+                {x: 125, y: 75, val: "C2", fill: '#a7f3d0', stroke: '#047857'},
+                {x: 55, y: 130, val: "C3", fill: '#fde047', stroke: '#a16207'},
+                {x: 125, y: 130, val: "C4", fill: '#fca5a5', stroke: '#b91c1c'},
+                {x: 90, y: 185, val: "C5", fill: '#c084fc', stroke: '#6b21a8'}
+            ];
+            pool.forEach(c => {
+                ctx.fillStyle = c.fill;
+                ctx.strokeStyle = c.stroke;
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.arc(c.x, c.y, 18, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+                ctx.fillStyle = c.stroke;
+                ctx.font = 'bold 10px Inter';
+                ctx.fillText(c.val, c.x, c.y + 4);
+            });
+
+            // Mid Section: Selection & Feasibility Filter Funnel
+            ctx.fillStyle = '#fffbeb';
+            ctx.strokeStyle = '#d97706';
+            ctx.beginPath();
+            ctx.roundRect(210, 45, 180, 170, 8);
+            ctx.fill();
+            ctx.stroke();
+            
+            ctx.fillStyle = '#d97706';
+            ctx.font = 'bold 11px Inter';
+            ctx.fillText("Selection & Feasibility", 300, 35);
+
+            // Funnel drawing schematic
+            ctx.strokeStyle = '#d97706';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(250, 75);
+            ctx.lineTo(350, 75);
+            ctx.lineTo(320, 135);
+            ctx.lineTo(320, 165);
+            ctx.lineTo(280, 165);
+            ctx.lineTo(280, 135);
+            ctx.closePath();
+            ctx.stroke();
+
+            ctx.fillStyle = '#b45309';
+            ctx.font = 'bold 10px Inter';
+            ctx.fillText("Filter Funnel", 300, 120);
+
+            // Flow lines and arrow pointers
+            ctx.strokeStyle = '#64748b';
+            ctx.lineWidth = 2;
+            // Arrow Candidate Pool -> Selection Filter
+            ctx.beginPath();
+            ctx.moveTo(160, 130); ctx.lineTo(210, 130);
+            ctx.stroke();
+            // Arrowhead
+            ctx.fillStyle = '#64748b';
+            ctx.beginPath();
+            ctx.moveTo(210, 130); ctx.lineTo(203, 126); ctx.lineTo(203, 134); ctx.closePath();
+            ctx.fill();
+
+            // Right Section: Solution Set
+            ctx.fillStyle = '#f0fdf4';
+            ctx.strokeStyle = '#15803d';
+            ctx.beginPath();
+            ctx.roundRect(440, 45, 140, 170, 8);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = '#15803d';
+            ctx.font = 'bold 11px Inter';
+            ctx.fillText("Solution Set", 510, 35);
+
+            // Solution elements
+            const sol = [
+                {x: 510, y: 85, val: "C2", fill: '#a7f3d0', stroke: '#047857'},
+                {x: 510, y: 155, val: "C5", fill: '#c084fc', stroke: '#6b21a8'}
+            ];
+            sol.forEach(c => {
+                ctx.fillStyle = c.fill;
+                ctx.strokeStyle = c.stroke;
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.arc(c.x, c.y, 18, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+                ctx.fillStyle = c.stroke;
+                ctx.font = 'bold 10px Inter';
+                ctx.fillText(c.val, c.x, c.y + 4);
+            });
+
+            // Arrow Filter -> Solution Set
+            ctx.strokeStyle = '#15803d';
+            ctx.beginPath();
+            ctx.moveTo(390, 115); ctx.lineTo(440, 115);
+            ctx.stroke();
+            // Arrowhead
+            ctx.fillStyle = '#15803d';
+            ctx.beginPath();
+            ctx.moveTo(440, 115); ctx.lineTo(433, 111); ctx.lineTo(433, 119); ctx.closePath();
+            ctx.fill();
+
+            ctx.font = 'italic 9px Kalam';
+            ctx.fillText("Feasible?", 415, 105);
+
+            // Rejection Path (Feedback Arrow going down)
+            ctx.strokeStyle = '#ef4444';
+            ctx.beginPath();
+            ctx.moveTo(390, 165);
+            ctx.lineTo(415, 165);
+            ctx.lineTo(415, 230);
+            ctx.lineTo(90, 230);
+            ctx.lineTo(90, 215);
+            ctx.stroke();
+            // Arrowhead
+            ctx.fillStyle = '#ef4444';
+            ctx.beginPath();
+            ctx.moveTo(90, 215); ctx.lineTo(86, 222); ctx.lineTo(94, 222); ctx.closePath();
+            ctx.fill();
+
+            ctx.font = 'italic 9px Kalam';
+            ctx.fillStyle = '#ef4444';
+            ctx.fillText("Infeasible", 415, 185);
+            ctx.fillText("Discard / Reject", 250, 243);
+        }
+
+        // -------------------------------------------------------------
+        // 2. Job Sequencing Gantt Chart Visuals
+        // -------------------------------------------------------------
+        function drawJobSeq() {
+            // Helper to draw single gantt timeline
+            const drawGantt = (canvasId, slots) => {
+                const canvas = document.getElementById(canvasId);
+                if (!canvas) return;
+
+                const ctx = canvas.getContext('2d');
+                const logicalWidth = 360;
+                const logicalHeight = 70;
+                const dpr = window.devicePixelRatio || 1;
+
+                canvas.width = logicalWidth * dpr;
+                canvas.height = logicalHeight * dpr;
+                canvas.style.width = logicalWidth + 'px';
+                canvas.style.height = logicalHeight + 'px';
+                ctx.scale(dpr, dpr);
+                ctx.clearRect(0, 0, logicalWidth, logicalHeight);
+
+                const slotCount = 4;
+                const startX = 20;
+                const startY = 20;
+                const slotW = (logicalWidth - 40) / slotCount;
+                const slotH = 30;
+
+                // Draw time slots
+                for (let i = 0; i < slotCount; i++) {
+                    const x = startX + i * slotW;
+                    const s = slots[i];
+
+                    if (s && s.job) {
+                        ctx.fillStyle = s.fill || '#dbeafe'; // Light blue
+                        ctx.strokeStyle = s.stroke || '#2563eb';
+                    } else {
+                        // Shaded empty slot
+                        ctx.fillStyle = '#f8fafc';
+                        ctx.strokeStyle = '#cbd5e1';
+                    }
+                    ctx.lineWidth = 1.5;
+                    ctx.fillRect(x, startY, slotW, slotH);
+                    ctx.strokeRect(x, startY, slotW, slotH);
+
+                    // Draw time labels (0, 1, 2, 3...)
+                    ctx.fillStyle = '#64748b';
+                    ctx.font = 'bold 9px Inter';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(i, x, startY - 5);
+                    if (i === slotCount - 1) {
+                        ctx.fillText(i + 1, x + slotW, startY - 5);
+                    }
+
+                    // Draw Job contents
+                    if (s && s.job) {
+                        ctx.fillStyle = s.stroke || '#2563eb';
+                        ctx.font = 'bold 11px Inter';
+                        ctx.fillText(s.job + " (" + s.profit + ")", x + slotW / 2, startY + 18);
+                    } else {
+                        ctx.fillStyle = '#cbd5e1';
+                        ctx.font = 'italic 9px Inter';
+                        ctx.fillText("-", x + slotW / 2, startY + 18);
+                    }
+                }
+            };
+
+            // Draw Example 1 steps
+            drawGantt('ex1-canvas-step-0', [null, null, null, null]);
+            drawGantt('ex1-canvas-step-1', [
+                null,
+                null,
+                {job: 'J4', profit: 100, fill: '#dbeafe', stroke: '#2563eb'},
+                null
+            ]);
+            drawGantt('ex1-canvas-step-2', [
+                null,
+                null,
+                {job: 'J4', profit: 100, fill: '#dbeafe', stroke: '#2563eb'},
+                {job: 'J5', profit: 80, fill: '#ffedd5', stroke: '#ea580c'}
+            ]);
+            drawGantt('ex1-canvas-step-3', [
+                null,
+                {job: 'J2', profit: 60, fill: '#f1f5f9', stroke: '#475569'},
+                {job: 'J4', profit: 100, fill: '#dbeafe', stroke: '#2563eb'},
+                {job: 'J5', profit: 80, fill: '#ffedd5', stroke: '#ea580c'}
+            ]);
+            drawGantt('ex1-canvas-step-4', [
+                {job: 'J3', profit: 40, fill: '#fef9c3', stroke: '#ca8a04'},
+                {job: 'J2', profit: 60, fill: '#f1f5f9', stroke: '#475569'},
+                {job: 'J4', profit: 100, fill: '#dbeafe', stroke: '#2563eb'},
+                {job: 'J5', profit: 80, fill: '#ffedd5', stroke: '#ea580c'}
+            ]);
+            drawGantt('ex1-canvas-step-5', [
+                {job: 'J3', profit: 40, fill: '#fef9c3', stroke: '#ca8a04'},
+                {job: 'J2', profit: 60, fill: '#f1f5f9', stroke: '#475569'},
+                {job: 'J4', profit: 100, fill: '#dbeafe', stroke: '#2563eb'},
+                {job: 'J5', profit: 80, fill: '#ffedd5', stroke: '#ea580c'}
+            ]);
+
+            // Draw Example 2 steps
+            drawGantt('ex2-canvas-step-0', [null, null, null, null]);
+            drawGantt('ex2-canvas-step-1', [
+                null,
+                null,
+                null,
+                {job: 'J2', profit: 40, fill: '#dbeafe', stroke: '#2563eb'}
+            ]);
+            drawGantt('ex2-canvas-step-2', [
+                {job: 'J1', profit: 30, fill: '#ffedd5', stroke: '#ea580c'},
+                null,
+                null,
+                {job: 'J2', profit: 40, fill: '#dbeafe', stroke: '#2563eb'}
+            ]);
+            drawGantt('ex2-canvas-step-3', [
+                {job: 'J1', profit: 30, fill: '#ffedd5', stroke: '#ea580c'},
+                null,
+                null,
+                {job: 'J2', profit: 40, fill: '#dbeafe', stroke: '#2563eb'}
+            ]);
+            drawGantt('ex2-canvas-step-4', [
+                {job: 'J1', profit: 30, fill: '#ffedd5', stroke: '#ea580c'},
+                null,
+                null,
+                {job: 'J2', profit: 40, fill: '#dbeafe', stroke: '#2563eb'}
+            ]);
+        }
+
+        // -------------------------------------------------------------
+        // 3. Fractional Knapsack Fill Bar Visuals
+        // -------------------------------------------------------------
+        function drawKnapsack() {
+            const drawBar = (canvasId, maxCap, items) => {
+                const canvas = document.getElementById(canvasId);
+                if (!canvas) return;
+
+                const ctx = canvas.getContext('2d');
+                const logicalWidth = 280;
+                const logicalHeight = 75;
+                const dpr = window.devicePixelRatio || 1;
+
+                canvas.width = logicalWidth * dpr;
+                canvas.height = logicalHeight * dpr;
+                canvas.style.width = logicalWidth + 'px';
+                canvas.style.height = logicalHeight + 'px';
+                ctx.scale(dpr, dpr);
+                ctx.clearRect(0, 0, logicalWidth, logicalHeight);
+
+                const barX = 20;
+                const barY = 20;
+                const barW = logicalWidth - 40;
+                const barH = 30;
+
+                // Draw background capacity outline
+                ctx.fillStyle = '#f8fafc';
+                ctx.strokeStyle = '#cbd5e1';
+                ctx.lineWidth = 1.5;
+                ctx.fillRect(barX, barY, barW, barH);
+                ctx.strokeRect(barX, barY, barW, barH);
+
+                let currentX = barX;
+                let totalWeight = 0;
+
+                items.forEach(item => {
+                    const segmentW = (item.weight / maxCap) * barW;
+                    ctx.fillStyle = item.fill || '#dbeafe';
+                    ctx.strokeStyle = item.stroke || '#2563eb';
+                    ctx.lineWidth = 1.2;
+                    ctx.fillRect(currentX, barY, segmentW, barH);
+                    ctx.strokeRect(currentX, barY, segmentW, barH);
+
+                    // Text inside segment
+                    if (segmentW > 25) {
+                        ctx.fillStyle = item.stroke || '#2563eb';
+                        ctx.font = 'bold 9px Inter';
+                        ctx.textAlign = 'center';
+                        ctx.fillText(item.label, currentX + segmentW / 2, barY + 18);
+                    }
+
+                    currentX += segmentW;
+                    totalWeight += item.weight;
+                });
+
+                // Capacity labels
+                ctx.fillStyle = '#64748b';
+                ctx.font = 'bold 9px Inter';
+                ctx.textAlign = 'left';
+                ctx.fillText("0 kg", barX, barY + barH + 15);
+
+                ctx.textAlign = 'right';
+                ctx.fillText(maxCap + " kg", barX + barW, barY + barH + 15);
+
+                ctx.textAlign = 'center';
+                if (totalWeight > 0) {
+                    ctx.fillStyle = '#1e293b';
+                    ctx.fillText("Loaded: " + totalWeight.toFixed(1) + " kg", barX + barW / 2, barY + barH + 15);
+                }
+            };
+
+            // Example 1 steps
+            drawBar('ex1-knap-step-0', 15, []);
+            drawBar('ex1-knap-step-1', 15, [
+                {label: 'Obj 5', weight: 1, fill: '#c084fc', stroke: '#6b21a8'}
+            ]);
+            drawBar('ex1-knap-step-2', 15, [
+                {label: 'Obj 5', weight: 1, fill: '#c084fc', stroke: '#6b21a8'},
+                {label: 'Obj 1', weight: 2, fill: '#ffedd5', stroke: '#ea580c'}
+            ]);
+            drawBar('ex1-knap-step-3', 15, [
+                {label: 'Obj 5', weight: 1, fill: '#c084fc', stroke: '#6b21a8'},
+                {label: 'Obj 1', weight: 2, fill: '#ffedd5', stroke: '#ea580c'},
+                {label: 'Obj 6', weight: 4, fill: '#dbeafe', stroke: '#2563eb'}
+            ]);
+            drawBar('ex1-knap-step-4', 15, [
+                {label: 'Obj 5', weight: 1, fill: '#c084fc', stroke: '#6b21a8'},
+                {label: 'Obj 1', weight: 2, fill: '#ffedd5', stroke: '#ea580c'},
+                {label: 'Obj 6', weight: 4, fill: '#dbeafe', stroke: '#2563eb'},
+                {label: 'Obj 3', weight: 5, fill: '#fef9c3', stroke: '#ca8a04'}
+            ]);
+            drawBar('ex1-knap-step-5', 15, [
+                {label: 'Obj 5', weight: 1, fill: '#c084fc', stroke: '#6b21a8'},
+                {label: 'Obj 1', weight: 2, fill: '#ffedd5', stroke: '#ea580c'},
+                {label: 'Obj 6', weight: 4, fill: '#dbeafe', stroke: '#2563eb'},
+                {label: 'Obj 3', weight: 5, fill: '#fef9c3', stroke: '#ca8a04'},
+                {label: 'Obj 7', weight: 1, fill: '#fbcfe8', stroke: '#be185d'}
+            ]);
+            drawBar('ex1-knap-step-6', 15, [
+                {label: 'Obj 5', weight: 1, fill: '#c084fc', stroke: '#6b21a8'},
+                {label: 'Obj 1', weight: 2, fill: '#ffedd5', stroke: '#ea580c'},
+                {label: 'Obj 6', weight: 4, fill: '#dbeafe', stroke: '#2563eb'},
+                {label: 'Obj 3', weight: 5, fill: '#fef9c3', stroke: '#ca8a04'},
+                {label: 'Obj 7', weight: 1, fill: '#fbcfe8', stroke: '#be185d'},
+                {label: 'Obj 2', weight: 2, fill: '#a7f3d0', stroke: '#047857'}
+            ]);
+
+            // Example 2 steps
+            drawBar('ex2-knap-step-0', 10, []);
+            drawBar('ex2-knap-step-1', 10, [
+                {label: 'Obj 5', weight: 1, fill: '#c084fc', stroke: '#6b21a8'}
+            ]);
+            drawBar('ex2-knap-step-2', 10, [
+                {label: 'Obj 5', weight: 1, fill: '#c084fc', stroke: '#6b21a8'},
+                {label: 'Obj 2', weight: 3, fill: '#dbeafe', stroke: '#2563eb'}
+            ]);
+            drawBar('ex2-knap-step-3', 10, [
+                {label: 'Obj 5', weight: 1, fill: '#c084fc', stroke: '#6b21a8'},
+                {label: 'Obj 2', weight: 3, fill: '#dbeafe', stroke: '#2563eb'},
+                {label: 'Obj 3', weight: 2, fill: '#fef9c3', stroke: '#ca8a04'}
+            ]);
+            drawBar('ex2-knap-step-4', 10, [
+                {label: 'Obj 5', weight: 1, fill: '#c084fc', stroke: '#6b21a8'},
+                {label: 'Obj 2', weight: 3, fill: '#dbeafe', stroke: '#2563eb'},
+                {label: 'Obj 3', weight: 2, fill: '#fef9c3', stroke: '#ca8a04'},
+                {label: 'Obj 4', weight: 4, fill: '#ffedd5', stroke: '#ea580c'}
+            ]);
+        }
+
+        // Initialize all diagrams on window load
+        window.onload = () => {
+            switchTab('general-method');
+        };
+    </script>
+</body>
+
+</html>

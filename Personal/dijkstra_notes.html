@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Algorithms: Dijkstra's Algorithm - Digital Lecture Notes</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Kalam:wght@300;400;700&family=Patrick+Hand&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        notebookBg: '#cbd5e1',
+                        notebookPaper: '#FAF6EE',
+                        inkBlue: '#1A365D',
+                        inkRed: '#9B2C2C',
+                        pencilGray: '#4A5568',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Shared Notebook Styles -->
+    <link rel="stylesheet" href="../notebook.css">
+    
+    <style>
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+
+<body class="font-notes-body text-2xl text-slate-800 antialiased transition-all duration-300">
+
+    <!-- Sticky Header -->
+    <header class="sticky top-0 z-50 bg-[#FAF6EE] shadow-md border-b-2 border-amber-200 px-4 py-3 no-print">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-3">
+            <div class="flex items-center space-x-3">
+                <span class="text-3xl font-bold text-inkBlue tracking-wide font-heading">📖 Algorithms: Dijkstra's Shortest Paths</span>
+                <span class="bg-sky-100 text-sky-800 text-xs font-bold px-2.5 py-1 rounded-full border border-sky-300 font-sans uppercase">Personal Notes</span>
+            </div>
+            <button id="styleBtn" onclick="toggleStyleMode()" class="px-4 py-1.5 rounded-full text-sm font-bold bg-inkBlue text-white hover:bg-opacity-90 transition font-sans shadow-sm">
+                ✍️ Switch to Clean Print Font
+            </button>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <nav class="max-w-6xl mx-auto mt-3 flex flex-wrap gap-1 border-t border-amber-200 pt-2 text-base md:text-lg">
+            <button onclick="switchTab('concepts')" id="tab-concepts" class="nav-tab px-4 py-2 rounded-t-lg font-bold bg-amber-200 text-inkBlue border-b-2 border-inkBlue">
+                1. Concepts & Relaxation
+            </button>
+            <button onclick="switchTab('dry-run')" id="tab-dry-run" class="nav-tab px-4 py-2 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
+                2. Graph Dry Run
+            </button>
+            <button onclick="switchTab('table-run')" id="tab-table-run" class="nav-tab px-4 py-2 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
+                3. Table-Based Trace
+            </button>
+            <button onclick="switchTab('drawbacks')" id="tab-drawbacks" class="nav-tab px-4 py-2 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
+                4. Drawbacks & Complexity
+            </button>
+        </nav>
+    </header>
+
+    <!-- Main Notebook Container -->
+    <main class="max-w-6xl mx-auto flex relative bg-notebookPaper rounded-xl shadow-2xl overflow-hidden min-h-[900px] border border-amber-200 my-8">
+        
+        <!-- Left Binder Column -->
+        <div class="w-10 sm:w-16 bg-amber-50 border-r-2 border-amber-200 flex flex-col items-center py-8 select-none shrink-0 no-print space-y-6 z-10 shadow-[inset_-5px_0_10px_rgba(0,0,0,0.05)]">
+            <script>
+                for (let i = 0; i < 40; i++) document.write('<div class="spiral-ring"></div>');
+            </script>
+        </div>
+
+        <!-- Notebook Content Area -->
+        <div class="flex-1 lined-paper p-4 sm:p-8 notebook-margin sm:pl-8 overflow-hidden z-0">
+
+            <!-- TAB 1: CONCEPTS & RELAXATION -->
+            <section id="sec-concepts" class="tab-content active space-y-8">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                        Dijkstra's Algorithm Concepts</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 1</span>
+                </div>
+
+                <div class="space-y-6">
+                    <div>
+                        <h3 class="text-3xl font-bold text-inkRed font-heading pen-underline mb-2">1. Introduction</h3>
+                        <p class="leading-relaxed">
+                            Dijkstra's algorithm is a fundamental graph algorithm used to solve the **Single Source Shortest Path (SSSP) Problem**.
+                        </p>
+                        <p class="leading-relaxed mt-2">
+                            Given a weighted graph and a starting vertex (source), our goal is to find the shortest path from the source to all other vertices in the graph.
+                        </p>
+                        <div class="note-box p-4 mt-3 text-lg font-sans">
+                            <strong>SSSP Example:</strong><br>
+                            If we choose node <strong>1</strong> as our source:
+                            <ul class="list-disc list-inside mt-2 space-y-1 ml-4 text-pencilGray">
+                                <li>Shortest path to Node 2: 1 → 2 (or via other nodes)</li>
+                                <li>Shortest path to Node 3: 1 → 3 (direct or indirect)</li>
+                                <li>Shortest path to Node 4: 1 → 2 → 4 (etc.)</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-3xl font-bold text-inkRed font-heading pen-underline mb-2">2. Dijkstra & The Greedy Method</h3>
+                        <p class="leading-relaxed">
+                            Finding the shortest path is a minimization problem, which is a type of **Optimization Problem**.
+                        </p>
+                        <p class="leading-relaxed mt-2">
+                            Optimization problems can often be solved efficiently using a **Greedy Method**. The greedy method solves a problem in stages:
+                        </p>
+                        <ul class="list-disc list-inside space-y-1 ml-4 mt-2">
+                            <li>Takes one step at a time, selecting the best local choice.</li>
+                            <li>Considers one input element at a time.</li>
+                            <li>Follows a predefined sequence of steps.</li>
+                            <li>Aims to arrive at a global optimal solution.</li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h3 class="text-3xl font-bold text-inkRed font-heading pen-underline mb-2">3. Graph Support</h3>
+                        <p class="leading-relaxed">
+                            Dijkstra's algorithm is versatile and runs successfully on:
+                        </p>
+                        <ul class="list-disc list-inside space-y-1 ml-4 mt-2 font-bold text-inkBlue">
+                            <li>Directed Graphs</li>
+                            <li>Non-Directed (Undirected) Graphs</li>
+                        </ul>
+                        <p class="leading-relaxed mt-2">
+                            However, the algorithm has a critical drawback when the graph contains <strong>negative-weight edges</strong>.
+                        </p>
+                    </div>
+
+                    <div>
+                        <h3 class="text-3xl font-bold text-inkRed font-heading pen-underline mb-2">4. Relaxation Concept</h3>
+                        <p class="leading-relaxed">
+                            The core mathematical operation in Dijkstra's algorithm is **Relaxation**.
+                        </p>
+                        <p class="leading-relaxed mt-2">
+                            Suppose we have an edge from vertex <code class="font-bold">U</code> to vertex <code class="font-bold">V</code> with a weight/cost <code class="font-bold">cost(U, V)</code>:
+                        </p>
+                        <div class="note-box p-4 bg-amber-50/50 border-amber-300 font-sans my-3 text-lg">
+                            <span class="font-bold text-inkRed block text-xl mb-1">Relaxation Formula:</span>
+                            If <code class="font-bold text-inkBlue">distance(U) + cost(U, V) &lt; distance(V)</code>,<br>
+                            then modify <code class="font-bold text-inkBlue">distance(V) = distance(U) + cost(U, V)</code>.
+                        </div>
+                        <p class="leading-relaxed">
+                            Initially, all nodes have their distances set to infinity (<code class="font-bold">&infin;</code>), except the source which is <code class="font-bold">0</code>. As we discover paths, we "relax" the edges to lower the estimated distances.
+                        </p>
+                    </div>
+
+                    <div class="flex flex-col items-center bg-white/60 border border-amber-200 p-4 rounded-xl shadow-inner mt-4">
+                        <canvas id="relaxation-canvas" class="bg-white border border-slate-300 rounded max-w-full" style="width: 460px; height: 140px;"></canvas>
+                        <span class="text-xs text-pencilGray font-sans mt-2">Visualizing relaxation: path distance to node 3 updates from &infin; to 6 through node 2.</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 2: GRAPH DRY RUN -->
+            <section id="sec-dry-run" class="tab-content space-y-8">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                        Graph Dry Run Trace</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 2</span>
+                </div>
+
+                <div class="space-y-6">
+                    <p class="leading-relaxed">
+                        Let us perform a step-by-step dry run on a weighted graph with 6 vertices starting from **Source = 1**.
+                    </p>
+
+                    <div class="space-y-6 border-l-4 border-dashed border-amber-300 pl-4">
+                        <!-- Step 1 -->
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+                            <div class="lg:col-span-7 space-y-1">
+                                <span class="font-bold text-inkBlue text-xl">Initial Setup & Step 1</span>
+                                <p class="text-lg leading-relaxed">
+                                    Direct distances from Source 1: <code class="font-mono bg-white px-1">d(2)=2, d(3)=4</code>. All others set to <code class="font-mono bg-white px-1">&infin;</code>.<br>
+                                    Smallest unvisited distance is <strong>2 (Node 2)</strong>. Select it.<br>
+                                    Relax from 2:<br>
+                                    * Node 3: <code class="text-xs bg-slate-100 font-mono px-1">d(2) + cost(2,3) = 2 + 1 = 3 &lt; 4</code> &rarr; Update <code class="font-bold">d(3) = 3</code>.<br>
+                                    * Node 5: <code class="text-xs bg-slate-100 font-mono px-1">d(2) + cost(2,5) = 2 + 7 = 9 &lt; &infin;</code> &rarr; Update <code class="font-bold">d(5) = 9</code>.
+                                </p>
+                            </div>
+                            <div class="lg:col-span-5 flex flex-col items-center">
+                                <canvas id="dijkstra-step-1" class="border border-slate-200 rounded bg-white shadow-sm" style="width: 280px; height: 120px;"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Step 2 -->
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center pt-4 border-t border-amber-100">
+                            <div class="lg:col-span-7 space-y-1">
+                                <span class="font-bold text-inkBlue text-xl">Step 2: Select Node 3</span>
+                                <p class="text-lg leading-relaxed">
+                                    Current distances: <code class="font-mono bg-white px-1">d(3)=3, d(5)=9</code>. Smallest is <strong>3 (Node 3)</strong>. Select it.<br>
+                                    Relax from 3:<br>
+                                    * Node 5: <code class="text-xs bg-slate-100 font-mono px-1">d(3) + cost(3,5) = 3 + 3 = 6 &lt; 9</code> &rarr; Update <code class="font-bold">d(5) = 6</code>.
+                                </p>
+                            </div>
+                            <div class="lg:col-span-5 flex flex-col items-center">
+                                <canvas id="dijkstra-step-2" class="border border-slate-200 rounded bg-white shadow-sm" style="width: 280px; height: 120px;"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Step 3 -->
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center pt-4 border-t border-amber-100">
+                            <div class="lg:col-span-7 space-y-1">
+                                <span class="font-bold text-inkBlue text-xl">Step 3: Select Node 5</span>
+                                <p class="text-lg leading-relaxed">
+                                    Remaining distances: <code class="font-mono bg-white px-1">d(5)=6, d(4)=9</code>. Smallest is <strong>6 (Node 5)</strong>. Select it.<br>
+                                    Relax from 5:<br>
+                                    * Node 4: <code class="text-xs bg-slate-100 font-mono px-1">d(5) + cost(5,4) = 6 + 2 = 8 &lt; 9</code> &rarr; Update <code class="font-bold">d(4) = 8</code>.<br>
+                                    * Node 6: <code class="text-xs bg-slate-100 font-mono px-1">d(5) + cost(5,6) = 6 + 5 = 11 &lt; &infin;</code> &rarr; Update <code class="font-bold">d(6) = 11</code>.
+                                </p>
+                            </div>
+                            <div class="lg:col-span-5 flex flex-col items-center">
+                                <canvas id="dijkstra-step-3" class="border border-slate-200 rounded bg-white shadow-sm" style="width: 280px; height: 120px;"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Step 4 -->
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center pt-4 border-t border-amber-100">
+                            <div class="lg:col-span-7 space-y-1">
+                                <span class="font-bold text-inkBlue text-xl">Step 4: Select Node 4</span>
+                                <p class="text-lg leading-relaxed">
+                                    Remaining: <code class="font-mono bg-white px-1">d(4)=8, d(6)=11</code>. Smallest is <strong>8 (Node 4)</strong>. Select it.<br>
+                                    Relax from 4:<br>
+                                    * Node 6: <code class="text-xs bg-slate-100 font-mono px-1">d(4) + cost(4,6) = 8 + 1 = 9 &lt; 11</code> &rarr; Update <code class="font-bold">d(6) = 9</code>.
+                                </p>
+                            </div>
+                            <div class="lg:col-span-5 flex flex-col items-center">
+                                <canvas id="dijkstra-step-4" class="border border-slate-200 rounded bg-white shadow-sm" style="width: 280px; height: 120px;"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="note-box p-4 mt-6">
+                        <span class="font-heading text-inkRed text-2xl block mb-2">Final Distance Estimates</span>
+                        <table class="w-full text-lg border-collapse border border-slate-200 bg-white">
+                            <thead>
+                                <tr class="bg-slate-50 text-inkBlue font-sans">
+                                    <th class="border border-slate-200 px-3 py-2 text-center">Source</th>
+                                    <th class="border border-slate-200 px-3 py-2 text-center">Destination</th>
+                                    <th class="border border-slate-200 px-3 py-2 text-center">Shortest Path</th>
+                                    <th class="border border-slate-200 px-3 py-2 text-center">Cost</th>
+                                </tr>
+                            </thead>
+                            <tbody class="font-sans text-sm text-center">
+                                <tr>
+                                    <td class="border border-slate-200 px-3 py-2">1</td>
+                                    <td class="border border-slate-200 px-3 py-2">2</td>
+                                    <td class="border border-slate-200 px-3 py-2 font-mono">1 &rarr; 2</td>
+                                    <td class="border border-slate-200 px-3 py-2 font-bold text-emerald-700">2</td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-slate-200 px-3 py-2">1</td>
+                                    <td class="border border-slate-200 px-3 py-2">3</td>
+                                    <td class="border border-slate-200 px-3 py-2 font-mono">1 &rarr; 2 &rarr; 3</td>
+                                    <td class="border border-slate-200 px-3 py-2 font-bold text-emerald-700">3</td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-slate-200 px-3 py-2">1</td>
+                                    <td class="border border-slate-200 px-3 py-2">4</td>
+                                    <td class="border border-slate-200 px-3 py-2 font-mono">1 &rarr; 2 &rarr; 3 &rarr; 5 &rarr; 4</td>
+                                    <td class="border border-slate-200 px-3 py-2 font-bold text-emerald-700">8</td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-slate-200 px-3 py-2">1</td>
+                                    <td class="border border-slate-200 px-3 py-2">5</td>
+                                    <td class="border border-slate-200 px-3 py-2 font-mono">1 &rarr; 2 &rarr; 3 &rarr; 5</td>
+                                    <td class="border border-slate-200 px-3 py-2 font-bold text-emerald-700">6</td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-slate-200 px-3 py-2">1</td>
+                                    <td class="border border-slate-200 px-3 py-2">6</td>
+                                    <td class="border border-slate-200 px-3 py-2 font-mono">1 &rarr; 2 &rarr; 3 &rarr; 5 &rarr; 4 &rarr; 6</td>
+                                    <td class="border border-slate-200 px-3 py-2 font-bold text-emerald-700">9</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 3: TABLE-BASED TRACE -->
+            <section id="sec-table-run" class="tab-content space-y-8">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                        Table-Based Dry Run</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 3</span>
+                </div>
+
+                <div class="space-y-6 text-xl">
+                    <p class="leading-relaxed">
+                        Rather than tracking values on a graph, we can perform relaxation step-by-step using a table.
+                    </p>
+
+                    <div class="overflow-x-auto my-4">
+                        <table class="w-full text-lg border-collapse border border-slate-200 bg-white">
+                            <thead>
+                                <tr class="bg-slate-50 text-inkBlue font-sans">
+                                    <th class="border border-slate-200 px-3 py-2">Selected</th>
+                                    <th class="border border-slate-200 px-3 py-2 text-center">d(1)</th>
+                                    <th class="border border-slate-200 px-3 py-2 text-center">d(2)</th>
+                                    <th class="border border-slate-200 px-3 py-2 text-center">d(3)</th>
+                                    <th class="border border-slate-200 px-3 py-2 text-center">d(4)</th>
+                                    <th class="border border-slate-200 px-3 py-2 text-center">d(5)</th>
+                                    <th class="border border-slate-200 px-3 py-2 text-center">d(6)</th>
+                                </tr>
+                            </thead>
+                            <tbody class="font-sans text-sm text-center">
+                                <tr>
+                                    <td class="border border-slate-200 px-3 py-2 font-bold">Initial</td>
+                                    <td class="border border-slate-200 px-3 py-2 bg-slate-100 font-bold">(0)</td>
+                                    <td class="border border-slate-200 px-3 py-2">50</td>
+                                    <td class="border border-slate-200 px-3 py-2">45</td>
+                                    <td class="border border-slate-200 px-3 py-2">10</td>
+                                    <td class="border border-slate-200 px-3 py-2">&infin;</td>
+                                    <td class="border border-slate-200 px-3 py-2">&infin;</td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-slate-200 px-3 py-2 font-bold">Node 4</td>
+                                    <td class="border border-slate-200 px-3 py-2 bg-slate-100 font-bold">(0)</td>
+                                    <td class="border border-slate-200 px-3 py-2">50</td>
+                                    <td class="border border-slate-200 px-3 py-2">45</td>
+                                    <td class="border border-slate-200 px-3 py-2 bg-slate-100 font-bold">(10)</td>
+                                    <td class="border border-slate-200 px-3 py-2 bg-yellow-100 font-bold text-amber-950">25</td>
+                                    <td class="border border-slate-200 px-3 py-2">&infin;</td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-slate-200 px-3 py-2 font-bold">Node 5</td>
+                                    <td class="border border-slate-200 px-3 py-2 bg-slate-100 font-bold">(0)</td>
+                                    <td class="border border-slate-200 px-3 py-2 bg-yellow-100 font-bold text-amber-950">45</td>
+                                    <td class="border border-slate-200 px-3 py-2 font-bold">45</td>
+                                    <td class="border border-slate-200 px-3 py-2 bg-slate-100 font-bold">(10)</td>
+                                    <td class="border border-slate-200 px-3 py-2 bg-slate-100 font-bold">(25)</td>
+                                    <td class="border border-slate-200 px-3 py-2">&infin;</td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-slate-200 px-3 py-2 font-bold">Node 2</td>
+                                    <td class="border border-slate-200 px-3 py-2 bg-slate-100 font-bold">(0)</td>
+                                    <td class="border border-slate-200 px-3 py-2 bg-slate-100 font-bold">(45)</td>
+                                    <td class="border border-slate-200 px-3 py-2 font-bold">45</td>
+                                    <td class="border border-slate-200 px-3 py-2 bg-slate-100 font-bold">(10)</td>
+                                    <td class="border border-slate-200 px-3 py-2 bg-slate-100 font-bold">(25)</td>
+                                    <td class="border border-slate-200 px-3 py-2">&infin;</td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-slate-200 px-3 py-2 font-bold">Node 3</td>
+                                    <td class="border border-slate-200 px-3 py-2 bg-slate-100 font-bold">(0)</td>
+                                    <td class="border border-slate-200 px-3 py-2 bg-slate-100 font-bold">(45)</td>
+                                    <td class="border border-slate-200 px-3 py-2 bg-slate-100 font-bold">(45)</td>
+                                    <td class="border border-slate-200 px-3 py-2 bg-slate-100 font-bold">(10)</td>
+                                    <td class="border border-slate-200 px-3 py-2 bg-slate-100 font-bold">(25)</td>
+                                    <td class="border border-slate-200 px-3 py-2 font-bold text-rose-700">&infin;</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="space-y-4 text-lg leading-relaxed">
+                        <p>
+                            * <strong>Step 1</strong>: The smallest unselected distance is <strong>10</strong>. We select Node 4. Relax edge `4 &rarr; 5` (weight 15) &rarr; `d(5) = 10 + 15 = 25 &lt; &infin;`.
+                        </p>
+                        <p>
+                            * <strong>Step 2</strong>: The smallest unselected distance is <strong>25</strong>. We select Node 5. Relax edges:
+                            <br>&bull; Node 2: `d(5) + cost(5,2) = 25 + 20 = 45 &lt; 50` &rarr; update `d(2) = 45`.
+                            <br>&bull; Node 3: `d(5) + cost(5,3) = 25 + 20 = 45` &rarr; no improvement (equal to 45).
+                        </p>
+                        <p>
+                            * <strong>Step 3 & 4</strong>: We select Node 2 and Node 3. Relaxation checks yield no improvements. Node 6 has no paths leading to it, so its distance remains <code class="font-bold">&infin;</code>.
+                        </p>
+                    </div>
+
+                    <div class="flex flex-col items-center bg-white/60 border border-amber-200 p-4 rounded-xl shadow-inner mt-4">
+                        <canvas id="table-graph-canvas" class="bg-white border border-slate-300 rounded max-w-full" style="width: 480px; height: 160px;"></canvas>
+                        <span class="text-xs text-pencilGray font-sans mt-2">Graph layout for the table trace (Node 6 is unreachable).</span>
+                    </div>
+
+                    <div class="note-box p-5 border-blue-400 bg-blue-50/50 mt-6">
+                        <span class="font-bold text-inkBlue text-xl font-heading block mb-2">🔄 Undirected Graphs Tip:</span>
+                        We can run Dijkstra on undirected graphs by representing each undirected edge as two parallel directed edges pointing in opposite directions with the same cost.
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 4: DRAWBACKS & COMPLEXITY -->
+            <section id="sec-drawbacks" class="tab-content space-y-8">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                        Drawbacks & Performance</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 4</span>
+                </div>
+
+                <div class="space-y-6 text-xl">
+                    <div>
+                        <h3 class="text-3xl font-bold text-inkRed font-heading pen-underline mb-2">Drawback: Negative Edges</h3>
+                        <p class="leading-relaxed">
+                            Dijkstra's algorithm assumes that edge weights are positive. If a graph contains negative weights, Dijkstra's algorithm <strong>may or may not work correctly</strong>.
+                        </p>
+                        <p class="leading-relaxed mt-2 text-pencilGray">
+                            The greedy assumption states that once a vertex is chosen and its distance finalized, we don't need to re-evaluate it. Negative weights break this because a much shorter path (due to a heavy negative decrease) can be discovered later.
+                        </p>
+                    </div>
+
+                    <div class="note-box p-4 border-rose-500 bg-rose-50/50 text-rose-950 text-lg">
+                        <strong>⚠️ Dijkstra Breakdown Example:</strong><br>
+                        1. Direct edge `Source &rarr; A` cost is 3. Select A = 3 and lock it in.<br>
+                        2. Direct edge `Source &rarr; B` cost is 5. Select B.<br>
+                        3. From B to C cost is 2, updating C to 7. Select C.<br>
+                        4. From C to A there is a negative edge of weight <strong>-10</strong>.<br>
+                        Path `Source &rarr; B &rarr; C &rarr; A` has cost `5 + 2 - 10 = -3`. This is shorter than 3, but Dijkstra has already finalized A's cost as 3 and will not re-check it, outputting an incorrect path cost!
+                    </div>
+
+                    <div class="flex flex-col items-center bg-white/60 border border-amber-200 p-4 rounded-xl shadow-inner my-4">
+                        <canvas id="negative-graph-canvas" class="bg-white border border-slate-300 rounded max-w-full" style="width: 400px; height: 160px;"></canvas>
+                        <span class="text-xs text-pencilGray font-sans mt-2">Dijkstra fails here: path to A can be improved to -3 after A is visited.</span>
+                    </div>
+
+                    <div>
+                        <h3 class="text-3xl font-bold text-inkRed font-heading pen-underline mb-2">Dijkstra Time Complexity</h3>
+                        <p class="leading-relaxed">
+                            Dijkstra's worst-case time complexity is:
+                        </p>
+                        <div class="text-center my-3 text-3xl font-bold highlighter text-inkRed">
+                            &Theta;(n²) or &Theta;(V²)
+                        </div>
+                        <p class="leading-relaxed">
+                            In a complete graph, every vertex is connected to all other vertices. Finding the minimum distance vertex and relaxing all of its outgoing edges takes $\Theta(n^2)$ time in the standard array-based implementation.
+                        </p>
+                    </div>
+
+                    <div class="note-box p-4 border-amber-400 bg-amber-50/50">
+                        <span class="font-bold text-inkBlue text-lg block mb-1">💡 SSSP Alternative:</span>
+                        To resolve shortest paths in graphs containing negative edges, we use the <strong>Bellman-Ford Algorithm</strong> (based on Dynamic Programming), which re-evaluates edges multiple times.
+                    </div>
+
+                    <div>
+                        <h3 class="text-3xl font-bold text-inkRed font-heading pen-underline mb-3">Important Exam Questions</h3>
+                        <div class="space-y-4 text-lg font-sans text-pencilGray">
+                            <div>
+                                <span class="font-bold text-inkBlue block">Q: Which problem does Dijkstra's algorithm solve?</span>
+                                <span>A: The Single Source Shortest Path (SSSP) problem.</span>
+                            </div>
+                            <hr class="border-amber-100">
+                            <div>
+                                <span class="font-bold text-inkBlue block">Q: What algorithm design paradigm is used?</span>
+                                <span>A: The Greedy Method.</span>
+                            </div>
+                            <hr class="border-amber-100">
+                            <div>
+                                <span class="font-bold text-inkBlue block">Q: Can it handle negative edges?</span>
+                                <span>A: No, it may fail because it relies on local greedy choices that cannot be updated.</span>
+                            </div>
+                            <hr class="border-amber-100">
+                            <div>
+                                <span class="font-bold text-inkBlue block">Q: What is the worst-case time complexity?</span>
+                                <span>A: &Theta;(n²) using a standard array structure. Can be optimized to O(E log V) using a binary heap.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Visual Drawings Javascript Code -->
+    <script>
+        let isCleanFont = false;
+        
+        function toggleStyleMode() {
+            isCleanFont = !isCleanFont;
+            const body = document.body;
+            const styleBtn = document.getElementById('styleBtn');
+            if (isCleanFont) {
+                body.classList.remove('font-notes-body');
+                body.classList.add('font-clean');
+                styleBtn.innerText = "✍️ Switch to Handwritten Font";
+            } else {
+                body.classList.remove('font-clean');
+                body.classList.add('font-notes-body');
+                styleBtn.innerText = "✍️ Switch to Clean Print Font";
+            }
+            redrawAllCanvases();
+        }
+
+        let currentTab = 'concepts';
+        function switchTab(tabId) {
+            currentTab = tabId;
+            document.querySelectorAll('.tab-content').forEach(sec => {
+                sec.classList.remove('active');
+            });
+            document.getElementById('sec-' + tabId).classList.add('active');
+            
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('bg-amber-200', 'text-inkBlue', 'border-b-2', 'border-inkBlue');
+                tab.classList.add('text-gray-600', 'hover:text-inkBlue');
+            });
+            
+            const activeTab = document.getElementById('tab-' + tabId);
+            if (activeTab) {
+                activeTab.classList.remove('text-gray-600', 'hover:text-inkBlue');
+                activeTab.classList.add('bg-amber-200', 'text-inkBlue', 'border-b-2', 'border-inkBlue');
+            }
+            
+            setTimeout(() => {
+                redrawAllCanvases();
+            }, 50);
+        }
+
+        window.onresize = () => {
+            redrawAllCanvases();
+        };
+
+        // Redraw helper
+        function redrawAllCanvases() {
+            if (currentTab === 'concepts') {
+                drawRelaxationConcept();
+            } else if (currentTab === 'dry-run') {
+                drawDijkstraSteps();
+            } else if (currentTab === 'table-run') {
+                drawTableGraph();
+            } else if (currentTab === 'drawbacks') {
+                drawNegativeGraph();
+            }
+        }
+
+        // Helper function to draw node in canvas
+        function drawGraphNode(ctx, x, y, label, isVisited, distLabel) {
+            ctx.beginPath();
+            ctx.arc(x, y, 12, 0, 2 * Math.PI);
+            ctx.fillStyle = isVisited ? '#dbeafe' : '#ffffff';
+            ctx.fill();
+            ctx.strokeStyle = isVisited ? '#3b82f6' : '#475569';
+            ctx.lineWidth = isVisited ? 2.5 : 1.2;
+            ctx.stroke();
+
+            ctx.fillStyle = isVisited ? '#1d4ed8' : '#1e293b';
+            ctx.font = isCleanFont ? 'bold 10px Inter' : 'bold 11px Kalam';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(label, x, y);
+
+            if (distLabel !== undefined) {
+                ctx.fillStyle = '#b91c1c';
+                ctx.font = 'bold 9px Inter';
+                ctx.fillText(`d=${distLabel}`, x, y - 20);
+            }
+        }
+
+        // Helper to draw directed edge (with arrowhead)
+        function drawGraphEdge(ctx, x1, y1, x2, y2, weight, isSelected, isDashed = false) {
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.strokeStyle = isSelected ? '#3b82f6' : '#cbd5e1';
+            ctx.lineWidth = isSelected ? 2.8 : 1.2;
+            if (isDashed && !isSelected) {
+                ctx.setLineDash([3, 3]);
+            } else {
+                ctx.setLineDash([]);
+            }
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Draw arrowhead
+            const angle = Math.atan2(y2 - y1, x2 - x1);
+            const headlen = 5;
+            const ax = x2 - 12 * Math.cos(angle);
+            const ay = y2 - 12 * Math.sin(angle);
+            ctx.beginPath();
+            ctx.moveTo(ax, ay);
+            ctx.lineTo(ax - headlen * Math.cos(angle - Math.PI/6), ay - headlen * Math.sin(angle - Math.PI/6));
+            ctx.lineTo(ax - headlen * Math.cos(angle + Math.PI/6), ay - headlen * Math.sin(angle + Math.PI/6));
+            ctx.closePath();
+            ctx.fillStyle = isSelected ? '#3b82f6' : '#94a3b8';
+            ctx.fill();
+
+            // Draw weight at midpoint
+            if (weight !== undefined) {
+                const mx = (x1 + x2) / 2;
+                const my = (y1 + y2) / 2;
+                ctx.fillStyle = isSelected ? '#1d4ed8' : '#64748b';
+                ctx.font = 'bold 8px Inter';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.clearRect(mx - 8, my - 6, 16, 12);
+                ctx.fillText(weight, mx, my);
+            }
+        }
+
+        /* ----------------------------------------------------------------------
+           TAB 1: RELAXATION CONCEPT CANVAS
+        ---------------------------------------------------------------------- */
+        function drawRelaxationConcept() {
+            const canvas = document.getElementById('relaxation-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            const width = canvas.parentElement.clientWidth || 460;
+            const height = 140;
+
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            ctx.scale(dpr, dpr);
+            ctx.clearRect(0, 0, width, height);
+
+            const n = {
+                1: {x: 50, y: 70, d: '0'},
+                2: {x: 180, y: 70, d: '2'},
+                3: {x: 310, y: 70, d: '6'}
+            };
+
+            drawGraphEdge(ctx, n[1].x, n[1].y, n[2].x, n[2].y, '2', true);
+            drawGraphEdge(ctx, n[2].x, n[2].y, n[3].x, n[3].y, '4', true);
+
+            // Draw non-selected alternative direct path to show infinity comparison
+            ctx.strokeStyle = '#f87171';
+            ctx.lineWidth = 1.0;
+            ctx.setLineDash([4, 4]);
+            ctx.beginPath();
+            ctx.moveTo(n[1].x, n[1].y);
+            ctx.quadraticCurveTo((n[1].x+n[3].x)/2, n[1].y - 50, n[3].x, n[3].y);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            ctx.fillStyle = '#dc2626';
+            ctx.font = 'italic 8px Inter';
+            ctx.fillText("No direct path (d = ∞)", (n[1].x+n[3].x)/2, n[1].y - 35);
+
+            Object.keys(n).forEach(k => {
+                drawGraphNode(ctx, n[k].x, n[k].y, k, true, n[k].d);
+            });
+        }
+
+        /* ----------------------------------------------------------------------
+           TAB 2: DIJKSTRA STEP-BY-STEP CANVASES
+        ---------------------------------------------------------------------- */
+        const stepNodes = {
+            1: {x: 35, y: 60},
+            2: {x: 95, y: 25},
+            3: {x: 155, y: 25},
+            5: {x: 155, y: 95},
+            4: {x: 215, y: 60},
+            6: {x: 255, y: 60}
+        };
+
+        const stepAllEdges = [
+            {u: 1, v: 2, w: 2},
+            {u: 1, v: 3, w: 4},
+            {u: 2, v: 3, w: 1},
+            {u: 2, v: 5, w: 7},
+            {u: 3, v: 5, w: 3},
+            {u: 5, v: 4, w: 2},
+            {u: 5, v: 6, w: 5},
+            {u: 4, v: 6, w: 1}
+        ];
+
+        function drawDijkstraSingleStep(canvasId, visited, distances, selectedEdges) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            const width = 280;
+            const height = 120;
+
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            ctx.scale(dpr, dpr);
+            ctx.clearRect(0, 0, width, height);
+
+            const n = stepNodes;
+
+            stepAllEdges.forEach(e => {
+                const isSel = selectedEdges.some(se => 
+                    se[0] === e.u && se[1] === e.v
+                );
+                drawGraphEdge(ctx, n[e.u].x, n[e.u].y, n[e.v].x, n[e.v].y, e.w, isSel, true);
+            });
+
+            Object.keys(n).forEach(k => {
+                const idVal = parseInt(k);
+                drawGraphNode(ctx, n[k].x, n[k].y, k, visited.includes(idVal), distances[k]);
+            });
+        }
+
+        function drawDijkstraSteps() {
+            drawDijkstraSingleStep('dijkstra-step-1', [1, 2], {1:'0', 2:'2', 3:'3', 4:'∞', 5:'9', 6:'∞'}, [[1,2]]);
+            drawDijkstraSingleStep('dijkstra-step-2', [1, 2, 3], {1:'0', 2:'2', 3:'3', 4:'∞', 5:'6', 6:'∞'}, [[1,2], [2,3]]);
+            drawDijkstraSingleStep('dijkstra-step-3', [1, 2, 3, 5], {1:'0', 2:'2', 3:'3', 4:'8', 5:'6', 6:'11'}, [[1,2], [2,3], [3,5]]);
+            drawDijkstraSingleStep('dijkstra-step-4', [1, 2, 3, 5, 4, 6], {1:'0', 2:'2', 3:'3', 4:'8', 5:'6', 6:'9'}, [[1,2], [2,3], [3,5], [5,4], [4,6]]);
+        }
+
+        /* ----------------------------------------------------------------------
+           TAB 3: TABLE GRAPH CANVAS (NODE 6 DISCONNECTED)
+        ---------------------------------------------------------------------- */
+        function drawTableGraph() {
+            const canvas = document.getElementById('table-graph-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            const width = canvas.parentElement.clientWidth || 480;
+            const height = 160;
+
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            ctx.scale(dpr, dpr);
+            ctx.clearRect(0, 0, width, height);
+
+            const n = {
+                1: {x: 40, y: 80, d: '0'},
+                2: {x: 180, y: 35, d: '45'},
+                3: {x: 300, y: 35, d: '45'},
+                4: {x: 120, y: 125, d: '10'},
+                5: {x: 240, y: 125, d: '25'},
+                6: {x: 400, y: 80, d: '∞'}
+            };
+
+            const edges = [
+                {u: 1, v: 4, w: 10, s: true},
+                {u: 1, v: 2, w: 50, s: false},
+                {u: 1, v: 3, w: 45, s: true},
+                {u: 4, v: 5, w: 15, s: true},
+                {u: 5, v: 2, w: 20, s: true},
+                {u: 5, v: 3, w: 20, s: false},
+                {u: 2, v: 3, w: 10, s: false}
+            ];
+
+            edges.forEach(e => {
+                drawGraphEdge(ctx, n[e.u].x, n[e.u].y, n[e.v].x, n[e.v].y, e.w, e.s, true);
+            });
+
+            Object.keys(n).forEach(k => {
+                drawGraphNode(ctx, n[k].x, n[k].y, k, true, n[k].d);
+            });
+        }
+
+        /* ----------------------------------------------------------------------
+           TAB 4: NEGATIVE EDGE FAILURE DEMONSTRATION
+        ---------------------------------------------------------------------- */
+        function drawNegativeGraph() {
+            const canvas = document.getElementById('negative-graph-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            const width = canvas.parentElement.clientWidth || 400;
+            const height = 160;
+
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            ctx.scale(dpr, dpr);
+            ctx.clearRect(0, 0, width, height);
+
+            const n = {
+                S: {x: 50, y: 80, d: '0'},
+                A: {x: 180, y: 35, d: '3'}, // locked at 3, correct is -3
+                B: {x: 180, y: 125, d: '5'},
+                C: {x: 290, y: 125, d: '7'}
+            };
+
+            const edges = [
+                {u: 'S', v: 'A', w: 3, s: true},
+                {u: 'S', v: 'B', w: 5, s: true},
+                {u: 'B', v: 'C', w: 2, s: true},
+                {u: 'C', v: 'A', w: -10, s: false} // negative edge
+            ];
+
+            edges.forEach(e => {
+                drawGraphEdge(ctx, n[e.u].x, n[e.u].y, n[e.v].x, n[e.v].y, e.w, e.s, true);
+            });
+
+            // Draw a warning line showing why the negative path fails to update A
+            ctx.strokeStyle = '#dc2626';
+            ctx.lineWidth = 1.5;
+            ctx.setLineDash([3, 3]);
+            ctx.beginPath();
+            ctx.moveTo(n['C'].x, n['C'].y);
+            ctx.quadraticCurveTo((n['C'].x+n['A'].x)/2 + 30, (n['C'].y+n['A'].y)/2, n['A'].x, n['A'].y);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            ctx.fillStyle = '#dc2626';
+            ctx.font = 'bold 9px Inter';
+            ctx.fillText("x Lock-in: d(A)=3", n['A'].x + 50, n['A'].y);
+            ctx.fillText("Path cost -3 ignored!", n['A'].x + 50, n['A'].y + 12);
+
+            Object.keys(n).forEach(k => {
+                drawGraphNode(ctx, n[k].x, n[k].y, k, true, n[k].d);
+            });
+        }
+
+        window.onload = () => {
+            redrawAllCanvases();
+        };
+    </script>
+</body>
+
+</html>

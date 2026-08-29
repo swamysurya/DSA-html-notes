@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Algorithms: Minimum Cost Spanning Tree - Digital Lecture Notes</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Kalam:wght@300;400;700&family=Patrick+Hand&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        notebookBg: '#cbd5e1',
+                        notebookPaper: '#FAF6EE',
+                        inkBlue: '#1A365D',
+                        inkRed: '#9B2C2C',
+                        pencilGray: '#4A5568',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Shared Notebook Styles -->
+    <link rel="stylesheet" href="../notebook.css">
+    
+    <style>
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+
+<body class="font-notes-body text-2xl text-slate-800 antialiased transition-all duration-300">
+
+    <!-- Sticky Header -->
+    <header class="sticky top-0 z-50 bg-[#FAF6EE] shadow-md border-b-2 border-amber-200 px-4 py-3 no-print">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-3">
+            <div class="flex items-center space-x-3">
+                <span class="text-3xl font-bold text-inkBlue tracking-wide font-heading">📖 Algorithms: Minimum Cost Spanning Tree</span>
+                <span class="bg-sky-100 text-sky-800 text-xs font-bold px-2.5 py-1 rounded-full border border-sky-300 font-sans uppercase">Personal Notes</span>
+            </div>
+            <button id="styleBtn" onclick="toggleStyleMode()" class="px-4 py-1.5 rounded-full text-sm font-bold bg-inkBlue text-white hover:bg-opacity-90 transition font-sans shadow-sm">
+                ✍️ Switch to Clean Print Font
+            </button>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <nav class="max-w-6xl mx-auto mt-3 flex flex-wrap gap-1 border-t border-amber-200 pt-2 text-base md:text-lg">
+            <button onclick="switchTab('definitions')" id="tab-definitions" class="nav-tab px-4 py-2 rounded-t-lg font-bold bg-amber-200 text-inkBlue border-b-2 border-inkBlue">
+                1. Definitions & Concepts
+            </button>
+            <button onclick="switchTab('prims')" id="tab-prims" class="nav-tab px-4 py-2 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
+                2. Prim's Algorithm
+            </button>
+            <button onclick="switchTab('kruskals')" id="tab-kruskals" class="nav-tab px-4 py-2 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
+                3. Kruskal's Algorithm
+            </button>
+            <button onclick="switchTab('properties')" id="tab-properties" class="nav-tab px-4 py-2 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
+                4. MST Properties & Problems
+            </button>
+        </nav>
+    </header>
+
+    <!-- Main Notebook Container -->
+    <main class="max-w-6xl mx-auto flex relative bg-notebookPaper rounded-xl shadow-2xl overflow-hidden min-h-[900px] border border-amber-200 my-8">
+        
+        <!-- Left Binder Column -->
+        <div class="w-10 sm:w-16 bg-amber-50 border-r-2 border-amber-200 flex flex-col items-center py-8 select-none shrink-0 no-print space-y-6 z-10 shadow-[inset_-5px_0_10px_rgba(0,0,0,0.05)]">
+            <script>
+                for (let i = 0; i < 40; i++) document.write('<div class="spiral-ring"></div>');
+            </script>
+        </div>
+
+        <!-- Notebook Content Area -->
+        <div class="flex-1 lined-paper p-4 sm:p-8 notebook-margin sm:pl-8 overflow-hidden z-0">
+
+            <!-- TAB 1: DEFINITIONS & CONCEPTS -->
+            <section id="sec-definitions" class="tab-content active space-y-8">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                        Spanning Trees & MCST</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 1</span>
+                </div>
+
+                <div class="space-y-6">
+                    <div>
+                        <h3 class="text-3xl font-bold text-inkRed font-heading pen-underline mb-2">Before Minimum Cost Spanning Tree</h3>
+                        <p class="leading-relaxed">
+                            Before understanding Minimum Cost Spanning Tree, we must answer several key questions:
+                        </p>
+                        <ul class="list-disc list-inside space-y-1 ml-4 mt-2">
+                            <li>What is a Graph?</li>
+                            <li>What is a Spanning Tree?</li>
+                            <li>How many Spanning Trees can be generated from a graph?</li>
+                            <li>What is the cost of a Spanning Tree?</li>
+                            <li>How can we find the Minimum Cost Spanning Tree?</li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h3 class="text-3xl font-bold text-inkRed font-heading pen-underline mb-2">1. Graph Representation</h3>
+                        <p class="leading-relaxed">
+                            A graph is mathematically represented as:
+                        </p>
+                        <div class="text-center my-3">
+                            <span class="highlighter text-3xl font-bold px-4 py-1">G = (V, E)</span>
+                        </div>
+                        <p class="leading-relaxed">
+                            Where <code class="bg-amber-100/60 px-1 rounded">V</code> is the set of Vertices and <code class="bg-amber-100/60 px-1 rounded">E</code> is the set of Edges.
+                        </p>
+                        <div class="note-box p-4 mt-3">
+                            <strong>Example Graph:</strong><br>
+                            V = {1, 2, 3, 4, 5, 6}<br>
+                            E = {(1,2), (2,3), (3,4), (4,5), (5,6), (6,1), (2,5), (3,6)}
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-3xl font-bold text-inkRed font-heading pen-underline mb-2">2. What is a Spanning Tree?</h3>
+                        <p class="leading-relaxed">
+                            A spanning tree is a <strong>subgraph of a graph</strong>. To create it, we select:
+                        </p>
+                        <ul class="list-disc list-inside space-y-1 ml-4 mt-2">
+                            <li><strong>All vertices</strong> (the vertex set must remain identical to the original graph).</li>
+                            <li>A <strong>subset of edges</strong>.</li>
+                        </ul>
+                        <p class="leading-relaxed mt-2">
+                            For a graph with <code class="font-bold">n</code> vertices, the spanning tree must contain exactly:
+                        </p>
+                        <div class="text-center my-3">
+                            <span class="font-bold text-inkRed text-3xl">n - 1 edges</span>
+                        </div>
+                        <p class="leading-relaxed">
+                            If a graph has 6 vertices, its spanning tree must have exactly <code class="font-bold">6 - 1 = 5 edges</code>.
+                        </p>
+                    </div>
+
+                    <div class="note-box p-5 border-amber-400 bg-amber-50/50">
+                        <h4 class="text-2xl font-bold text-inkBlue font-heading">🚫 Spanning Tree Has No Cycle</h4>
+                        <p class="leading-relaxed">
+                            A tree by definition is an acyclic connected graph. If we select edges such that we can travel from a node and return to it, we form a cycle. Selected edges of a spanning tree must not form cycles.
+                        </p>
+                    </div>
+
+                    <div>
+                        <h3 class="text-3xl font-bold text-inkRed font-heading pen-underline mb-2">3. Multiple Spanning Trees</h3>
+                        <p class="leading-relaxed">
+                            A single graph can have multiple valid spanning trees. For instance, leaving out one edge forms one tree, while leaving out a different edge forms another.
+                        </p>
+                        <p class="leading-relaxed mt-2">
+                            Suppose a graph has <code class="font-bold">6 edges</code> and <code class="font-bold">6 vertices</code>. Since a spanning tree requires 5 edges, the number of possible selections is given by combinations:
+                        </p>
+                        <div class="text-center my-3">
+                            <span class="font-bold text-3xl">⁶C₅ = 6 spanning trees</span>
+                        </div>
+                        <p class="leading-relaxed">
+                            If the graph has <code class="font-bold">7 edges</code> and <code class="font-bold">6 vertices</code>, the possible selections are <code class="font-bold">⁷C₅ = 21</code>. However, some selections will contain cycles and are discarded, leaving only acyclic selections as spanning trees.
+                        </p>
+                    </div>
+
+                    <div>
+                        <h3 class="text-3xl font-bold text-inkRed font-heading pen-underline mb-2">4. Weighted Graphs & Cost</h3>
+                        <p class="leading-relaxed">
+                            A graph where every edge is assigned a weight (or cost) is a <strong>Weighted Graph</strong>. The cost of a spanning tree is the sum of the weights of its selected edges.
+                        </p>
+                        <p class="leading-relaxed mt-2">
+                            A graph can have different spanning trees with different costs. The goal of the <strong>Minimum Cost Spanning Tree (MCST)</strong> problem is to find a spanning tree with the minimum total cost.
+                        </p>
+                    </div>
+
+                    <div class="flex flex-col items-center bg-white/60 border border-amber-200 p-4 rounded-xl shadow-inner mt-4">
+                        <canvas id="concept-canvas" class="bg-white border border-slate-300 rounded max-w-full" style="width: 580px; height: 180px;"></canvas>
+                        <span class="text-xs text-pencilGray font-sans mt-2">Visualizing a base graph and 3 potential spanning tree costs.</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 2: PRIM'S ALGORITHM -->
+            <section id="sec-prims" class="tab-content space-y-8">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                        Prim's Algorithm</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 2</span>
+                </div>
+
+                <div class="space-y-6">
+                    <div>
+                        <h3 class="text-3xl font-bold text-inkRed font-heading pen-underline mb-2">Basic Approach</h3>
+                        <p class="leading-relaxed">
+                            Prim's algorithm builds the MCST growing from a single vertex, adding one edge at a time:
+                        </p>
+                        <ol class="list-decimal list-inside space-y-2 text-xl ml-4 mt-2">
+                            <li>Select the minimum-cost edge in the entire graph. Let its endpoints be added to the Visited Set.</li>
+                            <li>On every subsequent step, inspect all edges connecting any visited vertex to an unvisited vertex.</li>
+                            <li>Select the minimum-cost edge among these candidates and add its unvisited endpoint to the Visited Set.</li>
+                            <li>Repeat until all <code class="font-bold">n</code> vertices are visited (<code class="font-bold">n-1</code> edges selected).</li>
+                        </ol>
+                    </div>
+
+                    <div class="note-box p-4 border-emerald-500 bg-emerald-50/50 text-emerald-950 text-xl">
+                        <strong>💡 Key Tree Property:</strong> Prim's algorithm always maintains a single growing tree structure. It never selects an edge isolated from the current tree.
+                    </div>
+
+                    <div>
+                        <h3 class="text-3xl font-bold text-inkRed font-heading pen-underline mb-4">Step-by-Step Dry Run (7 Vertices)</h3>
+                        <p class="leading-relaxed mb-4">
+                            Let us trace Prim's algorithm on a graph with 7 vertices. We need to select 6 edges.
+                        </p>
+
+                        <div class="space-y-6 border-l-4 border-dashed border-amber-300 pl-4">
+                            <!-- Step 1 -->
+                            <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+                                <div class="lg:col-span-7 space-y-1">
+                                    <span class="font-bold text-inkBlue text-xl">Step 1: Smallest Edge in Graph</span>
+                                    <p class="text-lg leading-relaxed">
+                                        The smallest edge in the graph is <strong>1 — 6 (Cost: 10)</strong>. Select it.<br>
+                                        Visited Set: <code class="bg-amber-100 font-mono text-sm px-1.5 py-0.5 rounded">{1, 6}</code>. Edges: 1.
+                                    </p>
+                                </div>
+                                <div class="lg:col-span-5 flex flex-col items-center">
+                                    <canvas id="prim-step-1" class="border border-slate-200 rounded bg-white shadow-sm" style="width: 280px; height: 120px;"></canvas>
+                                </div>
+                            </div>
+
+                            <!-- Step 2 -->
+                            <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center pt-4 border-t border-amber-100">
+                                <div class="lg:col-span-7 space-y-1">
+                                    <span class="font-bold text-inkBlue text-xl">Step 2: Connected to {1, 6}</span>
+                                    <p class="text-lg leading-relaxed">
+                                        Candidate edges connected to {1, 6} are examined. The minimum connected edge is <strong>6 — 5 (Cost: 25)</strong>. Select it.<br>
+                                        Visited Set: <code class="bg-amber-100 font-mono text-sm px-1.5 py-0.5 rounded">{1, 6, 5}</code>. Edges: 2.
+                                    </p>
+                                </div>
+                                <div class="lg:col-span-5 flex flex-col items-center">
+                                    <canvas id="prim-step-2" class="border border-slate-200 rounded bg-white shadow-sm" style="width: 280px; height: 120px;"></canvas>
+                                </div>
+                            </div>
+
+                            <!-- Step 3 -->
+                            <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center pt-4 border-t border-amber-100">
+                                <div class="lg:col-span-7 space-y-1">
+                                    <span class="font-bold text-inkBlue text-xl">Step 3: Connected to {1, 6, 5}</span>
+                                    <p class="text-lg leading-relaxed">
+                                        Candidates are evaluated. The minimum connected edge is <strong>5 — 4 (Cost: 22)</strong>. Select it.<br>
+                                        Visited Set: <code class="bg-amber-100 font-mono text-sm px-1.5 py-0.5 rounded">{1, 6, 5, 4}</code>. Edges: 3.
+                                    </p>
+                                </div>
+                                <div class="lg:col-span-5 flex flex-col items-center">
+                                    <canvas id="prim-step-3" class="border border-slate-200 rounded bg-white shadow-sm" style="width: 280px; height: 120px;"></canvas>
+                                </div>
+                            </div>
+
+                            <!-- Step 4 -->
+                            <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center pt-4 border-t border-amber-100">
+                                <div class="lg:col-span-7 space-y-1">
+                                    <span class="font-bold text-inkBlue text-xl">Step 4: Connected to {1, 6, 5, 4}</span>
+                                    <p class="text-lg leading-relaxed">
+                                        Candidates evaluated. The minimum connected edge is <strong>4 — 3 (Cost: 12)</strong>. Select it.<br>
+                                        Visited Set: <code class="bg-amber-100 font-mono text-sm px-1.5 py-0.5 rounded">{1, 6, 5, 4, 3}</code>. Edges: 4.
+                                    </p>
+                                </div>
+                                <div class="lg:col-span-5 flex flex-col items-center">
+                                    <canvas id="prim-step-4" class="border border-slate-200 rounded bg-white shadow-sm" style="width: 280px; height: 120px;"></canvas>
+                                </div>
+                            </div>
+
+                            <!-- Step 5 -->
+                            <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center pt-4 border-t border-amber-100">
+                                <div class="lg:col-span-7 space-y-1">
+                                    <span class="font-bold text-inkBlue text-xl">Step 5: Connected to {1, 6, 5, 4, 3}</span>
+                                    <p class="text-lg leading-relaxed">
+                                        Candidates evaluated. The minimum connected edge is <strong>3 — 2 (Cost: 16)</strong>. Select it.<br>
+                                        Visited Set: <code class="bg-amber-100 font-mono text-sm px-1.5 py-0.5 rounded">{1, 6, 5, 4, 3, 2}</code>. Edges: 5.
+                                    </p>
+                                </div>
+                                <div class="lg:col-span-5 flex flex-col items-center">
+                                    <canvas id="prim-step-5" class="border border-slate-200 rounded bg-white shadow-sm" style="width: 280px; height: 120px;"></canvas>
+                                </div>
+                            </div>
+
+                            <!-- Step 6 -->
+                            <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center pt-4 border-t border-amber-100">
+                                <div class="lg:col-span-7 space-y-1">
+                                    <span class="font-bold text-inkBlue text-xl">Step 6: Final Edge</span>
+                                    <p class="text-lg leading-relaxed">
+                                        The final minimum connected edge is <strong>2 — 7 (Cost: 14)</strong>. Select it.<br>
+                                        Visited Set: <code class="bg-amber-100 font-mono text-sm px-1.5 py-0.5 rounded">{1, 6, 5, 4, 3, 2, 7}</code>. Edges: 6. Complete!
+                                    </p>
+                                </div>
+                                <div class="lg:col-span-5 flex flex-col items-center">
+                                    <canvas id="prim-step-6" class="border border-slate-200 rounded bg-white shadow-sm" style="width: 280px; height: 120px;"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-6 p-4 bg-amber-50/70 border border-amber-200 rounded-lg text-lg">
+                            <span class="font-bold text-inkRed">Cost Computation:</span><br>
+                            Selected Weights: <code class="font-mono bg-white px-1">10, 25, 22, 12, 16, 14</code><br>
+                            Total Cost = 10 + 25 + 22 + 12 + 16 + 14 = <strong>99</strong>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-3xl font-bold text-inkRed font-heading pen-underline mb-2">Prim's on Disconnected Graphs</h3>
+                        <p class="leading-relaxed">
+                            A spanning tree must be a connected graph. If a graph has multiple disconnected components (e.g. `1—2—3` and `4—5—6—7`), it is impossible to find a single spanning tree for the entire graph. Prim's algorithm, starting from a given node, will only find the spanning tree for the connected component containing that node.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 3: KRUSKAL'S ALGORITHM -->
+            <section id="sec-kruskals" class="tab-content space-y-8">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                        Kruskal's Algorithm</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 3</span>
+                </div>
+
+                <div class="space-y-6">
+                    <div>
+                        <h3 class="text-3xl font-bold text-inkRed font-heading pen-underline mb-2">Main Rule</h3>
+                        <p class="leading-relaxed">
+                            Kruskal's algorithm also uses a greedy approach, but selects edges globally:
+                        </p>
+                        <blockquote class="border-l-4 border-inkRed pl-4 italic text-xl my-3 text-pencilGray">
+                            "Always select the minimum-cost edge from the entire graph. If selecting an edge forms a cycle with the already chosen edges, discard it. Repeat until n-1 edges are selected."
+                        </blockquote>
+                    </div>
+
+                    <div>
+                        <h3 class="text-3xl font-bold text-inkRed font-heading pen-underline mb-4">Step-by-Step Dry Run (7 Vertices)</h3>
+                        <p class="leading-relaxed mb-4">
+                            Sort all edge weights in ascending order. We examine them one by one:
+                        </p>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-lg border-collapse border border-slate-200 bg-white mb-6">
+                                <thead>
+                                    <tr class="bg-slate-50 text-inkBlue font-sans">
+                                        <th class="border border-slate-200 px-3 py-2 text-center">Step</th>
+                                        <th class="border border-slate-200 px-3 py-2">Edge Inspected</th>
+                                        <th class="border border-slate-200 px-3 py-2 text-center">Cost</th>
+                                        <th class="border border-slate-200 px-3 py-2 text-center">Forms Cycle?</th>
+                                        <th class="border border-slate-200 px-3 py-2 text-center">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="font-sans text-sm">
+                                    <tr>
+                                        <td class="border border-slate-200 px-3 py-2 text-center font-bold">1</td>
+                                        <td class="border border-slate-200 px-3 py-2 font-mono">1 — 2</td>
+                                        <td class="border border-slate-200 px-3 py-2 text-center font-bold">10</td>
+                                        <td class="border border-slate-200 px-3 py-2 text-center text-emerald-600 font-bold">No</td>
+                                        <td class="border border-slate-200 px-3 py-2 text-center bg-emerald-50 text-emerald-800 font-bold">✅ ACCEPTED</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="border border-slate-200 px-3 py-2 text-center font-bold">2</td>
+                                        <td class="border border-slate-200 px-3 py-2 font-mono">3 — 4</td>
+                                        <td class="border border-slate-200 px-3 py-2 text-center font-bold">12</td>
+                                        <td class="border border-slate-200 px-3 py-2 text-center text-emerald-600 font-bold">No</td>
+                                        <td class="border border-slate-200 px-3 py-2 text-center bg-emerald-50 text-emerald-800 font-bold">✅ ACCEPTED</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="border border-slate-200 px-3 py-2 text-center font-bold">3</td>
+                                        <td class="border border-slate-200 px-3 py-2 font-mono">2 — 7</td>
+                                        <td class="border border-slate-200 px-3 py-2 text-center font-bold">14</td>
+                                        <td class="border border-slate-200 px-3 py-2 text-center text-emerald-600 font-bold">No</td>
+                                        <td class="border border-slate-200 px-3 py-2 text-center bg-emerald-50 text-emerald-800 font-bold">✅ ACCEPTED</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="border border-slate-200 px-3 py-2 text-center font-bold">4</td>
+                                        <td class="border border-slate-200 px-3 py-2 font-mono">2 — 3</td>
+                                        <td class="border border-slate-200 px-3 py-2 text-center font-bold">16</td>
+                                        <td class="border border-slate-200 px-3 py-2 text-center text-emerald-600 font-bold">No</td>
+                                        <td class="border border-slate-200 px-3 py-2 text-center bg-emerald-50 text-emerald-800 font-bold">✅ ACCEPTED</td>
+                                    </tr>
+                                    <tr class="bg-red-50/50">
+                                        <td class="border border-slate-200 px-3 py-2 text-center font-bold text-red-800">5</td>
+                                        <td class="border border-slate-200 px-3 py-2 font-mono text-red-800">7 — 4</td>
+                                        <td class="border border-slate-200 px-3 py-2 text-center font-bold text-red-800">18</td>
+                                        <td class="border border-slate-200 px-3 py-2 text-center text-rose-600 font-bold">Yes (2-7-4-3-2)</td>
+                                        <td class="border border-slate-200 px-3 py-2 text-center bg-rose-50 text-rose-800 font-bold">❌ DISCARDED</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="border border-slate-200 px-3 py-2 text-center font-bold">6</td>
+                                        <td class="border border-slate-200 px-3 py-2 font-mono">4 — 5</td>
+                                        <td class="border border-slate-200 px-3 py-2 text-center font-bold">22</td>
+                                        <td class="border border-slate-200 px-3 py-2 text-center text-emerald-600 font-bold">No</td>
+                                        <td class="border border-slate-200 px-3 py-2 text-center bg-emerald-50 text-emerald-800 font-bold">✅ ACCEPTED</td>
+                                    </tr>
+                                    <tr class="bg-red-50/50">
+                                        <td class="border border-slate-200 px-3 py-2 text-center font-bold text-red-800">7</td>
+                                        <td class="border border-slate-200 px-3 py-2 font-mono text-red-800">7 — 5</td>
+                                        <td class="border border-slate-200 px-3 py-2 text-center font-bold text-red-800">24</td>
+                                        <td class="border border-slate-200 px-3 py-2 text-center text-rose-600 font-bold">Yes</td>
+                                        <td class="border border-slate-200 px-3 py-2 text-center bg-rose-50 text-rose-800 font-bold">❌ DISCARDED</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="border border-slate-200 px-3 py-2 text-center font-bold">8</td>
+                                        <td class="border border-slate-200 px-3 py-2 font-mono">5 — 6</td>
+                                        <td class="border border-slate-200 px-3 py-2 text-center font-bold">25</td>
+                                        <td class="border border-slate-200 px-3 py-2 text-center text-emerald-600 font-bold">No</td>
+                                        <td class="border border-slate-200 px-3 py-2 text-center bg-emerald-50 text-emerald-800 font-bold">✅ ACCEPTED</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="flex flex-col items-center bg-white/60 border border-amber-200 p-4 rounded-xl shadow-inner mt-4">
+                            <canvas id="kruskal-canvas" class="bg-white border border-slate-300 rounded max-w-full" style="width: 480px; height: 180px;"></canvas>
+                            <span class="text-xs text-pencilGray font-sans mt-2">Kruskal's algorithm final MCST selected edges (cycles avoided).</span>
+                        </div>
+
+                        <div class="mt-6 p-4 bg-amber-50/70 border border-amber-200 rounded-lg text-lg">
+                            <span class="font-bold text-inkRed">Cost Computation:</span><br>
+                            Selected Weights: <code class="font-mono bg-white px-1">10, 12, 14, 16, 22, 25</code><br>
+                            Total Cost = 10 + 12 + 14 + 16 + 22 + 25 = <strong>99</strong>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-3xl font-bold text-inkRed font-heading pen-underline mb-2">Prim vs Kruskal Summary</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-lg">
+                            <div class="bg-blue-50/40 p-4 border border-blue-200 rounded-lg">
+                                <span class="font-bold text-inkBlue text-xl">Prim's Algorithm</span>
+                                <ul class="list-disc list-inside mt-2 space-y-1 text-sm font-sans">
+                                    <li>Starts with a single selected edge.</li>
+                                    <li>Strictly selects connected candidate edges.</li>
+                                    <li>Maintains a single growing tree at all steps.</li>
+                                </ul>
+                            </div>
+                            <div class="bg-emerald-50/40 p-4 border border-emerald-200 rounded-lg">
+                                <span class="font-bold text-emerald-900 text-xl">Kruskal's Algorithm</span>
+                                <ul class="list-disc list-inside mt-2 space-y-1 text-sm font-sans">
+                                    <li>Starts by sorting all edge weights globally.</li>
+                                    <li>Can select edges completely isolated from each other.</li>
+                                    <li>Maintains a forest of trees until they merge.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-3xl font-bold text-inkRed font-heading pen-underline mb-2">Kruskal on Disconnected Graphs</h3>
+                        <p class="leading-relaxed">
+                            While Kruskal cannot construct one single spanning tree for a disconnected graph, it succeeds in producing a spanning tree for each disconnected component (creating a Minimum Spanning Forest).
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 4: MST PROPERTIES & PROBLEMS -->
+            <section id="sec-properties" class="tab-content space-y-8">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                        MST Properties & Problems</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 4</span>
+                </div>
+
+                <div class="space-y-6 text-xl">
+                    <div>
+                        <h3 class="text-3xl font-bold text-inkRed font-heading pen-underline mb-2">Missing Edge Weight Reasoning</h3>
+                        <p class="leading-relaxed">
+                            In exam problems, you are often asked to determine the range of values for a missing edge weight <code class="font-bold">x</code> such that a specific spanning tree remains minimum.
+                        </p>
+                        <p class="leading-relaxed mt-2 font-bold text-inkBlue">
+                            Rule of Thumb:
+                        </p>
+                        <p class="leading-relaxed pl-4 border-l-2 border-blue-400">
+                            Suppose an edge is NOT selected in the MST because it forms a cycle. If this edge had a weight smaller than the largest edge weight in that cycle, Kruskal's algorithm would have selected it instead. Therefore, the missing weight must be greater than or equal to the largest weight in the cycle it completes.
+                        </p>
+                        <p class="leading-relaxed mt-2 pl-4 border-l-2 border-emerald-400">
+                            Similarly, if an edge IS part of the MST, its weight must be less than or equal to any alternative edges that could replace it to keep the component connected.
+                        </p>
+                    </div>
+
+                    <div class="note-box p-4 border-amber-400 bg-amber-50/50">
+                        <strong class="font-heading text-inkRed">📝 Exam Case Study:</strong><br>
+                        "If a missing edge connects nodes already connected by path weights 4 and 6, and this missing edge was not chosen, its weight must be <code class="font-bold">&ge; 4</code> (to be sorted after) or <code class="font-bold">&ge; 6</code> depending on which cycle path it closes."
+                    </div>
+
+                    <div>
+                        <h3 class="text-3xl font-bold text-inkRed font-heading pen-underline mb-2">5-Vertex Example Problem</h3>
+                        <p class="leading-relaxed">
+                            Consider a graph with 5 vertices. The spanning tree requires exactly <code class="font-bold">5 - 1 = 4 edges</code>.
+                        </p>
+                        <p class="leading-relaxed mt-2 text-pencilGray">
+                            Applying Kruskal's algorithm, we sort and select the following 4 edges:
+                        </p>
+                        <ul class="list-disc list-inside ml-4 space-y-1 font-mono text-sm">
+                            <li>Select Edge 1 (Cost: 2)</li>
+                            <li>Select Edge 2 (Cost: 3)</li>
+                            <li>Select Edge 3 (Cost: 3)</li>
+                            <li>Select Edge 4 (Cost: 4)</li>
+                        </ul>
+                        <div class="mt-4 p-3 bg-white/70 border border-slate-200 rounded text-center">
+                            Total Minimum Cost = 2 + 3 + 3 + 4 = <strong>12</strong>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col items-center bg-white/60 border border-amber-200 p-4 rounded-xl shadow-inner my-4">
+                        <canvas id="missing-weight-canvas" class="bg-white border border-slate-300 rounded max-w-full" style="width: 400px; height: 160px;"></canvas>
+                        <span class="text-xs text-pencilGray font-sans mt-2">Visualizing the 5-vertex MST selection.</span>
+                    </div>
+
+                    <div>
+                        <h3 class="text-3xl font-bold text-inkRed font-heading pen-underline mb-2">Can There Be Multiple MSTs?</h3>
+                        <p class="leading-relaxed">
+                            <strong>Yes!</strong> If a graph contains edges with duplicate weights, we may have choices. Selecting one edge might form an MST, while selecting another duplicate-weight edge instead forms a different MST.
+                        </p>
+                        <p class="leading-relaxed mt-2 font-bold text-inkRed">
+                            Crucial Concept:
+                        </p>
+                        <ul class="list-disc list-inside space-y-1 ml-4 mt-2">
+                            <li>The <strong>shapes/edges</strong> of different MSTs can be different.</li>
+                            <li>The <strong>total minimum cost</strong> will always be identical across all MSTs.</li>
+                        </ul>
+                    </div>
+
+                    <div class="note-box p-4 border-slate-400 bg-slate-50/50">
+                        <span class="font-bold text-inkBlue text-lg">💡 Quick Cheat Sheet:</span>
+                        <ul class="list-disc list-inside text-sm font-sans space-y-1 mt-2">
+                            <li><strong>Spanning Tree:</strong> Subset of V-1 edges containing all vertices with no cycles.</li>
+                            <li><strong>Disconnected Graph:</strong> No spanning tree exists for the entire graph structure.</li>
+                            <li><strong>Prim's Core:</strong> Keep it connected! Grows outward from a node.</li>
+                            <li><strong>Kruskal's Core:</strong> Sort and select! Keep it acyclic.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Visual Drawings Javascript Code -->
+    <script>
+        let isCleanFont = false;
+        
+        function toggleStyleMode() {
+            isCleanFont = !isCleanFont;
+            const body = document.body;
+            const styleBtn = document.getElementById('styleBtn');
+            if (isCleanFont) {
+                body.classList.remove('font-notes-body');
+                body.classList.add('font-clean');
+                styleBtn.innerText = "✍️ Switch to Handwritten Font";
+            } else {
+                body.classList.remove('font-clean');
+                body.classList.add('font-notes-body');
+                styleBtn.innerText = "✍️ Switch to Clean Print Font";
+            }
+            redrawAllCanvases();
+        }
+
+        let currentTab = 'definitions';
+        function switchTab(tabId) {
+            currentTab = tabId;
+            document.querySelectorAll('.tab-content').forEach(sec => {
+                sec.classList.remove('active');
+            });
+            document.getElementById('sec-' + tabId).classList.add('active');
+            
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('bg-amber-200', 'text-inkBlue', 'border-b-2', 'border-inkBlue');
+                tab.classList.add('text-gray-600', 'hover:text-inkBlue');
+            });
+            
+            const activeTab = document.getElementById('tab-' + tabId);
+            if (activeTab) {
+                activeTab.classList.remove('text-gray-600', 'hover:text-inkBlue');
+                activeTab.classList.add('bg-amber-200', 'text-inkBlue', 'border-b-2', 'border-inkBlue');
+            }
+            
+            setTimeout(() => {
+                redrawAllCanvases();
+            }, 50);
+        }
+
+        window.onresize = () => {
+            redrawAllCanvases();
+        };
+
+        // Redraw helper
+        function redrawAllCanvases() {
+            if (currentTab === 'definitions') {
+                drawConceptDiagram();
+            } else if (currentTab === 'prims') {
+                drawPrimSteps();
+            } else if (currentTab === 'kruskals') {
+                drawKruskalDiagram();
+            } else if (currentTab === 'properties') {
+                drawMissingWeightDiagram();
+            }
+        }
+
+        // Helper function to draw node in canvas
+        function drawGraphNode(ctx, x, y, label, isVisited) {
+            ctx.beginPath();
+            ctx.arc(x, y, 12, 0, 2 * Math.PI);
+            ctx.fillStyle = isVisited ? '#dbeafe' : '#ffffff';
+            ctx.fill();
+            ctx.strokeStyle = isVisited ? '#2563eb' : '#475569';
+            ctx.lineWidth = isVisited ? 2.5 : 1.2;
+            ctx.stroke();
+
+            ctx.fillStyle = isVisited ? '#1e40af' : '#1e293b';
+            ctx.font = isCleanFont ? 'bold 10px Inter' : 'bold 11px Kalam';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(label, x, y);
+        }
+
+        // Helper to draw edge
+        function drawGraphEdge(ctx, x1, y1, x2, y2, weight, isSelected, isDashed = false) {
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.strokeStyle = isSelected ? '#10b981' : '#cbd5e1';
+            ctx.lineWidth = isSelected ? 2.8 : 1.2;
+            if (isDashed && !isSelected) {
+                ctx.setLineDash([3, 3]);
+            } else {
+                ctx.setLineDash([]);
+            }
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Draw weight at midpoint
+            if (weight !== undefined) {
+                const mx = (x1 + x2) / 2;
+                const my = (y1 + y2) / 2;
+                ctx.fillStyle = isSelected ? '#047857' : '#64748b';
+                ctx.font = 'bold 9px Inter';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.clearRect(mx - 7, my - 6, 14, 12);
+                ctx.fillText(weight, mx, my);
+            }
+        }
+
+        /* ----------------------------------------------------------------------
+           TAB 1: DEFINITIONS CONCEPT GRAPH
+        ---------------------------------------------------------------------- */
+        function drawConceptDiagram() {
+            const canvas = document.getElementById('concept-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            const width = canvas.parentElement.clientWidth || 580;
+            const height = 180;
+            
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            ctx.scale(dpr, dpr);
+            ctx.clearRect(0, 0, width, height);
+
+            // Sub-graph drawing configuration
+            const drawConceptSub = (ox, oy, title, selectedEdges) => {
+                const n = {
+                    1: {x: ox + 20, y: oy + 20},
+                    2: {x: ox + 80, y: oy + 20},
+                    3: {x: ox + 80, y: oy + 80},
+                    4: {x: ox + 20, y: oy + 80}
+                };
+
+                const edges = [
+                    {u: 1, v: 2, w: 5},
+                    {u: 2, v: 3, w: 3},
+                    {u: 3, v: 4, w: 6},
+                    {u: 4, v: 1, w: 4}
+                ];
+
+                edges.forEach(e => {
+                    const isSel = selectedEdges && selectedEdges.some(se => 
+                        (se[0] === e.u && se[1] === e.v) || (se[0] === e.v && se[1] === e.u)
+                    );
+                    drawGraphEdge(ctx, n[e.u].x, n[e.u].y, n[e.v].x, n[e.v].y, e.w, isSel, true);
+                });
+
+                Object.keys(n).forEach(k => {
+                    drawGraphNode(ctx, n[k].x, n[k].y, k, selectedEdges !== undefined);
+                });
+
+                ctx.fillStyle = '#475569';
+                ctx.font = isCleanFont ? 'bold 11px Inter' : 'bold 12px Kalam';
+                ctx.textAlign = 'center';
+                ctx.fillText(title, ox + 50, oy + 115);
+            };
+
+            drawConceptSub(20, 15, "Original Graph", undefined);
+            drawConceptSub(160, 15, "Tree A (Cost: 14)", [[1, 2], [2, 3], [3, 4]]);
+            drawConceptSub(300, 15, "Tree B (Cost: 13)", [[1, 2], [2, 3], [4, 1]]);
+            drawConceptSub(440, 15, "Tree C (MCST: 12)", [[2, 3], [3, 4], [4, 1]]);
+        }
+
+        /* ----------------------------------------------------------------------
+           TAB 2: PRIM'S STEP-BY-STEP CANVASES
+        ---------------------------------------------------------------------- */
+        // Prim's 7 nodes coordinates
+        const primNodes = {
+            1: {x: 35, y: 60},
+            6: {x: 95, y: 95},
+            5: {x: 155, y: 95},
+            4: {x: 215, y: 60},
+            3: {x: 155, y: 25},
+            2: {x: 95, y: 25},
+            7: {x: 245, y: 95}
+        };
+
+        const primAllEdges = [
+            {u: 1, v: 6, w: 10},
+            {u: 6, v: 5, w: 25},
+            {u: 5, v: 4, w: 22},
+            {u: 4, v: 3, w: 12},
+            {u: 3, v: 2, w: 16},
+            {u: 2, v: 7, w: 14},
+            {u: 1, v: 2, w: 28},
+            {u: 6, v: 2, w: 30},
+            {u: 5, v: 3, w: 20}
+        ];
+
+        function drawPrimSingleStep(canvasId, visited, selected) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            const width = 280;
+            const height = 120;
+            
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            ctx.scale(dpr, dpr);
+            ctx.clearRect(0, 0, width, height);
+
+            const n = primNodes;
+
+            primAllEdges.forEach(e => {
+                const isSel = selected.some(se => 
+                    (se[0] === e.u && se[1] === e.v) || (se[0] === e.v && se[1] === e.u)
+                );
+                drawGraphEdge(ctx, n[e.u].x, n[e.u].y, n[e.v].x, n[e.v].y, e.w, isSel, true);
+            });
+
+            Object.keys(n).forEach(k => {
+                const idVal = parseInt(k);
+                drawGraphNode(ctx, n[k].x, n[k].y, k, visited.includes(idVal));
+            });
+        }
+
+        function drawPrimSteps() {
+            drawPrimSingleStep('prim-step-1', [1, 6], [[1, 6]]);
+            drawPrimSingleStep('prim-step-2', [1, 6, 5], [[1, 6], [6, 5]]);
+            drawPrimSingleStep('prim-step-3', [1, 6, 5, 4], [[1, 6], [6, 5], [5, 4]]);
+            drawPrimSingleStep('prim-step-4', [1, 6, 5, 4, 3], [[1, 6], [6, 5], [5, 4], [4, 3]]);
+            drawPrimSingleStep('prim-step-5', [1, 6, 5, 4, 3, 2], [[1, 6], [6, 5], [5, 4], [4, 3], [3, 2]]);
+            drawPrimSingleStep('prim-step-6', [1, 6, 5, 4, 3, 2, 7], [[1, 6], [6, 5], [5, 4], [4, 3], [3, 2], [2, 7]]);
+        }
+
+        /* ----------------------------------------------------------------------
+           TAB 3: KRUSKAL'S DIAGRAM
+        ---------------------------------------------------------------------- */
+        function drawKruskalDiagram() {
+            const canvas = document.getElementById('kruskal-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            const width = canvas.parentElement.clientWidth || 480;
+            const height = 180;
+
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            ctx.scale(dpr, dpr);
+            ctx.clearRect(0, 0, width, height);
+
+            // 7 node layout for Kruskal
+            const n = {
+                1: {x: 40, y: 90},
+                2: {x: 120, y: 40},
+                7: {x: 200, y: 40},
+                3: {x: 280, y: 40},
+                4: {x: 360, y: 90},
+                5: {x: 280, y: 140},
+                6: {x: 120, y: 140}
+            };
+
+            const edges = [
+                {u: 1, v: 2, w: 10, s: true},
+                {u: 3, v: 4, w: 12, s: true},
+                {u: 2, v: 7, w: 14, s: true},
+                {u: 2, v: 3, w: 16, s: true},
+                {u: 7, v: 4, w: 18, s: false, d: true}, // cycle forming
+                {u: 4, v: 5, w: 22, s: true},
+                {u: 7, v: 5, w: 24, s: false, d: true}, // cycle forming
+                {u: 5, v: 6, w: 25, s: true}
+            ];
+
+            edges.forEach(e => {
+                drawGraphEdge(ctx, n[e.u].x, n[e.u].y, n[e.v].x, n[e.v].y, e.w, e.s, true);
+                if (e.d) {
+                    // Draw a small red indicator indicating discarded/cycle
+                    const mx = (n[e.u].x + n[e.v].x) / 2;
+                    const my = (n[e.u].y + n[e.v].y) / 2;
+                    ctx.strokeStyle = '#dc2626';
+                    ctx.lineWidth = 1.5;
+                    ctx.beginPath();
+                    ctx.arc(mx, my, 6, 0, 2*Math.PI);
+                    ctx.stroke();
+                    ctx.beginPath();
+                    ctx.moveTo(mx - 4, my - 4);
+                    ctx.lineTo(mx + 4, my + 4);
+                    ctx.stroke();
+                }
+            });
+
+            Object.keys(n).forEach(k => {
+                drawGraphNode(ctx, n[k].x, n[k].y, k, true);
+            });
+        }
+
+        /* ----------------------------------------------------------------------
+           TAB 4: PROPERTIES & PROBLEMS (5-Vertex Example)
+        ---------------------------------------------------------------------- */
+        function drawMissingWeightDiagram() {
+            const canvas = document.getElementById('missing-weight-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            const width = canvas.parentElement.clientWidth || 400;
+            const height = 160;
+
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            ctx.scale(dpr, dpr);
+            ctx.clearRect(0, 0, width, height);
+
+            const n = {
+                A: {x: 50, y: 80},
+                B: {x: 130, y: 40},
+                C: {x: 210, y: 40},
+                D: {x: 290, y: 80},
+                E: {x: 170, y: 120}
+            };
+
+            const edges = [
+                {u: 'A', v: 'B', w: 2, s: true},
+                {u: 'B', v: 'C', w: 3, s: true},
+                {u: 'C', v: 'D', w: 3, s: true},
+                {u: 'D', v: 'E', w: 4, s: true},
+                {u: 'A', v: 'E', w: 5, s: false},
+                {u: 'B', v: 'E', w: 6, s: false}
+            ];
+
+            edges.forEach(e => {
+                drawGraphEdge(ctx, n[e.u].x, n[e.u].y, n[e.v].x, n[e.v].y, e.w, e.s, true);
+            });
+
+            Object.keys(n).forEach(k => {
+                drawGraphNode(ctx, n[k].x, n[k].y, k, true);
+            });
+        }
+
+        window.onload = () => {
+            redrawAllCanvases();
+        };
+    </script>
+</body>
+
+</html>

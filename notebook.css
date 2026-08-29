@@ -314,3 +314,9 @@ body.font-clean-mode h6 {
         page-break-inside: avoid;
     }
 }
+
+/* Ensure canvas elements scale down while preserving their aspect ratio */
+canvas {
+    max-width: 100%;
+    height: auto !important;
+}

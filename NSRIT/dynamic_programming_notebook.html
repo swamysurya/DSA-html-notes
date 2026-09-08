@@ -2983,98 +2983,671 @@
             <section id="sec-tsp" class="tab-content hidden space-y-8">
                 <!-- Page Header -->
                 <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
-                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4 font-['Kalam']">
                         Travelling Salesperson Problem (TSP)
                     </h1>
-                    <span class="text-xl text-inkRed font-semibold">Page 4</span>
+                    <span class="text-xl text-inkRed font-semibold font-['Kalam']">Page 4</span>
                 </div>
 
-                <!-- Concept & Math -->
+                <!-- 1. What is TSP? -->
                 <div class="space-y-4">
-                    <h2 class="text-3xl font-bold text-inkRed underline">1. Problem Formulation & Recurrence</h2>
-                    <p class="leading-relaxed">
-                        The <strong class="text-inkBlue">Travelling Salesperson Problem (TSP)</strong> aims to find the minimum cost Hamiltonian cycle starting from a designated vertex (e.g. vertex <em>A</em>), visiting every other vertex in the graph exactly once, and returning to the starting point.
+                    <div class="flex items-center justify-between border-b border-amber-300 pb-1">
+                        <h2 class="text-3xl font-bold text-inkRed underline">1. What is the Travelling Salesperson Problem?</h2>
+                        <span class="bg-amber-100 text-inkBlue text-xs font-bold px-2.5 py-1 rounded border border-amber-300 font-sans">Core Definition</span>
+                    </div>
+
+                    <p class="leading-relaxed text-slate-900 text-lg">
+                        Imagine a travelling salesperson who lives in a designated starting city (City 1). The salesperson needs to travel to every other city on a map to sell products and then return back home to City 1.
                     </p>
 
-                    <!-- Formula Box -->
-                    <div class="math-box p-4 font-sans text-sm space-y-2">
-                        <div class="font-bold text-inkRed text-base">DP Formulation (Held-Karp Recurrence):</div>
-                        <div class="font-mono text-base sm:text-lg text-inkBlue bg-slate-100 p-3 rounded border border-slate-300">
-                            g(i, S) = min<sub>j ∈ S</sub> { w(i, j) + g(j, S \ {j}) }
-                        </div>
-                        <p class="text-pencilGray text-xs">
-                            Where <strong>g(i, S)</strong> is the length of the shortest path starting at vertex <em>i</em>, visiting all vertices in subset <em>S</em> in any order, and terminating at the origin vertex <em>A</em>.<br>
-                            Base Case: <strong>g(j, ∅) = w(j, A)</strong> (cost of returning back to the start node <em>A</em>).
-                        </p>
-                    </div>
-
-                    <!-- Graph and Tree Visualizers -->
-                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center pt-2">
-                        <div class="lg:col-span-5 flex flex-col items-center">
-                            <span class="font-bold text-inkBlue mb-2">TSP 4-City Network (A, B, C, D)</span>
-                            <canvas id="canvas-tsp-graph" width="340" height="240"
-                                class="border border-slate-200 rounded-lg bg-white shadow-sm max-w-full"></canvas>
-                        </div>
-                        <div class="lg:col-span-7 flex flex-col items-center">
-                            <span class="font-bold text-inkBlue mb-2">Subproblem State Tree Breakdown</span>
-                            <canvas id="canvas-tsp-tree" width="460" height="240"
-                                class="border border-slate-200 rounded-lg bg-white shadow-sm max-w-full"></canvas>
-                        </div>
-                    </div>
-
-                    <!-- Step-by-Step Calculations from User Notes -->
-                    <div class="border-t border-slate-200 pt-6 space-y-4">
-                        <h2 class="text-3xl font-bold text-inkRed underline">2. Step-by-Step Calculation Trace</h2>
-                        <p class="leading-relaxed">
-                            To find the minimum tour cost starting from vertex <em>A</em> visiting {B, C, D}:
-                        </p>
-
-                        <!-- Main Equation Decomposition -->
-                        <div class="bg-white/90 p-5 rounded-lg border border-slate-300 space-y-4 font-sans text-sm shadow-sm">
-                            <div class="font-bold text-inkBlue text-base">Top-Level Expansion:</div>
-                            <div class="font-mono text-sm sm:text-base bg-amber-50/70 p-3 rounded border border-amber-200 space-y-1 text-slate-800">
-                                <div>g(A, {B, C, D}) = min {</div>
-                                <div class="pl-6">• w(A, B) + g(B, {C, D}) = 16 + ?</div>
-                                <div class="pl-6">• w(A, C) + g(C, {B, D}) = 11 + ?</div>
-                                <div class="pl-6">• w(A, D) + g(D, {B, C}) = 6 + ?</div>
-                                <div>}</div>
+                    <!-- Plain English Rules Box -->
+                    <div class="bg-amber-50/80 p-5 rounded-xl border-2 border-amber-300 font-sans text-sm space-y-3 shadow-sm">
+                        <span class="font-bold text-inkBlue text-base block">📋 The Salesperson's Two Strict Rules:</span>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div class="bg-white p-3 rounded-lg border border-amber-200">
+                                <span class="font-bold text-inkRed block text-sm mb-1">1. Visit Every City Exactly Once</span>
+                                <p class="text-slate-700 text-xs leading-relaxed">
+                                    No city can be skipped, and no city can be visited more than once during the intermediate journey.
+                                </p>
                             </div>
+                            <div class="bg-white p-3 rounded-lg border border-amber-200">
+                                <span class="font-bold text-emerald-800 block text-sm mb-1">2. Return to the Starting City</span>
+                                <p class="text-slate-700 text-xs leading-relaxed">
+                                    The final leg of the trip must lead straight back to City 1, completing a full closed round trip (called a <strong>Hamiltonian Cycle</strong>).
+                                </p>
+                            </div>
+                        </div>
+                        <div class="bg-blue-50/80 p-3 rounded-lg border border-blue-200 text-xs text-slate-800 leading-relaxed font-semibold">
+                            🎯 <strong>Ultimate Objective:</strong> Out of all possible closed tours, find the specific sequence of cities that produces the <strong>absolute minimum total travel cost (or shortest total distance)</strong>.
+                        </div>
+                    </div>
+                    </div>
 
-                            <!-- Bottom-up Subproblem Evaluation -->
-                            <div class="space-y-3 pt-2">
-                                <span class="font-bold text-inkRed text-base block">Bottom-Up Sub-Problem Computations:</span>
+                <!-- 2. Example Cost Matrix & Graph -->
+                <div class="space-y-4 pt-4 border-t border-amber-200">
+                    <div class="flex items-center justify-between border-b border-amber-300 pb-1">
+                        <h2 class="text-3xl font-bold text-inkRed underline">2. Given Example: Cost Matrix A &amp; 4-City Network</h2>
+                        <span class="bg-amber-100 text-inkBlue text-xs font-bold px-2.5 py-1 rounded border border-amber-300 font-sans">Classroom Example</span>
+                    </div>
 
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs sm:text-sm font-mono">
-                                    <div class="bg-slate-50 p-3 rounded border border-slate-200">
-                                        <span class="font-bold text-inkBlue font-sans block text-xs mb-1">Base Return Steps:</span>
-                                        • g(C, {D}) = w(C, D) + g(D, {∅})<br>
-                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= <strong>14</strong>
+                    <p class="leading-relaxed text-slate-800">
+                        Consider the exact 4-city problem (<code class="font-mono font-bold text-inkBlue">V = {1, 2, 3, 4}</code>) with starting city <code class="font-mono font-bold text-inkBlue">1</code>. The travel costs between cities are given by the directed cost matrix <strong class="font-mono text-inkBlue">A</strong>:
+                    </p>
+
+                    <!-- Matrix and Graph Side-by-Side -->
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+                        <!-- Cost Matrix Card -->
+                        <div class="lg:col-span-6 bg-white/95 p-4 rounded-xl border border-amber-300 shadow-sm space-y-3 font-sans">
+                            <div class="flex items-center justify-between">
+                                <span class="font-bold text-inkBlue text-sm">Cost Matrix A (Row i &rarr; Column j):</span>
+                                <span class="text-xs text-pencilGray font-mono">c<sub>ij</sub> = A[i][j]</span>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-center border-collapse border border-slate-300 font-mono text-sm">
+                                    <thead class="bg-slate-100 text-inkBlue font-bold">
+                                        <tr>
+                                            <th class="p-2 border border-slate-300 bg-amber-50/70 text-xs">i \ j</th>
+                                            <th class="p-2 border border-slate-300">1</th>
+                                            <th class="p-2 border border-slate-300">2</th>
+                                            <th class="p-2 border border-slate-300">3</th>
+                                            <th class="p-2 border border-slate-300">4</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-200">
+                                        <tr>
+                                            <td class="p-2 font-bold bg-slate-100 text-inkBlue border border-slate-300">1</td>
+                                            <td class="p-2 border border-slate-200 text-slate-400 bg-slate-50">0</td>
+                                            <td class="p-2 border border-slate-200 font-bold text-inkBlue">10</td>
+                                            <td class="p-2 border border-slate-200 font-bold text-inkBlue">15</td>
+                                            <td class="p-2 border border-slate-200 font-bold text-inkBlue">20</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="p-2 font-bold bg-slate-100 text-inkBlue border border-slate-300">2</td>
+                                            <td class="p-2 border border-slate-200 font-bold text-emerald-700">5</td>
+                                            <td class="p-2 border border-slate-200 text-slate-400 bg-slate-50">0</td>
+                                            <td class="p-2 border border-slate-200 font-bold text-inkBlue">9</td>
+                                            <td class="p-2 border border-slate-200 font-bold text-inkBlue">10</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="p-2 font-bold bg-slate-100 text-inkBlue border border-slate-300">3</td>
+                                            <td class="p-2 border border-slate-200 font-bold text-emerald-700">6</td>
+                                            <td class="p-2 border border-slate-200 font-bold text-inkBlue">13</td>
+                                            <td class="p-2 border border-slate-200 text-slate-400 bg-slate-50">0</td>
+                                            <td class="p-2 border border-slate-200 font-bold text-inkBlue">12</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="p-2 font-bold bg-slate-100 text-inkBlue border border-slate-300">4</td>
+                                            <td class="p-2 border border-slate-200 font-bold text-emerald-700">8</td>
+                                            <td class="p-2 border border-slate-200 font-bold text-inkBlue">8</td>
+                                            <td class="p-2 border border-slate-200 font-bold text-inkBlue">9</td>
+                                            <td class="p-2 border border-slate-200 text-slate-400 bg-slate-50">0</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="text-[11px] text-pencilGray space-y-1">
+                                <p>• Diagonal entries are <code class="font-bold">0</code> (cost from a city to itself).</p>
+                                <p>• Column 1 values highlighted in green are the <strong>return costs to City 1</strong>: <code class="font-bold text-emerald-800">c<sub>21</sub> = 5, c<sub>31</sub> = 6, c<sub>41</sub> = 8</code>.</p>
+                            </div>
+                        </div>
+
+                        <!-- 4-City Directed Graph Canvas -->
+                        <div class="lg:col-span-6 flex flex-col items-center">
+                            <span class="font-bold text-inkBlue text-sm font-sans mb-1.5 flex items-center gap-1.5">
+                                🗺️ Directed 4-City Road Network (Complete 4-City Graph with Asymmetric Costs):
+                            </span>
+                            <canvas id="canvas-tsp-graph" width="420" height="300"
+                                class="border border-slate-300 rounded-xl bg-white shadow-sm max-w-full"></canvas>
+                            <p class="text-xs text-pencilGray font-sans text-center mt-2 max-w-sm">
+                                All 12 directed inter-city road costs from Cost Matrix <em>A</em>. Opposing arrows curve separately so every edge and weight is clearly visible without collision.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. Decision Tree & Level-by-Level Step Calculations with State Trees -->
+                <div class="space-y-6 pt-4 border-t border-amber-200">
+                    <div class="flex items-center justify-between border-b border-amber-300 pb-1">
+                        <h2 class="text-3xl font-bold text-inkRed underline">3. Decision Tree of All Possible Paths &amp; Level-by-Level Step Calculations</h2>
+                        <span class="bg-amber-100 text-inkBlue text-xs font-bold px-2.5 py-1 rounded border border-amber-300 font-sans">Bottom-Up DP State Trees</span>
+                    </div>
+
+                    <p class="leading-relaxed text-slate-800">
+                        In Dynamic Programming (Held-Karp algorithm), the state-space decision tree is solved <strong>bottom-up</strong>, level by level. Below, each level is paired directly with its own dedicated state-space tree diagram: on the <strong>left</strong>, the mathematical subproblem formulas and step-by-step additions; on the <strong>right</strong>, the corresponding tree state showing the exact <em>g</em>-values added at that stage:
+                    </p>
+
+                    <!-- LEVEL 1 CARD: Base Cases (|S| = 0) -->
+                    <div class="bg-white/95 p-5 rounded-2xl border-2 border-amber-300 shadow-sm space-y-4">
+                        <div class="flex items-center justify-between border-b border-amber-200 pb-2">
+                            <h3 class="text-xl font-bold text-inkBlue font-sans flex items-center gap-2">
+                                <span>🌱 Level 1: Base Cases (|<em>S</em>| = 0) — Return Directly to Origin</span>
+                            </h3>
+                            <span class="bg-amber-100 text-amber-900 text-xs font-bold px-3 py-1 rounded-full border border-amber-300 font-sans">Stage 1: |<em>S</em>| = 0</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+                            <!-- Left: Math & Equations -->
+                            <div class="lg:col-span-5 space-y-3 font-sans text-xs">
+                                <p class="text-slate-700 leading-relaxed text-[12px]">
+                                    When no intermediate cities remain (the unvisited set <em>S</em> is empty, <em>S</em> = &empty;), the cost from current city <em>i</em> is simply the direct edge back to the origin city: <strong><em>g</em>(<em>i</em>, &empty;) = <em>c</em><sub><em>i</em>1</sub></strong>.
+                                </p>
+
+                                <div class="space-y-2 font-mono text-xs">
+                                    <div class="bg-amber-50 p-3 rounded-lg border border-amber-200 flex justify-between items-center">
+                                        <div>
+                                            <span class="text-[11px] text-pencilGray block font-sans">From City 2:</span>
+                                            <span class="font-bold text-inkBlue">g(2, &empty;) = c<sub>21</sub> = 5</span>
+                                        </div>
+                                        <span class="bg-white px-2 py-0.5 rounded border border-amber-300 font-bold text-emerald-800 text-[11px]">Added to Node 2</span>
                                     </div>
-                                    <div class="bg-slate-50 p-3 rounded border border-slate-200">
-                                        <span class="font-bold text-inkBlue font-sans block text-xs mb-1">Alternative Branch:</span>
-                                        • g(D, {C}) = w(D, C) + g(C, {∅})<br>
-                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= 2 + 4 = <strong>6</strong>
+
+                                    <div class="bg-amber-50 p-3 rounded-lg border border-amber-200 flex justify-between items-center">
+                                        <div>
+                                            <span class="text-[11px] text-pencilGray block font-sans">From City 3:</span>
+                                            <span class="font-bold text-inkBlue">g(3, &empty;) = c<sub>31</sub> = 6</span>
+                                        </div>
+                                        <span class="bg-white px-2 py-0.5 rounded border border-amber-300 font-bold text-emerald-800 text-[11px]">Added to Node 3</span>
+                                    </div>
+
+                                    <div class="bg-amber-50 p-3 rounded-lg border border-amber-200 flex justify-between items-center">
+                                        <div>
+                                            <span class="text-[11px] text-pencilGray block font-sans">From City 4:</span>
+                                            <span class="font-bold text-inkBlue">g(4, &empty;) = c<sub>41</sub> = 8</span>
+                                        </div>
+                                        <span class="bg-white px-2 py-0.5 rounded border border-amber-300 font-bold text-emerald-800 text-[11px]">Added to Node 4</span>
                                     </div>
                                 </div>
 
-                                <div class="bg-slate-50 p-3 rounded border border-slate-200 font-mono text-xs sm:text-sm space-y-1">
-                                    <span class="font-bold text-inkBlue font-sans block text-xs mb-1">Evaluating Subproblem g(B, {C, D}):</span>
-                                    <div>• Branch 1 via C: w(B, C) + g(C, {D}) = 13 + 14 = <strong>27</strong></div>
-                                    <div>• Branch 2 via D: w(B, D) + g(D, {C}) = 16 + 6 = <strong>22</strong></div>
-                                    <div class="text-emerald-700 font-bold">∴ g(B, {C, D}) = min { 27, 22 } = 22</div>
+                                <div class="bg-blue-50/80 p-3 rounded-lg border border-blue-200 text-slate-700 leading-relaxed text-[11.5px]">
+                                    💡 <strong>Tree State Insight:</strong> At this initial stage, the bottom base-case return edges are filled in. The higher parent nodes remain uncalculated (<code class="font-mono text-slate-500">g = ?</code>) waiting to be evaluated in stages 2, 3, and 4.
                                 </div>
                             </div>
 
-                            <!-- Final Conclusion -->
-                            <div class="p-4 bg-emerald-50 rounded-lg border border-emerald-300 font-sans text-sm text-emerald-900 space-y-1">
-                                <span class="font-bold text-base block text-emerald-950">🏆 Final Optimal Tour Evaluation:</span>
-                                <p class="font-mono text-base font-bold text-inkRed">
-                                    g(A, {B, C, D}) = min ( w(A, B) + g(B, {C, D}) ) = 16 + 22 = 38
-                                </p>
-                                <p class="text-xs text-pencilGray">
-                                    The overall shortest Hamiltonian cycle starting and ending at city A has a minimal cost of <strong>38</strong>.
-                                </p>
+                            <!-- Right: Tree Canvas for Level 1 -->
+                            <div class="lg:col-span-7 flex flex-col items-center bg-amber-50/40 p-3.5 rounded-xl border border-amber-200">
+                                <div class="w-full flex items-center justify-between border-b border-amber-200 pb-1.5 mb-2 font-sans">
+                                    <span class="font-bold text-inkBlue text-xs flex items-center gap-1.5">
+                                        🌳 State-Space Tree — Level 1 State:
+                                    </span>
+                                    <span class="text-[10.5px] font-bold text-amber-900 bg-amber-100 px-2 py-0.5 rounded border border-amber-300">
+                                        Base Values: g(i, &empty;) Populated
+                                    </span>
+                                </div>
+                                <canvas id="canvas-tsp-tree-l1" width="620" height="430"
+                                    class="bg-white border border-slate-200 rounded-lg shadow-xs max-w-full"></canvas>
+                                <div class="mt-2 text-[11px] text-slate-600 text-center font-sans">
+                                    <strong>Active Stage:</strong> 6 base return connections to City 1 with exact costs <em>g</em> = 8, 6, 8, 5, 6, 5. Upper nodes pending (<span class="text-slate-400 font-mono">g = ?</span>).
+                                </div>
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- LEVEL 2 CARD: Subsets of Size 1 (|S| = 1) -->
+                    <div class="bg-white/95 p-5 rounded-2xl border-2 border-amber-300 shadow-sm space-y-4">
+                        <div class="flex items-center justify-between border-b border-amber-200 pb-2">
+                            <h3 class="text-xl font-bold text-inkBlue font-sans flex items-center gap-2">
+                                <span>🌿 Level 2: Subsets of Size 1 (|<em>S</em>| = 1) — 6 Subproblems</span>
+                            </h3>
+                            <span class="bg-amber-100 text-amber-900 text-xs font-bold px-3 py-1 rounded-full border border-amber-300 font-sans">Stage 2: |<em>S</em>| = 1</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+                            <!-- Left: Math & Equations -->
+                            <div class="lg:col-span-5 space-y-3 font-sans text-xs">
+                                <p class="text-slate-700 leading-relaxed text-[12px]">
+                                    One intermediate city remaining (|<em>S</em>| = 1). Add direct road cost <em>c</em><sub><em>ij</em></sub> to the Level 1 base cost: <strong><em>g</em>(<em>i</em>, {<em>j</em>}) = <em>c</em><sub><em>ij</em></sub> + <em>g</em>(<em>j</em>, &empty;)</strong>.
+                                </p>
+
+                                <div class="space-y-2 font-mono text-xs">
+                                    <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+                                        <span class="font-bold text-inkBlue font-sans block text-[11px] mb-1">From City 2:</span>
+                                        <div>• g(2, {3}) = c<sub>23</sub> + g(3, &empty;) = 9 + 6 = <strong class="text-emerald-700">15</strong></div>
+                                        <div>• g(2, {4}) = c<sub>24</sub> + g(4, &empty;) = 10 + 8 = <strong class="text-emerald-700">18</strong></div>
+                                    </div>
+                                    <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+                                        <span class="font-bold text-inkBlue font-sans block text-[11px] mb-1">From City 3:</span>
+                                        <div>• g(3, {2}) = c<sub>32</sub> + g(2, &empty;) = 13 + 5 = <strong class="text-emerald-700">18</strong></div>
+                                        <div>• g(3, {4}) = c<sub>34</sub> + g(4, &empty;) = 12 + 8 = <strong class="text-emerald-700">20</strong></div>
+                                    </div>
+                                    <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+                                        <span class="font-bold text-inkBlue font-sans block text-[11px] mb-1">From City 4:</span>
+                                        <div>• g(4, {2}) = c<sub>42</sub> + g(2, &empty;) = 8 + 5 = <strong class="text-emerald-700">13</strong></div>
+                                        <div>• g(4, {3}) = c<sub>43</sub> + g(3, &empty;) = 9 + 6 = <strong class="text-emerald-700">15</strong></div>
+                                    </div>
+                                </div>
+
+                                <div class="bg-emerald-50/80 p-3 rounded-lg border border-emerald-200 text-slate-700 leading-relaxed text-[11.5px]">
+                                    💡 <strong>Tree State Insight:</strong> All 6 nodes at Level 2 now have their exact subproblem costs computed and assigned (<code class="font-mono font-bold text-emerald-800">g = 20, 15, 18, 13, 15, 18</code>) with their branch calculations drawn!
+                                </div>
+                            </div>
+
+                            <!-- Right: Tree Canvas for Level 2 -->
+                            <div class="lg:col-span-7 flex flex-col items-center bg-amber-50/40 p-3.5 rounded-xl border border-amber-200">
+                                <div class="w-full flex items-center justify-between border-b border-amber-200 pb-1.5 mb-2 font-sans">
+                                    <span class="font-bold text-inkBlue text-xs flex items-center gap-1.5">
+                                        🌳 State-Space Tree — Level 2 State:
+                                    </span>
+                                    <span class="text-[10.5px] font-bold text-emerald-900 bg-emerald-100 px-2 py-0.5 rounded border border-emerald-300">
+                                        6 Level-2 Nodes Filled (g = 13..20)
+                                    </span>
+                                </div>
+                                <canvas id="canvas-tsp-tree-l2" width="620" height="430"
+                                    class="bg-white border border-slate-200 rounded-lg shadow-xs max-w-full"></canvas>
+                                <div class="mt-2 text-[11px] text-slate-600 text-center font-sans">
+                                    <strong>Active Stage:</strong> Level 2 nodes filled with <em>g</em>-values. Branch formulas <em>c</em><sub><em>ij</em></sub> + <em>g</em>(<em>j</em>, &empty;) active.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- LEVEL 3 CARD: Subsets of Size 2 (|S| = 2) -->
+                    <div class="bg-white/95 p-5 rounded-2xl border-2 border-amber-300 shadow-sm space-y-4">
+                        <div class="flex items-center justify-between border-b border-amber-200 pb-2">
+                            <h3 class="text-xl font-bold text-inkBlue font-sans flex items-center gap-2">
+                                <span>🌳 Level 3: Subsets of Size 2 (|<em>S</em>| = 2) — Minimum Over Candidate Choices</span>
+                            </h3>
+                            <span class="bg-amber-100 text-amber-900 text-xs font-bold px-3 py-1 rounded-full border border-amber-300 font-sans">Stage 3: |<em>S</em>| = 2</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+                            <!-- Left: Math & Equations -->
+                            <div class="lg:col-span-5 space-y-3 font-sans text-xs">
+                                <p class="text-slate-700 leading-relaxed text-[12px]">
+                                    Two intermediate cities remaining (|<em>S</em>| = 2). For each city <em>i</em>, compare the two alternative branches using the Level 2 values and take the <strong>minimum</strong>:
+                                </p>
+
+                                <div class="space-y-2 font-mono text-xs">
+                                    <div class="bg-amber-50/70 p-2.5 rounded-lg border border-amber-200">
+                                        <span class="font-bold text-inkBlue font-sans block text-[11px]">1) At City 2 with S = {3, 4}:</span>
+                                        <div>• Via 3: c<sub>23</sub> + g(3, {4}) = 9 + 20 = 29</div>
+                                        <div>• Via 4: c<sub>24</sub> + g(4, {3}) = 10 + 15 = <strong>25</strong></div>
+                                        <div class="font-bold text-emerald-800 text-center bg-white p-1 rounded border border-amber-300 mt-1">
+                                            g(2, {3, 4}) = min(29, 25) = <span class="text-inkRed font-black">25</span> [via City 4 ⭕]
+                                        </div>
+                                    </div>
+
+                                    <div class="bg-amber-50/70 p-2.5 rounded-lg border border-amber-200">
+                                        <span class="font-bold text-inkBlue font-sans block text-[11px]">2) At City 3 with S = {2, 4}:</span>
+                                        <div>• Via 2: c<sub>32</sub> + g(2, {4}) = 13 + 18 = 31</div>
+                                        <div>• Via 4: c<sub>34</sub> + g(4, {2}) = 12 + 13 = <strong>25</strong></div>
+                                        <div class="font-bold text-emerald-800 text-center bg-white p-1 rounded border border-amber-300 mt-1">
+                                            g(3, {2, 4}) = min(31, 25) = <span class="text-inkRed font-black">25</span> [via City 4]
+                                        </div>
+                                    </div>
+
+                                    <div class="bg-amber-50/70 p-2.5 rounded-lg border border-amber-200">
+                                        <span class="font-bold text-inkBlue font-sans block text-[11px]">3) At City 4 with S = {2, 3}:</span>
+                                        <div>• Via 2: c<sub>42</sub> + g(2, {3}) = 8 + 15 = <strong>23</strong></div>
+                                        <div>• Via 3: c<sub>43</sub> + g(3, {2}) = 9 + 18 = 27</div>
+                                        <div class="font-bold text-emerald-800 text-center bg-white p-1 rounded border border-amber-300 mt-1">
+                                            g(4, {2, 3}) = min(23, 27) = <span class="text-inkRed font-black">23</span> [via City 2]
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="bg-emerald-50/80 p-3 rounded-lg border border-emerald-200 text-slate-700 leading-relaxed text-[11.5px]">
+                                    💡 <strong>Tree State Insight:</strong> Level 1 nodes (2, 3, 4) are now solved with values <code class="font-mono font-bold text-emerald-800">g = 25, 25, 23</code>! Node 4 under Node 2 is <strong>double circled</strong> because choosing 4 produces the winning minimum cost (25 &lt; 29).
+                                </div>
+                            </div>
+
+                            <!-- Right: Tree Canvas for Level 3 -->
+                            <div class="lg:col-span-7 flex flex-col items-center bg-amber-50/40 p-3.5 rounded-xl border border-amber-200">
+                                <div class="w-full flex items-center justify-between border-b border-amber-200 pb-1.5 mb-2 font-sans">
+                                    <span class="font-bold text-inkBlue text-xs flex items-center gap-1.5">
+                                        🌳 State-Space Tree — Level 3 State:
+                                    </span>
+                                    <span class="text-[10.5px] font-bold text-emerald-900 bg-emerald-100 px-2 py-0.5 rounded border border-emerald-300">
+                                        Nodes 2, 3, 4 Filled &amp; Node 4 Double-Circled
+                                    </span>
+                                </div>
+                                <canvas id="canvas-tsp-tree-l3" width="620" height="430"
+                                    class="bg-white border border-slate-200 rounded-lg shadow-xs max-w-full"></canvas>
+                                <div class="mt-2 text-[11px] text-slate-600 text-center font-sans">
+                                    <strong>Active Stage:</strong> Nodes 2, 3, 4 populated with <em>g</em> = 25, 25, 23. Double-circle highlights optimal sub-choice Node 4.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- LEVEL 4 CARD: Root Decision from City 1 (|S| = 3) -->
+                    <div class="bg-white/95 p-5 rounded-2xl border-2 border-emerald-400 shadow-sm space-y-4">
+                        <div class="flex items-center justify-between border-b border-emerald-300 pb-2">
+                            <h3 class="text-xl font-bold text-emerald-950 font-sans flex items-center gap-2">
+                                <span>👑 Level 4: Root Decision from City 1 (|<em>S</em>| = 3) — Complete Optimal Tour</span>
+                            </h3>
+                            <span class="bg-emerald-100 text-emerald-900 text-xs font-bold px-3 py-1 rounded-full border border-emerald-300 font-sans">Stage 4: |<em>S</em>| = 3 (Optimal)</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+                            <!-- Left: Math & Equations -->
+                            <div class="lg:col-span-5 space-y-3 font-sans text-xs">
+                                <p class="text-slate-700 leading-relaxed text-[12px]">
+                                    At origin City 1 with all 3 remaining cities {2, 3, 4}. Evaluate the 3 initial branches from City 1 using Level 3 values:
+                                </p>
+
+                                <div class="space-y-2 font-mono text-xs">
+                                    <div class="bg-emerald-50 p-2.5 rounded-lg border border-emerald-300 flex justify-between items-center">
+                                        <div>
+                                            <span class="font-bold text-emerald-950 block text-[11px] font-sans">Branch A (First visit City 2):</span>
+                                            <span>c<sub>12</sub> + g(2, {3, 4}) = 10 + 25</span>
+                                        </div>
+                                        <span class="font-bold text-emerald-900 bg-emerald-200 px-2.5 py-1 rounded text-xs">= 35 🏆 WINNER</span>
+                                    </div>
+
+                                    <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200 flex justify-between items-center opacity-80">
+                                        <div>
+                                            <span class="font-bold text-slate-800 block text-[11px] font-sans">Branch B (First visit City 3):</span>
+                                            <span>c<sub>13</sub> + g(3, {2, 4}) = 15 + 25</span>
+                                        </div>
+                                        <span class="font-bold text-slate-700 bg-slate-200 px-2 py-0.5 rounded text-xs">= 40</span>
+                                    </div>
+
+                                    <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200 flex justify-between items-center opacity-80">
+                                        <div>
+                                            <span class="font-bold text-slate-800 block text-[11px] font-sans">Branch C (First visit City 4):</span>
+                                            <span>c<sub>14</sub> + g(4, {2, 3}) = 20 + 23</span>
+                                        </div>
+                                        <span class="font-bold text-slate-700 bg-slate-200 px-2 py-0.5 rounded text-xs">= 43</span>
+                                    </div>
+                                </div>
+
+                                <div class="bg-white p-3 rounded-xl border-2 border-emerald-400 font-mono shadow-inner text-center space-y-2">
+                                    <div class="text-[12px] sm:text-xs font-bold text-inkBlue">
+                                        <em>g</em>(1, {2, 3, 4}) = min { <em>c</em><sub>12</sub>+<em>g</em>(2,{3,4}), <em>c</em><sub>13</sub>+<em>g</em>(3,{2,4}), <em>c</em><sub>14</sub>+<em>g</em>(4,{2,3}) }
+                                    </div>
+                                    <div class="flex items-center justify-center gap-2 text-xs font-bold border-t border-emerald-100 pt-1.5">
+                                        <span class="text-emerald-800 underline decoration-2 decoration-emerald-600 font-black">10 + 25</span>
+                                        <span class="text-slate-400">,</span>
+                                        <span class="text-slate-600 underline decoration-slate-400">15 + 25</span>
+                                        <span class="text-slate-400">,</span>
+                                        <span class="text-slate-600 underline decoration-slate-400">20 + 23</span>
+                                    </div>
+                                    <div class="text-xs font-bold text-inkBlue border-t border-emerald-100 pt-1">
+                                        = min(35, 40, 43) = <span class="text-lg text-inkRed font-black bg-amber-100 px-2.5 py-0.5 rounded-lg border border-amber-300">35</span>
+                                    </div>
+                                </div>
+
+                                <div class="bg-emerald-50/80 p-3 rounded-lg border border-emerald-200 text-slate-700 leading-relaxed text-[11.5px]">
+                                    🏆 <strong>Final Tour Solved:</strong> The entire tree is now complete! Root is labeled <code class="font-mono font-bold text-emerald-800">g = 35</code>, and following the optimal decisions gives: <strong class="text-emerald-900">1 &rarr; 2 &rarr; 4 &rarr; 3 &rarr; 1 (Cost = 35)</strong>.
+                                </div>
+                            </div>
+
+                            <!-- Right: Tree Canvas for Level 4 (Full Tree) -->
+                            <div class="lg:col-span-7 flex flex-col items-center bg-white p-3.5 rounded-xl border-2 border-emerald-400 shadow-md">
+                                <div class="w-full flex items-center justify-between border-b border-emerald-200 pb-1.5 mb-2 font-sans">
+                                    <span class="font-bold text-inkBlue text-xs flex items-center gap-1.5">
+                                        🌳 Complete State-Space Tree (With All Calculated Values):
+                                    </span>
+                                    <span class="text-[10.5px] font-bold text-emerald-900 bg-emerald-100 px-2 py-0.5 rounded border border-emerald-300">
+                                        Optimal Cost: 35 🏆
+                                    </span>
+                                </div>
+                                <canvas id="canvas-tsp-tree-l4" width="620" height="430"
+                                    class="bg-white border border-slate-200 rounded-lg shadow-xs max-w-full"></canvas>
+                                
+                                <!-- Legend -->
+                                <div class="mt-2.5 flex flex-wrap items-center justify-center gap-3 text-[11px] font-sans text-slate-600">
+                                    <span class="flex items-center gap-1.5">
+                                        <span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span>
+                                        <strong>Green Path:</strong> Optimal Tour (1 &rarr; 2 &rarr; 4 &rarr; 3 &rarr; 1 = 35)
+                                    </span>
+                                    <span class="flex items-center gap-1.5">
+                                        <span class="w-3 h-3 rounded-full border-2 border-emerald-700 inline-block"></span>
+                                        <strong>Double Circle:</strong> Best sub-choice (Node 4)
+                                    </span>
+                                    <span class="flex items-center gap-1.5">
+                                        <span class="w-2.5 h-0.5 bg-slate-400 inline-block"></span>
+                                        Suboptimal branches
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. Optimal Tour Path & Step-by-Step Backtracking -->
+                <div class="space-y-4 pt-4 border-t border-amber-200">
+                    <div class="flex items-center justify-between border-b border-amber-300 pb-1">
+                        <h2 class="text-3xl font-bold text-inkRed underline">4. Optimal Tour Path &amp; Step-by-Step Backtracking</h2>
+                        <span class="bg-emerald-100 text-emerald-900 text-xs font-bold px-2.5 py-1 rounded border border-emerald-300 font-sans">Final Tour Result</span>
+                    </div>
+
+                    <p class="leading-relaxed text-slate-800">
+                        We reconstruct the sequence of cities by following the minimum decision made at each stage:
+                    </p>
+
+                    <!-- Step by Step Path Box -->
+                    <div class="bg-white/95 p-5 rounded-xl border-2 border-emerald-400 shadow-md space-y-4 font-sans text-sm">
+                        <div class="grid grid-cols-1 sm:grid-cols-4 gap-2 text-center font-mono">
+                            <div class="bg-amber-50 p-3 rounded-lg border border-amber-300">
+                                <div class="text-[11px] text-pencilGray font-sans">Step 1: Start City 1</div>
+                                <div class="font-bold text-inkBlue text-base mt-1">1 &rarr; 2</div>
+                                <div class="text-xs text-emerald-700 font-bold">Cost: 10</div>
+                            </div>
+                            <div class="bg-amber-50 p-3 rounded-lg border border-amber-300">
+                                <div class="text-[11px] text-pencilGray font-sans">Step 2: From City 2</div>
+                                <div class="font-bold text-inkBlue text-base mt-1">2 &rarr; 4</div>
+                                <div class="text-xs text-emerald-700 font-bold">Cost: 10</div>
+                            </div>
+                            <div class="bg-amber-50 p-3 rounded-lg border border-amber-300">
+                                <div class="text-[11px] text-pencilGray font-sans">Step 3: From City 4</div>
+                                <div class="font-bold text-inkBlue text-base mt-1">4 &rarr; 3</div>
+                                <div class="text-xs text-emerald-700 font-bold">Cost: 9</div>
+                            </div>
+                            <div class="bg-amber-50 p-3 rounded-lg border border-amber-300">
+                                <div class="text-[11px] text-pencilGray font-sans">Step 4: Return Home</div>
+                                <div class="font-bold text-inkBlue text-base mt-1">3 &rarr; 1</div>
+                                <div class="text-xs text-emerald-700 font-bold">Cost: 6</div>
+                            </div>
+                        </div>
+
+                        <!-- Big Highlight Card -->
+                        <div class="bg-emerald-50 p-4 rounded-xl border-2 border-emerald-400 flex flex-col sm:flex-row justify-between items-center gap-3">
+                            <div>
+                                <span class="text-xs uppercase font-bold tracking-wider text-emerald-800 block">🏆 Complete Optimal Hamiltonian Tour:</span>
+                                <div class="text-xl sm:text-2xl font-mono font-bold text-inkBlue mt-1">
+                                    1 &nbsp;&rarr;&nbsp; 2 &nbsp;&rarr;&nbsp; 4 &nbsp;&rarr;&nbsp; 3 &nbsp;&rarr;&nbsp; 1
+                                </div>
+                            </div>
+                            <div class="text-center sm:text-right">
+                                <span class="text-xs uppercase font-bold tracking-wider text-emerald-800 block">Total Minimal Cost:</span>
+                                <div class="text-xl sm:text-2xl font-mono font-extrabold text-inkRed mt-1">
+                                    10 + 10 + 9 + 6 = <span class="text-3xl font-black">35</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5. General Recurrence Formula (Derived from the Step-by-Step Calculations) -->
+                <div class="space-y-4 pt-4 border-t border-amber-200">
+                    <div class="flex items-center justify-between border-b border-amber-300 pb-1">
+                        <h2 class="text-3xl font-bold text-inkRed underline">5. General Dynamic Programming Recurrence Formula (Derived from the Steps Above)</h2>
+                        <span class="bg-amber-100 text-inkBlue text-xs font-bold px-2.5 py-1 rounded border border-amber-300 font-sans">Formal Mathematical Derivation</span>
+                    </div>
+
+                    <p class="leading-relaxed text-slate-800">
+                        Now that we have computed every node level-by-level, we can directly generalize what our arithmetic steps just proved into the classic <strong>Held-Karp Dynamic Programming Recurrence Relation</strong>:
+                    </p>
+
+                    <!-- Formula Derivation Box -->
+                    <div class="math-box p-5 space-y-4 font-sans text-sm rounded-xl shadow-sm">
+                        <span class="font-bold text-inkRed text-base block">📐 The Master Recurrence Formula:</span>
+                        
+                        <!-- Big Centered Formula Banner -->
+                        <div class="bg-white p-5 rounded-2xl border-2 border-amber-300 font-mono text-center shadow-xs flex flex-wrap items-center justify-center gap-2 text-xl sm:text-2xl text-inkBlue font-bold">
+                            <span><em>g</em>(<em>i</em>, <em>S</em>)</span>
+                            <span class="text-slate-500">=</span>
+                            <span class="inline-flex items-baseline">
+                                <span class="text-lg sm:text-xl">min</span>
+                                <sub class="text-xs sm:text-sm font-sans font-normal text-slate-600 ml-1"><em>j</em> &isin; <em>S</em></sub>
+                            </span>
+                            <span class="text-2xl sm:text-3xl text-slate-400 font-light select-none">{</span>
+                            <span><em>c</em><sub><em>ij</em></sub> + <em>g</em>(<em>j</em>, <em>S</em> &minus; {<em>j</em>})</span>
+                            <span class="text-2xl sm:text-3xl text-slate-400 font-light select-none">}</span>
+                        </div>
+
+                        <!-- 4-Stage Derivation Breakdown -->
+                        <div class="space-y-3 pt-2">
+                            <span class="font-bold text-inkBlue text-sm block">🔬 How Every Term Directly Follows from Our Steps:</span>
+                            
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                                <div class="bg-white p-3 rounded-lg border border-slate-200 space-y-1">
+                                    <span class="font-bold text-inkBlue text-sm block">1. Meaning of <em>g</em>(<em>i</em>, <em>S</em>):</span>
+                                    <p class="text-slate-700 leading-relaxed">
+                                        From our tree: "Standing at current city <strong><em>i</em></strong>, what is the minimum cost to visit all remaining unvisited cities in subset <strong><em>S</em></strong> and return back to origin <strong>City 1</strong>?"
+                                    </p>
+                                </div>
+                                <div class="bg-white p-3 rounded-lg border border-slate-200 space-y-1">
+                                    <span class="font-bold text-emerald-800 text-sm block">2. Meaning of <em>c</em><sub><em>ij</em></sub> + <em>g</em>(<em>j</em>, <em>S</em> &minus; {<em>j</em>}):</span>
+                                    <p class="text-slate-700 leading-relaxed">
+                                        From Level 2 &amp; 3: Drive directly to next city <strong><em>j</em></strong> (paying road cost <strong><em>c</em><sub><em>ij</em></sub></strong>), plus the cached optimal cost from <strong><em>j</em></strong> with city <em>j</em> removed from the remaining set (<strong><em>S</em> &minus; {<em>j</em>}</strong>).
+                                    </p>
+                                </div>
+                                <div class="bg-white p-3 rounded-lg border border-slate-200 space-y-1">
+                                    <span class="font-bold text-purple-900 text-sm block">3. Why min<sub><em>j</em> &isin; <em>S</em></sub>?</span>
+                                    <p class="text-slate-700 leading-relaxed">
+                                        In Level 3, we had choices (e.g. at City 2, go via 3 or via 4). Bellman's Principle of Optimality dictates that we test every candidate next city <em>j</em> in <em>S</em> and select the <strong>minimum</strong>!
+                                    </p>
+                                </div>
+                                <div class="bg-white p-3 rounded-lg border border-slate-200 space-y-1">
+                                    <span class="font-bold text-amber-900 text-sm block">4. Base Case (|<em>S</em>| = 0, Empty Set &empty;):</span>
+                                    <p class="text-slate-700 leading-relaxed">
+                                        In Level 1, when no intermediate cities are left (<em>S</em> = &empty;), drive directly back to City 1: <strong><em>g</em>(<em>i</em>, &empty;) = <em>c</em><sub><em>i</em>1</sub></strong>.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Final Root Formulation (Classroom Whiteboard Style) -->
+                        <div class="bg-emerald-50/90 p-4 rounded-xl border-2 border-emerald-400 space-y-3 shadow-xs">
+                            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-emerald-200 pb-2">
+                                <div>
+                                    <span class="font-bold text-emerald-950 block text-sm sm:text-base font-sans">🏁 Overall Tour Starting at City 1 (Level 4 - Root Expansion):</span>
+                                    <span class="text-xs text-slate-700 font-sans">General Recurrence applied to root: <code class="font-mono font-bold text-inkBlue"><em>g</em>(1, <em>V</em> &minus; {1}) = min<sub><em>j</em> &isin; {2, 3, 4}</sub> { <em>c</em><sub>1<em>j</em></sub> + <em>g</em>(<em>j</em>, {2, 3, 4} &minus; {<em>j</em>}) }</code></span>
+                                </div>
+                                <span class="text-xs font-bold bg-emerald-200 text-emerald-900 px-2.5 py-1 rounded font-sans whitespace-nowrap">Classroom Whiteboard Formula</span>
+                            </div>
+
+                            <!-- Whiteboard expanded formulation card -->
+                            <div class="bg-white p-4 rounded-xl border border-emerald-300 font-mono shadow-inner overflow-x-auto">
+                                <div class="min-w-[660px] text-center space-y-3">
+                                    <!-- Row 1: Expanded Formula matching teacher's whiteboard -->
+                                    <div class="flex items-center justify-center text-sm sm:text-base font-bold text-slate-900 gap-1.5">
+                                        <span class="text-inkBlue text-base sm:text-lg"><em>g</em>(1, {2, 3, 4})</span>
+                                        <span class="text-slate-800 text-base sm:text-lg">&nbsp;=&nbsp;min &nbsp;{</span>
+
+                                        <!-- Term 1: c12 + g(2, {3, 4}) -->
+                                        <div class="inline-flex flex-col items-center mx-2 px-3 py-1.5 bg-emerald-50 rounded-lg border-2 border-emerald-400 shadow-xs">
+                                            <span class="text-emerald-950 font-bold"><em>c</em><sub>12</sub> + <em>g</em>(2, {3, 4})</span>
+                                            <span class="text-xs text-emerald-800 font-black underline decoration-2 decoration-emerald-600 pt-1 tracking-wider">10 + 25</span>
+                                            <span class="text-[11px] text-emerald-700 font-extrabold mt-0.5">= 35 🏆 (Min)</span>
+                                        </div>
+
+                                        <span class="text-slate-400 font-normal text-lg">,</span>
+
+                                        <!-- Term 2: c13 + g(3, {2, 4}) -->
+                                        <div class="inline-flex flex-col items-center mx-2 px-3 py-1.5 bg-slate-50 rounded-lg border border-slate-300 opacity-90">
+                                            <span class="text-slate-800 font-bold"><em>c</em><sub>13</sub> + <em>g</em>(3, {2, 4})</span>
+                                            <span class="text-xs text-slate-700 font-bold underline decoration-slate-400 pt-1 tracking-wider">15 + 25</span>
+                                            <span class="text-[11px] text-slate-500 font-semibold mt-0.5">= 40</span>
+                                        </div>
+
+                                        <span class="text-slate-400 font-normal text-lg">,</span>
+
+                                        <!-- Term 3: c14 + g(4, {2, 3}) -->
+                                        <div class="inline-flex flex-col items-center mx-2 px-3 py-1.5 bg-slate-50 rounded-lg border border-slate-300 opacity-90">
+                                            <span class="text-slate-800 font-bold"><em>c</em><sub>14</sub> + <em>g</em>(4, {2, 3})</span>
+                                            <span class="text-xs text-slate-700 font-bold underline decoration-slate-400 pt-1 tracking-wider">20 + 23</span>
+                                            <span class="text-[11px] text-slate-500 font-semibold mt-0.5">= 43</span>
+                                        </div>
+
+                                        <span class="text-slate-800 text-base sm:text-lg">&nbsp;}</span>
+                                    </div>
+
+                                    <!-- Row 2: Direct value substitution and final minimum -->
+                                    <div class="flex items-center justify-center gap-3 pt-2.5 border-t border-emerald-100 text-sm sm:text-base font-bold text-inkBlue">
+                                        <span>=&nbsp;min { <strong class="text-emerald-800 underline decoration-2 decoration-emerald-600">35</strong>, 40, 43 }</span>
+                                        <span>=&nbsp;</span>
+                                        <span class="text-xl sm:text-2xl text-inkRed font-black bg-amber-100 px-4 py-0.5 rounded-lg border-2 border-amber-300 shadow-xs">35</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 6. Time & Space Complexity Analysis -->
+                <div class="space-y-4 pt-4 border-t border-amber-200">
+                    <div class="flex items-center justify-between border-b border-amber-300 pb-1">
+                        <h2 class="text-3xl font-bold text-inkRed underline">6. Time &amp; Space Complexity Analysis</h2>
+                        <span class="bg-amber-100 text-inkBlue text-xs font-bold px-2.5 py-1 rounded border border-amber-300 font-sans">Theoretical Limits</span>
+                    </div>
+
+                    <!-- Complexity Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 font-sans text-sm">
+                        <!-- Time Complexity -->
+                        <div class="bg-white/90 p-5 rounded-xl border-2 border-amber-300 shadow-xs space-y-2">
+                            <span class="font-bold text-inkRed text-base flex items-center gap-2">
+                                <span>⏱️ Time Complexity:</span>
+                                <code class="font-mono text-lg bg-amber-100 px-2 py-0.5 rounded text-inkBlue">O(n&sup2; &middot; 2<sup>n</sup>)</code>
+                            </span>
+                            <ul class="text-xs text-slate-700 space-y-1.5 list-disc list-inside leading-relaxed">
+                                <li><strong>Number of Subproblems:</strong> There are <code class="font-mono">n - 1</code> possible current cities <code class="font-mono">i</code>, and for each, there are <code class="font-mono">2<sup>n - 1</sup></code> possible subsets of remaining cities <code class="font-mono">S</code>. Total subproblems = <code class="font-mono">(n - 1) &middot; 2<sup>n - 1</sup> = O(n &middot; 2<sup>n</sup>)</code>.</li>
+                                <li><strong>Work Per Subproblem:</strong> For a subset of size <code class="font-mono">k</code>, we consider at most <code class="font-mono">k &le; n</code> choices for the next city <code class="font-mono">j</code>.</li>
+                                <li><strong>Total Operations:</strong> <code class="font-mono">&sum; k &middot; &binom;n-1, k&binom; &middot; (n - 1) = O(n&sup2; &middot; 2<sup>n</sup>)</code>.</li>
+                            </ul>
+                        </div>
+
+                        <!-- Space Complexity -->
+                        <div class="bg-white/90 p-5 rounded-xl border-2 border-amber-300 shadow-xs space-y-2">
+                            <span class="font-bold text-emerald-800 text-base flex items-center gap-2">
+                                <span>💾 Space Complexity:</span>
+                                <code class="font-mono text-lg bg-emerald-100 px-2 py-0.5 rounded text-emerald-950">O(n &middot; 2<sup>n</sup>)</code>
+                            </span>
+                            <ul class="text-xs text-slate-700 space-y-1.5 list-disc list-inside leading-relaxed">
+                                <li><strong>DP Memoization Table:</strong> To store the result of each <code class="font-mono">g(i, S)</code> call, the table dimensions are <code class="font-mono">n &times; 2<sup>n</sup></code>.</li>
+                                <li><strong>Index Encoding:</strong> Subsets <code class="font-mono">S</code> can be compactly stored using bitmasks (integers from <code class="font-mono">0</code> to <code class="font-mono">2<sup>n</sup> - 1</code>).</li>
+                                <li><strong>Auxiliary Stack Space:</strong> <code class="font-mono">O(n)</code> recursion depth if implemented top-down, or zero recursion overhead if filled bottom-up iteratively.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Comparison Table -->
+                    <div class="bg-white/95 p-4 rounded-xl border border-amber-300 shadow-xs space-y-2 font-sans">
+                        <span class="font-bold text-inkBlue text-sm block">📊 Algorithm Comparison: Brute Force vs. Dynamic Programming</span>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-xs text-left border-collapse border border-slate-300 rounded overflow-hidden">
+                                <thead class="bg-slate-100 text-slate-800 font-bold">
+                                    <tr>
+                                        <th class="p-2.5 border border-slate-300">Feature</th>
+                                        <th class="p-2.5 border border-slate-300 text-rose-800">Brute Force (Exhaustive Search)</th>
+                                        <th class="p-2.5 border border-slate-300 text-emerald-800">Dynamic Programming (Held-Karp)</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-200 text-slate-700 font-mono">
+                                    <tr>
+                                        <td class="p-2.5 border border-slate-300 font-sans font-semibold">Time Complexity</td>
+                                        <td class="p-2.5 border border-slate-300 text-rose-700 font-bold">O(n!)</td>
+                                        <td class="p-2.5 border border-slate-300 text-emerald-700 font-bold">O(n&sup2; &middot; 2<sup>n</sup>)</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="p-2.5 border border-slate-300 font-sans font-semibold">Space Complexity</td>
+                                        <td class="p-2.5 border border-slate-300">O(n) (path recursion)</td>
+                                        <td class="p-2.5 border border-slate-300 text-amber-800">O(n &middot; 2<sup>n</sup>) (memo table)</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="p-2.5 border border-slate-300 font-sans font-semibold">Overlapping Subproblems?</td>
+                                        <td class="p-2.5 border border-slate-300 text-rose-700 font-sans">Ignored (recomputes endlessly)</td>
+                                        <td class="p-2.5 border border-slate-300 text-emerald-700 font-sans">Cached &amp; reused immediately</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="p-2.5 border border-slate-300 font-sans font-semibold">Practical Feasibility</td>
+                                        <td class="p-2.5 border border-slate-300 text-rose-700 font-sans">Max ~12 cities before computer freezes</td>
+                                        <td class="p-2.5 border border-slate-300 text-emerald-700 font-sans">Feasible up to ~22–25 cities</td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -3699,101 +4272,477 @@
         // 6. TSP Graph & Tree Canvases
         // =========================================================================
         function drawTSPVisuals() {
-            // Graph
-            const setupG = setupCanvas('canvas-tsp-graph', 340, 240);
+            // -------------------------------------------------------------
+            // 1. TSP 4-City Network Graph
+            // -------------------------------------------------------------
+            const setupG = setupCanvas('canvas-tsp-graph', 420, 300);
             if (setupG) {
                 const { ctx } = setupG;
+
+                // Node Coordinates on 420x300 canvas
                 const n = {
-                    A: { x: 70, y: 60 },
-                    B: { x: 270, y: 60 },
-                    C: { x: 270, y: 180 },
-                    D: { x: 70, y: 180 }
+                    1: { x: 85,  y: 75  }, // Home / Start City
+                    2: { x: 335, y: 75  },
+                    3: { x: 335, y: 225 },
+                    4: { x: 85,  y: 225 }
                 };
 
-                // Draw Edges
-                drawDirectedEdge(ctx, n.A.x, n.A.y, n.B.x, n.B.y, 16, false, 0, true);
-                drawDirectedEdge(ctx, n.A.x, n.A.y, n.C.x, n.C.y, 11);
-                drawDirectedEdge(ctx, n.A.x, n.A.y, n.D.x, n.D.y, 6);
-                drawDirectedEdge(ctx, n.B.x, n.B.y, n.C.x, n.C.y, 13);
-                drawDirectedEdge(ctx, n.B.x, n.B.y, n.D.x, n.D.y, 16, false, 0, true);
-                drawDirectedEdge(ctx, n.C.x, n.C.y, n.D.x, n.D.y, 14);
-                drawDirectedEdge(ctx, n.D.x, n.D.y, n.C.x, n.C.y, 2, false, 0, true);
+                // Uniform Directed Arc Renderer: every edge has the exact same clean styling
+                function drawTSPArc(p1, p2, ctrl, weight, tPos = 0.5) {
+                    const radius = 19;
+                    
+                    // Contact point at p1 (start): exactly on circle perimeter along curve tangent
+                    const a0 = Math.atan2(ctrl.y - p1.y, ctrl.x - p1.x);
+                    const sx = p1.x + Math.cos(a0) * radius;
+                    const sy = p1.y + Math.sin(a0) * radius;
 
-                Object.keys(n).forEach(k => {
-                    drawGraphNode(ctx, n[k].x, n[k].y, k, k === 'A');
-                });
-            }
+                    // Contact point at p2 (target): flush on target perimeter
+                    const a1 = Math.atan2(p2.y - ctrl.y, p2.x - ctrl.x);
+                    const ex = p2.x - Math.cos(a1) * (radius + 1.5);
+                    const ey = p2.y - Math.sin(a1) * (radius + 1.5);
 
-            // Tree
-            const setupT = setupCanvas('canvas-tsp-tree', 460, 240);
-            if (setupT) {
-                const { ctx } = setupT;
-                // Root: g(A, {B,C,D})
-                ctx.fillStyle = '#eff6ff';
-                ctx.strokeStyle = '#1e3a8a';
-                ctx.lineWidth = 1.8;
-                ctx.roundRect(150, 15, 160, 32, 6);
-                ctx.fill();
-                ctx.stroke();
+                    ctx.save();
 
-                ctx.fillStyle = '#1e3a8a';
-                ctx.font = 'bold 12px Inter, sans-serif';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillText('g(A, {B, C, D})', 230, 31);
+                    // 1. Draw Curved Directed Road (Uniform solid slate stroke for all edges)
+                    ctx.strokeStyle = '#334155';
+                    ctx.lineWidth = 1.6;
+                    ctx.setLineDash([]);
 
-                // 3 children: B, C, D
-                const branches = [
-                    { label: 'B: g(B, {C, D})', cost: '16 + 22 = 38 (Optimal)', x: 80, opt: true },
-                    { label: 'C: g(C, {B, D})', cost: '11 + ?', x: 230, opt: false },
-                    { label: 'D: g(D, {B, C})', cost: '6 + ?', x: 380, opt: false }
-                ];
-
-                branches.forEach(b => {
-                    ctx.strokeStyle = b.opt ? '#dc2626' : '#94a3b8';
-                    ctx.lineWidth = b.opt ? 2 : 1.2;
                     ctx.beginPath();
-                    ctx.moveTo(230, 47);
-                    ctx.lineTo(b.x, 90);
+                    ctx.moveTo(sx, sy);
+                    ctx.quadraticCurveTo(ctrl.x, ctrl.y, ex, ey);
                     ctx.stroke();
 
-                    // Box
-                    ctx.fillStyle = b.opt ? '#fef2f2' : '#ffffff';
-                    ctx.strokeStyle = b.opt ? '#dc2626' : '#cbd5e1';
-                    ctx.roundRect(b.x - 65, 90, 130, 44, 6);
+                    // 2. Crisp Arrowhead at Target Perimeter (Uniform for all edges)
+                    const headLen = 8.5;
+                    const headAngle = Math.PI / 6;
+
+                    ctx.fillStyle = '#334155';
+                    ctx.beginPath();
+                    ctx.moveTo(ex, ey);
+                    ctx.lineTo(ex - headLen * Math.cos(a1 - headAngle), ey - headLen * Math.sin(a1 - headAngle));
+                    ctx.lineTo(ex - headLen * Math.cos(a1 + headAngle), ey - headLen * Math.sin(a1 + headAngle));
+                    ctx.closePath();
+                    ctx.fill();
+
+                    // 3. Weight Label Pill at Bézier Position (tPos: 0.5 for outer edges, 0.28 for cross edges)
+                    const t = tPos;
+                    const w0 = (1 - t) * (1 - t);
+                    const w1 = 2 * (1 - t) * t;
+                    const w2 = t * t;
+                    const mx = w0 * sx + w1 * ctrl.x + w2 * ex;
+                    const my = w0 * sy + w1 * ctrl.y + w2 * ey;
+
+                    const label = `${weight}`;
+                    ctx.font = 'bold 11px Inter, sans-serif';
+                    const tw = ctx.measureText(label).width;
+                    const bw = Math.max(tw + 10, 20);
+                    const bh = 16;
+
+                    // Clean white pill with subtle border
+                    ctx.fillStyle = '#ffffff';
+                    ctx.strokeStyle = '#cbd5e1';
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.roundRect(mx - bw / 2, my - bh / 2, bw, bh, 6);
                     ctx.fill();
                     ctx.stroke();
 
-                    ctx.fillStyle = b.opt ? '#991b1b' : '#334155';
-                    ctx.font = 'bold 11px Inter, sans-serif';
-                    ctx.fillText(b.label, b.x, 105);
+                    ctx.fillStyle = '#1e293b';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(label, mx, my + 0.5);
 
-                    ctx.fillStyle = b.opt ? '#dc2626' : '#64748b';
-                    ctx.font = 'bold 10px Inter, sans-serif';
-                    ctx.fillText(b.cost, b.x, 122);
+                    ctx.restore();
+                }
+
+                // Draw all 12 directed edges with identical styling
+                // Horizontal pairs (midpoint badges at t = 0.5)
+                drawTSPArc(n[1], n[2], { x: 210, y: 32  }, 10); // 1 -> 2 (c12 = 10)
+                drawTSPArc(n[2], n[1], { x: 210, y: 108 }, 5);  // 2 -> 1 (c21 = 5)
+                drawTSPArc(n[4], n[3], { x: 210, y: 268 }, 9);  // 4 -> 3 (c43 = 9)
+                drawTSPArc(n[3], n[4], { x: 210, y: 192 }, 12); // 3 -> 4 (c34 = 12)
+
+                // Vertical pairs (midpoint badges at t = 0.5)
+                drawTSPArc(n[1], n[4], { x: 44,  y: 150 }, 20); // 1 -> 4 (c14 = 20)
+                drawTSPArc(n[4], n[1], { x: 126, y: 150 }, 8);  // 4 -> 1 (c41 = 8)
+                drawTSPArc(n[2], n[3], { x: 376, y: 150 }, 9);  // 2 -> 3 (c23 = 9)
+                drawTSPArc(n[3], n[2], { x: 294, y: 150 }, 13); // 3 -> 2 (c32 = 13)
+
+                // Diagonal cross pairs: placed at t = 0.28 near departing cities to eliminate center clutter!
+                drawTSPArc(n[1], n[3], { x: 182, y: 122 }, 15, 0.28); // 1 -> 3 (near City 1, top-left quadrant)
+                drawTSPArc(n[3], n[1], { x: 238, y: 178 }, 6,  0.28); // 3 -> 1 (near City 3, bottom-right quadrant)
+                drawTSPArc(n[2], n[4], { x: 238, y: 122 }, 10, 0.28); // 2 -> 4 (near City 2, top-right quadrant)
+                drawTSPArc(n[4], n[2], { x: 182, y: 178 }, 8,  0.28); // 4 -> 2 (near City 4, bottom-left quadrant)
+
+                // Draw Nodes cleanly over arc ends
+                Object.keys(n).forEach(k => {
+                    const pt = n[k];
+                    const isStart = k === '1';
+
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.arc(pt.x, pt.y, 19, 0, 2 * Math.PI);
+
+                    if (isStart) {
+                        // City 1: Warm amber origin node
+                        ctx.fillStyle = '#fef3c7';
+                        ctx.shadowColor = 'rgba(217, 119, 6, 0.25)';
+                        ctx.shadowBlur = 6;
+                        ctx.fill();
+
+                        ctx.shadowBlur = 0;
+                        ctx.strokeStyle = '#b45309';
+                        ctx.lineWidth = 2.4;
+                        ctx.stroke();
+
+                        ctx.fillStyle = '#78350f';
+                        ctx.font = 'bold 15px Inter, sans-serif';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText('1', pt.x, pt.y);
+
+                        // Origin badge above City 1
+                        ctx.fillStyle = '#b45309';
+                        ctx.beginPath();
+                        ctx.roundRect(pt.x - 20, pt.y - 33, 40, 13, 6);
+                        ctx.fill();
+                        ctx.fillStyle = '#ffffff';
+                        ctx.font = 'bold 8px Inter, sans-serif';
+                        ctx.fillText('START', pt.x, pt.y - 26);
+                    } else {
+                        // Cities 2, 3, 4: Crisp white nodes
+                        ctx.fillStyle = '#ffffff';
+                        ctx.shadowColor = 'rgba(0, 0, 0, 0.1)';
+                        ctx.shadowBlur = 5;
+                        ctx.shadowOffsetY = 2;
+                        ctx.fill();
+
+                        ctx.shadowBlur = 0;
+                        ctx.strokeStyle = '#1e293b';
+                        ctx.lineWidth = 2.2;
+                        ctx.stroke();
+
+                        ctx.fillStyle = '#0f172a';
+                        ctx.font = 'bold 15px Inter, sans-serif';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText(k, pt.x, pt.y);
+                    }
+                    ctx.restore();
                 });
-
-                // Optimal Sub-tree from B
-                // B -> D -> C -> A
-                ctx.strokeStyle = '#dc2626';
-                ctx.lineWidth = 2;
-                ctx.beginPath();
-                ctx.moveTo(80, 134);
-                ctx.lineTo(80, 175);
-                ctx.stroke();
-
-                ctx.fillStyle = '#ecfdf5';
-                ctx.strokeStyle = '#059669';
-                ctx.roundRect(15, 175, 130, 44, 6);
-                ctx.fill();
-                ctx.stroke();
-
-                ctx.fillStyle = '#065f46';
-                ctx.font = 'bold 11px Inter, sans-serif';
-                ctx.fillText('g(D, {C}) = 6', 80, 190);
-                ctx.font = '10px Inter, sans-serif';
-                ctx.fillText('Cost: 16 + 6 = 22', 80, 206);
             }
+
+            // -------------------------------------------------------------
+            // 2. Level-by-Level State-Space Decision Trees (Stages 1, 2, 3, 4)
+            // -------------------------------------------------------------
+            function drawTSPTreeLevel(canvasId, stage) {
+                const setupT = setupCanvas(canvasId, 620, 430);
+                if (!setupT) return;
+                const { ctx } = setupT;
+
+                // Coordinates for 5 Levels on 620 x 430 canvas
+                const L0_y = 32;   // Level 0: Root (Origin City 1)
+                const L1_y = 110;  // Level 1: Subsets of size 2
+                const L2_y = 205;  // Level 2: Subsets of size 1
+                const L3_y = 305;  // Level 3: Base Cases (|S|=0)
+                const L4_y = 395;  // Level 4: Return to City 1 Leaves
+
+                const root_x = 310;
+
+                // Level 1 Nodes: 2, 3, 4
+                const L1 = {
+                    2: { x: 100, y: L1_y },
+                    3: { x: 310, y: L1_y },
+                    4: { x: 520, y: L1_y }
+                };
+
+                // Level 2 Nodes (6 columns spaced evenly across 620px)
+                const L2 = {
+                    '2_3': { x: 45,  y: L2_y },
+                    '2_4': { x: 150, y: L2_y },
+                    '3_2': { x: 255, y: L2_y },
+                    '3_4': { x: 360, y: L2_y },
+                    '4_2': { x: 465, y: L2_y },
+                    '4_3': { x: 570, y: L2_y }
+                };
+
+                // Level 3 Nodes
+                const L3 = {
+                    '2_3_4': { x: 45,  y: L3_y },
+                    '2_4_3': { x: 150, y: L3_y },
+                    '3_2_4': { x: 255, y: L3_y },
+                    '3_4_2': { x: 360, y: L3_y },
+                    '4_2_3': { x: 465, y: L3_y },
+                    '4_3_2': { x: 570, y: L3_y }
+                };
+
+                // Level 4 Leaves
+                const L4 = {
+                    1: { x: 45,  y: L4_y },
+                    2: { x: 150, y: L4_y },
+                    3: { x: 255, y: L4_y },
+                    4: { x: 360, y: L4_y },
+                    5: { x: 465, y: L4_y },
+                    6: { x: 570, y: L4_y }
+                };
+
+                // Helper to draw circle tree node with g-value pill
+                function drawNode(x, y, label, isDouble = false, isOptimal = false, costTag = '', isLeaf = false, isCalculated = true) {
+                    ctx.save();
+
+                    if (!isCalculated) {
+                        // Uncalculated node: pending stage
+                        ctx.beginPath();
+                        ctx.arc(x, y, 13, 0, 2 * Math.PI);
+                        ctx.fillStyle = '#f8fafc';
+                        ctx.fill();
+
+                        ctx.strokeStyle = '#cbd5e1';
+                        ctx.lineWidth = 1.2;
+                        ctx.setLineDash([3, 3]);
+                        ctx.stroke();
+                        ctx.setLineDash([]);
+
+                        ctx.fillStyle = '#94a3b8';
+                        ctx.font = 'bold 11px Inter, sans-serif';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText(label, x, y + 0.5);
+
+                        // Pill tag: g = ?
+                        const tag = 'g = ?';
+                        ctx.font = '8.5px Inter, sans-serif';
+                        const tw = ctx.measureText(tag).width;
+                        const tx = x + 15;
+                        ctx.fillStyle = '#f8fafc';
+                        ctx.strokeStyle = '#e2e8f0';
+                        ctx.lineWidth = 0.8;
+                        ctx.beginPath();
+                        ctx.roundRect(tx, y - 6.5, tw + 5, 13, 3);
+                        ctx.fill();
+                        ctx.stroke();
+
+                        ctx.fillStyle = '#94a3b8';
+                        ctx.textAlign = 'left';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText(tag, tx + 2.5, y + 0.5);
+                        ctx.restore();
+                        return;
+                    }
+
+                    // Calculated Node
+                    ctx.shadowColor = 'rgba(0, 0, 0, 0.08)';
+                    ctx.shadowBlur = 4;
+                    ctx.shadowOffsetY = 1;
+
+                    ctx.beginPath();
+                    ctx.arc(x, y, 13.5, 0, 2 * Math.PI);
+                    ctx.fillStyle = isOptimal ? '#ecfdf5' : '#ffffff';
+                    ctx.fill();
+
+                    ctx.shadowBlur = 0;
+                    ctx.strokeStyle = isOptimal ? '#059669' : '#334155';
+                    ctx.lineWidth = isOptimal ? 2.6 : 1.5;
+                    ctx.stroke();
+
+                    // Double Circle for optimal subdecision
+                    if (isDouble) {
+                        ctx.beginPath();
+                        ctx.arc(x, y, 17.5, 0, 2 * Math.PI);
+                        ctx.strokeStyle = '#059669';
+                        ctx.lineWidth = 1.8;
+                        ctx.stroke();
+                    }
+
+                    // Node Label
+                    ctx.fillStyle = isOptimal ? '#065f46' : '#1e293b';
+                    ctx.font = 'bold 12px Inter, sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(label, x, y + 0.5);
+
+                    // Cost tag next to / below node
+                    if (costTag) {
+                        if (isLeaf) {
+                            // Leaves: pill badge right below the node
+                            ctx.font = isOptimal ? 'bold 9.5px Inter, sans-serif' : '9px Inter, sans-serif';
+                            const tw = ctx.measureText(costTag).width;
+                            ctx.fillStyle = isOptimal ? '#ecfdf5' : '#f8fafc';
+                            ctx.strokeStyle = isOptimal ? '#059669' : '#cbd5e1';
+                            ctx.lineWidth = 1;
+                            ctx.beginPath();
+                            ctx.roundRect(x - tw / 2 - 4, y + 16, tw + 8, 15, 4);
+                            ctx.fill();
+                            ctx.stroke();
+
+                            ctx.fillStyle = isOptimal ? '#047857' : '#475569';
+                            ctx.textAlign = 'center';
+                            ctx.textBaseline = 'middle';
+                            ctx.fillText(costTag, x, y + 23.5);
+                        } else {
+                            // Internal nodes: clean pill badge on the right
+                            ctx.font = isOptimal ? 'bold 9.5px Inter, sans-serif' : '9px Inter, sans-serif';
+                            const tw = ctx.measureText(costTag).width;
+                            const tx = x + (isDouble ? 20 : 15.5);
+                            const ty = y;
+
+                            ctx.fillStyle = isOptimal ? '#ecfdf5' : '#ffffff';
+                            ctx.strokeStyle = isOptimal ? '#10b981' : '#cbd5e1';
+                            ctx.lineWidth = 0.8;
+                            ctx.beginPath();
+                            ctx.roundRect(tx, ty - 7.5, tw + 6, 15, 3.5);
+                            ctx.fill();
+                            ctx.stroke();
+
+                            ctx.fillStyle = isOptimal ? '#047857' : '#334155';
+                            ctx.textAlign = 'left';
+                            ctx.textBaseline = 'middle';
+                            ctx.fillText(costTag, tx + 3, ty + 0.5);
+                        }
+                    }
+                    ctx.restore();
+                }
+
+                // Helper to draw branch edge with calculation text
+                function drawBranch(x1, y1, x2, y2, calcText, isOptimal = false, textOffset = { x: 0, y: 0 }, isCalculated = true) {
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.moveTo(x1, y1);
+                    ctx.lineTo(x2, y2);
+
+                    if (!isCalculated) {
+                        ctx.strokeStyle = '#e2e8f0';
+                        ctx.lineWidth = 1;
+                        ctx.setLineDash([3, 3]);
+                        ctx.stroke();
+                        ctx.setLineDash([]);
+                        ctx.restore();
+                        return;
+                    }
+
+                    ctx.strokeStyle = isOptimal ? '#059669' : '#cbd5e1';
+                    ctx.lineWidth = isOptimal ? 2.8 : 1.2;
+                    ctx.stroke();
+
+                    if (calcText) {
+                        const mx = (x1 + x2) / 2 + textOffset.x;
+                        const my = (y1 + y2) / 2 + textOffset.y;
+                        ctx.font = isOptimal ? 'bold 8.5px Inter, sans-serif' : '8px Inter, sans-serif';
+
+                        // Text pill backdrop
+                        const tw = ctx.measureText(calcText).width;
+                        ctx.fillStyle = '#ffffff';
+                        ctx.strokeStyle = isOptimal ? '#a7f3d0' : '#e2e8f0';
+                        ctx.lineWidth = 0.8;
+                        ctx.beginPath();
+                        ctx.roundRect(mx - tw / 2 - 3, my - 6, tw + 6, 12, 3);
+                        ctx.fill();
+                        ctx.stroke();
+
+                        ctx.fillStyle = isOptimal ? '#065f46' : '#64748b';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText(calcText, mx, my);
+                    }
+                    ctx.restore();
+                }
+
+                // -------------------------------------------------------------
+                // 1. DRAW EDGES FIRST (Behind Nodes)
+                // -------------------------------------------------------------
+
+                // Root to Level 1 (Calculated only in Stage 4)
+                const isL0toL1Calc = stage >= 4;
+                drawBranch(root_x, L0_y + 14, L1[2].x, L1[2].y - 14, '10 + 25 = 35', isL0toL1Calc, { x: -24, y: -6 }, isL0toL1Calc);
+                drawBranch(root_x, L0_y + 14, L1[3].x, L1[3].y - 14, '15 + 25 = 40', false, { x: 0, y: 0 }, isL0toL1Calc);
+                drawBranch(root_x, L0_y + 14, L1[4].x, L1[4].y - 14, '20 + 23 = 43', false, { x: 24, y: -6 }, isL0toL1Calc);
+
+                // Level 1 to Level 2 (Calculated in Stage >= 3)
+                const isL1toL2Calc = stage >= 3;
+                drawBranch(L1[2].x, L1[2].y + 14, L2['2_3'].x, L2['2_3'].y - 14, '9 + 20 = 29', false, { x: -16, y: -4 }, isL1toL2Calc);
+                drawBranch(L1[2].x, L1[2].y + 14, L2['2_4'].x, L2['2_4'].y - 18, '10 + 15 = 25', isL1toL2Calc, { x: 16, y: -4 }, isL1toL2Calc);
+
+                drawBranch(L1[3].x, L1[3].y + 14, L2['3_2'].x, L2['3_2'].y - 14, '13 + 18 = 31', false, { x: -16, y: -4 }, isL1toL2Calc);
+                drawBranch(L1[3].x, L1[3].y + 14, L2['3_4'].x, L2['3_4'].y - 14, '12 + 13 = 25', false, { x: 16, y: -4 }, isL1toL2Calc);
+
+                drawBranch(L1[4].x, L1[4].y + 14, L2['4_2'].x, L2['4_2'].y - 14, '8 + 15 = 23', false, { x: -16, y: -4 }, isL1toL2Calc);
+                drawBranch(L1[4].x, L1[4].y + 14, L2['4_3'].x, L2['4_3'].y - 14, '9 + 18 = 27', false, { x: 16, y: -4 }, isL1toL2Calc);
+
+                // Level 2 to Level 3 (Calculated in Stage >= 2)
+                const isL2toL3Calc = stage >= 2;
+                const isOpt24to3 = stage >= 3; // Optimal branch active from stage 3 onwards
+                drawBranch(L2['2_3'].x, L2['2_3'].y + 14, L3['2_3_4'].x, L3['2_3_4'].y - 14, '12 + 8 = 20', false, { x: 0, y: 0 }, isL2toL3Calc);
+                drawBranch(L2['2_4'].x, L2['2_4'].y + 18, L3['2_4_3'].x, L3['2_4_3'].y - 14, '9 + 6 = 15', isOpt24to3, { x: 0, y: 0 }, isL2toL3Calc);
+                drawBranch(L2['3_2'].x, L2['3_2'].y + 14, L3['3_2_4'].x, L3['3_2_4'].y - 14, '10 + 8 = 18', false, { x: 0, y: 0 }, isL2toL3Calc);
+                drawBranch(L2['3_4'].x, L2['3_4'].y + 14, L3['3_4_2'].x, L3['3_4_2'].y - 14, '8 + 5 = 13', false, { x: 0, y: 0 }, isL2toL3Calc);
+                drawBranch(L2['4_2'].x, L2['4_2'].y + 14, L3['4_2_3'].x, L3['4_2_3'].y - 14, '9 + 6 = 15', false, { x: 0, y: 0 }, isL2toL3Calc);
+                drawBranch(L2['4_3'].x, L2['4_3'].y + 14, L3['4_3_2'].x, L3['4_3_2'].y - 14, '13 + 5 = 18', false, { x: 0, y: 0 }, isL2toL3Calc);
+
+                // Level 3 to Level 4 Return to City 1 (Calculated in Stage >= 1)
+                const isL3toL4Calc = stage >= 1;
+                const isOptReturn = stage >= 3;
+                drawBranch(L3['2_3_4'].x, L3['2_3_4'].y + 14, L4[1].x, L4[1].y - 14, 'c₄₁ = 8', false, { x: 0, y: 0 }, isL3toL4Calc);
+                drawBranch(L3['2_4_3'].x, L3['2_4_3'].y + 14, L4[2].x, L4[2].y - 14, 'c₃₁ = 6', isOptReturn, { x: 0, y: 0 }, isL3toL4Calc);
+                drawBranch(L3['3_2_4'].x, L3['3_2_4'].y + 14, L4[3].x, L4[3].y - 14, 'c₄₁ = 8', false, { x: 0, y: 0 }, isL3toL4Calc);
+                drawBranch(L3['3_4_2'].x, L3['3_4_2'].y + 14, L4[4].x, L4[4].y - 14, 'c₂₁ = 5', false, { x: 0, y: 0 }, isL3toL4Calc);
+                drawBranch(L3['4_2_3'].x, L3['4_2_3'].y + 14, L4[5].x, L4[5].y - 14, 'c₃₁ = 6', false, { x: 0, y: 0 }, isL3toL4Calc);
+                drawBranch(L3['4_3_2'].x, L3['4_3_2'].y + 14, L4[6].x, L4[6].y - 14, 'c₂₁ = 5', false, { x: 0, y: 0 }, isL3toL4Calc);
+
+                // -------------------------------------------------------------
+                // 2. DRAW NODES WITH STAGE-SPECIFIC CALCULATED G-VALUES
+                // -------------------------------------------------------------
+
+                // Root Node 1 (Calculated only in Stage 4)
+                const isRootCalc = stage >= 4;
+                drawNode(root_x, L0_y, '1', false, isRootCalc, isRootCalc ? 'g = 35' : '', false, isRootCalc);
+
+                // Level 1 Nodes (Calculated in Stage >= 3)
+                const isL1Calc = stage >= 3;
+                drawNode(L1[2].x, L1[2].y, '2', false, isL1Calc, isL1Calc ? 'g = 25' : '', false, isL1Calc);
+                drawNode(L1[3].x, L1[3].y, '3', false, false,   isL1Calc ? 'g = 25' : '', false, isL1Calc);
+                drawNode(L1[4].x, L1[4].y, '4', false, false,   isL1Calc ? 'g = 23' : '', false, isL1Calc);
+
+                // Level 2 Nodes (Calculated in Stage >= 2)
+                const isL2Calc = stage >= 2;
+                const isL2Double = stage >= 3; // Double circled node 4 from stage 3 onwards
+                drawNode(L2['2_3'].x, L2['2_3'].y, '3', false,      false,      isL2Calc ? 'g = 20' : '', false, isL2Calc);
+                drawNode(L2['2_4'].x, L2['2_4'].y, '4', isL2Double, isL2Double, isL2Calc ? 'g = 15' : '', false, isL2Calc);
+                drawNode(L2['3_2'].x, L2['3_2'].y, '2', false,      false,      isL2Calc ? 'g = 18' : '', false, isL2Calc);
+                drawNode(L2['3_4'].x, L2['3_4'].y, '4', false,      false,      isL2Calc ? 'g = 13' : '', false, isL2Calc);
+                drawNode(L2['4_2'].x, L2['4_2'].y, '2', false,      false,      isL2Calc ? 'g = 15' : '', false, isL2Calc);
+                drawNode(L2['4_3'].x, L2['4_3'].y, '3', false,      false,      isL2Calc ? 'g = 18' : '', false, isL2Calc);
+
+                // Level 3 Nodes (Calculated in Stage >= 1)
+                const isL3Calc = stage >= 1;
+                const isL3Opt = stage >= 3;
+                drawNode(L3['2_3_4'].x, L3['2_3_4'].y, '4', false, false,   isL3Calc ? 'g = 8' : '', false, isL3Calc);
+                drawNode(L3['2_4_3'].x, L3['2_4_3'].y, '3', false, isL3Opt, isL3Calc ? 'g = 6' : '', false, isL3Calc);
+                drawNode(L3['3_2_4'].x, L3['3_2_4'].y, '4', false, false,   isL3Calc ? 'g = 8' : '', false, isL3Calc);
+                drawNode(L3['3_4_2'].x, L3['3_4_2'].y, '2', false, false,   isL3Calc ? 'g = 5' : '', false, isL3Calc);
+                drawNode(L3['4_2_3'].x, L3['4_2_3'].y, '3', false, false,   isL3Calc ? 'g = 6' : '', false, isL3Calc);
+                drawNode(L3['4_3_2'].x, L3['4_3_2'].y, '2', false, false,   isL3Calc ? 'g = 5' : '', false, isL3Calc);
+
+                // Level 4 Leaves (Return to City 1)
+                const isL4Opt = stage >= 3;
+                const leafTags = stage >= 4 ? [
+                    'Total = 39', 'Total = 35 🏆', 'Total = 46',
+                    'Total = 40', 'Total = 43', 'Total = 47'
+                ] : ['', '', '', '', '', ''];
+
+                drawNode(L4[1].x, L4[1].y, '1', false, false,   leafTags[0], true, true);
+                drawNode(L4[2].x, L4[2].y, '1', false, isL4Opt, leafTags[1], true, true);
+                drawNode(L4[3].x, L4[3].y, '1', false, false,   leafTags[2], true, true);
+                drawNode(L4[4].x, L4[4].y, '1', false, false,   leafTags[3], true, true);
+                drawNode(L4[5].x, L4[5].y, '1', false, false,   leafTags[4], true, true);
+                drawNode(L4[6].x, L4[6].y, '1', false, false,   leafTags[5], true, true);
+            }
+
+            // Draw all 4 Level State-Space Decision Trees
+            drawTSPTreeLevel('canvas-tsp-tree-l1', 1);
+            drawTSPTreeLevel('canvas-tsp-tree-l2', 2);
+            drawTSPTreeLevel('canvas-tsp-tree-l3', 3);
+            drawTSPTreeLevel('canvas-tsp-tree-l4', 4);
         }
 
         // =========================================================================

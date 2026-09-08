@@ -1,0 +1,2179 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Algorithms: Bellman-Ford Algorithm - Digital Lecture Notes</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Kalam:wght@300;400;700&family=Patrick+Hand&family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        notebookBg: '#cbd5e1',
+                        notebookPaper: '#FAF6EE',
+                        inkBlue: '#1A365D',
+                        inkRed: '#9B2C2C',
+                        pencilGray: '#4A5568',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Shared Notebook Styles -->
+    <link rel="stylesheet" href="../notebook.css">
+
+    <style>
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+
+<body class="font-notes-body text-2xl text-slate-800 antialiased transition-all duration-300">
+
+    <!-- Sticky Header -->
+    <header class="sticky top-0 z-50 bg-[#FAF6EE] shadow-md border-b-2 border-amber-200 px-4 py-3 no-print">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-3">
+            <div class="flex items-center space-x-3">
+                <span class="text-3xl font-bold text-inkBlue tracking-wide font-heading">📖 Algorithms: Bellman-Ford
+                    SSSP</span>
+                <span
+                    class="bg-amber-100 text-amber-900 text-xs font-bold px-2.5 py-1 rounded-full border border-amber-300 font-sans uppercase">Personal
+                    Notes</span>
+            </div>
+            <button id="styleBtn" onclick="toggleStyleMode()"
+                class="px-4 py-1.5 rounded-full text-sm font-bold bg-inkBlue text-white hover:bg-opacity-90 transition font-sans shadow-sm">
+                ✍️ Switch to Clean Print Font
+            </button>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <nav class="max-w-6xl mx-auto mt-3 flex flex-wrap gap-1 border-t border-amber-200 pt-2 text-base md:text-lg">
+            <button onclick="switchTab('concepts')" id="tab-concepts"
+                class="nav-tab px-3.5 py-2 rounded-t-lg font-bold bg-amber-200 text-inkBlue border-b-2 border-inkBlue">
+                1. Concepts & Relaxation
+            </button>
+            <button onclick="switchTab('dry-run')" id="tab-dry-run"
+                class="nav-tab px-3.5 py-2 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
+                2. 7-Node Graph Trace
+            </button>
+            <button onclick="switchTab('negative-edge')" id="tab-negative-edge"
+                class="nav-tab px-3.5 py-2 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
+                3. Negative Edges & Complexity
+            </button>
+            <button onclick="switchTab('negative-cycles')" id="tab-negative-cycles"
+                class="nav-tab px-3.5 py-2 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
+                4. Negative Cycles & Detection
+            </button>
+            <button onclick="switchTab('summary')" id="tab-summary"
+                class="nav-tab px-3.5 py-2 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
+                5. Algorithm & Flowchart
+            </button>
+        </nav>
+    </header>
+
+    <!-- Main Notebook Container -->
+    <main
+        class="max-w-6xl mx-auto flex relative bg-notebookPaper rounded-xl shadow-2xl overflow-hidden min-h-[900px] border border-amber-200 my-8">
+
+        <!-- Left Binder Column with Spiral Rings -->
+        <div
+            class="w-10 sm:w-16 bg-amber-50 border-r-2 border-amber-200 flex flex-col items-center py-8 select-none shrink-0 no-print space-y-6 z-10 shadow-[inset_-5px_0_10px_rgba(0,0,0,0.05)]">
+            <script>
+                for (let i = 0; i < 45; i++) document.write('<div class="spiral-ring"></div>');
+            </script>
+        </div>
+
+        <!-- Notebook Content Area -->
+        <div class="flex-1 lined-paper p-4 sm:p-8 notebook-margin sm:pl-8 overflow-hidden z-0">
+
+            <!-- ======================================================================
+                 TAB 1: CONCEPTS & RELAXATION (Sections 1, 2, 3)
+            ====================================================================== -->
+            <section id="sec-concepts" class="tab-content active space-y-8">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                        1. Bellman-Ford Fundamentals</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 1</span>
+                </div>
+
+                <div class="space-y-6">
+                    <!-- Section 1 -->
+                    <div>
+                        <h3 class="text-3xl font-bold text-inkRed font-heading pen-underline mb-2">1. Single Source
+                            Shortest Path (SSSP)</h3>
+                        <p class="leading-relaxed">
+                            The <strong>Single Source Shortest Path (SSSP)</strong> problem is defined as follows:
+                        </p>
+                        <ul class="list-disc list-inside space-y-1 ml-4 mt-2 font-medium">
+                            <li>We are given a <strong>directed, weighted graph</strong> <code
+                                    class="bg-amber-100/70 px-1.5 py-0.5 rounded text-inkBlue font-mono">G = (V, E)</code>.
+                            </li>
+                            <li>We choose one vertex as the designate <strong>source vertex</strong> <code
+                                    class="bg-amber-100/70 px-1.5 py-0.5 rounded text-inkBlue font-mono">S</code>.</li>
+                            <li>We want to determine the <strong>minimum cost (shortest path)</strong> from the source
+                                to every other vertex in the graph.</li>
+                        </ul>
+
+                        <div
+                            class="note-box p-4 mt-4 bg-amber-50/70 border-l-4 border-amber-500 rounded font-sans text-lg">
+                            <strong class="text-inkBlue font-bold text-xl block mb-1">⚖️ Why Bellman-Ford over
+                                Dijkstra?</strong>
+                            <p class="text-pencilGray leading-relaxed">
+                                We already know <strong>Dijkstra's algorithm</strong>, which uses a greedy strategy.
+                                However, Dijkstra makes an irrevocable greedy choice assuming that once a node's
+                                shortest path is finalized, no further reduction is possible.
+                            </p>
+                            <p class="text-red-700 font-bold mt-2">
+                                ❌ Dijkstra does NOT guarantee correct results when the graph contains negative-weight
+                                edges!
+                            </p>
+                            <p class="text-emerald-800 font-bold mt-1">
+                                ✅ Bellman-Ford is specifically engineered to handle negative edge weights correctly and
+                                reliably.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Section 2 -->
+                    <div class="pt-4 border-t border-amber-200">
+                        <h3 class="text-3xl font-bold text-inkRed font-heading pen-underline mb-2">2. Basic Idea of
+                            Bellman-Ford</h3>
+                        <p class="leading-relaxed">
+                            Instead of greedily picking the nearest unvisited node, Bellman-Ford takes a <strong>dynamic
+                                programming / exhaustive relaxation</strong> approach:
+                        </p>
+                        <div class="p-3 my-2 bg-blue-50/80 border-l-4 border-inkBlue rounded font-sans">
+                            <span class="text-xl font-bold text-inkBlue">Core Principle:</span>
+                            <span class="block text-slate-800 text-lg mt-1 font-semibold">Bellman-Ford repeatedly
+                                relaxes <u>all edges</u> in the graph.</span>
+                        </div>
+                        <p class="leading-relaxed mt-2">
+                            If there are <code class="font-bold text-inkBlue font-mono">V</code> vertices in the graph,
+                            we relax all edges:
+                        </p>
+                        <div class="text-center my-3">
+                            <span
+                                class="inline-block bg-red-100 text-inkRed font-bold text-3xl px-6 py-2 rounded-xl border-2 border-inkRed shadow-sm">
+                                V - 1 times
+                            </span>
+                        </div>
+
+                        <div
+                            class="bg-white/80 p-4 border border-amber-300 rounded-lg shadow-sm font-sans text-lg space-y-2 mt-3">
+                            <span class="font-bold text-inkBlue text-xl block">🤔 Why do we repeat (V - 1) times?</span>
+                            <p class="text-slate-700 leading-relaxed">
+                                A shortest path without loops can have at most <code
+                                    class="font-mono font-bold text-inkRed">V - 1</code> edges.
+                            </p>
+                            <p class="text-slate-700 leading-relaxed">
+                                In the worst case, every time you check all the edges once, the correct shortest distance spreads at least <strong>one edge further</strong> down the path.
+                            </p>
+                            <p class="text-inkBlue font-bold bg-amber-50 p-3 rounded-lg border border-amber-200 leading-relaxed">
+                                💡 <strong>Example:</strong> If a graph has <code class="font-mono">V = 7</code> vertices, the longest path has at most <code class="font-mono text-inkRed font-bold">V - 1 = 6</code> edges. Therefore, checking all edges <strong>6 times</strong> guarantees that the correct distance reaches all vertices from start to finish.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Section 3 -->
+                    <div class="pt-4 border-t border-amber-200">
+                        <h3 class="text-3xl font-bold text-inkRed font-heading pen-underline mb-2">3. What is
+                            Relaxation?</h3>
+                        <p class="leading-relaxed">
+                            Consider a directed edge: <code class="font-bold font-mono text-inkBlue">u → v</code> with
+                            edge weight (cost) <code class="font-bold font-mono text-inkBlue">w</code>.
+                        </p>
+                        <p class="leading-relaxed mt-1">
+                            At any point in time, we maintain the best known estimates:
+                        </p>
+                        <ul class="list-disc list-inside space-y-1 ml-4 text-pencilGray font-sans text-lg">
+                            <li><code class="font-mono font-bold text-inkBlue">distance[u]</code>: Cost to reach <code
+                                    class="font-mono">u</code> from source.</li>
+                            <li><code class="font-mono font-bold text-inkBlue">distance[v]</code>: Current best cost to
+                                reach <code class="font-mono">v</code> from source.</li>
+                        </ul>
+
+                        <!-- Relaxation Formula Box -->
+                        <div class="my-4 p-4 bg-amber-100/60 border-2 border-amber-400 rounded-xl">
+                            <span class="font-bold text-inkRed text-xl block mb-2 font-heading">📐 Relaxation
+                                Formula:</span>
+                            <pre
+                                class="bg-white p-3 rounded border border-amber-300 font-mono text-base sm:text-lg text-inkBlue overflow-x-auto">if (distance[u] + weight(u, v) < distance[v]) {
+    distance[v] = distance[u] + weight(u, v);
+}</pre>
+                        </div>
+
+                        <!-- Plain English Box -->
+                        <div class="p-4 bg-sky-50 border-l-4 border-sky-600 rounded font-sans text-lg">
+                            <span class="font-bold text-sky-900 block text-xl mb-1">🗣️ In Simple English:</span>
+                            <blockquote class="italic text-slate-800 text-xl font-handwriting">
+                                "Can I reach node <strong>v</strong> more cheaply by first travelling to node
+                                <strong>u</strong> and then taking the directed edge <strong>u → v</strong>?"
+                            </blockquote>
+                            <p class="mt-2 text-slate-700">
+                                If <strong>yes</strong>, we discard the older higher cost and update <code
+                                    class="font-bold text-inkBlue">distance[v]</code> with this improved path cost.
+                            </p>
+                        </div>
+
+                        <!-- Canvas Diagram for Relaxation -->
+                        <div
+                            class="flex flex-col items-center bg-white/70 border border-amber-200 p-4 rounded-xl shadow-inner mt-4">
+                            <canvas id="relaxation-canvas" class="bg-white border border-slate-300 rounded max-w-full"
+                                style="width: 520px; height: 160px;"></canvas>
+                            <span class="text-xs text-pencilGray font-sans mt-2">Visualizing edge relaxation:
+                                distance[u] + weight(u,v) = 4 + 2 = 6 &lt; ∞, so distance[v] drops to 6.</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ======================================================================
+                 TAB 2: GRAPH DRY RUN (Sections 4, 5, 6, 7, 8, 9)
+            ====================================================================== -->
+            <section id="sec-dry-run" class="tab-content space-y-8">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                        2. Step-by-Step 7-Node Trace</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 2</span>
+                </div>
+
+                <div class="space-y-6">
+                    <!-- Section 4 -->
+                    <div>
+                        <h3 class="text-3xl font-bold text-inkRed font-heading pen-underline mb-2">4. Bellman-Ford
+                            Example 1 Setup</h3>
+                        <p class="leading-relaxed">
+                            Let us trace the exact <strong>7-vertex, 10-edge directed graph</strong>:
+                        </p>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-4 font-sans text-base">
+                            <div class="bg-white/80 p-4 rounded-xl border border-amber-300 shadow-sm">
+                                <span class="font-bold text-inkBlue text-lg block mb-2">Graph Parameters:</span>
+                                <ul class="space-y-1">
+                                    <li>• Total Vertices: <code class="font-bold text-inkBlue font-mono">V = 7</code>
+                                        (nodes 1, 2, 3, 4, 5, 6, 7)</li>
+                                    <li>• Total Edges: <code class="font-bold text-inkBlue font-mono">E = 10</code></li>
+                                    <li>• Designated Source: <code
+                                            class="font-bold text-red-700 font-mono">Source = 1</code></li>
+                                    <li>• Iterations Needed: <code
+                                            class="font-bold text-inkBlue font-mono">V - 1 = 6 iterations</code></li>
+                                </ul>
+                            </div>
+
+                            <div class="bg-white/80 p-4 rounded-xl border border-amber-300 shadow-sm">
+                                <span class="font-bold text-inkBlue text-lg block mb-2">Edge Sequence (Relaxation
+                                    Order):</span>
+                                <div class="grid grid-cols-2 gap-x-3 gap-y-1 text-sm font-mono">
+                                    <div>1) <span class="text-inkBlue font-bold">1 → 2</span> (wt: 6)</div>
+                                    <div>6) <span class="text-inkBlue font-bold">3 → 5</span> (wt: 1)</div>
+                                    <div>2) <span class="text-inkBlue font-bold">1 → 3</span> (wt: 5)</div>
+                                    <div>7) <span class="text-inkBlue font-bold">4 → 3</span> (wt: -2)</div>
+                                    <div>3) <span class="text-inkBlue font-bold">1 → 4</span> (wt: 5)</div>
+                                    <div>8) <span class="text-inkBlue font-bold">4 → 6</span> (wt: -1)</div>
+                                    <div>4) <span class="text-inkBlue font-bold">2 → 5</span> (wt: -1)</div>
+                                    <div>9) <span class="text-inkBlue font-bold">5 → 7</span> (wt: 3)</div>
+                                    <div>5) <span class="text-inkBlue font-bold">3 → 2</span> (wt: -2)</div>
+                                    <div>10) <span class="text-inkBlue font-bold">6 → 7</span> (wt: 3)</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- The Algorithm in Plain English for this 7-Node Trace -->
+                        <div class="my-4 p-5 bg-amber-50/80 border-2 border-amber-300 rounded-xl shadow-sm font-sans space-y-3">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-2 border-b border-amber-300 gap-2">
+                                <span class="font-bold text-inkBlue text-xl flex items-center gap-2 font-heading">
+                                    📋 The Algorithm in Plain English (How We Solve This 7-Node Graph)
+                                </span>
+                                <span class="text-xs bg-amber-200 text-inkBlue px-2.5 py-1 rounded font-bold font-sans uppercase">
+                                    Plain English Steps
+                                </span>
+                            </div>
+
+                            <div class="space-y-3 text-slate-700 text-base leading-relaxed">
+                                <div class="p-3 bg-white rounded-lg border border-amber-200">
+                                    <strong class="text-inkBlue text-lg block">Step 1: Set Up Starting Distances</strong>
+                                    <p class="mt-1">
+                                        We start at <strong>Node 1</strong>, so set its distance to <strong>0</strong>.<br>
+                                        Since we don't know the cost to reach any of the other 6 nodes yet, set their distances to <strong>infinity (∞)</strong>.
+                                    </p>
+                                </div>
+
+                                <div class="p-3 bg-white rounded-lg border border-amber-200">
+                                    <strong class="text-inkBlue text-lg block">Step 2: Decide How Many Rounds to Run</strong>
+                                    <p class="mt-1">
+                                        Because there are <strong>7 nodes</strong>, any path without loops has at most 6 edges (<code class="font-bold text-inkRed font-mono">7 - 1 = 6</code>).<br>
+                                        So, we will repeat our checking process for <strong>at most 6 rounds</strong>.
+                                    </p>
+                                </div>
+
+                                <div class="p-3 bg-white rounded-lg border border-amber-200">
+                                    <strong class="text-inkBlue text-lg block">Step 3: In Each Round, Check Every Edge One by One</strong>
+                                    <p class="mt-1">
+                                        Go through all 10 edges in the exact listed order. For each road from <code class="font-bold font-mono text-inkBlue">u → v</code>, ask:
+                                    </p>
+                                    <blockquote class="italic text-inkBlue bg-amber-50/70 p-2 my-1 rounded border-l-4 border-amber-400 font-handwriting text-xl">
+                                        "Can I reach node v with a smaller cost by coming through node u?"
+                                    </blockquote>
+                                    <p class="mt-1">
+                                        If <strong>yes</strong> (<code class="font-bold font-mono text-inkBlue">distance[u] + edge weight &lt; distance[v]</code>), erase the old distance at node <code class="font-mono">v</code> and write down the new smaller number!
+                                    </p>
+                                </div>
+
+                                <div class="p-3 bg-white rounded-lg border border-amber-200">
+                                    <strong class="text-inkBlue text-lg block">Step 4: Check if Distances Stopped Changing (Early Finish)</strong>
+                                    <p class="mt-1">
+                                        If we finish a full round and <strong>no node's distance got smaller</strong>, the graph has completely stabilized. All shortest paths have already been found, so we can stop immediately! (In our 7-node example, this happens after Round 3).
+                                    </p>
+                                </div>
+
+                                <div class="p-3 bg-emerald-50 rounded-lg border border-emerald-300">
+                                    <strong class="text-emerald-900 text-lg block">Step 5: Final Result</strong>
+                                    <p class="mt-1 text-emerald-800">
+                                        The numbers written on all 7 nodes are now the guaranteed shortest path distances from Node 1.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 5 -->
+                    <div class="pt-4 border-t border-amber-200">
+                        <h3 class="text-3xl font-bold text-inkRed font-heading pen-underline mb-2">5. Initialization
+                        </h3>
+                        <p class="leading-relaxed">
+                            Distance from source node 1 to itself is <code class="font-bold text-inkBlue">0</code>.
+                            Every other vertex is initialized to infinity (<code class="font-bold">&infin;</code>).
+                        </p>
+
+                        <div class="flex flex-col md:flex-row items-center gap-6 my-4">
+                            <div class="w-full md:w-1/2 overflow-x-auto">
+                                <table
+                                    class="w-full bg-white border border-amber-300 rounded-lg text-center font-sans shadow-sm text-sm">
+                                    <thead class="bg-amber-100 text-inkBlue font-bold border-b border-amber-300">
+                                        <tr>
+                                            <th class="py-2 px-3">Vertex</th>
+                                            <th class="py-2 px-2">1 (Src)</th>
+                                            <th class="py-2 px-2">2</th>
+                                            <th class="py-2 px-2">3</th>
+                                            <th class="py-2 px-2">4</th>
+                                            <th class="py-2 px-2">5</th>
+                                            <th class="py-2 px-2">6</th>
+                                            <th class="py-2 px-2">7</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-amber-200 font-mono">
+                                        <tr>
+                                            <td class="py-2 px-3 font-bold text-inkBlue bg-amber-50">Init Dist</td>
+                                            <td class="py-2 text-emerald-700 font-bold">0</td>
+                                            <td class="py-2 text-slate-500">&infin;</td>
+                                            <td class="py-2 text-slate-500">&infin;</td>
+                                            <td class="py-2 text-slate-500">&infin;</td>
+                                            <td class="py-2 text-slate-500">&infin;</td>
+                                            <td class="py-2 text-slate-500">&infin;</td>
+                                            <td class="py-2 text-slate-500">&infin;</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="w-full md:w-1/2 flex flex-col items-center">
+                                <canvas id="canvas-ex1-init"
+                                    class="bg-white border border-slate-300 rounded shadow-sm max-w-full"
+                                    style="width: 440px; height: 260px;"></canvas>
+                                <span class="text-xs text-pencilGray font-sans mt-1">Initial Graph State: Source node 1
+                                    at d=0, all other nodes at &infin;.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 6: Iteration 1 -->
+                    <div class="pt-4 border-t border-amber-200">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-3xl font-bold text-inkRed font-heading pen-underline">6. Iteration 1
+                                (Complete Edge-by-Edge Pass)</h3>
+                            <span class="bg-amber-200 text-inkBlue px-2 py-0.5 rounded text-sm font-sans font-bold">Pass
+                                1 of 6</span>
+                        </div>
+                        <p class="leading-relaxed">
+                            We relax each of the 10 edges in order. Starting distances: <code class="font-mono text-sm bg-white px-2 py-0.5 rounded border border-amber-300">d = [0, &infin;, &infin;, &infin;, &infin;, &infin;, &infin;]</code>.
+                        </p>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 font-sans text-sm my-3">
+                            <div class="bg-white/95 p-3 rounded-lg border-l-4 border-l-emerald-500 border-amber-200 shadow-sm flex flex-col justify-between">
+                                <div class="flex items-center justify-between gap-1 mb-1">
+                                    <span class="font-bold text-inkBlue text-sm">1) Edge 1 &rarr; 2 (wt: 6)</span>
+                                    <span class="bg-emerald-100 text-emerald-800 text-[11px] font-bold px-1.5 py-0.5 rounded border border-emerald-300">✅ IMPROVED</span>
+                                </div>
+                                <div class="font-mono text-xs text-pencilGray bg-amber-50/60 p-1.5 rounded border border-amber-100">
+                                    d[1] + w = 0 + 6 = 6 &lt; &infin; &rarr; <span class="text-emerald-700 font-bold">d[2] updated: &infin; &rarr; 6</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-white/95 p-3 rounded-lg border-l-4 border-l-emerald-500 border-amber-200 shadow-sm flex flex-col justify-between">
+                                <div class="flex items-center justify-between gap-1 mb-1">
+                                    <span class="font-bold text-inkBlue text-sm">2) Edge 1 &rarr; 3 (wt: 5)</span>
+                                    <span class="bg-emerald-100 text-emerald-800 text-[11px] font-bold px-1.5 py-0.5 rounded border border-emerald-300">✅ IMPROVED</span>
+                                </div>
+                                <div class="font-mono text-xs text-pencilGray bg-amber-50/60 p-1.5 rounded border border-amber-100">
+                                    d[1] + w = 0 + 5 = 5 &lt; &infin; &rarr; <span class="text-emerald-700 font-bold">d[3] updated: &infin; &rarr; 5</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-white/95 p-3 rounded-lg border-l-4 border-l-emerald-500 border-amber-200 shadow-sm flex flex-col justify-between">
+                                <div class="flex items-center justify-between gap-1 mb-1">
+                                    <span class="font-bold text-inkBlue text-sm">3) Edge 1 &rarr; 4 (wt: 5)</span>
+                                    <span class="bg-emerald-100 text-emerald-800 text-[11px] font-bold px-1.5 py-0.5 rounded border border-emerald-300">✅ IMPROVED</span>
+                                </div>
+                                <div class="font-mono text-xs text-pencilGray bg-amber-50/60 p-1.5 rounded border border-amber-100">
+                                    d[1] + w = 0 + 5 = 5 &lt; &infin; &rarr; <span class="text-emerald-700 font-bold">d[4] updated: &infin; &rarr; 5</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-white/95 p-3 rounded-lg border-l-4 border-l-emerald-500 border-amber-200 shadow-sm flex flex-col justify-between">
+                                <div class="flex items-center justify-between gap-1 mb-1">
+                                    <span class="font-bold text-inkBlue text-sm">4) Edge 2 &rarr; 5 (wt: -1)</span>
+                                    <span class="bg-emerald-100 text-emerald-800 text-[11px] font-bold px-1.5 py-0.5 rounded border border-emerald-300">✅ IMPROVED</span>
+                                </div>
+                                <div class="font-mono text-xs text-pencilGray bg-amber-50/60 p-1.5 rounded border border-amber-100">
+                                    d[2] + w = 6 + (-1) = 5 &lt; &infin; &rarr; <span class="text-emerald-700 font-bold">d[5] updated: &infin; &rarr; 5</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-white/95 p-3 rounded-lg border-l-4 border-l-emerald-500 border-amber-200 shadow-sm flex flex-col justify-between">
+                                <div class="flex items-center justify-between gap-1 mb-1">
+                                    <span class="font-bold text-inkBlue text-sm">5) Edge 3 &rarr; 2 (wt: -2)</span>
+                                    <span class="bg-emerald-100 text-emerald-800 text-[11px] font-bold px-1.5 py-0.5 rounded border border-emerald-300">✅ IMPROVED</span>
+                                </div>
+                                <div class="font-mono text-xs text-pencilGray bg-amber-50/60 p-1.5 rounded border border-amber-100">
+                                    d[3] + w = 5 + (-2) = 3 &lt; 6 &rarr; <span class="text-emerald-700 font-bold">d[2] updated: 6 &rarr; 3</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-white/80 p-3 rounded-lg border-l-4 border-l-slate-300 border-slate-200 shadow-sm flex flex-col justify-between opacity-90">
+                                <div class="flex items-center justify-between gap-1 mb-1">
+                                    <span class="font-bold text-slate-700 text-sm">6) Edge 3 &rarr; 5 (wt: 1)</span>
+                                    <span class="bg-slate-100 text-slate-600 text-[11px] font-bold px-1.5 py-0.5 rounded border border-slate-200">➖ NO CHANGE</span>
+                                </div>
+                                <div class="font-mono text-xs text-slate-500 bg-slate-50 p-1.5 rounded border border-slate-100">
+                                    d[3] + w = 5 + 1 = 6 &ge; 5 &rarr; <span class="text-slate-600 font-semibold">d[5] remains 5</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-white/95 p-3 rounded-lg border-l-4 border-l-emerald-500 border-amber-200 shadow-sm flex flex-col justify-between">
+                                <div class="flex items-center justify-between gap-1 mb-1">
+                                    <span class="font-bold text-inkBlue text-sm">7) Edge 4 &rarr; 3 (wt: -2)</span>
+                                    <span class="bg-emerald-100 text-emerald-800 text-[11px] font-bold px-1.5 py-0.5 rounded border border-emerald-300">✅ IMPROVED</span>
+                                </div>
+                                <div class="font-mono text-xs text-pencilGray bg-amber-50/60 p-1.5 rounded border border-amber-100">
+                                    d[4] + w = 5 + (-2) = 3 &lt; 5 &rarr; <span class="text-emerald-700 font-bold">d[3] updated: 5 &rarr; 3</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-white/95 p-3 rounded-lg border-l-4 border-l-emerald-500 border-amber-200 shadow-sm flex flex-col justify-between">
+                                <div class="flex items-center justify-between gap-1 mb-1">
+                                    <span class="font-bold text-inkBlue text-sm">8) Edge 4 &rarr; 6 (wt: -1)</span>
+                                    <span class="bg-emerald-100 text-emerald-800 text-[11px] font-bold px-1.5 py-0.5 rounded border border-emerald-300">✅ IMPROVED</span>
+                                </div>
+                                <div class="font-mono text-xs text-pencilGray bg-amber-50/60 p-1.5 rounded border border-amber-100">
+                                    d[4] + w = 5 + (-1) = 4 &lt; &infin; &rarr; <span class="text-emerald-700 font-bold">d[6] updated: &infin; &rarr; 4</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-white/95 p-3 rounded-lg border-l-4 border-l-emerald-500 border-amber-200 shadow-sm flex flex-col justify-between">
+                                <div class="flex items-center justify-between gap-1 mb-1">
+                                    <span class="font-bold text-inkBlue text-sm">9) Edge 5 &rarr; 7 (wt: 3)</span>
+                                    <span class="bg-emerald-100 text-emerald-800 text-[11px] font-bold px-1.5 py-0.5 rounded border border-emerald-300">✅ IMPROVED</span>
+                                </div>
+                                <div class="font-mono text-xs text-pencilGray bg-amber-50/60 p-1.5 rounded border border-amber-100">
+                                    d[5] + w = 5 + 3 = 8 &lt; &infin; &rarr; <span class="text-emerald-700 font-bold">d[7] updated: &infin; &rarr; 8</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-white/95 p-3 rounded-lg border-l-4 border-l-emerald-500 border-amber-200 shadow-sm flex flex-col justify-between">
+                                <div class="flex items-center justify-between gap-1 mb-1">
+                                    <span class="font-bold text-inkBlue text-sm">10) Edge 6 &rarr; 7 (wt: 3)</span>
+                                    <span class="bg-emerald-100 text-emerald-800 text-[11px] font-bold px-1.5 py-0.5 rounded border border-emerald-300">✅ IMPROVED</span>
+                                </div>
+                                <div class="font-mono text-xs text-pencilGray bg-amber-50/60 p-1.5 rounded border border-amber-100">
+                                    d[6] + w = 4 + 3 = 7 &lt; 8 &rarr; <span class="text-emerald-700 font-bold">d[7] updated: 8 &rarr; 7</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="p-2.5 rounded-lg bg-amber-50 border border-amber-300 flex items-center justify-between text-xs font-sans font-bold text-inkBlue mb-2">
+                            <span>Iteration 1 Summary:</span>
+                            <span class="text-emerald-800">9 Edges Improved | 1 Edge Unchanged</span>
+                        </div>
+
+                        <div class="flex flex-col md:flex-row items-center gap-6 mt-4">
+                            <div class="w-full md:w-1/2">
+                                <span class="font-bold text-inkBlue font-sans block text-sm mb-1">State after Iteration
+                                    1:</span>
+                                <table
+                                    class="w-full bg-white border border-amber-300 rounded text-center font-sans text-sm">
+                                    <thead class="bg-amber-100 text-inkBlue font-bold">
+                                        <tr>
+                                            <th class="py-1 px-2">Node</th>
+                                            <th>1</th>
+                                            <th>2</th>
+                                            <th>3</th>
+                                            <th>4</th>
+                                            <th>5</th>
+                                            <th>6</th>
+                                            <th>7</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="font-mono divide-y divide-amber-200">
+                                        <tr class="bg-emerald-50/50">
+                                            <td class="py-1.5 px-2 font-bold text-inkBlue">d</td>
+                                            <td class="font-bold">0</td>
+                                            <td class="text-emerald-700 font-bold">3</td>
+                                            <td class="text-emerald-700 font-bold">3</td>
+                                            <td class="text-emerald-700 font-bold">5</td>
+                                            <td class="text-emerald-700 font-bold">5</td>
+                                            <td class="text-emerald-700 font-bold">4</td>
+                                            <td class="text-emerald-700 font-bold">7</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="w-full md:w-1/2 flex flex-col items-center">
+                                <canvas id="canvas-ex1-iter1"
+                                    class="bg-white border border-slate-300 rounded shadow-sm max-w-full"
+                                    style="width: 440px; height: 260px;"></canvas>
+                                <span class="text-xs text-pencilGray font-sans mt-1">Graph State after Iteration 1:
+                                    Distances propagated across initial edges.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 7: Iteration 2 -->
+                    <div class="pt-4 border-t border-amber-200">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-3xl font-bold text-inkRed font-heading pen-underline">7. Iteration 2
+                                (Propagation of Improvements)</h3>
+                            <span class="bg-amber-200 text-inkBlue px-2 py-0.5 rounded text-sm font-sans font-bold">Pass
+                                2 of 6</span>
+                        </div>
+                        <p class="leading-relaxed">
+                            We relax all 10 edges in the exact same order, using distances from Pass 1: <code class="font-mono text-sm bg-white px-2 py-0.5 rounded border border-amber-300">d = [0, 3, 3, 5, 5, 4, 7]</code>.
+                        </p>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 font-sans text-sm my-3">
+                            <div class="bg-white/80 p-3 rounded-lg border-l-4 border-l-slate-300 border-slate-200 shadow-sm flex flex-col justify-between opacity-90">
+                                <div class="flex items-center justify-between gap-1 mb-1">
+                                    <span class="font-bold text-slate-700 text-sm">1) Edge 1 &rarr; 2 (wt: 6)</span>
+                                    <span class="bg-slate-100 text-slate-600 text-[11px] font-bold px-1.5 py-0.5 rounded border border-slate-200">➖ NO CHANGE</span>
+                                </div>
+                                <div class="font-mono text-xs text-slate-500 bg-slate-50 p-1.5 rounded border border-slate-100">
+                                    d[1] + w = 0 + 6 = 6 &ge; 3 &rarr; <span class="text-slate-600 font-semibold">d[2] remains 3</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-white/80 p-3 rounded-lg border-l-4 border-l-slate-300 border-slate-200 shadow-sm flex flex-col justify-between opacity-90">
+                                <div class="flex items-center justify-between gap-1 mb-1">
+                                    <span class="font-bold text-slate-700 text-sm">2) Edge 1 &rarr; 3 (wt: 5)</span>
+                                    <span class="bg-slate-100 text-slate-600 text-[11px] font-bold px-1.5 py-0.5 rounded border border-slate-200">➖ NO CHANGE</span>
+                                </div>
+                                <div class="font-mono text-xs text-slate-500 bg-slate-50 p-1.5 rounded border border-slate-100">
+                                    d[1] + w = 0 + 5 = 5 &ge; 3 &rarr; <span class="text-slate-600 font-semibold">d[3] remains 3</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-white/80 p-3 rounded-lg border-l-4 border-l-slate-300 border-slate-200 shadow-sm flex flex-col justify-between opacity-90">
+                                <div class="flex items-center justify-between gap-1 mb-1">
+                                    <span class="font-bold text-slate-700 text-sm">3) Edge 1 &rarr; 4 (wt: 5)</span>
+                                    <span class="bg-slate-100 text-slate-600 text-[11px] font-bold px-1.5 py-0.5 rounded border border-slate-200">➖ NO CHANGE</span>
+                                </div>
+                                <div class="font-mono text-xs text-slate-500 bg-slate-50 p-1.5 rounded border border-slate-100">
+                                    d[1] + w = 0 + 5 = 5 &ge; 5 &rarr; <span class="text-slate-600 font-semibold">d[4] remains 5</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-white/95 p-3 rounded-lg border-l-4 border-l-emerald-500 border-amber-200 shadow-sm flex flex-col justify-between">
+                                <div class="flex items-center justify-between gap-1 mb-1">
+                                    <span class="font-bold text-inkBlue text-sm">4) Edge 2 &rarr; 5 (wt: -1)</span>
+                                    <span class="bg-emerald-100 text-emerald-800 text-[11px] font-bold px-1.5 py-0.5 rounded border border-emerald-300">✅ IMPROVED</span>
+                                </div>
+                                <div class="font-mono text-xs text-pencilGray bg-amber-50/60 p-1.5 rounded border border-amber-100">
+                                    d[2] + w = 3 + (-1) = 2 &lt; 5 &rarr; <span class="text-emerald-700 font-bold">d[5] updated: 5 &rarr; 2</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-white/95 p-3 rounded-lg border-l-4 border-l-emerald-500 border-amber-200 shadow-sm flex flex-col justify-between">
+                                <div class="flex items-center justify-between gap-1 mb-1">
+                                    <span class="font-bold text-inkBlue text-sm">5) Edge 3 &rarr; 2 (wt: -2)</span>
+                                    <span class="bg-emerald-100 text-emerald-800 text-[11px] font-bold px-1.5 py-0.5 rounded border border-emerald-300">✅ IMPROVED</span>
+                                </div>
+                                <div class="font-mono text-xs text-pencilGray bg-amber-50/60 p-1.5 rounded border border-amber-100">
+                                    d[3] + w = 3 + (-2) = 1 &lt; 3 &rarr; <span class="text-emerald-700 font-bold">d[2] updated: 3 &rarr; 1</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-white/80 p-3 rounded-lg border-l-4 border-l-slate-300 border-slate-200 shadow-sm flex flex-col justify-between opacity-90">
+                                <div class="flex items-center justify-between gap-1 mb-1">
+                                    <span class="font-bold text-slate-700 text-sm">6) Edge 3 &rarr; 5 (wt: 1)</span>
+                                    <span class="bg-slate-100 text-slate-600 text-[11px] font-bold px-1.5 py-0.5 rounded border border-slate-200">➖ NO CHANGE</span>
+                                </div>
+                                <div class="font-mono text-xs text-slate-500 bg-slate-50 p-1.5 rounded border border-slate-100">
+                                    d[3] + w = 3 + 1 = 4 &ge; 2 &rarr; <span class="text-slate-600 font-semibold">d[5] remains 2</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-white/80 p-3 rounded-lg border-l-4 border-l-slate-300 border-slate-200 shadow-sm flex flex-col justify-between opacity-90">
+                                <div class="flex items-center justify-between gap-1 mb-1">
+                                    <span class="font-bold text-slate-700 text-sm">7) Edge 4 &rarr; 3 (wt: -2)</span>
+                                    <span class="bg-slate-100 text-slate-600 text-[11px] font-bold px-1.5 py-0.5 rounded border border-slate-200">➖ NO CHANGE</span>
+                                </div>
+                                <div class="font-mono text-xs text-slate-500 bg-slate-50 p-1.5 rounded border border-slate-100">
+                                    d[4] + w = 5 + (-2) = 3 &ge; 3 &rarr; <span class="text-slate-600 font-semibold">d[3] remains 3</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-white/80 p-3 rounded-lg border-l-4 border-l-slate-300 border-slate-200 shadow-sm flex flex-col justify-between opacity-90">
+                                <div class="flex items-center justify-between gap-1 mb-1">
+                                    <span class="font-bold text-slate-700 text-sm">8) Edge 4 &rarr; 6 (wt: -1)</span>
+                                    <span class="bg-slate-100 text-slate-600 text-[11px] font-bold px-1.5 py-0.5 rounded border border-slate-200">➖ NO CHANGE</span>
+                                </div>
+                                <div class="font-mono text-xs text-slate-500 bg-slate-50 p-1.5 rounded border border-slate-100">
+                                    d[4] + w = 5 + (-1) = 4 &ge; 4 &rarr; <span class="text-slate-600 font-semibold">d[6] remains 4</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-white/95 p-3 rounded-lg border-l-4 border-l-emerald-500 border-amber-200 shadow-sm flex flex-col justify-between">
+                                <div class="flex items-center justify-between gap-1 mb-1">
+                                    <span class="font-bold text-inkBlue text-sm">9) Edge 5 &rarr; 7 (wt: 3)</span>
+                                    <span class="bg-emerald-100 text-emerald-800 text-[11px] font-bold px-1.5 py-0.5 rounded border border-emerald-300">✅ IMPROVED</span>
+                                </div>
+                                <div class="font-mono text-xs text-pencilGray bg-amber-50/60 p-1.5 rounded border border-amber-100">
+                                    d[5] + w = 2 + 3 = 5 &lt; 7 &rarr; <span class="text-emerald-700 font-bold">d[7] updated: 7 &rarr; 5</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-white/80 p-3 rounded-lg border-l-4 border-l-slate-300 border-slate-200 shadow-sm flex flex-col justify-between opacity-90">
+                                <div class="flex items-center justify-between gap-1 mb-1">
+                                    <span class="font-bold text-slate-700 text-sm">10) Edge 6 &rarr; 7 (wt: 3)</span>
+                                    <span class="bg-slate-100 text-slate-600 text-[11px] font-bold px-1.5 py-0.5 rounded border border-slate-200">➖ NO CHANGE</span>
+                                </div>
+                                <div class="font-mono text-xs text-slate-500 bg-slate-50 p-1.5 rounded border border-slate-100">
+                                    d[6] + w = 4 + 3 = 7 &ge; 5 &rarr; <span class="text-slate-600 font-semibold">d[7] remains 5</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="p-2.5 rounded-lg bg-amber-50 border border-amber-300 flex items-center justify-between text-xs font-sans font-bold text-inkBlue mb-2">
+                            <span>Iteration 2 Summary:</span>
+                            <span class="text-emerald-800">3 Edges Improved (2&rarr;5, 3&rarr;2, 5&rarr;7) | 7 Edges Unchanged</span>
+                        </div>
+
+                        <div class="flex flex-col md:flex-row items-center gap-6 mt-4">
+                            <div class="w-full md:w-1/2">
+                                <span class="font-bold text-inkBlue font-sans block text-sm mb-1">State after Iteration
+                                    2:</span>
+                                <table
+                                    class="w-full bg-white border border-amber-300 rounded text-center font-sans text-sm">
+                                    <thead class="bg-amber-100 text-inkBlue font-bold">
+                                        <tr>
+                                            <th class="py-1 px-2">Node</th>
+                                            <th>1</th>
+                                            <th>2</th>
+                                            <th>3</th>
+                                            <th>4</th>
+                                            <th>5</th>
+                                            <th>6</th>
+                                            <th>7</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="font-mono divide-y divide-amber-200">
+                                        <tr class="bg-emerald-50/50">
+                                            <td class="py-1.5 px-2 font-bold text-inkBlue">d</td>
+                                            <td class="font-bold">0</td>
+                                            <td class="text-emerald-700 font-bold">1</td>
+                                            <td class="font-bold">3</td>
+                                            <td class="font-bold">5</td>
+                                            <td class="text-emerald-700 font-bold">2</td>
+                                            <td class="font-bold">4</td>
+                                            <td class="text-emerald-700 font-bold">5</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="w-full md:w-1/2 flex flex-col items-center">
+                                <canvas id="canvas-ex1-iter2"
+                                    class="bg-white border border-slate-300 rounded shadow-sm max-w-full"
+                                    style="width: 440px; height: 260px;"></canvas>
+                                <span class="text-xs text-pencilGray font-sans mt-1">Graph State after Iteration 2:
+                                    d[2]=1, d[5]=2, d[7]=5 updated.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 8: Iteration 3 -->
+                    <div class="pt-4 border-t border-amber-200">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-3xl font-bold text-inkRed font-heading pen-underline">8. Iteration 3 (Final
+                                Stabilized Values)</h3>
+                            <span class="bg-amber-200 text-inkBlue px-2 py-0.5 rounded text-sm font-sans font-bold">Pass
+                                3 of 6</span>
+                        </div>
+                        <p class="leading-relaxed">
+                            We relax all 10 edges with distances from Pass 2: <code class="font-mono text-sm bg-white px-2 py-0.5 rounded border border-amber-300">d = [0, 1, 3, 5, 2, 4, 5]</code>.
+                        </p>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 font-sans text-sm my-3">
+                            <div class="bg-white/80 p-3 rounded-lg border-l-4 border-l-slate-300 border-slate-200 shadow-sm flex flex-col justify-between opacity-90">
+                                <div class="flex items-center justify-between gap-1 mb-1">
+                                    <span class="font-bold text-slate-700 text-sm">1) Edge 1 &rarr; 2 (wt: 6)</span>
+                                    <span class="bg-slate-100 text-slate-600 text-[11px] font-bold px-1.5 py-0.5 rounded border border-slate-200">➖ NO CHANGE</span>
+                                </div>
+                                <div class="font-mono text-xs text-slate-500 bg-slate-50 p-1.5 rounded border border-slate-100">
+                                    d[1] + w = 0 + 6 = 6 &ge; 1 &rarr; <span class="text-slate-600 font-semibold">d[2] remains 1</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-white/80 p-3 rounded-lg border-l-4 border-l-slate-300 border-slate-200 shadow-sm flex flex-col justify-between opacity-90">
+                                <div class="flex items-center justify-between gap-1 mb-1">
+                                    <span class="font-bold text-slate-700 text-sm">2) Edge 1 &rarr; 3 (wt: 5)</span>
+                                    <span class="bg-slate-100 text-slate-600 text-[11px] font-bold px-1.5 py-0.5 rounded border border-slate-200">➖ NO CHANGE</span>
+                                </div>
+                                <div class="font-mono text-xs text-slate-500 bg-slate-50 p-1.5 rounded border border-slate-100">
+                                    d[1] + w = 0 + 5 = 5 &ge; 3 &rarr; <span class="text-slate-600 font-semibold">d[3] remains 3</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-white/80 p-3 rounded-lg border-l-4 border-l-slate-300 border-slate-200 shadow-sm flex flex-col justify-between opacity-90">
+                                <div class="flex items-center justify-between gap-1 mb-1">
+                                    <span class="font-bold text-slate-700 text-sm">3) Edge 1 &rarr; 4 (wt: 5)</span>
+                                    <span class="bg-slate-100 text-slate-600 text-[11px] font-bold px-1.5 py-0.5 rounded border border-slate-200">➖ NO CHANGE</span>
+                                </div>
+                                <div class="font-mono text-xs text-slate-500 bg-slate-50 p-1.5 rounded border border-slate-100">
+                                    d[1] + w = 0 + 5 = 5 &ge; 5 &rarr; <span class="text-slate-600 font-semibold">d[4] remains 5</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-white/95 p-3 rounded-lg border-l-4 border-l-emerald-500 border-amber-200 shadow-sm flex flex-col justify-between">
+                                <div class="flex items-center justify-between gap-1 mb-1">
+                                    <span class="font-bold text-inkBlue text-sm">4) Edge 2 &rarr; 5 (wt: -1)</span>
+                                    <span class="bg-emerald-100 text-emerald-800 text-[11px] font-bold px-1.5 py-0.5 rounded border border-emerald-300">✅ IMPROVED</span>
+                                </div>
+                                <div class="font-mono text-xs text-pencilGray bg-amber-50/60 p-1.5 rounded border border-amber-100">
+                                    d[2] + w = 1 + (-1) = 0 &lt; 2 &rarr; <span class="text-emerald-700 font-bold">d[5] updated: 2 &rarr; 0</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-white/80 p-3 rounded-lg border-l-4 border-l-slate-300 border-slate-200 shadow-sm flex flex-col justify-between opacity-90">
+                                <div class="flex items-center justify-between gap-1 mb-1">
+                                    <span class="font-bold text-slate-700 text-sm">5) Edge 3 &rarr; 2 (wt: -2)</span>
+                                    <span class="bg-slate-100 text-slate-600 text-[11px] font-bold px-1.5 py-0.5 rounded border border-slate-200">➖ NO CHANGE</span>
+                                </div>
+                                <div class="font-mono text-xs text-slate-500 bg-slate-50 p-1.5 rounded border border-slate-100">
+                                    d[3] + w = 3 + (-2) = 1 &ge; 1 &rarr; <span class="text-slate-600 font-semibold">d[2] remains 1</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-white/80 p-3 rounded-lg border-l-4 border-l-slate-300 border-slate-200 shadow-sm flex flex-col justify-between opacity-90">
+                                <div class="flex items-center justify-between gap-1 mb-1">
+                                    <span class="font-bold text-slate-700 text-sm">6) Edge 3 &rarr; 5 (wt: 1)</span>
+                                    <span class="bg-slate-100 text-slate-600 text-[11px] font-bold px-1.5 py-0.5 rounded border border-slate-200">➖ NO CHANGE</span>
+                                </div>
+                                <div class="font-mono text-xs text-slate-500 bg-slate-50 p-1.5 rounded border border-slate-100">
+                                    d[3] + w = 3 + 1 = 4 &ge; 0 &rarr; <span class="text-slate-600 font-semibold">d[5] remains 0</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-white/80 p-3 rounded-lg border-l-4 border-l-slate-300 border-slate-200 shadow-sm flex flex-col justify-between opacity-90">
+                                <div class="flex items-center justify-between gap-1 mb-1">
+                                    <span class="font-bold text-slate-700 text-sm">7) Edge 4 &rarr; 3 (wt: -2)</span>
+                                    <span class="bg-slate-100 text-slate-600 text-[11px] font-bold px-1.5 py-0.5 rounded border border-slate-200">➖ NO CHANGE</span>
+                                </div>
+                                <div class="font-mono text-xs text-slate-500 bg-slate-50 p-1.5 rounded border border-slate-100">
+                                    d[4] + w = 5 + (-2) = 3 &ge; 3 &rarr; <span class="text-slate-600 font-semibold">d[3] remains 3</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-white/80 p-3 rounded-lg border-l-4 border-l-slate-300 border-slate-200 shadow-sm flex flex-col justify-between opacity-90">
+                                <div class="flex items-center justify-between gap-1 mb-1">
+                                    <span class="font-bold text-slate-700 text-sm">8) Edge 4 &rarr; 6 (wt: -1)</span>
+                                    <span class="bg-slate-100 text-slate-600 text-[11px] font-bold px-1.5 py-0.5 rounded border border-slate-200">➖ NO CHANGE</span>
+                                </div>
+                                <div class="font-mono text-xs text-slate-500 bg-slate-50 p-1.5 rounded border border-slate-100">
+                                    d[4] + w = 5 + (-1) = 4 &ge; 4 &rarr; <span class="text-slate-600 font-semibold">d[6] remains 4</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-white/95 p-3 rounded-lg border-l-4 border-l-emerald-500 border-amber-200 shadow-sm flex flex-col justify-between">
+                                <div class="flex items-center justify-between gap-1 mb-1">
+                                    <span class="font-bold text-inkBlue text-sm">9) Edge 5 &rarr; 7 (wt: 3)</span>
+                                    <span class="bg-emerald-100 text-emerald-800 text-[11px] font-bold px-1.5 py-0.5 rounded border border-emerald-300">✅ IMPROVED</span>
+                                </div>
+                                <div class="font-mono text-xs text-pencilGray bg-amber-50/60 p-1.5 rounded border border-amber-100">
+                                    d[5] + w = 0 + 3 = 3 &lt; 5 &rarr; <span class="text-emerald-700 font-bold">d[7] updated: 5 &rarr; 3</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-white/80 p-3 rounded-lg border-l-4 border-l-slate-300 border-slate-200 shadow-sm flex flex-col justify-between opacity-90">
+                                <div class="flex items-center justify-between gap-1 mb-1">
+                                    <span class="font-bold text-slate-700 text-sm">10) Edge 6 &rarr; 7 (wt: 3)</span>
+                                    <span class="bg-slate-100 text-slate-600 text-[11px] font-bold px-1.5 py-0.5 rounded border border-slate-200">➖ NO CHANGE</span>
+                                </div>
+                                <div class="font-mono text-xs text-slate-500 bg-slate-50 p-1.5 rounded border border-slate-100">
+                                    d[6] + w = 4 + 3 = 7 &ge; 3 &rarr; <span class="text-slate-600 font-semibold">d[7] remains 3</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="p-2.5 rounded-lg bg-amber-50 border border-amber-300 flex items-center justify-between text-xs font-sans font-bold text-inkBlue mb-2">
+                            <span>Iteration 3 Summary:</span>
+                            <span class="text-emerald-800">2 Edges Improved (2&rarr;5, 5&rarr;7) | 8 Edges Unchanged</span>
+                        </div>
+
+                        <div class="flex flex-col md:flex-row items-center gap-6 mt-4">
+                            <div class="w-full md:w-1/2">
+                                <span class="font-bold text-inkBlue font-sans block text-sm mb-1">State after Iteration
+                                    3 (Stabilized):</span>
+                                <table
+                                    class="w-full bg-white border border-amber-300 rounded text-center font-sans text-sm">
+                                    <thead class="bg-amber-100 text-inkBlue font-bold">
+                                        <tr>
+                                            <th class="py-1 px-2">Node</th>
+                                            <th>1</th>
+                                            <th>2</th>
+                                            <th>3</th>
+                                            <th>4</th>
+                                            <th>5</th>
+                                            <th>6</th>
+                                            <th>7</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="font-mono divide-y divide-amber-200">
+                                        <tr class="bg-emerald-100/70">
+                                            <td class="py-1.5 px-2 font-bold text-inkBlue">d</td>
+                                            <td class="font-bold">0</td>
+                                            <td class="text-emerald-800 font-bold">1</td>
+                                            <td class="text-emerald-800 font-bold">3</td>
+                                            <td class="text-emerald-800 font-bold">5</td>
+                                            <td class="text-emerald-800 font-bold">0</td>
+                                            <td class="text-emerald-800 font-bold">4</td>
+                                            <td class="text-emerald-800 font-bold">3</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="w-full md:w-1/2 flex flex-col items-center">
+                                <canvas id="canvas-ex1-iter3"
+                                    class="bg-white border border-slate-300 rounded shadow-sm max-w-full"
+                                    style="width: 440px; height: 260px;"></canvas>
+                                <span class="text-xs text-pencilGray font-sans mt-1">Graph State after Iteration 3:
+                                    Complete convergence reached.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 8.1: Iteration 4 (Verification & Early Stopping) -->
+                    <div class="pt-4 border-t border-amber-200">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-3xl font-bold text-inkRed font-heading pen-underline">8.1 Iteration 4
+                                (Verification & Early Stopping)</h3>
+                            <span class="bg-emerald-200 text-emerald-900 px-2 py-0.5 rounded text-sm font-sans font-bold">Pass
+                                4 of 6 (Converged)</span>
+                        </div>
+                        <p class="leading-relaxed">
+                            To mathematically prove that no further changes can occur, let's relax all 10 edges one more time with: <code class="font-mono text-sm bg-white px-2 py-0.5 rounded border border-amber-300">d = [0, 1, 3, 5, 0, 4, 3]</code>.
+                        </p>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 font-sans text-sm my-3">
+                            <div class="bg-white/80 p-3 rounded-lg border-l-4 border-l-slate-300 border-slate-200 shadow-sm flex flex-col justify-between opacity-85">
+                                <div class="flex items-center justify-between gap-1 mb-1">
+                                    <span class="font-bold text-slate-700 text-sm">1) Edge 1 &rarr; 2 (wt: 6)</span>
+                                    <span class="bg-slate-100 text-slate-600 text-[11px] font-bold px-1.5 py-0.5 rounded border border-slate-200">➖ NO CHANGE</span>
+                                </div>
+                                <div class="font-mono text-xs text-slate-500 bg-slate-50 p-1.5 rounded border border-slate-100">
+                                    0 + 6 = 6 &ge; 1 &rarr; <span class="text-slate-600 font-semibold">d[2] remains 1</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-white/80 p-3 rounded-lg border-l-4 border-l-slate-300 border-slate-200 shadow-sm flex flex-col justify-between opacity-85">
+                                <div class="flex items-center justify-between gap-1 mb-1">
+                                    <span class="font-bold text-slate-700 text-sm">2) Edge 1 &rarr; 3 (wt: 5)</span>
+                                    <span class="bg-slate-100 text-slate-600 text-[11px] font-bold px-1.5 py-0.5 rounded border border-slate-200">➖ NO CHANGE</span>
+                                </div>
+                                <div class="font-mono text-xs text-slate-500 bg-slate-50 p-1.5 rounded border border-slate-100">
+                                    0 + 5 = 5 &ge; 3 &rarr; <span class="text-slate-600 font-semibold">d[3] remains 3</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-white/80 p-3 rounded-lg border-l-4 border-l-slate-300 border-slate-200 shadow-sm flex flex-col justify-between opacity-85">
+                                <div class="flex items-center justify-between gap-1 mb-1">
+                                    <span class="font-bold text-slate-700 text-sm">3) Edge 1 &rarr; 4 (wt: 5)</span>
+                                    <span class="bg-slate-100 text-slate-600 text-[11px] font-bold px-1.5 py-0.5 rounded border border-slate-200">➖ NO CHANGE</span>
+                                </div>
+                                <div class="font-mono text-xs text-slate-500 bg-slate-50 p-1.5 rounded border border-slate-100">
+                                    0 + 5 = 5 &ge; 5 &rarr; <span class="text-slate-600 font-semibold">d[4] remains 5</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-white/80 p-3 rounded-lg border-l-4 border-l-slate-300 border-slate-200 shadow-sm flex flex-col justify-between opacity-85">
+                                <div class="flex items-center justify-between gap-1 mb-1">
+                                    <span class="font-bold text-slate-700 text-sm">4) Edge 2 &rarr; 5 (wt: -1)</span>
+                                    <span class="bg-slate-100 text-slate-600 text-[11px] font-bold px-1.5 py-0.5 rounded border border-slate-200">➖ NO CHANGE</span>
+                                </div>
+                                <div class="font-mono text-xs text-slate-500 bg-slate-50 p-1.5 rounded border border-slate-100">
+                                    1 + (-1) = 0 &ge; 0 &rarr; <span class="text-slate-600 font-semibold">d[5] remains 0</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-white/80 p-3 rounded-lg border-l-4 border-l-slate-300 border-slate-200 shadow-sm flex flex-col justify-between opacity-85">
+                                <div class="flex items-center justify-between gap-1 mb-1">
+                                    <span class="font-bold text-slate-700 text-sm">5) Edge 3 &rarr; 2 (wt: -2)</span>
+                                    <span class="bg-slate-100 text-slate-600 text-[11px] font-bold px-1.5 py-0.5 rounded border border-slate-200">➖ NO CHANGE</span>
+                                </div>
+                                <div class="font-mono text-xs text-slate-500 bg-slate-50 p-1.5 rounded border border-slate-100">
+                                    3 + (-2) = 1 &ge; 1 &rarr; <span class="text-slate-600 font-semibold">d[2] remains 1</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-white/80 p-3 rounded-lg border-l-4 border-l-slate-300 border-slate-200 shadow-sm flex flex-col justify-between opacity-85">
+                                <div class="flex items-center justify-between gap-1 mb-1">
+                                    <span class="font-bold text-slate-700 text-sm">6) Edge 3 &rarr; 5 (wt: 1)</span>
+                                    <span class="bg-slate-100 text-slate-600 text-[11px] font-bold px-1.5 py-0.5 rounded border border-slate-200">➖ NO CHANGE</span>
+                                </div>
+                                <div class="font-mono text-xs text-slate-500 bg-slate-50 p-1.5 rounded border border-slate-100">
+                                    3 + 1 = 4 &ge; 0 &rarr; <span class="text-slate-600 font-semibold">d[5] remains 0</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-white/80 p-3 rounded-lg border-l-4 border-l-slate-300 border-slate-200 shadow-sm flex flex-col justify-between opacity-85">
+                                <div class="flex items-center justify-between gap-1 mb-1">
+                                    <span class="font-bold text-slate-700 text-sm">7) Edge 4 &rarr; 3 (wt: -2)</span>
+                                    <span class="bg-slate-100 text-slate-600 text-[11px] font-bold px-1.5 py-0.5 rounded border border-slate-200">➖ NO CHANGE</span>
+                                </div>
+                                <div class="font-mono text-xs text-slate-500 bg-slate-50 p-1.5 rounded border border-slate-100">
+                                    5 + (-2) = 3 &ge; 3 &rarr; <span class="text-slate-600 font-semibold">d[3] remains 3</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-white/80 p-3 rounded-lg border-l-4 border-l-slate-300 border-slate-200 shadow-sm flex flex-col justify-between opacity-85">
+                                <div class="flex items-center justify-between gap-1 mb-1">
+                                    <span class="font-bold text-slate-700 text-sm">8) Edge 4 &rarr; 6 (wt: -1)</span>
+                                    <span class="bg-slate-100 text-slate-600 text-[11px] font-bold px-1.5 py-0.5 rounded border border-slate-200">➖ NO CHANGE</span>
+                                </div>
+                                <div class="font-mono text-xs text-slate-500 bg-slate-50 p-1.5 rounded border border-slate-100">
+                                    5 + (-1) = 4 &ge; 4 &rarr; <span class="text-slate-600 font-semibold">d[6] remains 4</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-white/80 p-3 rounded-lg border-l-4 border-l-slate-300 border-slate-200 shadow-sm flex flex-col justify-between opacity-85">
+                                <div class="flex items-center justify-between gap-1 mb-1">
+                                    <span class="font-bold text-slate-700 text-sm">9) Edge 5 &rarr; 7 (wt: 3)</span>
+                                    <span class="bg-slate-100 text-slate-600 text-[11px] font-bold px-1.5 py-0.5 rounded border border-slate-200">➖ NO CHANGE</span>
+                                </div>
+                                <div class="font-mono text-xs text-slate-500 bg-slate-50 p-1.5 rounded border border-slate-100">
+                                    0 + 3 = 3 &ge; 3 &rarr; <span class="text-slate-600 font-semibold">d[7] remains 3</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-white/80 p-3 rounded-lg border-l-4 border-l-slate-300 border-slate-200 shadow-sm flex flex-col justify-between opacity-85">
+                                <div class="flex items-center justify-between gap-1 mb-1">
+                                    <span class="font-bold text-slate-700 text-sm">10) Edge 6 &rarr; 7 (wt: 3)</span>
+                                    <span class="bg-slate-100 text-slate-600 text-[11px] font-bold px-1.5 py-0.5 rounded border border-slate-200">➖ NO CHANGE</span>
+                                </div>
+                                <div class="font-mono text-xs text-slate-500 bg-slate-50 p-1.5 rounded border border-slate-100">
+                                    4 + 3 = 7 &ge; 3 &rarr; <span class="text-slate-600 font-semibold">d[7] remains 3</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="p-3 rounded-xl bg-emerald-50 border-2 border-emerald-400 font-sans text-sm text-emerald-950 space-y-1">
+                            <div class="flex items-center gap-2 font-bold text-emerald-800 text-base">
+                                <span>🎉 Early Stopping Triggered! (0 Edges Improved)</span>
+                            </div>
+                            <p>
+                                Because <strong>not a single distance changed</strong> during Pass 4, we have proof that passes 5 and 6 would also yield 0 changes.
+                                The algorithm can safely stop early without wasting computation!
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Section 9: Final Shortest Distances -->
+                    <div class="pt-4 border-t border-amber-200">
+                        <h3 class="text-3xl font-bold text-inkRed font-heading pen-underline mb-2">9. Final Shortest
+                            Distances Summary</h3>
+                        <p class="leading-relaxed">
+                            From source vertex <code class="font-bold font-mono text-inkBlue">1</code>, the shortest
+                            path distances are:
+                        </p>
+
+                        <div
+                            class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2 my-4 text-center font-mono font-bold text-lg">
+                            <div class="bg-white p-3 rounded-lg border-2 border-amber-400 shadow-sm">
+                                <span class="block text-xs font-sans text-slate-500">Vertex 1</span>
+                                <span class="text-2xl text-inkBlue">d = 0</span>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg border-2 border-emerald-500 shadow-sm">
+                                <span class="block text-xs font-sans text-slate-500">Vertex 2</span>
+                                <span class="text-2xl text-emerald-700">d = 1</span>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg border-2 border-emerald-500 shadow-sm">
+                                <span class="block text-xs font-sans text-slate-500">Vertex 3</span>
+                                <span class="text-2xl text-emerald-700">d = 3</span>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg border-2 border-emerald-500 shadow-sm">
+                                <span class="block text-xs font-sans text-slate-500">Vertex 4</span>
+                                <span class="text-2xl text-emerald-700">d = 5</span>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg border-2 border-emerald-500 shadow-sm">
+                                <span class="block text-xs font-sans text-slate-500">Vertex 5</span>
+                                <span class="text-2xl text-emerald-700">d = 0</span>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg border-2 border-emerald-500 shadow-sm">
+                                <span class="block text-xs font-sans text-slate-500">Vertex 6</span>
+                                <span class="text-2xl text-emerald-700">d = 4</span>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg border-2 border-emerald-500 shadow-sm">
+                                <span class="block text-xs font-sans text-slate-500">Vertex 7</span>
+                                <span class="text-2xl text-emerald-700">d = 3</span>
+                            </div>
+                        </div>
+
+                        <div class="note-box p-4 bg-sky-50 border-l-4 border-sky-600 rounded font-sans text-lg mt-3">
+                            <span class="font-bold text-sky-900 block text-xl mb-1">💡 Crucial Observation:</span>
+                            <p class="text-slate-700 leading-relaxed">
+                                Bellman-Ford may find and settle the true shortest paths well before completing all
+                                <code class="font-mono font-bold">V - 1</code> iterations (here it settled in 3
+                                iterations!).
+                            </p>
+                            <p class="text-slate-700 leading-relaxed mt-1">
+                                However, <code class="font-mono font-bold text-inkRed">V - 1</code> is the
+                                <strong>worst-case upper bound</strong> required to guarantee mathematical correctness
+                                for any reachable vertex without negative cycles.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ======================================================================
+                 TAB 3: COMPLEXITY & NEGATIVE EDGES (Sections 10, 11, 12)
+            ====================================================================== -->
+            <section id="sec-negative-edge" class="tab-content space-y-8">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                        3. Complexity & Negative Edges</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 3</span>
+                </div>
+
+                <div class="space-y-6">
+                    <!-- Section 10 -->
+                    <div>
+                        <h3 class="text-3xl font-bold text-inkRed font-heading pen-underline mb-2">10. Time Complexity
+                            Analysis</h3>
+                        <p class="leading-relaxed">
+                            Bellman-Ford operates via two distinct structural loops:
+                        </p>
+                        <ol class="list-decimal list-inside space-y-1 ml-4 mt-2 font-medium">
+                            <li>An outer loop that repeats exactly <code
+                                    class="font-bold text-inkBlue font-mono">V - 1</code> times.</li>
+                            <li>An inner loop that examines all <code class="font-bold text-inkBlue font-mono">E</code>
+                                edges during every single pass.</li>
+                        </ol>
+
+                        <div class="my-4 p-4 bg-amber-100/70 border-2 border-amber-400 rounded-xl text-center">
+                            <span class="text-slate-700 font-sans font-semibold text-lg block">Standard Time
+                                Complexity:</span>
+                            <span class="text-3xl sm:text-4xl font-mono font-bold text-inkBlue">O(V · E)</span>
+                        </div>
+
+                        <div class="bg-white/90 p-4 rounded-xl border border-amber-300 font-sans text-base space-y-3">
+                            <span class="font-bold text-inkBlue text-lg block">Special Case: Complete Graph</span>
+                            <p class="text-slate-700 leading-relaxed">
+                                In a complete directed graph where an edge exists between every pair of vertices:
+                            </p>
+                            <p class="font-mono text-center font-bold text-inkRed text-lg">
+                                E = V(V - 1) / 2 &approx; O(V²)
+                            </p>
+                            <p class="text-slate-700 leading-relaxed">
+                                Substituting <code class="font-mono font-bold">E = O(V²)</code> into <code
+                                    class="font-mono font-bold">O(V · E)</code> gives:
+                            </p>
+                            <p class="font-mono text-center font-bold text-inkBlue text-xl">
+                                O(V · V²) = O(V³)
+                            </p>
+
+                            <!-- Complexity Comparison Table -->
+                            <div class="overflow-x-auto mt-2">
+                                <table
+                                    class="w-full bg-amber-50/50 border border-amber-300 rounded text-center text-sm">
+                                    <thead class="bg-amber-200 text-inkBlue font-bold">
+                                        <tr>
+                                            <th class="py-2 px-3 text-left">Graph Type</th>
+                                            <th class="py-2 px-3">Edges (E)</th>
+                                            <th class="py-2 px-3">Bellman-Ford Time</th>
+                                            <th class="py-2 px-3">Dijkstra (Heap)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-amber-200 font-mono">
+                                        <tr>
+                                            <td class="py-2 px-3 font-sans text-left font-bold text-inkBlue">General
+                                                Sparse Graph</td>
+                                            <td>O(V)</td>
+                                            <td class="text-emerald-700 font-bold">O(V²)</td>
+                                            <td class="text-inkBlue">O(V log V)</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-2 px-3 font-sans text-left font-bold text-inkBlue">General
+                                                Dense Graph</td>
+                                            <td>O(E)</td>
+                                            <td class="text-emerald-700 font-bold">O(V · E)</td>
+                                            <td class="text-inkBlue">O(E log V)</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-2 px-3 font-sans text-left font-bold text-inkBlue">Complete
+                                                Graph</td>
+                                            <td>O(V²)</td>
+                                            <td class="text-red-700 font-bold">O(V³)</td>
+                                            <td class="text-inkBlue">O(V² log V)</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 11 -->
+                    <div class="pt-4 border-t border-amber-200">
+                        <h3 class="text-3xl font-bold text-inkRed font-heading pen-underline mb-2">11. Example 2 —
+                            Negative Edge Handling</h3>
+                        <p class="leading-relaxed">
+                            To clearly demonstrate why Bellman-Ford succeeds with negative edges where Dijkstra fails,
+                            consider this <strong>4-vertex graph</strong>:
+                        </p>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-3 font-sans text-base">
+                            <div class="bg-white/80 p-4 rounded-xl border border-amber-300">
+                                <span class="font-bold text-inkBlue text-lg block mb-2">4-Vertex Graph Edges:</span>
+                                <ul class="space-y-1 font-mono text-sm">
+                                    <li>• <span class="font-bold text-inkBlue">1 → 4</span> = 5</li>
+                                    <li>• <span class="font-bold text-inkBlue">4 → 3</span> = 3</li>
+                                    <li>• <span class="font-bold text-red-700">3 → 2 = -10</span> (Negative Edge!)</li>
+                                    <li>• <span class="font-bold text-inkBlue">1 → 2</span> = 4 (Direct Path)</li>
+                                </ul>
+                                <div class="mt-3 text-sm text-pencilGray">
+                                    Source: <code class="font-bold font-mono text-inkBlue">1</code><br>
+                                    Vertices: <code class="font-bold font-mono">V = 4</code> &rarr; <code
+                                        class="font-bold font-mono">V - 1 = 3 iterations</code>.
+                                </div>
+                            </div>
+
+                            <div
+                                class="bg-white/80 p-4 rounded-xl border border-amber-300 flex flex-col items-center justify-center">
+                                <canvas id="canvas-ex2-neg"
+                                    class="bg-white border border-slate-300 rounded shadow-sm max-w-full"
+                                    style="width: 360px; height: 160px;"></canvas>
+                                <span class="text-xs text-pencilGray font-sans mt-1">Example 2: Negative edge 3 &rarr; 2
+                                    (-10) gives total cost -2 to node 2.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 12 -->
+                    <div class="pt-4 border-t border-amber-200">
+                        <h3 class="text-3xl font-bold text-inkRed font-heading pen-underline mb-2">12. How the Negative
+                            Edge Works</h3>
+                        <p class="leading-relaxed">
+                            Observe the two competing paths from source 1 to vertex 2:
+                        </p>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-3 font-sans">
+                            <div class="p-4 bg-amber-50 rounded-xl border border-amber-300">
+                                <span class="font-bold text-inkBlue block text-lg mb-1">Path A (Direct Edge):</span>
+                                <p class="font-mono text-base">1 → 2 = <span class="font-bold text-inkBlue">4</span></p>
+                                <p class="text-xs text-pencilGray mt-1">Dijkstra would greedily finalize node 2 at cost
+                                    4 and never look back!</p>
+                            </div>
+
+                            <div class="p-4 bg-emerald-50 rounded-xl border border-emerald-300">
+                                <span class="font-bold text-emerald-900 block text-lg mb-1">Path B (Indirect with
+                                    Negative Edge):</span>
+                                <p class="font-mono text-base">1 → 4 → 3 → 2</p>
+                                <p class="font-mono text-base font-bold text-emerald-700">= 5 + 3 + (-10) = 8 - 10 = -2
+                                </p>
+                                <p class="text-xs text-emerald-800 mt-1">Bellman-Ford relaxes edge 3 &rarr; 2 and lowers
+                                    d[2] from 4 down to -2!</p>
+                            </div>
+                        </div>
+
+                        <!-- Table of Results -->
+                        <div class="overflow-x-auto my-3">
+                            <table
+                                class="w-full max-w-lg mx-auto bg-white border border-amber-300 rounded text-center font-sans text-sm">
+                                <thead class="bg-amber-100 text-inkBlue font-bold">
+                                    <tr>
+                                        <th class="py-2 px-3">Vertex</th>
+                                        <th class="py-2 px-3">Initial Dist</th>
+                                        <th class="py-2 px-3">Final Shortest Dist</th>
+                                        <th class="py-2 px-3">Shortest Path</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-amber-200 font-mono">
+                                    <tr>
+                                        <td class="font-bold text-inkBlue py-2">1 (Source)</td>
+                                        <td>0</td>
+                                        <td class="text-emerald-700 font-bold">0</td>
+                                        <td class="text-xs font-sans">1</td>
+                                    </tr>
+                                    <tr class="bg-emerald-50/60">
+                                        <td class="font-bold text-inkBlue py-2">2</td>
+                                        <td>&infin;</td>
+                                        <td class="text-emerald-700 font-bold">-2</td>
+                                        <td class="text-xs font-sans">1 &rarr; 4 &rarr; 3 &rarr; 2</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="font-bold text-inkBlue py-2">3</td>
+                                        <td>&infin;</td>
+                                        <td class="text-emerald-700 font-bold">8</td>
+                                        <td class="text-xs font-sans">1 &rarr; 4 &rarr; 3</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="font-bold text-inkBlue py-2">4</td>
+                                        <td>&infin;</td>
+                                        <td class="text-emerald-700 font-bold">5</td>
+                                        <td class="text-xs font-sans">1 &rarr; 4</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="note-box p-4 bg-emerald-50 border-l-4 border-emerald-600 rounded font-sans text-lg">
+                            <span class="font-bold text-emerald-900 block text-xl mb-1">🌟 The Fundamental
+                                Takeaway:</span>
+                            <p class="text-slate-800 leading-relaxed font-semibold">
+                                The presence of a negative edge does NOT mean Bellman-Ford fails!
+                            </p>
+                            <p class="text-slate-700 text-base mt-1">
+                                On the contrary, Bellman-Ford is specifically constructed to navigate through negative
+                                edges correctly and discover negative path costs like <code
+                                    class="font-bold font-mono">-2</code>.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ======================================================================
+                 TAB 4: NEGATIVE CYCLES & DETECTION (Sections 13, 14, 15, 16)
+            ====================================================================== -->
+            <section id="sec-negative-cycles" class="tab-content space-y-8">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                        4. Negative-Weight Cycles & Detection</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 4</span>
+                </div>
+
+                <div class="space-y-6">
+                    <!-- Section 13 -->
+                    <div>
+                        <h3 class="text-3xl font-bold text-inkRed font-heading pen-underline mb-2">13. The Drawback —
+                            Negative-Weight Cycle</h3>
+                        <p class="leading-relaxed">
+                            Now, let us modify the previous 4-vertex graph by adding a directed back-edge:
+                        </p>
+                        <div
+                            class="p-3 my-2 bg-red-50 border-l-4 border-red-600 rounded font-mono text-inkRed font-bold text-xl">
+                            Add edge: 2 → 4 with weight = 5
+                        </div>
+                        <p class="leading-relaxed mt-2">
+                            This creates a directed cycle among vertices: <code
+                                class="font-bold font-mono text-inkBlue">2 → 4 → 3 → 2</code>.
+                        </p>
+
+                        <div class="p-4 bg-white/90 rounded-xl border border-red-300 shadow-sm font-sans my-3">
+                            <span class="font-bold text-red-900 text-lg block mb-2">Cycle Weight Calculation:</span>
+                            <ul class="space-y-1 font-mono text-base">
+                                <li>• 2 → 4 = 5</li>
+                                <li>• 4 → 3 = 3</li>
+                                <li>• 3 → 2 = -10</li>
+                            </ul>
+                            <div class="mt-2 pt-2 border-t border-red-200 font-mono font-bold text-lg text-red-700">
+                                Total Cycle Weight = 5 + 3 + (-10) = 8 - 10 = -2 &lt; 0
+                            </div>
+                            <span class="text-xs text-red-800 block mt-1 uppercase font-bold">⚠️ Because total weight is
+                                negative, this is a Negative-Weight Cycle!</span>
+                        </div>
+
+                        <div
+                            class="flex flex-col items-center bg-white/70 border border-red-200 p-4 rounded-xl shadow-inner my-4">
+                            <canvas id="canvas-negative-cycle"
+                                class="bg-white border border-red-300 rounded shadow-sm max-w-full"
+                                style="width: 440px; height: 170px;"></canvas>
+                            <span class="text-xs text-red-700 font-sans mt-2 font-bold">Negative Cycle: 2 &rarr; 4
+                                &rarr; 3 &rarr; 2 loop has net cost -2 per traversal.</span>
+                        </div>
+                    </div>
+
+                    <!-- Section 14 -->
+                    <div class="pt-4 border-t border-amber-200">
+                        <h3 class="text-3xl font-bold text-inkRed font-heading pen-underline mb-2">14. Why Is a Negative
+                            Cycle a Fatal Problem?</h3>
+                        <p class="leading-relaxed">
+                            Every time an algorithm traverses around this cycle, the total path cost decreases by <code
+                                class="font-bold font-mono text-red-700">2</code>:
+                        </p>
+
+                        <div
+                            class="grid grid-cols-2 sm:grid-cols-4 gap-3 my-3 text-center font-mono text-base font-bold">
+                            <div class="bg-white p-3 rounded-lg border border-red-200">
+                                <span class="block text-xs font-sans text-slate-500">1st Loop</span>
+                                <span class="text-red-700">-2</span>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg border border-red-200">
+                                <span class="block text-xs font-sans text-slate-500">2nd Loop</span>
+                                <span class="text-red-700">-4</span>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg border border-red-200">
+                                <span class="block text-xs font-sans text-slate-500">3rd Loop</span>
+                                <span class="text-red-700">-6</span>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg border border-red-200">
+                                <span class="block text-xs font-sans text-slate-500">k-th Loop</span>
+                                <span class="text-red-700">-&infin;</span>
+                            </div>
+                        </div>
+
+                        <div class="p-4 bg-red-100/70 border-l-4 border-red-700 rounded-xl font-sans">
+                            <span class="font-bold text-red-900 text-xl block mb-1">🛑 Fatal Consequence:</span>
+                            <p class="text-slate-800 text-lg leading-relaxed">
+                                There is <strong>NO finite shortest path</strong>!
+                            </p>
+                            <p class="text-slate-700 text-base mt-1">
+                                An agent or traveler can endlessly loop around the cycle to make the distance
+                                arbitrarily negative (<code class="font-mono">-100, -1000, ... -&infin;</code>). The
+                                optimization problem is unbounded and ill-defined for all reachable nodes downstream of
+                                the cycle.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Section 15 -->
+                    <div class="pt-4 border-t border-amber-200">
+                        <h3 class="text-3xl font-bold text-inkRed font-heading pen-underline mb-2">15. How Bellman-Ford
+                            Detects a Negative Cycle</h3>
+                        <p class="leading-relaxed">
+                            While no algorithm can find a finite shortest path in the presence of a reachable negative
+                            cycle, Bellman-Ford possesses a superpower: <strong>it can detect the cycle!</strong>
+                        </p>
+
+                        <div class="my-4 p-4 bg-amber-50 border-2 border-amber-400 rounded-xl font-sans">
+                            <span class="font-bold text-inkBlue text-xl block mb-2">The Detection Procedure:</span>
+                            <p class="text-slate-700 leading-relaxed">
+                                1. Relax all edges normally for <code
+                                    class="font-bold font-mono text-inkBlue">V - 1</code> iterations.<br>
+                                2. Then, perform <strong>one additional (the V-th) iteration</strong> over all edges.
+                            </p>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                                <div class="p-3 bg-emerald-50 border border-emerald-300 rounded-lg">
+                                    <span class="font-bold text-emerald-800 block text-base">Case 1: No Distance
+                                        Changes</span>
+                                    <p class="text-sm text-slate-700 mt-1">
+                                        Every edge satisfies <code class="font-mono">d[u] + w &ge; d[v]</code>.<br>
+                                        &rarr; <strong>No reachable negative cycle exists.</strong><br>
+                                        Shortest distances are mathematically optimal and finalized!
+                                    </p>
+                                </div>
+                                <div class="p-3 bg-rose-50 border border-rose-300 rounded-lg">
+                                    <span class="font-bold text-rose-800 block text-base">Case 2: Any Distance
+                                        Decreases</span>
+                                    <p class="text-sm text-slate-700 mt-1">
+                                        There exists at least one edge where <code
+                                            class="font-mono">d[u] + w &lt; d[v]</code>.<br>
+                                        &rarr; <strong>Negative-weight cycle detected!</strong><br>
+                                        Report error: no finite shortest path exists.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white/80 p-4 border border-amber-300 rounded-lg font-sans text-base">
+                            <span class="font-bold text-inkBlue text-lg block mb-1">Why does this test work?</span>
+                            <p class="text-slate-700 leading-relaxed">
+                                A simple shortest path without cycles can have at most <code
+                                    class="font-mono font-bold">V - 1</code> edges. Thus, after <code
+                                    class="font-mono font-bold">V - 1</code> passes, every acyclic shortest path is
+                                fully relaxed. If a distance can <em>still</em> be reduced on the <code
+                                    class="font-mono font-bold">V</code>-th pass, that reduction can only be caused by a
+                                path traversing more than <code class="font-mono font-bold">V - 1</code> edges—meaning
+                                it repeated vertices (a cycle) whose sum is negative!
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Section 16 -->
+                    <div class="pt-4 border-t border-amber-200">
+                        <h3 class="text-3xl font-bold text-inkRed font-heading pen-underline mb-2">16. Negative Edge vs.
+                            Negative Cycle</h3>
+                        <p class="leading-relaxed">
+                            Students and engineers frequently confuse these two concepts. Keep this crystal clear:
+                        </p>
+
+                        <div class="overflow-x-auto my-4">
+                            <table
+                                class="w-full bg-white border border-amber-300 rounded-lg text-center font-sans text-base shadow-sm">
+                                <thead class="bg-amber-100 text-inkBlue font-bold border-b border-amber-300">
+                                    <tr>
+                                        <th class="py-3 px-4 text-left">Graph Scenario</th>
+                                        <th class="py-3 px-4">Bellman-Ford Behavior</th>
+                                        <th class="py-3 px-4">Finite Shortest Path?</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-amber-200">
+                                    <tr>
+                                        <td class="py-2.5 px-4 text-left font-semibold text-inkBlue">Positive edge
+                                            weights only</td>
+                                        <td class="text-emerald-700 font-bold">✅ Works correctly</td>
+                                        <td class="text-emerald-700 font-bold">Yes</td>
+                                    </tr>
+                                    <tr class="bg-amber-50/50">
+                                        <td class="py-2.5 px-4 text-left font-semibold text-inkBlue">Negative edge
+                                            weights (no negative cycles)</td>
+                                        <td class="text-emerald-700 font-bold">✅ Works correctly</td>
+                                        <td class="text-emerald-700 font-bold">Yes</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="py-2.5 px-4 text-left font-semibold text-inkBlue">Positive-weight
+                                            cycle</td>
+                                        <td class="text-emerald-700 font-bold">✅ Works (cycle is simply avoided)</td>
+                                        <td class="text-emerald-700 font-bold">Yes</td>
+                                    </tr>
+                                    <tr class="bg-amber-50/50">
+                                        <td class="py-2.5 px-4 text-left font-semibold text-inkBlue">Zero-weight cycle
+                                        </td>
+                                        <td class="text-emerald-700 font-bold">✅ Works (cycle adds no benefit)</td>
+                                        <td class="text-emerald-700 font-bold">Yes</td>
+                                    </tr>
+                                    <tr class="bg-rose-50/80">
+                                        <td class="py-2.5 px-4 text-left font-bold text-inkRed">Negative-weight cycle
+                                        </td>
+                                        <td class="text-rose-700 font-bold">⚠️ Detects & flags the cycle</td>
+                                        <td class="text-rose-700 font-bold">No (Path cost = -&infin;)</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="text-center my-3">
+                            <span
+                                class="inline-block bg-amber-100 text-inkRed font-bold text-2xl px-6 py-2 rounded-full border border-amber-400">
+                                📌 Golden Rule: Negative Edge &ne; Negative Cycle
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ======================================================================
+                 TAB 5: ALGORITHM, FLOWCHART & REVIEW (Sections 17, 18, 19)
+            ====================================================================== -->
+            <section id="sec-summary" class="tab-content space-y-8">
+                <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                        5. Algorithm, Flowchart & Revision</h1>
+                    <span class="text-xl text-inkRed font-semibold">Page 5</span>
+                </div>
+
+                <div class="space-y-6">
+                    <!-- Section 17 -->
+                    <div>
+                        <h3 class="text-3xl font-bold text-inkRed font-heading pen-underline mb-2">17. Bellman-Ford
+                            Algorithm Specification</h3>
+                        <p class="leading-relaxed">
+                            Formal pseudocode specification for Bellman-Ford with cycle detection:
+                        </p>
+
+                        <div
+                            class="my-3 bg-slate-900 text-slate-100 rounded-xl p-4 font-mono text-sm sm:text-base overflow-x-auto shadow-lg border border-slate-700">
+                            <pre class="leading-relaxed">
+<span class="text-amber-400 font-bold">Algorithm</span> BellmanFord(Graph, Source):
+    <span class="text-slate-400">// Step 1: Initialization</span>
+    <span class="text-cyan-300">FOR</span> each vertex v in Graph.V:
+        distance[v] = &infin;
+    distance[Source] = 0
+
+    <span class="text-slate-400">// Step 2: Relax all edges |V| - 1 times</span>
+    <span class="text-cyan-300">FOR</span> i from 1 to |Graph.V| - 1:
+        <span class="text-cyan-300">FOR</span> each edge (u, v, weight) in Graph.E:
+            <span class="text-cyan-300">IF</span> distance[u] + weight &lt; distance[v]:
+                distance[v] = distance[u] + weight
+
+    <span class="text-slate-400">// Step 3: Check for reachable negative-weight cycle</span>
+    <span class="text-cyan-300">FOR</span> each edge (u, v, weight) in Graph.E:
+        <span class="text-cyan-300">IF</span> distance[u] + weight &lt; distance[v]:
+            <span class="text-rose-400 font-bold">RETURN</span> "Error: Graph contains a reachable negative-weight cycle"
+
+    <span class="text-slate-400">// Step 4: Return valid shortest paths</span>
+    <span class="text-emerald-400 font-bold">RETURN</span> distance[]</pre>
+                        </div>
+                    </div>
+
+                    <!-- Section 18 -->
+                    <div class="pt-4 border-t border-amber-200">
+                        <h3 class="text-3xl font-bold text-inkRed font-heading pen-underline mb-2">18. Complete
+                            Algorithmic Flowchart</h3>
+                        <p class="leading-relaxed">
+                            Visual lifecycle and logic flow of the Bellman-Ford algorithm:
+                        </p>
+
+                        <div
+                            class="flex flex-col items-center bg-white/70 border border-amber-300 p-4 rounded-xl shadow-inner my-4">
+                            <canvas id="canvas-flowchart"
+                                class="bg-white border border-slate-300 rounded shadow-sm max-w-full"
+                                style="width: 580px; height: 380px;"></canvas>
+                            <span class="text-xs text-pencilGray font-sans mt-2">Interactive Canvas Engine: Full
+                                decision & execution pipeline of Bellman-Ford.</span>
+                        </div>
+                    </div>
+
+                    <!-- Section 19 -->
+                    <div class="pt-4 border-t border-amber-200">
+                        <h3 class="text-3xl font-bold text-inkRed font-heading pen-underline mb-2">19. Key Points to
+                            Remember (Revision Sheet)</h3>
+                        <p class="leading-relaxed">
+                            Summary flashcard for fast exam revision and technical interview prep:
+                        </p>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-4 font-sans text-base">
+                            <div class="bg-white/90 p-4 rounded-xl border border-amber-300 shadow-sm space-y-2">
+                                <span class="font-bold text-inkBlue text-lg block flex items-center gap-1">🎯 Problem &
+                                    Mechanism</span>
+                                <ul class="list-disc list-inside space-y-1.5 text-slate-700 text-sm">
+                                    <li>Solves the <strong>Single Source Shortest Path (SSSP)</strong> problem on
+                                        directed, weighted graphs.</li>
+                                    <li>Unlike Dijkstra, Bellman-Ford safely accommodates <strong>negative-weight
+                                            edges</strong>.</li>
+                                    <li>Executes by repeatedly performing <strong>edge relaxation</strong>: <code
+                                            class="font-mono text-inkBlue font-bold">d[u] + w &lt; d[v]</code>.</li>
+                                    <li>Edges must be relaxed <strong>V - 1 times</strong>, since a simple path has at
+                                        most V - 1 edges.</li>
+                                </ul>
+                            </div>
+
+                            <div class="bg-white/90 p-4 rounded-xl border border-amber-300 shadow-sm space-y-2">
+                                <span class="font-bold text-inkBlue text-lg block flex items-center gap-1">⚡ Complexity
+                                    & Cycles</span>
+                                <ul class="list-disc list-inside space-y-1.5 text-slate-700 text-sm">
+                                    <li>General Graph Time Complexity: <code
+                                            class="font-mono text-inkBlue font-bold">O(V · E)</code>.</li>
+                                    <li>Complete Graph Time Complexity: <code
+                                            class="font-mono text-inkBlue font-bold">O(V³)</code>.</li>
+                                    <li>Space Complexity: <code class="font-mono text-inkBlue font-bold">O(V)</code> for
+                                        the distance array.</li>
+                                    <li>Can <strong>detect negative-weight cycles</strong> via a final 1-pass
+                                        verification over all edges.</li>
+                                    <li>If any distance changes on the extra pass, an unbounded negative cycle exists!
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Visual Drawings Javascript Code -->
+    <script>
+        let isCleanFont = false;
+
+        function toggleStyleMode() {
+            isCleanFont = !isCleanFont;
+            const body = document.body;
+            const styleBtn = document.getElementById('styleBtn');
+            if (isCleanFont) {
+                body.classList.remove('font-notes-body');
+                body.classList.add('font-clean');
+                styleBtn.innerText = "✍️ Switch to Handwritten Font";
+            } else {
+                body.classList.remove('font-clean');
+                body.classList.add('font-notes-body');
+                styleBtn.innerText = "✍️ Switch to Clean Print Font";
+            }
+            redrawAllCanvases();
+        }
+
+        let currentTab = 'concepts';
+        function switchTab(tabId) {
+            currentTab = tabId;
+            document.querySelectorAll('.tab-content').forEach(sec => {
+                sec.classList.remove('active');
+            });
+            const targetSec = document.getElementById('sec-' + tabId);
+            if (targetSec) targetSec.classList.add('active');
+
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('bg-amber-200', 'text-inkBlue', 'border-b-2', 'border-inkBlue');
+                tab.classList.add('text-gray-600', 'hover:text-inkBlue');
+            });
+
+            const activeTab = document.getElementById('tab-' + tabId);
+            if (activeTab) {
+                activeTab.classList.remove('text-gray-600', 'hover:text-inkBlue');
+                activeTab.classList.add('bg-amber-200', 'text-inkBlue', 'border-b-2', 'border-inkBlue');
+            }
+
+            setTimeout(() => {
+                redrawAllCanvases();
+            }, 50);
+        }
+
+        window.onresize = () => {
+            redrawAllCanvases();
+        };
+
+        // Redraw helper
+        function redrawAllCanvases() {
+            if (currentTab === 'concepts') {
+                drawRelaxationConcept();
+            } else if (currentTab === 'dry-run') {
+                drawEx1Init();
+                drawEx1Iter1();
+                drawEx1Iter2();
+                drawEx1Iter3();
+            } else if (currentTab === 'negative-edge') {
+                drawEx2Negative();
+            } else if (currentTab === 'negative-cycles') {
+                drawNegativeCycle();
+            } else if (currentTab === 'summary') {
+                drawFlowchart();
+            }
+        }
+
+        // ==========================================
+        // Helper: Graph Node Drawing
+        // ==========================================
+        function drawGraphNode(ctx, x, y, label, isSource, distLabel, radius = 15) {
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, 2 * Math.PI);
+            ctx.fillStyle = isSource ? '#fef3c7' : '#ffffff';
+            ctx.fill();
+            ctx.strokeStyle = isSource ? '#b45309' : '#334155';
+            ctx.lineWidth = isSource ? 2.5 : 1.5;
+            ctx.stroke();
+
+            // Node ID Label
+            ctx.fillStyle = isSource ? '#92400e' : '#1e293b';
+            ctx.font = isCleanFont ? 'bold 12px Inter' : 'bold 13px Kalam';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(label, x, y);
+
+            // Distance Badge with pill background so it never collides with edge lines
+            if (distLabel !== undefined) {
+                const dText = `d=${distLabel}`;
+                ctx.save();
+                ctx.font = 'bold 10px Inter';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'bottom';
+                const tw = ctx.measureText(dText).width;
+                const by = y - radius - 4;
+
+                ctx.fillStyle = isSource ? '#fef3c7' : '#ffffff';
+                ctx.fillRect(x - tw / 2 - 3, by - 12, tw + 6, 13);
+                ctx.strokeStyle = isSource ? '#f59e0b' : '#cbd5e1';
+                ctx.lineWidth = 0.8;
+                ctx.strokeRect(x - tw / 2 - 3, by - 12, tw + 6, 13);
+
+                ctx.fillStyle = isSource ? '#b45309' : (distLabel === '∞' ? '#64748b' : '#b91c1c');
+                ctx.fillText(dText, x, by);
+                ctx.restore();
+            }
+        }
+
+        // ==========================================
+        // Helper: Directed Edge with Arrow & Weight
+        // ==========================================
+        function drawGraphEdge(ctx, x1, y1, x2, y2, weight, isNegative = false, isHighlighted = false, curve = 0) {
+            ctx.beginPath();
+
+            const dx = x2 - x1;
+            const dy = y2 - y1;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist === 0) return;
+
+            // Midpoint with curve offset
+            const mx = (x1 + x2) / 2 + (-dy / dist) * curve;
+            const my = (y1 + y2) / 2 + (dx / dist) * curve;
+
+            if (curve === 0) {
+                ctx.moveTo(x1, y1);
+                ctx.lineTo(x2, y2);
+            } else {
+                ctx.moveTo(x1, y1);
+                ctx.quadraticCurveTo(mx, my, x2, y2);
+            }
+
+            ctx.strokeStyle = isHighlighted ? '#2563eb' : (isNegative ? '#dc2626' : '#94a3b8');
+            ctx.lineWidth = isHighlighted ? 2.8 : (isNegative ? 2.0 : 1.3);
+            ctx.stroke();
+
+            // Arrowhead at destination
+            const nodeRadius = 15;
+            let endAngle;
+            let targetX, targetY;
+
+            if (curve === 0) {
+                endAngle = Math.atan2(y2 - y1, x2 - x1);
+                targetX = x2 - nodeRadius * Math.cos(endAngle);
+                targetY = y2 - nodeRadius * Math.sin(endAngle);
+            } else {
+                endAngle = Math.atan2(y2 - my, x2 - mx);
+                targetX = x2 - nodeRadius * Math.cos(endAngle);
+                targetY = y2 - nodeRadius * Math.sin(endAngle);
+            }
+
+            const headlen = 8;
+            ctx.beginPath();
+            ctx.moveTo(targetX, targetY);
+            ctx.lineTo(targetX - headlen * Math.cos(endAngle - Math.PI / 6), targetY - headlen * Math.sin(endAngle - Math.PI / 6));
+            ctx.lineTo(targetX - headlen * Math.cos(endAngle + Math.PI / 6), targetY - headlen * Math.sin(endAngle + Math.PI / 6));
+            ctx.closePath();
+            ctx.fillStyle = isHighlighted ? '#2563eb' : (isNegative ? '#dc2626' : '#64748b');
+            ctx.fill();
+
+            // Weight label pill
+            if (weight !== undefined) {
+                const lx = curve === 0 ? (x1 + x2) / 2 : mx;
+                const ly = curve === 0 ? (y1 + y2) / 2 : my;
+
+                ctx.save();
+                ctx.font = 'bold 10px Inter';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+
+                const textWidth = ctx.measureText(weight).width;
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(lx - textWidth / 2 - 3, ly - 7, textWidth + 6, 14);
+                ctx.strokeStyle = isNegative ? '#fca5a5' : (isHighlighted ? '#93c5fd' : '#cbd5e1');
+                ctx.lineWidth = 1;
+                ctx.strokeRect(lx - textWidth / 2 - 3, ly - 7, textWidth + 6, 14);
+
+                ctx.fillStyle = isNegative ? '#dc2626' : (isHighlighted ? '#1d4ed8' : '#1e293b');
+                ctx.fillText(weight, lx, ly);
+                ctx.restore();
+            }
+        }
+
+        // ==========================================
+        // 1. RELAXATION CONCEPT CANVAS
+        // ==========================================
+        function drawRelaxationConcept() {
+            const canvas = document.getElementById('relaxation-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            const width = canvas.parentElement.clientWidth || 520;
+            const height = 160;
+
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            ctx.scale(dpr, dpr);
+            ctx.clearRect(0, 0, width, height);
+
+            const n = {
+                S: { x: 60, y: 80, d: '0' },
+                U: { x: 230, y: 80, d: '4' },
+                V: { x: 420, y: 80, d: '6 (was ∞)' }
+            };
+
+            // Edge S -> U
+            drawGraphEdge(ctx, n.S.x, n.S.y, n.U.x, n.U.y, '4', false, true);
+            // Edge U -> V
+            drawGraphEdge(ctx, n.U.x, n.U.y, n.V.x, n.V.y, '2', false, true);
+
+            // Direct curved dashed path to show comparison
+            ctx.strokeStyle = '#cbd5e1';
+            ctx.lineWidth = 1.2;
+            ctx.setLineDash([4, 4]);
+            ctx.beginPath();
+            ctx.moveTo(n.S.x, n.S.y);
+            ctx.quadraticCurveTo((n.S.x + n.V.x) / 2, n.S.y - 60, n.V.x, n.V.y);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            ctx.fillStyle = '#64748b';
+            ctx.font = 'italic 9px Inter';
+            ctx.textAlign = 'center';
+            ctx.fillText("No direct path (d[v] initialized to ∞)", (n.S.x + n.V.x) / 2, n.S.y - 40);
+
+            // Explanation note below
+            ctx.fillStyle = '#0f766e';
+            ctx.font = 'bold 10px Inter';
+            ctx.fillText("Relaxation: d[u] + weight(u,v) = 4 + 2 = 6 < ∞  →  d[v] becomes 6", (n.S.x + n.V.x) / 2, n.S.y + 50);
+
+            drawGraphNode(ctx, n.S.x, n.S.y, 'Source', true, n.S.d, 16);
+            drawGraphNode(ctx, n.U.x, n.U.y, 'u', false, n.U.d, 14);
+            drawGraphNode(ctx, n.V.x, n.V.y, 'v', false, n.V.d, 14);
+        }
+
+        // ==========================================
+        // 2. 7-NODE GRAPH CANVASES (Example 1)
+        // Spacious 4-layer planar layout for zero overlap
+        // ==========================================
+        const ex1NodesPos = {
+            1: { x: 45, y: 130 },
+            2: { x: 160, y: 45 },
+            3: { x: 160, y: 130 },
+            4: { x: 160, y: 215 },
+            5: { x: 285, y: 65 },
+            6: { x: 285, y: 195 },
+            7: { x: 395, y: 130 }
+        };
+
+        const ex1Edges = [
+            { u: 1, v: 2, w: '6', neg: false, curve: 0 },
+            { u: 1, v: 3, w: '5', neg: false, curve: 0 },
+            { u: 1, v: 4, w: '5', neg: false, curve: 0 },
+            { u: 2, v: 5, w: '-1', neg: true, curve: -10 },
+            { u: 3, v: 2, w: '-2', neg: true, curve: -16 },
+            { u: 3, v: 5, w: '1', neg: false, curve: 0 },
+            { u: 4, v: 3, w: '-2', neg: true, curve: -16 },
+            { u: 4, v: 6, w: '-1', neg: true, curve: 10 },
+            { u: 5, v: 7, w: '3', neg: false, curve: 0 },
+            { u: 6, v: 7, w: '3', neg: false, curve: 0 }
+        ];
+
+        function render7NodeGraph(canvasId, distances, highlightEdges = []) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            const width = canvas.parentElement.clientWidth || 440;
+            const baseW = 440;
+            const baseH = 260;
+            const scale = Math.min(width / baseW, 1.0);
+            const height = Math.round(baseH * scale);
+
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            ctx.scale(dpr, dpr);
+            ctx.clearRect(0, 0, width, height);
+
+            ctx.save();
+            ctx.scale(scale, scale);
+
+            // Draw all edges
+            ex1Edges.forEach(e => {
+                const isHl = highlightEdges.some(he => he[0] === e.u && he[1] === e.v);
+                drawGraphEdge(ctx, ex1NodesPos[e.u].x, ex1NodesPos[e.u].y, ex1NodesPos[e.v].x, ex1NodesPos[e.v].y, e.w, e.neg, isHl, e.curve);
+            });
+
+            // Draw all nodes
+            Object.keys(ex1NodesPos).forEach(k => {
+                const id = parseInt(k);
+                drawGraphNode(ctx, ex1NodesPos[id].x, ex1NodesPos[id].y, id, id === 1, distances[id]);
+            });
+
+            ctx.restore();
+        }
+
+        function drawEx1Init() {
+            render7NodeGraph('canvas-ex1-init', { 1: '0', 2: '∞', 3: '∞', 4: '∞', 5: '∞', 6: '∞', 7: '∞' });
+        }
+
+        function drawEx1Iter1() {
+            render7NodeGraph('canvas-ex1-iter1', { 1: '0', 2: '3', 3: '3', 4: '5', 5: '5', 6: '4', 7: '7' }, [[1, 2], [1, 3], [1, 4], [4, 3], [3, 2], [4, 6], [6, 7]]);
+        }
+
+        function drawEx1Iter2() {
+            render7NodeGraph('canvas-ex1-iter2', { 1: '0', 2: '1', 3: '3', 4: '5', 5: '2', 6: '4', 7: '5' }, [[3, 2], [2, 5], [5, 7]]);
+        }
+
+        function drawEx1Iter3() {
+            render7NodeGraph('canvas-ex1-iter3', { 1: '0', 2: '1', 3: '3', 4: '5', 5: '0', 6: '4', 7: '3' }, [[2, 5], [5, 7]]);
+        }
+
+        // ==========================================
+        // 3. EXAMPLE 2 CANVASES (Negative Edge 4-Node)
+        // ==========================================
+        function drawEx2Negative() {
+            const canvas = document.getElementById('canvas-ex2-neg');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            const width = canvas.parentElement.clientWidth || 360;
+            const height = 160;
+
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            ctx.scale(dpr, dpr);
+            ctx.clearRect(0, 0, width, height);
+
+            const n = {
+                1: { x: 45, y: 80, d: '0' },
+                4: { x: 145, y: 35, d: '5' },
+                3: { x: 235, y: 35, d: '8' },
+                2: { x: 235, y: 125, d: '-2' }
+            };
+
+            // Edges
+            drawGraphEdge(ctx, n[1].x, n[1].y, n[4].x, n[4].y, '5', false, true);
+            drawGraphEdge(ctx, n[4].x, n[4].y, n[3].x, n[3].y, '3', false, true);
+            drawGraphEdge(ctx, n[3].x, n[3].y, n[2].x, n[2].y, '-10', true, true);
+            drawGraphEdge(ctx, n[1].x, n[1].y, n[2].x, n[2].y, '4', false, false, 15);
+
+            // Nodes
+            drawGraphNode(ctx, n[1].x, n[1].y, '1', true, n[1].d);
+            drawGraphNode(ctx, n[4].x, n[4].y, '4', false, n[4].d);
+            drawGraphNode(ctx, n[3].x, n[3].y, '3', false, n[3].d);
+            drawGraphNode(ctx, n[2].x, n[2].y, '2', false, n[2].d);
+        }
+
+        // ==========================================
+        // 4. NEGATIVE CYCLE CANVASES
+        // ==========================================
+        function drawNegativeCycle() {
+            const canvas = document.getElementById('canvas-negative-cycle');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            const width = canvas.parentElement.clientWidth || 440;
+            const height = 170;
+
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            ctx.scale(dpr, dpr);
+            ctx.clearRect(0, 0, width, height);
+
+            const n = {
+                1: { x: 50, y: 85, d: '0' },
+                4: { x: 175, y: 40, d: '-∞' },
+                3: { x: 310, y: 40, d: '-∞' },
+                2: { x: 240, y: 130, d: '-∞' }
+            };
+
+            // Edge 1 -> 4
+            drawGraphEdge(ctx, n[1].x, n[1].y, n[4].x, n[4].y, '5', false, false);
+            // Cycle edges
+            drawGraphEdge(ctx, n[4].x, n[4].y, n[3].x, n[3].y, '3', false, true);
+            drawGraphEdge(ctx, n[3].x, n[3].y, n[2].x, n[2].y, '-10', true, true);
+            drawGraphEdge(ctx, n[2].x, n[2].y, n[4].x, n[4].y, '5', false, true);
+
+            // Warning box & glow around cycle
+            ctx.save();
+            ctx.strokeStyle = '#ef4444';
+            ctx.lineWidth = 1.2;
+            ctx.setLineDash([4, 4]);
+            ctx.strokeRect(150, 15, 185, 140);
+            ctx.restore();
+
+            ctx.fillStyle = '#dc2626';
+            ctx.font = 'bold 10px Inter';
+            ctx.textAlign = 'center';
+            ctx.fillText("🚨 Cycle (2→4→3→2): 5 + 3 - 10 = -2 < 0", 242, 162);
+
+            drawGraphNode(ctx, n[1].x, n[1].y, '1', true, n[1].d);
+            drawGraphNode(ctx, n[4].x, n[4].y, '4', false, n[4].d);
+            drawGraphNode(ctx, n[3].x, n[3].y, '3', false, n[3].d);
+            drawGraphNode(ctx, n[2].x, n[2].y, '2', false, n[2].d);
+        }
+
+        // ==========================================
+        // 5. FLOWCHART CANVAS
+        // ==========================================
+        function drawFlowchart() {
+            const canvas = document.getElementById('canvas-flowchart');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            const width = canvas.parentElement.clientWidth || 580;
+            const height = 380;
+
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            ctx.scale(dpr, dpr);
+            ctx.clearRect(0, 0, width, height);
+
+            const scale = Math.min(width / 580, 1.0);
+            ctx.save();
+            ctx.scale(scale, scale);
+
+            const cx = 290;
+
+            function drawBox(text, y, w, h, bg = '#f8fafc', border = '#475569', textColor = '#1e293b') {
+                ctx.fillStyle = bg;
+                ctx.fillRect(cx - w / 2, y, w, h);
+                ctx.strokeStyle = border;
+                ctx.lineWidth = 1.5;
+                ctx.strokeRect(cx - w / 2, y, w, h);
+
+                ctx.fillStyle = textColor;
+                ctx.font = 'bold 11px Inter';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(text, cx, y + h / 2);
+            }
+
+            function drawDownArrow(y1, y2, label = '') {
+                ctx.beginPath();
+                ctx.moveTo(cx, y1);
+                ctx.lineTo(cx, y2);
+                ctx.strokeStyle = '#475569';
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(cx, y2);
+                ctx.lineTo(cx - 5, y2 - 7);
+                ctx.lineTo(cx + 5, y2 - 7);
+                ctx.closePath();
+                ctx.fillStyle = '#475569';
+                ctx.fill();
+
+                if (label) {
+                    ctx.font = 'bold 9px Inter';
+                    ctx.fillStyle = '#64748b';
+                    ctx.fillText(label, cx + 10, (y1 + y2) / 2);
+                }
+            }
+
+            // Flowchart nodes
+            drawBox("START (Graph G, Source S)", 15, 200, 28, '#dbeafe', '#2563eb', '#1e40af');
+            drawDownArrow(43, 65);
+
+            drawBox("Init: d[S] = 0, all other d[v] = ∞", 65, 230, 28);
+            drawDownArrow(93, 115);
+
+            drawBox("Relax ALL Edges (Repeat V - 1 times)", 115, 250, 32, '#fef3c7', '#d97706', '#92400e');
+            drawDownArrow(147, 170);
+
+            drawBox("Perform 1 Extra Pass over all edges", 170, 240, 28);
+            drawDownArrow(198, 225);
+
+            // Decision Diamond
+            const dy = 245;
+            const dw = 140, dh = 42;
+            ctx.beginPath();
+            ctx.moveTo(cx, dy - dh / 2);
+            ctx.lineTo(cx + dw / 2, dy);
+            ctx.lineTo(cx, dy + dh / 2);
+            ctx.lineTo(cx - dw / 2, dy);
+            ctx.closePath();
+            ctx.fillStyle = '#f1f5f9';
+            ctx.fill();
+            ctx.strokeStyle = '#475569';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+
+            ctx.fillStyle = '#0f172a';
+            ctx.font = 'bold 10px Inter';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText("Any d[v] decreased?", cx, dy);
+
+            // Branches from Diamond
+            // YES -> Left
+            ctx.beginPath();
+            ctx.moveTo(cx - dw / 2, dy);
+            ctx.lineTo(120, dy);
+            ctx.lineTo(120, 310);
+            ctx.strokeStyle = '#dc2626';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(120, 310);
+            ctx.lineTo(115, 303);
+            ctx.lineTo(125, 303);
+            ctx.closePath();
+            ctx.fillStyle = '#dc2626';
+            ctx.fill();
+
+            ctx.fillStyle = '#dc2626';
+            ctx.font = 'bold 10px Inter';
+            ctx.fillText("YES", 150, dy - 8);
+
+            // NO -> Right
+            ctx.beginPath();
+            ctx.moveTo(cx + dw / 2, dy);
+            ctx.lineTo(460, dy);
+            ctx.lineTo(460, 310);
+            ctx.strokeStyle = '#16a34a';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(460, 310);
+            ctx.lineTo(455, 303);
+            ctx.lineTo(465, 303);
+            ctx.closePath();
+            ctx.fillStyle = '#16a34a';
+            ctx.fill();
+
+            ctx.fillStyle = '#16a34a';
+            ctx.font = 'bold 10px Inter';
+            ctx.fillText("NO", 430, dy - 8);
+
+            // Output boxes
+            // Left Box
+            ctx.fillStyle = '#fee2e2';
+            ctx.fillRect(40, 310, 160, 44);
+            ctx.strokeStyle = '#ef4444';
+            ctx.lineWidth = 1.5;
+            ctx.strokeRect(40, 310, 160, 44);
+            ctx.fillStyle = '#991b1b';
+            ctx.font = 'bold 10px Inter';
+            ctx.fillText("🚨 NEGATIVE CYCLE!", 120, 325);
+            ctx.font = '9px Inter';
+            ctx.fillText("No finite shortest path", 120, 340);
+
+            // Right Box
+            ctx.fillStyle = '#dcfce7';
+            ctx.fillRect(380, 310, 160, 44);
+            ctx.strokeStyle = '#22c55e';
+            ctx.lineWidth = 1.5;
+            ctx.strokeRect(380, 310, 160, 44);
+            ctx.fillStyle = '#166534';
+            ctx.font = 'bold 10px Inter';
+            ctx.fillText("✅ SHORTEST PATHS FOUND", 460, 325);
+            ctx.font = '9px Inter';
+            ctx.fillText("Distances optimal & final", 460, 340);
+
+            ctx.restore();
+        }
+
+        window.onload = () => {
+            redrawAllCanvases();
+        };
+    </script>
+</body>
+
+</html>

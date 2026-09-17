@@ -325,13 +325,12 @@
                             <h3 class="text-3xl font-bold text-inkRed underline">M-Way Search Tree Rules:</h3>
                             <ul class="list-disc list-inside space-y-2 text-xl">
                                 <li>Each node has at most <span class="font-sans font-bold">M children</span>.</li>
-                                <li>Each node contains at most <span class="font-sans font-bold">M - 1 sorted
-                                        keys</span>.</li>
+                                <li>Each node contains at most <span class="font-sans font-bold">M - 1 sorted keys</span>.</li>
                                 <li>Subtrees are split by key bounds:
                                     <ul class="list-circle list-inside pl-6 space-y-1 mt-1 text-lg">
-                                        <li>Left child contains keys $&lt; K_1$.</li>
-                                        <li>Middle child contains keys between $K_1$ and $K_2$.</li>
-                                        <li>Right child contains keys $&gt; K_2$.</li>
+                                        <li>Left child contains keys &lt; <i>K</i><sub>1</sub>.</li>
+                                        <li>Middle child contains keys between <i>K</i><sub>1</sub> and <i>K</i><sub>2</sub>.</li>
+                                        <li>Right child contains keys &gt; <i>K</i><sub>2</sub>.</li>
                                     </ul>
                                 </li>
                                 <li>M is the <strong>degree</strong> of the tree.</li>
@@ -350,7 +349,7 @@
                         <p>
                             In standard M-Way search trees, there is **no rule** stating how full a node must be. If
                             keys are inserted sequentially (e.g. 10, 20, 30, 40), we can end up creating long linear
-                            chains of nodes with single keys, resulting in a height of $H = N$. This defeats the purpose
+                            chains of nodes with single keys, resulting in a height of <i>H</i> = <i>N</i>. This defeats the purpose
                             of indexing and degrades performance back to linear search.
                         </p>
                         <p class="mt-2 font-bold text-inkRed">
@@ -381,7 +380,7 @@
                             <li><strong>Leaf Uniformity:</strong> All leaf nodes must be at the exact same depth level.
                             </li>
                             <li><strong>Bottom-Up Growth:</strong> Unlike BSTs, B-Trees grow from the bottom up. When a
-                                node overflows ($keys &gt; M-1$), it splits, and the median key is pushed up to the
+                                node overflows (keys &gt; <i>M</i> &minus; 1), it splits, and the median key is pushed up to the
                                 parent.</li>
                         </ol>
                     </div>

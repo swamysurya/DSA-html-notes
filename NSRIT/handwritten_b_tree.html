@@ -1147,7 +1147,7 @@
               </svg>
             </div>
             <p class="text-[11px] text-slate-700 text-left bg-white p-1.5 rounded border border-purple-300">
-              <b>Explanation:</b> Sibling <code>[11 | 12]</code> + pulled parent key <code>'20'</code> + leaf <code>[25]</code> merge into a single leaf <b>[11 | 12 | 20 | 25]</b> (4 keys $\le$ Max 4 keys). Internal parent node drops key 20 and retains <b>[9]</b>. Height balance and all B-Tree properties are completely restored!
+              <b>Explanation:</b> Sibling <code>[11 | 12]</code> + pulled parent key <code>'20'</code> + leaf <code>[25]</code> merge into a single leaf <b>[11 | 12 | 20 | 25]</b> (4 keys &le; Max 4 keys). Internal parent node drops key 20 and retains <b>[9]</b>. Height balance and all B-Tree properties are completely restored!
             </p>
           </div>
 
@@ -1237,7 +1237,7 @@
           <div class="note-box p-3 text-xs sm:text-sm bg-purple-50/80 border-purple-400 space-y-1">
             <span class="font-bold ink-red text-base">💡 Core Hardware Reason for AVL Trees in RAM:</span>
             <p class="text-slate-700">
-              In RAM (Main Memory), pointer dereferencing is fast, but depth matters. AVL Trees enforce strict height balancing (Height Difference $\le 1$), guaranteeing worst-case search time of <b>1.44 log₂ N</b>. They are superior when read operations (searches) far outnumber write operations (insertions/deletions).
+              In RAM (Main Memory), pointer dereferencing is fast, but depth matters. AVL Trees enforce strict height balancing (Height Difference &le; 1), guaranteeing worst-case search time of <b>1.44 log₂ N</b>. They are superior when read operations (searches) far outnumber write operations (insertions/deletions).
             </p>
           </div>
 
@@ -1299,7 +1299,7 @@
                 <tr>
                   <td class="border border-blue-300 p-2 font-bold">Height / Tree Depth</td>
                   <td class="border border-blue-300 p-2">Very small (3 to 5 levels for millions of keys)</td>
-                  <td class="border border-blue-300 p-2">Deeper ($\approx 1.44 \log_2 N$)</td>
+                  <td class="border border-blue-300 p-2">Deeper (&approx; 1.44 log₂ <i>N</i>)</td>
                 </tr>
                 <tr class="bg-slate-50">
                   <td class="border border-blue-300 p-2 font-bold">Optimal Workload</td>

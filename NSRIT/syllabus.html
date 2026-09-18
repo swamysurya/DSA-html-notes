@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NSRIT - Course Syllabus & Digital Notes Directory</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Kalam:wght@400;700&family=Patrick+Hand&family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        notebookPaper: '#FAF6EE',
+                        paperDark: '#F4ECE1',
+                        inkBlue: '#1A365D',
+                        inkRed: '#9B2C2C',
+                        pencilGray: '#4A5568',
+                        marginRed: '#FC8181',
+                    },
+                    fontFamily: {
+                        notes: ['Patrick Hand', 'Kalam', 'cursive'],
+                        heading: ['Kalam', 'cursive'],
+                        clean: ['Inter', 'sans-serif'],
+                        code: ['Fira Code', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Digital Student Notebook Physical Styling */
+        body {
+            background-color: #cbd5e1;
+            font-family: 'Patrick Hand', 'Kalam', cursive;
+            color: #1e293b;
+        }
+
+        .lined-paper {
+            background-color: #FAF6EE;
+            background-image: repeating-linear-gradient(
+                #FAF6EE 0px,
+                #FAF6EE 31px,
+                #e2ebf3 32px
+            );
+            line-height: 32px;
+            position: relative;
+        }
+
+        .notebook-margin {
+            border-left: 2.5px solid #FC8181;
+            padding-left: 1.25rem;
+        }
+
+        @media (min-width: 640px) {
+            .notebook-margin {
+                padding-left: 2.5rem;
+            }
+        }
+
+        .spiral-ring {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #cbd5e1 0%, #64748b 50%, #334155 100%);
+            box-shadow: inset 1px 1px 2px rgba(255, 255, 255, 0.6), 2px 2px 4px rgba(0, 0, 0, 0.25);
+            margin: 12px 0;
+        }
+
+        /* Physical Highlighter Pen Effects */
+        .highlight-yellow {
+            background: linear-gradient(104deg, rgba(254, 240, 138, 0.95) 0.9%, rgba(253, 224, 71, 0.9) 2.4%, rgba(250, 204, 21, 0.85) 98%);
+            padding: 2px 8px;
+            border-radius: 4px;
+            box-decoration-break: clone;
+            -webkit-box-decoration-break: clone;
+            display: inline-block;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 3px rgba(234, 179, 8, 0.25);
+        }
+
+        .highlight-green {
+            background: linear-gradient(104deg, rgba(187, 247, 208, 0.95) 0.9%, rgba(134, 239, 172, 0.9) 2.4%, rgba(74, 222, 128, 0.8) 98%);
+            padding: 2px 8px;
+            border-radius: 4px;
+            box-decoration-break: clone;
+            -webkit-box-decoration-break: clone;
+            display: inline-block;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 3px rgba(34, 197, 94, 0.25);
+        }
+
+        .highlight-blue {
+            background: linear-gradient(104deg, rgba(191, 219, 254, 0.95) 0.9%, rgba(147, 197, 253, 0.9) 2.4%, rgba(96, 165, 250, 0.8) 98%);
+            padding: 2px 8px;
+            border-radius: 4px;
+            box-decoration-break: clone;
+            -webkit-box-decoration-break: clone;
+            display: inline-block;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 3px rgba(59, 130, 246, 0.25);
+        }
+
+        .highlight-yellow:hover, .highlight-green:hover, .highlight-blue:hover {
+            transform: translateY(-1px) scale(1.01);
+            filter: brightness(1.05);
+        }
+
+        /* Note Launch Badge */
+        .note-badge {
+            font-family: 'Inter', sans-serif !important;
+            font-size: 0.75rem !important;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 1px 8px;
+            border-radius: 6px;
+            vertical-align: middle;
+            margin-left: 8px;
+            text-decoration: none;
+            transition: all 0.15s ease;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .note-badge:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+        }
+
+        /* Clean Mode Font Switcher */
+        body.font-clean,
+        body.font-clean * {
+            font-family: 'Inter', sans-serif !important;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #FAF6EE;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            body {
+                background: white !important;
+            }
+            .lined-paper {
+                background-image: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body class="min-h-screen text-slate-800 antialiased transition-all duration-300 py-4 sm:py-8 px-2 sm:px-6">
+
+    <!-- Top Sticky Header Bar -->
+    <header class="max-w-5xl mx-auto sticky top-2 z-50 bg-[#FAF6EE]/95 backdrop-blur-md border-2 border-amber-300/90 rounded-2xl shadow-xl px-4 py-3 mb-6 no-print">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-3">
+            <div class="flex items-center space-x-3">
+                <a href="../index.html" class="px-3 py-1.5 rounded-lg bg-amber-100 hover:bg-amber-200 border border-amber-300 text-inkBlue text-sm font-bold flex items-center gap-1.5 transition shadow-sm font-sans" title="Back to Digital Bookshelf">
+                    <span>📚</span> <span>Bookshelf</span>
+                </a>
+                <div>
+                    <h1 class="text-2xl sm:text-3xl font-bold text-inkBlue font-['Kalam'] tracking-tight">NSRIT Course Syllabus</h1>
+                    <p class="text-xs sm:text-sm text-pencilGray font-sans">Advanced Data Structures & Analysis of Algorithms • 45 Total Hours</p>
+                </div>
+            </div>
+
+            <!-- Controls: Search & Font Mode -->
+            <div class="flex items-center gap-2 w-full md:w-auto justify-end">
+                <div class="relative w-full sm:w-60">
+                    <input type="text" id="syllabusSearch" onkeyup="filterSyllabus()" placeholder="Search syllabus topics..." 
+                        class="w-full bg-white border border-amber-300 rounded-lg pl-8 pr-3 py-1.5 text-xs sm:text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500 font-sans shadow-inner">
+                    <span class="absolute left-2.5 top-2 text-slate-400 text-xs">🔍</span>
+                </div>
+                <button id="fontToggleBtn" onclick="toggleFontMode()" class="shrink-0 px-3 py-1.5 rounded-lg bg-inkBlue text-white hover:bg-slate-800 transition text-xs sm:text-sm font-bold shadow flex items-center gap-1 font-sans">
+                    <span>✍️</span> <span id="fontBtnText">Clean Font</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs: Quick Jump to Unit or Filter by Note Availability -->
+        <nav class="mt-3 pt-2 border-t border-amber-200 flex flex-wrap items-center justify-between gap-2 text-xs sm:text-sm select-none font-sans">
+            <div class="flex flex-wrap gap-1">
+                <button onclick="showUnit('all')" id="btn-unit-all" class="unit-nav-btn px-2.5 py-1 rounded-md font-bold bg-amber-300 text-inkBlue border border-amber-400 transition">
+                    All Units (Continuous)
+                </button>
+                <button onclick="showUnit('unit1')" id="btn-unit-unit1" class="unit-nav-btn px-2.5 py-1 rounded-md font-bold text-slate-700 hover:bg-amber-100 transition">
+                    Unit I (9h)
+                </button>
+                <button onclick="showUnit('unit2')" id="btn-unit-unit2" class="unit-nav-btn px-2.5 py-1 rounded-md font-bold text-slate-700 hover:bg-amber-100 transition">
+                    Unit II (9h)
+                </button>
+                <button onclick="showUnit('unit3')" id="btn-unit-unit3" class="unit-nav-btn px-2.5 py-1 rounded-md font-bold text-slate-700 hover:bg-amber-100 transition">
+                    Unit III (9h)
+                </button>
+                <button onclick="showUnit('unit4')" id="btn-unit-unit4" class="unit-nav-btn px-2.5 py-1 rounded-md font-bold text-slate-700 hover:bg-amber-100 transition">
+                    Unit IV (9h)
+                </button>
+                <button onclick="showUnit('unit5')" id="btn-unit-unit5" class="unit-nav-btn px-2.5 py-1 rounded-md font-bold text-slate-700 hover:bg-amber-100 transition">
+                    Unit V (9h)
+                </button>
+            </div>
+
+            <!-- Notes Indicator Legend -->
+            <div class="flex items-center gap-3 text-xs">
+                <span class="flex items-center gap-1.5 font-bold text-amber-900">
+                    <span class="w-3.5 h-3.5 rounded bg-yellow-300 border border-amber-400 shadow-sm inline-block"></span>
+                    <span>Highlighted = Note Ready in NSRIT</span>
+                </span>
+                <span class="flex items-center gap-1.5 font-bold text-slate-500">
+                    <span class="w-3.5 h-3.5 rounded bg-white border border-slate-300 inline-block"></span>
+                    <span>Plain = Upcoming</span>
+                </span>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Physical Binder Notebook Container -->
+    <main class="max-w-5xl mx-auto flex relative bg-notebookPaper rounded-2xl shadow-2xl overflow-hidden border-2 border-amber-200 min-h-[900px]">
+        
+        <!-- Left Spiral Rings Column -->
+        <div class="w-8 sm:w-12 bg-[#F5EFEB] border-r-2 border-amber-300 flex flex-col items-center py-6 select-none shrink-0 no-print shadow-[inset_-4px_0_8px_rgba(0,0,0,0.04)]">
+            <script>
+                for (let i = 0; i < 48; i++) {
+                    document.write('<div class="spiral-ring"></div>');
+                }
+            </script>
+        </div>
+
+        <!-- Lined Notebook Paper Content Area -->
+        <div class="flex-1 lined-paper p-4 sm:p-8 notebook-margin text-xl sm:text-2xl text-slate-800 space-y-10 z-0">
+
+            <!-- Notebook Header Section -->
+            <div class="border-b-2 border-inkRed pb-3 flex flex-col sm:flex-row justify-between items-start sm:items-baseline gap-2">
+                <div>
+                    <span class="text-xs sm:text-sm font-sans font-bold tracking-wider uppercase text-amber-900 bg-amber-100/80 px-2 py-0.5 rounded border border-amber-300">
+                        NSRIT • Department of Computer Science & Engineering
+                    </span>
+                    <h2 class="text-3xl sm:text-4xl font-bold text-inkBlue font-['Kalam'] mt-1">Official Course Syllabus & Digital Notes Tracker</h2>
+                </div>
+                <div class="text-right font-sans">
+                    <span class="text-xs sm:text-sm font-bold text-inkRed block">Total Contact: 45 Hours (5 Units × 9 Hours)</span>
+                    <span class="text-xs text-slate-500">Click any highlighted syllabus topic to open the note</span>
+                </div>
+            </div>
+
+
+            <!-- ======================================================================
+                 UNIT I: ADVANCED DATA STRUCTURES
+                 ====================================================================== -->
+            <section id="sec-unit1" class="syllabus-unit-section space-y-4">
+                <div class="flex items-baseline justify-between border-b-2 border-inkBlue/30 pb-1">
+                    <h3 class="text-2xl sm:text-3xl font-bold text-inkBlue font-['Kalam'] flex items-center gap-2">
+                        <span>📖</span> Unit I – Advanced Data Structures — 9 Hours
+                    </h3>
+                    <span class="font-sans text-xs font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded border border-emerald-300">
+                        4 Notes Available
+                    </span>
+                </div>
+
+                <div class="pl-2 sm:pl-4 space-y-4">
+                    <!-- 1. AVL Trees -->
+                    <div class="syllabus-item">
+                        <div class="font-bold text-inkBlue">
+                            <span class="highlight-yellow">
+                                <a href="avl_trees_notebook.html" class="text-inkBlue hover:text-inkRed transition font-bold" title="Open AVL Trees Notebook">
+                                    1. AVL Trees
+                                </a>
+                            </span>
+                            <a href="avl_trees_notebook.html" class="note-badge bg-amber-600 hover:bg-amber-700 text-white">
+                                📖 avl_trees_notebook.html ↗
+                            </a>
+                        </div>
+                        <ul class="list-disc pl-8 text-lg sm:text-xl text-slate-700 space-y-0.5 mt-1">
+                            <li>Creation</li>
+                            <li>Insertion</li>
+                            <li>Deletion</li>
+                            <li>Applications</li>
+                        </ul>
+                    </div>
+
+                    <!-- 2. B-Trees -->
+                    <div class="syllabus-item">
+                        <div class="font-bold text-inkBlue">
+                            <span class="highlight-yellow">
+                                <a href="handwritten_b_tree.html" class="text-inkBlue hover:text-inkRed transition font-bold" title="Open B-Trees Notebook">
+                                    2. B-Trees
+                                </a>
+                            </span>
+                            <a href="handwritten_b_tree.html" class="note-badge bg-blue-700 hover:bg-blue-800 text-white">
+                                📖 handwritten_b_tree.html ↗
+                            </a>
+                        </div>
+                        <ul class="list-disc pl-8 text-lg sm:text-xl text-slate-700 space-y-0.5 mt-1">
+                            <li>Creation</li>
+                            <li>Insertion</li>
+                            <li>Deletion</li>
+                            <li>Applications</li>
+                        </ul>
+                    </div>
+
+                    <!-- 3. Heap Trees / Priority Queues -->
+                    <div class="syllabus-item">
+                        <div class="font-bold text-inkBlue">
+                            <span class="highlight-yellow">
+                                <a href="heap_trees_notebook (2).html" class="text-inkBlue hover:text-inkRed transition font-bold" title="Open Heap Trees Notebook">
+                                    3. Heap Trees / Priority Queues
+                                </a>
+                            </span>
+                            <a href="heap_trees_notebook (2).html" class="note-badge bg-indigo-700 hover:bg-indigo-800 text-white">
+                                📖 heap_trees_notebook (2).html ↗
+                            </a>
+                        </div>
+                        <ul class="list-disc pl-8 text-lg sm:text-xl text-slate-700 space-y-0.5 mt-1">
+                            <li>Min Heap</li>
+                            <li>Max Heap</li>
+                        </ul>
+                    </div>
+
+                    <!-- 4. Graphs -->
+                    <div class="syllabus-item">
+                        <div class="font-bold text-inkBlue">
+                            <span class="highlight-yellow">
+                                <a href="graphs_notebook (5).html" class="text-inkBlue hover:text-inkRed transition font-bold" title="Open Graphs Notebook">
+                                    4. Graphs
+                                </a>
+                            </span>
+                            <a href="graphs_notebook (5).html" class="note-badge bg-emerald-700 hover:bg-emerald-800 text-white">
+                                📖 graphs_notebook (5).html ↗
+                            </a>
+                        </div>
+                        <ul class="list-disc pl-8 text-lg sm:text-xl text-slate-700 space-y-0.5 mt-1">
+                            <li>Terminology</li>
+                            <li>Representations</li>
+                            <li>Traversals</li>
+                            <li>Connected Components</li>
+                            <li>Biconnected Components</li>
+                        </ul>
+                    </div>
+
+                    <!-- Self-Learning Topic: Applications of Heap -->
+                    <div class="syllabus-item pt-2">
+                        <div class="text-lg sm:text-xl font-bold text-inkRed">
+                            <strong>Self-Learning Topic:</strong>
+                            <span class="highlight-green ml-1">
+                                <a href="heap_trees_notebook (2).html" class="text-inkRed hover:text-inkBlue transition font-bold" title="View Heap Applications in Heap Notebook">
+                                    Applications of Heap
+                                </a>
+                            </span>
+                            <a href="heap_trees_notebook (2).html" class="note-badge bg-emerald-700 hover:bg-emerald-800 text-white">
+                                📖 In heap_trees_notebook.html (Tab 4) ↗
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <hr class="border-t-2 border-dashed border-amber-200 my-6">
+
+
+            <!-- ======================================================================
+                 UNIT II: INTRODUCTION TO ANALYSIS OF ALGORITHMS
+                 ====================================================================== -->
+            <section id="sec-unit2" class="syllabus-unit-section space-y-4">
+                <div class="flex items-baseline justify-between border-b-2 border-inkBlue/30 pb-1">
+                    <h3 class="text-2xl sm:text-3xl font-bold text-inkBlue font-['Kalam'] flex items-center gap-2">
+                        <span>⚡</span> Unit II – Introduction to Analysis of Algorithms — 9 Hours
+                    </h3>
+                    <span class="font-sans text-xs font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded border border-emerald-300">
+                        1 Note Available
+                    </span>
+                </div>
+
+                <div class="pl-2 sm:pl-4 space-y-4">
+                    <!-- Algorithm Analysis -->
+                    <div class="syllabus-item space-y-1">
+                        <h4 class="text-xl sm:text-2xl font-bold text-inkRed font-['Kalam']">Algorithm Analysis</h4>
+                        <ol class="list-decimal pl-8 text-lg sm:text-xl text-slate-700 space-y-0.5">
+                            <li>Introduction to algorithm analysis</li>
+                            <li>Space complexity analysis</li>
+                            <li>Time complexity analysis</li>
+                            <li>Asymptotic notations</li>
+                            <li>Basic efficiency classes</li>
+                            <li>Order of growth</li>
+                            <li>Mathematical framework to analyse non-recursive algorithms</li>
+                            <li>Mathematical framework to analyse recursive algorithms</li>
+                        </ol>
+                    </div>
+
+                    <!-- Algorithm Design Strategies -->
+                    <div class="syllabus-item space-y-1">
+                        <h4 class="text-xl sm:text-2xl font-bold text-inkRed font-['Kalam']">Algorithm Design Strategies</h4>
+                        <ol start="9" class="list-decimal pl-8 text-lg sm:text-xl text-slate-700 space-y-0.5">
+                            <li>Definition</li>
+                        </ol>
+                    </div>
+
+                    <!-- Divide and Conquer -->
+                    <div class="syllabus-item space-y-2">
+                        <div class="flex items-baseline gap-2 flex-wrap">
+                            <h4 class="text-xl sm:text-2xl font-bold text-inkRed font-['Kalam']">
+                                <span class="highlight-yellow">Divide and Conquer</span>
+                            </h4>
+                            <a href="divide_and_conquer_notebook.html" class="note-badge bg-rose-700 hover:bg-rose-800 text-white">
+                                📖 divide_and_conquer_notebook.html ↗
+                            </a>
+                        </div>
+                        <ol start="10" class="list-decimal pl-8 text-lg sm:text-xl text-slate-700 space-y-1">
+                            <li>
+                                <span class="highlight-yellow">
+                                    <a href="divide_and_conquer_notebook.html" class="text-slate-900 hover:text-inkRed font-bold">General method</a>
+                                </span>
+                            </li>
+                            <li>
+                                <span class="highlight-yellow">
+                                    <a href="divide_and_conquer_notebook.html" class="text-slate-900 hover:text-inkRed font-bold">Quick Sort</a>
+                                </span>
+                            </li>
+                            <li>
+                                <span class="highlight-yellow">
+                                    <a href="divide_and_conquer_notebook.html" class="text-slate-900 hover:text-inkRed font-bold">Merge Sort</a>
+                                </span>
+                            </li>
+                            <li>
+                                <span class="highlight-yellow">
+                                    <a href="divide_and_conquer_notebook.html" class="text-slate-900 hover:text-inkRed font-bold">Strassen's Matrix Multiplication</a>
+                                </span>
+                            </li>
+                            <li>
+                                <span class="highlight-yellow">
+                                    <a href="divide_and_conquer_notebook.html" class="text-slate-900 hover:text-inkRed font-bold">Convex Hull</a>
+                                </span>
+                            </li>
+                        </ol>
+                    </div>
+
+                    <!-- Self-Learning Topic: Brute Force Approach -->
+                    <div class="syllabus-item pt-2">
+                        <div class="text-lg sm:text-xl font-bold text-inkRed">
+                            <strong>Self-Learning Topic:</strong>
+                            <span class="text-slate-800 ml-1">Brute Force Approach</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <hr class="border-t-2 border-dashed border-amber-200 my-6">
+
+
+            <!-- ======================================================================
+                 UNIT III: GREEDY METHOD AND DYNAMIC PROGRAMMING
+                 ====================================================================== -->
+            <section id="sec-unit3" class="syllabus-unit-section space-y-4">
+                <div class="flex items-baseline justify-between border-b-2 border-inkBlue/30 pb-1">
+                    <h3 class="text-2xl sm:text-3xl font-bold text-inkBlue font-['Kalam'] flex items-center gap-2">
+                        <span>🎯</span> Unit III – Greedy Method and Dynamic Programming — 9 Hours
+                    </h3>
+                    <span class="font-sans text-xs font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded border border-emerald-300">
+                        2 Notes Available
+                    </span>
+                </div>
+
+                <div class="pl-2 sm:pl-4 space-y-5">
+                    <!-- Greedy Method -->
+                    <div class="syllabus-item space-y-2">
+                        <div class="flex items-baseline gap-2 flex-wrap">
+                            <h4 class="text-xl sm:text-2xl font-bold text-inkRed font-['Kalam']">
+                                <span class="highlight-yellow">Greedy Method</span>
+                            </h4>
+                            <a href="greedy_method_notebook.html" class="note-badge bg-emerald-700 hover:bg-emerald-800 text-white">
+                                📖 greedy_method_notebook.html ↗
+                            </a>
+                        </div>
+                        <ol class="list-decimal pl-8 text-lg sm:text-xl text-slate-700 space-y-1">
+                            <li>
+                                <span class="highlight-yellow">
+                                    <a href="greedy_method_notebook.html" class="text-slate-900 hover:text-inkRed font-bold">General method</a>
+                                </span>
+                            </li>
+                            <li>
+                                <span class="highlight-yellow">
+                                    <a href="greedy_method_notebook.html" class="text-slate-900 hover:text-inkRed font-bold">Job Sequencing with Deadlines</a>
+                                </span>
+                            </li>
+                            <li>
+                                <span class="highlight-yellow">
+                                    <a href="greedy_method_notebook.html" class="text-slate-900 hover:text-inkRed font-bold">Knapsack Problem</a>
+                                </span>
+                            </li>
+                            <li>
+                                <span class="highlight-yellow">
+                                    <a href="greedy_method_notebook.html" class="text-slate-900 hover:text-inkRed font-bold">Minimal Cost Spanning Trees</a>
+                                </span>
+                            </li>
+                            <li>
+                                <span class="highlight-yellow">
+                                    <a href="greedy_method_notebook.html" class="text-slate-900 hover:text-inkRed font-bold">Single Source Shortest Path Algorithm</a>
+                                </span>
+                            </li>
+                        </ol>
+                    </div>
+
+                    <!-- Dynamic Programming -->
+                    <div class="syllabus-item space-y-2">
+                        <div class="flex items-baseline gap-2 flex-wrap">
+                            <h4 class="text-xl sm:text-2xl font-bold text-inkRed font-['Kalam']">
+                                <span class="highlight-yellow">Dynamic Programming</span>
+                            </h4>
+                            <a href="dynamic_programming_notebook.html" class="note-badge bg-amber-700 hover:bg-amber-800 text-white">
+                                📖 dynamic_programming_notebook.html ↗
+                            </a>
+                        </div>
+                        <ol start="6" class="list-decimal pl-8 text-lg sm:text-xl text-slate-700 space-y-1">
+                            <li>
+                                <span class="highlight-yellow">
+                                    <a href="dynamic_programming_notebook.html" class="text-slate-900 hover:text-inkRed font-bold">General method</a>
+                                </span>
+                            </li>
+                            <li>
+                                <span class="highlight-yellow">
+                                    <a href="dynamic_programming_notebook.html" class="text-slate-900 hover:text-inkRed font-bold">All Pairs Shortest Path Algorithm</a>
+                                </span>
+                            </li>
+                            <li>
+                                <span class="highlight-yellow">
+                                    <a href="dynamic_programming_notebook.html" class="text-slate-900 hover:text-inkRed font-bold">Single Source Shortest Paths – General Weights</a>
+                                </span>
+                                <ul class="list-disc pl-8 text-lg text-slate-700 space-y-0.5 mt-0.5">
+                                    <li>
+                                        <span class="highlight-yellow">
+                                            <a href="dynamic_programming_notebook.html" class="text-slate-900 hover:text-inkRed font-bold">Bellman-Ford Algorithm</a>
+                                        </span>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li>
+                                <span class="highlight-yellow">
+                                    <a href="dynamic_programming_notebook.html" class="text-slate-900 hover:text-inkRed font-bold">Optimal Binary Search Trees</a>
+                                </span>
+                            </li>
+                            <li>
+                                <span class="highlight-yellow">
+                                    <a href="dynamic_programming_notebook.html" class="text-slate-900 hover:text-inkRed font-bold">0/1 Knapsack Problem</a>
+                                </span>
+                            </li>
+                            <li>
+                                <span class="highlight-yellow">
+                                    <a href="dynamic_programming_notebook.html" class="text-slate-900 hover:text-inkRed font-bold">Matrix Chain Multiplication</a>
+                                </span>
+                            </li>
+                            <li>
+                                <span class="highlight-yellow">
+                                    <a href="dynamic_programming_notebook.html" class="text-slate-900 hover:text-inkRed font-bold">Travelling Salesman Problem</a>
+                                </span>
+                            </li>
+                        </ol>
+                    </div>
+
+                    <!-- Self-Learning Topic: String Editing -->
+                    <div class="syllabus-item pt-2">
+                        <div class="text-lg sm:text-xl font-bold text-inkRed">
+                            <strong>Self-Learning Topic:</strong>
+                            <span class="text-slate-800 ml-1">String Editing</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <hr class="border-t-2 border-dashed border-amber-200 my-6">
+
+
+            <!-- ======================================================================
+                 UNIT IV: BACKTRACKING AND BRANCH AND BOUND TECHNIQUES
+                 ====================================================================== -->
+            <section id="sec-unit4" class="syllabus-unit-section space-y-4">
+                <div class="flex items-baseline justify-between border-b-2 border-inkBlue/30 pb-1">
+                    <h3 class="text-2xl sm:text-3xl font-bold text-inkBlue font-['Kalam'] flex items-center gap-2">
+                        <span>🧩</span> Unit IV – Backtracking and Branch and Bound Techniques — 9 Hours
+                    </h3>
+                    <span class="font-sans text-xs font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded border border-slate-300">
+                        Upcoming Unit
+                    </span>
+                </div>
+
+                <div class="pl-2 sm:pl-4 space-y-5">
+                    <!-- Backtracking -->
+                    <div class="syllabus-item space-y-1">
+                        <h4 class="text-xl sm:text-2xl font-bold text-inkRed font-['Kalam']">Backtracking</h4>
+                        <ol class="list-decimal pl-8 text-lg sm:text-xl text-slate-700 space-y-0.5">
+                            <li>General method</li>
+                            <li>8 Queens Problem</li>
+                            <li>Sum of Subsets Problem</li>
+                            <li>Graph Coloring</li>
+                            <li>0/1 Knapsack Problem</li>
+                        </ol>
+                    </div>
+
+                    <!-- Branch and Bound -->
+                    <div class="syllabus-item space-y-1">
+                        <h4 class="text-xl sm:text-2xl font-bold text-inkRed font-['Kalam']">Branch and Bound</h4>
+                        <ol start="6" class="list-decimal pl-8 text-lg sm:text-xl text-slate-700 space-y-0.5">
+                            <li>General method</li>
+                            <li>0/1 Knapsack Problem</li>
+                            <li>Travelling Salesman Problem</li>
+                        </ol>
+                    </div>
+
+                    <!-- Self-Learning Topic: Least Cost Search -->
+                    <div class="syllabus-item pt-2">
+                        <div class="text-lg sm:text-xl font-bold text-inkRed">
+                            <strong>Self-Learning Topic:</strong>
+                            <span class="text-slate-800 ml-1">Least Cost Search</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <hr class="border-t-2 border-dashed border-amber-200 my-6">
+
+
+            <!-- ======================================================================
+                 UNIT V: NP HARD AND NP COMPLETE
+                 ====================================================================== -->
+            <section id="sec-unit5" class="syllabus-unit-section space-y-4">
+                <div class="flex items-baseline justify-between border-b-2 border-inkBlue/30 pb-1">
+                    <h3 class="text-2xl sm:text-3xl font-bold text-inkBlue font-['Kalam'] flex items-center gap-2">
+                        <span>🔬</span> Unit V – NP Hard and NP Complete — 9 Hours
+                    </h3>
+                    <span class="font-sans text-xs font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded border border-slate-300">
+                        Upcoming Unit
+                    </span>
+                </div>
+
+                <div class="pl-2 sm:pl-4 space-y-5">
+                    <!-- NP Hard and NP Complete Problems -->
+                    <div class="syllabus-item space-y-1">
+                        <h4 class="text-xl sm:text-2xl font-bold text-inkRed font-['Kalam']">NP Hard and NP Complete Problems</h4>
+                        <ol class="list-decimal pl-8 text-lg sm:text-xl text-slate-700 space-y-0.5">
+                            <li>Basic concepts</li>
+                            <li>Cook's Theorem</li>
+                        </ol>
+                    </div>
+
+                    <!-- NP Hard Graph Problems -->
+                    <div class="syllabus-item space-y-1">
+                        <h4 class="text-xl sm:text-2xl font-bold text-inkRed font-['Kalam']">NP Hard Graph Problems</h4>
+                        <ol start="3" class="list-decimal pl-8 text-lg sm:text-xl text-slate-700 space-y-0.5">
+                            <li>Clique Decision Problem (CDP)</li>
+                            <li>Chromatic Number Decision Problem (CNDP)</li>
+                            <li>Travelling Salesperson Problem (TSP)</li>
+                        </ol>
+                    </div>
+
+                    <!-- NP Hard Scheduling Problems -->
+                    <div class="syllabus-item space-y-1">
+                        <h4 class="text-xl sm:text-2xl font-bold text-inkRed font-['Kalam']">NP Hard Scheduling Problems</h4>
+                        <ol start="6" class="list-decimal pl-8 text-lg sm:text-xl text-slate-700 space-y-0.5">
+                            <li>Scheduling Identical Processors</li>
+                            <li>Job Shop Scheduling</li>
+                        </ol>
+                    </div>
+
+                    <!-- Self-Learning Topic: Hamiltonian Problem -->
+                    <div class="syllabus-item pt-2">
+                        <div class="text-lg sm:text-xl font-bold text-inkRed">
+                            <strong>Self-Learning Topic:</strong>
+                            <span class="text-slate-800 ml-1">Hamiltonian Problem</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Footer Information -->
+    <footer class="max-w-5xl mx-auto mt-6 text-center text-pencilGray font-sans text-xs sm:text-sm py-4 no-print">
+        <p>Nadimpalli Satyanarayana Raju Institute of Technology (NSRIT) • Department of Computer Science & Engineering</p>
+        <p class="text-xs text-slate-500 mt-1">Course Syllabus & Segregated Digital Lecture Notes Directory</p>
+    </footer>
+
+    <!-- Interactive Navigation Scripts -->
+    <script>
+        // Clean Print vs Handwritten Font Toggle
+        let isClean = false;
+        function toggleFontMode() {
+            isClean = !isClean;
+            const body = document.body;
+            const btnText = document.getElementById('fontBtnText');
+
+            if (isClean) {
+                body.classList.add('font-clean');
+                btnText.textContent = 'Handwritten Font';
+            } else {
+                body.classList.remove('font-clean');
+                btnText.textContent = 'Clean Font';
+            }
+        }
+
+        // Show specific unit or all units
+        function showUnit(unitId) {
+            const sections = document.querySelectorAll('.syllabus-unit-section');
+            const dividers = document.querySelectorAll('hr');
+
+            // Update nav button active states
+            const buttons = document.querySelectorAll('.unit-nav-btn');
+            buttons.forEach(btn => {
+                btn.classList.remove('bg-amber-300', 'text-inkBlue', 'border-amber-400');
+                btn.classList.add('text-slate-700');
+            });
+            const activeBtn = document.getElementById('btn-unit-' + unitId);
+            if (activeBtn) {
+                activeBtn.classList.add('bg-amber-300', 'text-inkBlue', 'border-amber-400');
+                activeBtn.classList.remove('text-slate-700');
+            }
+
+            if (unitId === 'all') {
+                sections.forEach(sec => sec.style.display = 'block');
+                dividers.forEach(hr => hr.style.display = 'block');
+            } else {
+                sections.forEach(sec => {
+                    if (sec.id === 'sec-' + unitId) {
+                        sec.style.display = 'block';
+                    } else {
+                        sec.style.display = 'none';
+                    }
+                });
+                dividers.forEach(hr => hr.style.display = 'none');
+            }
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Live Syllabus Search Filter
+        function filterSyllabus() {
+            const query = document.getElementById('syllabusSearch').value.toLowerCase().trim();
+            const items = document.querySelectorAll('.syllabus-item');
+            const sections = document.querySelectorAll('.syllabus-unit-section');
+
+            if (!query) {
+                items.forEach(it => it.style.display = '');
+                sections.forEach(sec => sec.style.display = '');
+                return;
+            }
+
+            // Always show all sections when filtering
+            sections.forEach(sec => sec.style.display = 'block');
+
+            items.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                if (text.includes(query)) {
+                    item.style.display = '';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

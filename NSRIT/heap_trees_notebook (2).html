@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Unit II - Part I: Heap Tree Lecture Notes</title>
+    <title>Unit I: Heap Trees - NSRIT Lecture Notes</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -43,9 +43,22 @@
 
     <header class="sticky top-0 z-50 bg-[#FAF6EE] shadow-md border-b-2 border-amber-200 px-4 py-3 no-print">
         <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-3">
-            <div class="flex items-center space-x-3">
-                <span class="text-3xl font-bold text-inkBlue tracking-wide">📖 Unit II (Part I): Heap Trees</span>
-                <span class="bg-amber-100 text-inkRed text-sm font-bold px-3 py-1 rounded-full border border-amber-300">Data Structures</span>
+            <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+                <a href="syllabus.html" class="px-3 py-1.5 rounded-lg bg-amber-100 hover:bg-amber-200 border border-amber-300 text-inkBlue text-xs sm:text-sm font-bold flex items-center gap-1.5 transition shadow-sm font-sans" title="Back to NSRIT Syllabus">
+                    <span>📋</span> <span>Syllabus</span>
+                </a>
+                <a href="../index.html" class="px-3 py-1.5 rounded-lg bg-amber-100/70 hover:bg-amber-200 border border-amber-300 text-inkBlue text-xs sm:text-sm font-bold flex items-center gap-1.5 transition shadow-sm font-sans" title="Back to Digital Bookshelf">
+                    <span>📚</span> <span>Bookshelf</span>
+                </a>
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl sm:text-3xl font-bold text-inkBlue tracking-wide font-['Kalam']">📖 Unit I: Heap Trees</span>
+                    <span class="bg-amber-100 text-inkRed text-xs sm:text-sm font-bold px-3 py-1 rounded-full border border-amber-300 font-sans">Advanced Data Structures</span>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button id="fontToggleBtn" onclick="toggleFontMode()" class="shrink-0 px-3.5 py-1.5 rounded-lg bg-inkBlue text-white hover:bg-slate-800 transition text-xs sm:text-sm font-bold shadow flex items-center gap-1.5 font-sans" title="Toggle between Handwritten and Clean typography">
+                    <span>✍️</span> <span id="fontBtnText">Clean Font</span>
+                </button>
             </div>
         </div>
 
@@ -83,7 +96,7 @@
             <!-- SECTION 1: FUNDAMENTALS -->
             <section id="sec-fundamentals" class="tab-content block space-y-8">
                 <div class="flex justify-between items-center border-b-2 border-inkRed pb-2 mb-6 break-inside-avoid">
-                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">Unit II (Part I): Heap Trees</h1>
+                    <h1 class="text-4xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4">Unit I: Heap Trees</h1>
                     <span class="text-xl text-inkRed font-semibold">Page 1</span>
                 </div>
                 <div class="break-inside-avoid mb-8">
@@ -314,23 +327,24 @@
             }
         };
         
-        function toggleStyleMode() {
+        function toggleFontMode() {
             isCleanFont = !isCleanFont;
             const body = document.body;
-            const styleBtn = document.getElementById('styleBtn');
+            const fontBtnText = document.getElementById('fontBtnText') || document.getElementById('styleBtn');
             if(isCleanFont) {
                 body.classList.remove('font-notes-body');
                 body.classList.add('font-clean');
-                styleBtn.innerText = "✍️ Switch to Handwritten Font";
+                if (fontBtnText) fontBtnText.innerText = "Handwritten Font";
             } else {
                 body.classList.remove('font-clean');
                 body.classList.add('font-notes-body');
-                styleBtn.innerText = "✍️ Switch to Clean Print Font";
+                if (fontBtnText) fontBtnText.innerText = "Clean Font";
             }
             if (typeof redrawAllCanvases === 'function') {
                 redrawAllCanvases();
             }
         }
+        const toggleStyleMode = toggleFontMode;
 
         document.addEventListener('DOMContentLoaded', () => {
             const activeHeaps = [];

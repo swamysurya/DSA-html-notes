@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Greedy Method - Lecture Notes</title>
+    <title>Unit III: Greedy Method - NSRIT Lecture Notes</title>
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -118,18 +118,27 @@
     <!-- Header Navigation Bar -->
     <header class="sticky top-0 z-50 bg-[#FAF6EE] shadow-md border-b-2 border-amber-200 px-4 py-3 no-print">
         <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-3">
-            <div class="flex items-center space-x-3">
-                <span class="text-3xl font-bold text-inkBlue tracking-wide">📖 Part IV: Greedy Method</span>
-                <span
-                    class="bg-amber-100 text-inkRed text-sm font-bold px-3 py-1 rounded-full border border-amber-300 font-sans">Chapter
-                    03</span>
+            <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+                <a href="syllabus.html" class="px-3 py-1.5 rounded-lg bg-amber-100 hover:bg-amber-200 border border-amber-300 text-inkBlue text-xs sm:text-sm font-bold flex items-center gap-1.5 transition shadow-sm font-sans" title="Back to NSRIT Syllabus">
+                    <span>📋</span> <span>Syllabus</span>
+                </a>
+                <a href="../index.html" class="px-3 py-1.5 rounded-lg bg-amber-100/70 hover:bg-amber-200 border border-amber-300 text-inkBlue text-xs sm:text-sm font-bold flex items-center gap-1.5 transition shadow-sm font-sans" title="Back to Digital Bookshelf">
+                    <span>📚</span> <span>Bookshelf</span>
+                </a>
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl sm:text-3xl font-bold text-inkBlue tracking-wide font-['Kalam']">📖 Unit III: Greedy Method</span>
+                    <span class="bg-amber-100 text-inkRed text-xs sm:text-sm font-bold px-3 py-1 rounded-full border border-amber-300 font-sans">
+                        Algorithm Design
+                    </span>
+                </div>
             </div>
 
-            <!-- Font Toggle Switcher -->
-            <button onclick="toggleFont()"
-                class="bg-amber-200 hover:bg-amber-300 text-inkBlue font-bold py-1.5 px-4 rounded-lg shadow font-sans text-sm transition">
-                Toggle Clean Font
-            </button>
+            <!-- Right: Font Toggle Button -->
+            <div class="flex items-center gap-2">
+                <button id="fontToggleBtn" onclick="toggleFontMode()" class="shrink-0 px-3.5 py-1.5 rounded-lg bg-inkBlue text-white hover:bg-slate-800 transition text-xs sm:text-sm font-bold shadow flex items-center gap-1.5 font-sans" title="Toggle between Handwritten and Clean typography">
+                    <span>✍️</span> <span id="fontBtnText">Clean Font</span>
+                </button>
+            </div>
         </div>
 
         <!-- Navigation Tabs -->
@@ -2574,16 +2583,16 @@ Algorithm Greedy(a, n)
         }
 
         // Font Toggle switcher
-        function toggleFont() {
-            body = document.body;
+        function toggleFontMode() {
+            const body = document.body;
             body.classList.toggle('font-clean');
-            const btn = document.querySelector('button[onclick="toggleFont()"]');
-            if (body.classList.contains('font-clean')) {
-                btn.textContent = "Toggle Handwriting Font";
-            } else {
-                btn.textContent = "Toggle Clean Font";
+            const isClean = body.classList.contains('font-clean');
+            const fontBtnText = document.getElementById('fontBtnText');
+            if (fontBtnText) {
+                fontBtnText.innerText = isClean ? "Handwritten Font" : "Clean Font";
             }
         }
+        const toggleFont = toggleFontMode;
 
         window.onresize = () => {
             drawGreedyGeneral();

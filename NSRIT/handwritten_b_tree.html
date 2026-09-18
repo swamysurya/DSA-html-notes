@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Handwritten Notes - Comprehensive B-Trees & AVL Trees</title>
+  <title>Unit I: B-Trees - NSRIT Lecture Notes</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Google Fonts for Authentic Handwriting -->
@@ -16,15 +16,28 @@
 <body class="bg-slate-200 min-h-screen py-8 px-2 md:px-6 font-notes-body">
 
   <header class="sticky top-0 z-50 bg-[#FAF6EE] shadow-md border-b-2 border-amber-200 px-4 py-3 no-print">
-    <div class="max-w-4xl mx-auto flex flex-col md:flex-row justify-between items-center gap-3">
-      <div class="flex items-center space-x-3">
-        <span class="text-3xl font-bold text-inkBlue tracking-wide font-heading">📖 Unit II: B-Trees & AVL Trees</span>
-        <span class="bg-amber-100 text-inkRed text-sm font-bold px-3 py-1 rounded-full border border-amber-300 font-sans">Data Structures</span>
+    <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-3">
+      <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+        <a href="syllabus.html" class="px-3 py-1.5 rounded-lg bg-amber-100 hover:bg-amber-200 border border-amber-300 text-inkBlue text-xs sm:text-sm font-bold flex items-center gap-1.5 transition shadow-sm font-sans" title="Back to NSRIT Syllabus">
+          <span>📋</span> <span>Syllabus</span>
+        </a>
+        <a href="../index.html" class="px-3 py-1.5 rounded-lg bg-amber-100/70 hover:bg-amber-200 border border-amber-300 text-inkBlue text-xs sm:text-sm font-bold flex items-center gap-1.5 transition shadow-sm font-sans" title="Back to Digital Bookshelf">
+          <span>📚</span> <span>Bookshelf</span>
+        </a>
+        <div class="flex items-center gap-2">
+          <span class="text-2xl sm:text-3xl font-bold text-inkBlue tracking-wide font-['Kalam']">📖 Unit I: B-Trees</span>
+          <span class="bg-amber-100 text-inkRed text-xs sm:text-sm font-bold px-3 py-1 rounded-full border border-amber-300 font-sans">Advanced Data Structures</span>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <button id="fontToggleBtn" onclick="toggleFontMode()" class="shrink-0 px-3.5 py-1.5 rounded-lg bg-inkBlue text-white hover:bg-slate-800 transition text-xs sm:text-sm font-bold shadow flex items-center gap-1.5 font-sans" title="Toggle between Handwritten and Clean typography">
+          <span>✍️</span> <span id="fontBtnText">Clean Font</span>
+        </button>
       </div>
     </div>
 
     <!-- Navigation Tabs -->
-    <nav class="max-w-4xl mx-auto mt-3 flex flex-wrap gap-1 border-t border-amber-200 pt-2 text-base md:text-lg">
+    <nav class="max-w-6xl mx-auto mt-3 flex flex-wrap gap-1 border-t border-amber-200 pt-2 text-base md:text-lg">
       <button onclick="switchTab('fundamentals')" id="tab-fundamentals" class="nav-tab px-3 py-1.5 rounded-t-lg font-bold bg-amber-200 text-inkBlue border-b-2 border-inkBlue">
         1. B-Tree Fundamentals
       </button>
@@ -44,7 +57,7 @@
   </header>
 
   <!-- NOTEBOOK CONTAINER -->
-  <div class="max-w-4xl mx-auto">
+  <div class="max-w-5xl mx-auto">
 
     <!-- SECTION 1: FUNDAMENTALS -->
     <section id="sec-fundamentals" class="tab-content block">
@@ -59,7 +72,7 @@
       <div class="flex justify-between items-center border-b-2 border-red-300 pb-2 mb-6">
         <div>
           <span class="text-xs text-slate-400 font-sans">Subject: ADSA / Data Structures</span>
-          <h2 class="text-3xl font-bold ink-red font-heading tracking-wide">Unit-II: B-Trees & AVL Trees</h2>
+          <h2 class="text-3xl font-bold ink-red font-heading tracking-wide">Unit-I: B-Trees</h2>
         </div>
         <div class="text-right font-sans text-xs text-slate-400">
           <span>Page: 01</span>
@@ -1353,22 +1366,25 @@
             });
         };
 
-        function toggleStyleMode() {
+        function toggleFontMode() {
             isCleanFont = !isCleanFont;
             const body = document.body;
-            const styleBtnText = document.getElementById('styleBtnText');
+            const fontBtnText = document.getElementById('fontBtnText') || document.getElementById('styleBtnText');
             if(isCleanFont) {
+                body.classList.remove('font-notes-body');
                 body.classList.add('font-clean');
-                if (styleBtnText) styleBtnText.innerText = "Switch to Handwritten Font";
+                if (fontBtnText) fontBtnText.innerText = "Handwritten Font";
             } else {
                 body.classList.remove('font-clean');
-                if (styleBtnText) styleBtnText.innerText = "Switch to Clean Print Font";
+                body.classList.add('font-notes-body');
+                if (fontBtnText) fontBtnText.innerText = "Clean Font";
             }
             // Redraw all compiled canvases
             activeCanvases.forEach(item => {
                 drawCanvasFromCommands(item.canvas, item.commands, item.width, item.height);
             });
         }
+        const toggleStyleMode = toggleFontMode;
 
         function drawCanvasFromCommands(canvas, commands, width, height) {
             const ctx = canvas.getContext('2d');

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Part II: Graphs - Lecture Notes</title>
+    <title>Unit I: Graphs - NSRIT Lecture Notes</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts for Handwritten and Clean typography -->
@@ -38,26 +38,45 @@
 <body class="bg-slate-200 text-pencilGray font-notes-body min-h-screen transition-all duration-300 text-xl md:text-2xl p-2 md:p-6">
 
     <!-- Top Navigation & PDF Control Bar -->
-    <header class="sticky top-0 z-50 bg-notebookPaper shadow-md border-b-2 border-amber-200 px-4 py-3 no-print">
-        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-3">
-            <div class="flex items-center space-x-3">
-                <span class="text-3xl font-bold text-inkBlue tracking-wide">📖 Part II: Graphs</span>
-                <span class="bg-amber-100 text-inkRed text-sm font-bold px-3 py-1 rounded-full border border-amber-300">Data Structures</span>
+    <header class="sticky top-0 z-50 bg-[#FAF6EE] shadow-md border-b-2 border-amber-200 px-4 py-3 no-print">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-3">
+            <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+                <a href="syllabus.html" class="px-3 py-1.5 rounded-lg bg-amber-100 hover:bg-amber-200 border border-amber-300 text-inkBlue text-xs sm:text-sm font-bold flex items-center gap-1.5 transition shadow-sm font-sans" title="Back to NSRIT Syllabus">
+                    <span>📋</span> <span>Syllabus</span>
+                </a>
+                <a href="../index.html" class="px-3 py-1.5 rounded-lg bg-amber-100/70 hover:bg-amber-200 border border-amber-300 text-inkBlue text-xs sm:text-sm font-bold flex items-center gap-1.5 transition shadow-sm font-sans" title="Back to Digital Bookshelf">
+                    <span>📚</span> <span>Bookshelf</span>
+                </a>
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl sm:text-3xl font-bold text-inkBlue tracking-wide font-['Kalam']">📖 Unit I: Graphs</span>
+                    <span class="bg-amber-100 text-inkRed text-xs sm:text-sm font-bold px-3 py-1 rounded-full border border-amber-300 font-sans">Advanced Data Structures</span>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button id="fontToggleBtn" onclick="toggleFontMode()" class="shrink-0 px-3.5 py-1.5 rounded-lg bg-inkBlue text-white hover:bg-slate-800 transition text-xs sm:text-sm font-bold shadow flex items-center gap-1.5 font-sans" title="Toggle between Handwritten and Clean typography">
+                    <span>✍️</span> <span id="fontBtnText">Clean Font</span>
+                </button>
             </div>
         </div>
 
         <!-- Navigation Tabs -->
-        <nav class="max-w-7xl mx-auto mt-3 flex flex-wrap gap-1 border-t border-amber-200 pt-2 text-base md:text-lg">
+        <nav class="max-w-6xl mx-auto mt-3 flex flex-wrap gap-1 border-t border-amber-200 pt-2 text-base md:text-lg">
             <button onclick="switchTab('terminologies')" id="tab-terminologies" class="nav-tab px-3 py-1.5 rounded-t-lg font-bold bg-amber-200 text-inkBlue border-b-2 border-inkBlue">
                 1. Graph Terminologies
             </button>
             <button onclick="switchTab('adj-matrix')" id="tab-adj-matrix" class="nav-tab px-3 py-1.5 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
                 2. Adjacency Matrix
             </button>
+            <button onclick="switchTab('adj-list')" id="tab-adj-list" class="nav-tab px-3 py-1.5 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
+                3. Adjacency List
+            </button>
+            <button onclick="switchTab('complex-graph')" id="tab-complex-graph" class="nav-tab px-3 py-1.5 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
+                4. Complex Graph
+            </button>
             <button onclick="switchTab('search-traversal')" id="tab-search-traversal" class="nav-tab px-3 py-1.5 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
                 5. Search & Traversal
             </button>
-            <button onclick="switchTab('dfs')" id="tab-dfs" class="nav-tab px-3 py-1.5 rounded-t-lg font-bold text-emerald-700 hover:text-emerald-900 bg-emerald-50">
+            <button onclick="switchTab('dfs')" id="tab-dfs" class="nav-tab px-3 py-1.5 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
                 6. DFS Traversal
             </button>
             <button onclick="switchTab('graph-components')" id="tab-graph-components" class="nav-tab px-3 py-1.5 rounded-t-lg font-bold text-gray-600 hover:text-inkBlue">
@@ -67,20 +86,17 @@
     </header>
 
     <!-- Main Notebook Container -->
-    <main class="max-w-7xl mx-auto my-6 px-2 sm:px-4">
+    <main class="max-w-6xl mx-auto flex relative bg-notebookPaper rounded-xl shadow-2xl overflow-hidden min-h-[1000px] border border-amber-200 my-8">
         
-        <!-- Outer Notebook Binding Wrapper -->
-        <div class="relative bg-notebookPaper rounded-xl shadow-2xl border border-amber-200 flex overflow-hidden min-h-[850px]">
-            
-            <!-- Binder Ring Column (Left Margin) -->
-            <div class="w-8 sm:w-12 bg-amber-100 border-r-2 border-amber-300 flex flex-col items-center py-6 select-none shrink-0 no-print">
-                <script>
-                    for(let i=0; i<30; i++) document.write('<div class="spiral-ring"></div>');
-                </script>
-            </div>
+        <!-- Left Binder Column (Spiral Rings) -->
+        <div class="w-10 sm:w-16 bg-amber-50 border-r-2 border-amber-200 flex flex-col items-center py-8 select-none shrink-0 no-print space-y-6 z-10 shadow-[inset_-5px_0_10px_rgba(0,0,0,0.05)]">
+            <script>
+                for(let i=0; i<45; i++) document.write('<div class="spiral-ring"></div>');
+            </script>
+        </div>
 
-            <!-- Notebook Content Area -->
-            <div class="flex-1 lined-paper p-4 sm:p-8 notebook-margin pl-6 sm:pl-10">
+        <!-- Notebook Content Area -->
+        <div class="flex-1 lined-paper p-4 sm:p-8 notebook-margin pl-6 sm:pl-10 z-0">
 
                 <!-- SECTION 1: GRAPH TERMINOLOGIES -->
                 <section id="sec-terminologies" class="tab-content block space-y-8">
@@ -854,7 +870,6 @@
                 </section>
 
             </div>
-        </div>
     </main>
 
     <!-- JavaScript Logic & Canvas Rendering Engine -->
@@ -890,20 +905,23 @@
             }, 50);
         }
 
-        function toggleStyleMode() {
+        function toggleFontMode() {
             isCleanFont = !isCleanFont;
             const body = document.body;
-            const styleBtnText = document.getElementById('styleBtnText');
+            const fontBtnText = document.getElementById('fontBtnText') || document.getElementById('styleBtnText');
             if(isCleanFont) {
                 body.classList.remove('font-notes-body');
+                body.classList.add('font-clean');
                 body.classList.add('font-clean-mode');
-                styleBtnText.innerText = "Switch to Handwritten Font";
+                if (fontBtnText) fontBtnText.innerText = "Handwritten Font";
             } else {
+                body.classList.remove('font-clean');
                 body.classList.remove('font-clean-mode');
                 body.classList.add('font-notes-body');
-                styleBtnText.innerText = "Switch to Clean Print Font";
+                if (fontBtnText) fontBtnText.innerText = "Clean Font";
             }
         }
+        const toggleStyleMode = toggleFontMode;
 
         /* ----------------------------------------------------------------------
            CORE GRAPH DRAWING ENGINE

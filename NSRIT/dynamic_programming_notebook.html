@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Part-II: Dynamic Programming - Lecture Notes</title>
+    <title>Unit III: Dynamic Programming - NSRIT Lecture Notes</title>
 
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -264,23 +264,24 @@
 
     <!-- Header Navigation Bar -->
     <header class="sticky top-0 z-50 bg-[#FAF6EE] shadow-md border-b-2 border-amber-200 px-4 py-3 no-print">
-        <div class="max-w-6xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-3">
-            <div class="flex items-center space-x-3">
-                <span class="text-3xl font-bold text-inkBlue tracking-wide font-['Kalam']">📖 Part-II: Dynamic
-                    Programming</span>
-                <span
-                    class="bg-amber-100 text-inkRed text-sm font-bold px-3 py-1 rounded-full border border-amber-300 font-sans">
-                    Design & Analysis of Algorithms
-                </span>
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-3">
+            <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+                <a href="syllabus.html" class="px-3 py-1.5 rounded-lg bg-amber-100 hover:bg-amber-200 border border-amber-300 text-inkBlue text-xs sm:text-sm font-bold flex items-center gap-1.5 transition shadow-sm font-sans" title="Back to NSRIT Syllabus">
+                    <span>📋</span> <span>Syllabus</span>
+                </a>
+                <a href="../index.html" class="px-3 py-1.5 rounded-lg bg-amber-100/70 hover:bg-amber-200 border border-amber-300 text-inkBlue text-xs sm:text-sm font-bold flex items-center gap-1.5 transition shadow-sm font-sans" title="Back to Digital Bookshelf">
+                    <span>📚</span> <span>Bookshelf</span>
+                </a>
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl sm:text-3xl font-bold text-inkBlue tracking-wide font-['Kalam']">📖 Unit III: Dynamic Programming</span>
+                    <span class="bg-amber-100 text-inkRed text-xs sm:text-sm font-bold px-3 py-1 rounded-full border border-amber-300 font-sans">
+                        Algorithm Design
+                    </span>
+                </div>
             </div>
             <div class="flex items-center gap-2">
-                <a href="../index.html"
-                    class="px-3 py-1.5 rounded-full text-sm font-bold bg-amber-100 hover:bg-amber-200 text-inkBlue transition font-sans border border-amber-300 shadow-sm flex items-center gap-1">
-                    <span>📚</span> Bookshelf
-                </a>
-                <button id="fontToggleBtn" onclick="toggleFontMode()"
-                    class="px-4 py-1.5 rounded-full text-sm font-bold bg-[#1A365D] text-white hover:bg-slate-700 transition font-sans shadow-sm flex items-center gap-2">
-                    <span>✍️</span> Toggle Clean Font
+                <button id="fontToggleBtn" onclick="toggleFontMode()" class="shrink-0 px-3.5 py-1.5 rounded-lg bg-inkBlue text-white hover:bg-slate-800 transition text-xs sm:text-sm font-bold shadow flex items-center gap-1.5 font-sans" title="Toggle between Handwritten and Clean typography">
+                    <span>✍️</span> <span id="fontBtnText">Clean Font</span>
                 </button>
             </div>
         </div>
@@ -8337,11 +8338,9 @@
         function toggleFontMode() {
             isCleanFont = !isCleanFont;
             document.body.classList.toggle('font-clean', isCleanFont);
-            const btn = document.getElementById('fontToggleBtn');
-            if (btn) {
-                btn.innerHTML = isCleanFont
-                    ? '<span>✍️</span> Switch to Handwritten Font'
-                    : '<span>✍️</span> Toggle Clean Font';
+            const fontBtnText = document.getElementById('fontBtnText');
+            if (fontBtnText) {
+                fontBtnText.innerText = isCleanFont ? "Handwritten Font" : "Clean Font";
             }
         }
 

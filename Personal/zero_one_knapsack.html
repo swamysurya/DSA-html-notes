@@ -1,0 +1,1551 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>0/1 Knapsack Problem - Digital Lecture Notes</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Kalam:wght@300;400;700&family=Patrick+Hand&family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap"
+        rel="stylesheet">
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        notebookBg: '#cbd5e1',
+                        notebookPaper: '#FAF6EE',
+                        inkBlue: '#1A365D',
+                        inkRed: '#9B2C2C',
+                        pencilGray: '#4A5568',
+                    },
+                    fontFamily: {
+                        notes: ['Patrick Hand', 'Kalam', 'cursive'],
+                        heading: ['Kalam', 'cursive'],
+                        clean: ['Inter', 'sans-serif'],
+                        code: ['Fira Code', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Physical Notebook Stylesheet -->
+    <style>
+        body {
+            background-color: #cbd5e1;
+            font-family: 'Patrick Hand', 'Kalam', cursive;
+            color: #1e293b;
+        }
+
+        .lined-paper {
+            background-color: #FAF6EE !important;
+            background-image: repeating-linear-gradient(#FAF6EE 0px,
+                    #FAF6EE 31px,
+                    #e2ebf3 32px) !important;
+            line-height: 32px;
+            position: relative;
+        }
+
+        .notebook-margin {
+            border-left: 2.5px solid #FC8181 !important;
+            padding-left: 1.25rem;
+        }
+
+        @media (min-width: 640px) {
+            .notebook-margin {
+                padding-left: 2.5rem;
+            }
+        }
+
+        .spiral-ring {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #cbd5e1 0%, #64748b 50%, #334155 100%);
+            box-shadow: inset 1px 1px 2px rgba(255, 255, 255, 0.6), 2px 2px 4px rgba(0, 0, 0, 0.25);
+            margin: 11px 0;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Kalam', cursive;
+        }
+
+        /* Clean Mode Font Switcher */
+        body.font-clean,
+        body.font-clean * {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+        }
+
+        body.font-clean pre,
+        body.font-clean code {
+            font-family: 'Fira Code', monospace !important;
+        }
+
+        /* Handwritten Highlighters & Annotations */
+        .highlighter-yellow {
+            background: linear-gradient(104deg, rgba(254, 240, 138, 0.95) 0.9%, rgba(253, 224, 71, 0.85) 98%);
+            padding: 2px 8px;
+            border-radius: 4px;
+            box-decoration-break: clone;
+            -webkit-box-decoration-break: clone;
+            display: inline-block;
+        }
+
+        .highlighter-green {
+            background: linear-gradient(104deg, rgba(187, 247, 208, 0.95) 0.9%, rgba(134, 239, 172, 0.85) 98%);
+            padding: 2px 8px;
+            border-radius: 4px;
+            box-decoration-break: clone;
+            -webkit-box-decoration-break: clone;
+            display: inline-block;
+        }
+
+        .highlighter-blue {
+            background: linear-gradient(104deg, rgba(191, 219, 254, 0.95) 0.9%, rgba(147, 197, 253, 0.85) 98%);
+            padding: 2px 8px;
+            border-radius: 4px;
+            box-decoration-break: clone;
+            -webkit-box-decoration-break: clone;
+            display: inline-block;
+        }
+
+        .pen-box {
+            background: rgba(255, 255, 255, 0.88);
+            border: 2px dashed #3b82f6;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .teacher-quote {
+            background: rgba(254, 243, 199, 0.85);
+            border-left: 5px solid #d97706;
+            border-radius: 6px;
+            padding: 0.85rem 1.2rem;
+            font-style: italic;
+        }
+
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            body {
+                background: white !important;
+            }
+            .lined-paper {
+                background-image: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body class="text-xl text-slate-800 antialiased transition-all duration-300">
+
+    <!-- Sticky Header Navigation Bar -->
+    <header class="sticky top-0 z-50 bg-[#FAF6EE] shadow-md border-b-2 border-amber-200 px-4 py-3 no-print">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-3">
+            <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+                <a href="../index.html"
+                    class="px-3 py-1.5 rounded-lg bg-amber-100 hover:bg-amber-200 border border-amber-300 text-inkBlue text-xs sm:text-sm font-bold flex items-center gap-1.5 transition shadow-sm font-sans"
+                    title="Back to Digital Bookshelf">
+                    <span>📚</span> <span>Bookshelf</span>
+                </a>
+                <a href="index.html"
+                    class="px-3 py-1.5 rounded-lg bg-emerald-100 hover:bg-emerald-200 border border-emerald-300 text-emerald-900 text-xs sm:text-sm font-bold flex items-center gap-1.5 transition shadow-sm font-sans"
+                    title="Back to Personal Notes Directory">
+                    <span>📋</span> <span>Notes Directory</span>
+                </a>
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl sm:text-3xl font-bold text-inkBlue tracking-wide font-['Kalam']">🎒 0/1 Knapsack Problem</span>
+                    <span
+                        class="bg-purple-100 text-purple-900 text-xs sm:text-sm font-bold px-3 py-1 rounded-full border border-purple-300 font-sans">
+                        Dynamic Programming
+                    </span>
+                </div>
+            </div>
+
+            <!-- Right: Font Toggle Button -->
+            <div class="flex items-center gap-2">
+                <button id="fontToggleBtn" onclick="toggleFontMode()"
+                    class="shrink-0 px-3.5 py-1.5 rounded-lg bg-inkBlue text-white hover:bg-slate-800 transition text-xs sm:text-sm font-bold shadow flex items-center gap-1.5 font-sans"
+                    title="Toggle between Handwritten and Clean typography">
+                    <span>✍️</span> <span id="fontBtnText">Clean Font</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <nav class="max-w-6xl mx-auto mt-2.5 flex flex-wrap gap-1 border-t border-amber-200 pt-2 text-sm sm:text-base font-sans">
+            <button onclick="switchTab('tab-problem-statement')" id="nav-tab-problem-statement"
+                class="nav-tab px-4 py-1.5 rounded-t-lg font-bold bg-amber-200 text-inkBlue border-b-2 border-inkBlue transition">
+                1. Problem Statement
+            </button>
+            <button onclick="switchTab('tab-tabular-method')" id="nav-tab-tabular-method"
+                class="nav-tab px-4 py-1.5 rounded-t-lg font-bold text-slate-600 hover:text-inkBlue transition">
+                2. Tabular Method (Step-by-Step)
+            </button>
+            <button onclick="switchTab('tab-sets-method')" id="nav-tab-sets-method"
+                class="nav-tab px-4 py-1.5 rounded-t-lg font-bold text-slate-600 hover:text-inkBlue transition">
+                3. Sets Method (Dominance Rule)
+            </button>
+        </nav>
+    </header>
+
+    <!-- Main Notebook Container -->
+    <main
+        class="max-w-6xl mx-auto flex relative bg-notebookPaper rounded-xl shadow-2xl overflow-hidden min-h-[950px] border border-amber-200 my-8">
+
+        <!-- Left Binder Column (50 Physical Spiral Rings) -->
+        <div
+            class="w-10 sm:w-16 bg-amber-50 border-r-2 border-amber-200 flex flex-col items-center py-8 select-none shrink-0 no-print space-y-6 z-10 shadow-[inset_-5px_0_10px_rgba(0,0,0,0.05)]">
+            <script>
+                for (let i = 0; i < 50; i++) document.write('<div class="spiral-ring"></div>');
+            </script>
+        </div>
+
+        <!-- Notebook Content Area -->
+        <div class="flex-1 lined-paper p-4 sm:p-8 notebook-margin sm:pl-8 overflow-hidden z-0">
+
+            <!-- ==================================================================== -->
+            <!-- TAB 1: PROBLEM STATEMENT                                             -->
+            <!-- ==================================================================== -->
+            <div id="tab-problem-statement" class="tab-pane space-y-8">
+
+                <!-- Section Title -->
+                <div class="border-b-2 border-inkRed pb-2 flex justify-between items-baseline">
+                    <div>
+                        <h1 class="text-3xl sm:text-4xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                            Problem Statement
+                        </h1>
+                        <p class="text-sm font-sans text-pencilGray mt-1">Formal Formulation, 0/1 Constraints &amp; Two Illustrative Examples</p>
+                    </div>
+                    <span class="text-xs sm:text-sm font-bold font-sans bg-amber-100 text-inkRed px-2.5 py-1 rounded border border-amber-300">
+                        Tab 1 • Problem Statement
+                    </span>
+                </div>
+
+            <!-- ==================================================================== -->
+            <!-- 1. PROBLEM STATEMENT                                                 -->
+            <!-- ==================================================================== -->
+            <section class="space-y-4 text-lg leading-relaxed">
+                <h2 class="text-2xl font-bold text-inkRed flex items-center gap-2">
+                    <span>📌</span> 1. Problem Statement
+                </h2>
+
+                <p>
+                    We are given a carrier bag (knapsack) of maximum weight capacity <strong class="text-inkBlue font-mono">M</strong> (or <strong class="text-inkBlue font-mono">W</strong>) and a set of <strong class="text-inkBlue font-mono">n</strong> discrete, indivisible objects.
+                </p>
+
+                <ul class="list-disc pl-8 space-y-1 font-sans text-base sm:text-lg">
+                    <li>Each object <em>i</em> (where 1 ≤ <em>i</em> ≤ <em>n</em>) has an associated positive <span class="highlighter-green font-bold">profit p<sub>i</sub></span> (or value v<sub>i</sub>).</li>
+                    <li>Each object <em>i</em> has an associated positive <span class="highlighter-yellow font-bold">weight w<sub>i</sub></span>.</li>
+                    <li>The knapsack can withstand a maximum total weight of <span class="highlighter-blue font-bold">M</span>.</li>
+                    <li><strong>0/1 Constraint:</strong> Objects are solid and indivisible (e.g., electronic appliances). Fractions cannot be taken. For each object <em>i</em>, we define a binary decision variable <strong class="font-mono text-indigo-900">x<sub>i</sub></strong>:
+                        <div class="flex flex-wrap gap-3 font-mono font-bold text-sm sm:text-base my-2">
+                            <span class="bg-white px-3 py-1 rounded border border-emerald-400 text-emerald-800 shadow-sm">x<sub>i</sub> = 1 (Item i is included)</span>
+                            <span class="bg-white px-3 py-1 rounded border border-rose-400 text-rose-800 shadow-sm">x<sub>i</sub> = 0 (Item i is excluded)</span>
+                        </div>
+                    </li>
+                </ul>
+
+                <!-- Mathematical Formulation Box -->
+                <div class="pen-box my-3 space-y-3 font-sans">
+                    <h3 class="text-xl font-bold text-inkBlue font-['Kalam']">Formal Mathematical Formulation:</h3>
+                    <div class="bg-white p-4 rounded-lg border border-slate-300 text-base sm:text-lg space-y-3">
+                        <div>
+                            <span class="text-xs font-bold uppercase text-indigo-900 bg-indigo-100 px-2 py-0.5 rounded">Objective Function</span>
+                            <p class="font-bold text-indigo-950 font-mono text-lg mt-1">
+                                🎯 Maximize Total Profit: &nbsp; Z = ∑ (p<sub>i</sub> · x<sub>i</sub>) &nbsp; <span class="text-sm font-sans font-normal text-slate-500">[for i = 1 to n]</span>
+                            </p>
+                        </div>
+                        <div class="border-t border-slate-200 pt-2">
+                            <span class="text-xs font-bold uppercase text-slate-700 bg-slate-100 px-2 py-0.5 rounded">Capacity Constraint</span>
+                            <p class="font-bold text-slate-800 font-mono text-lg mt-1">
+                                ⚖️ Subject to: &nbsp; ∑ (w<sub>i</sub> · x<sub>i</sub>) ≤ M &nbsp; <span class="text-sm font-sans font-normal text-slate-500">[for i = 1 to n]</span>
+                            </p>
+                        </div>
+                        <div class="border-t border-slate-200 pt-2">
+                            <span class="text-xs font-bold uppercase text-rose-800 bg-rose-100 px-2 py-0.5 rounded">Binary Decision Constraint</span>
+                            <p class="font-bold text-rose-800 font-mono text-lg mt-1">
+                                🔒 x<sub>i</sub> ∈ {0, 1} &nbsp; <span class="text-sm font-sans font-normal text-slate-500">for each i ∈ {1, 2, ..., n}</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==================================================================== -->
+            <!-- 2. TWO EXAMPLES IN TABLE FORMAT                                      -->
+            <!-- ==================================================================== -->
+            <!-- ==================================================================== -->
+            <!-- 2. TWO EXAMPLES IN TABLE FORMAT WITH KNAPSACK BAG DIAGRAMS          -->
+            <!-- ==================================================================== -->
+            <section class="space-y-8">
+                <h2 class="text-2xl font-bold text-inkRed flex items-center gap-2">
+                    <span>📊</span> 2. Two Examples (in Table Format)
+                </h2>
+
+                <!-- Example 1 -->
+                <div class="space-y-3 font-sans pb-6 border-b border-amber-200">
+                    <h3 class="text-xl font-bold text-inkBlue font-['Kalam']">
+                        Example 1 (Knapsack Capacity M = 8, n = 4)
+                    </h3>
+
+                    <!-- Left: Table & Output Explanation | Right: Knapsack Bag Diagram -->
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-5 items-center">
+                        <!-- Left Side: Table & Output Explanation -->
+                        <div class="md:col-span-7 space-y-3">
+                            <!-- Simple Horizontal Table: Row 1 = Profits, Row 2 = Weights -->
+                            <div class="overflow-x-auto bg-white/95 p-3 rounded-xl border border-amber-300 shadow-sm">
+                                <table class="w-full text-center text-sm sm:text-base border-collapse border border-slate-300">
+                                    <thead>
+                                        <tr class="bg-indigo-900 text-white font-bold">
+                                            <th class="py-2 px-3 border border-indigo-800 text-left">Object</th>
+                                            <th class="py-2 px-3 border border-indigo-800">1</th>
+                                            <th class="py-2 px-3 border border-indigo-800">2</th>
+                                            <th class="py-2 px-3 border border-indigo-800">3</th>
+                                            <th class="py-2 px-3 border border-indigo-800">4</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr class="hover:bg-amber-50">
+                                            <td class="py-2 px-3 border border-slate-300 font-bold text-left bg-slate-50 text-emerald-900">Profits (p)</td>
+                                            <td class="py-2 px-3 border border-slate-300 font-bold text-emerald-800">1</td>
+                                            <td class="py-2 px-3 border border-slate-300 font-bold text-emerald-800 bg-emerald-100">2</td>
+                                            <td class="py-2 px-3 border border-slate-300 font-bold text-emerald-800">5</td>
+                                            <td class="py-2 px-3 border border-slate-300 font-bold text-emerald-800 bg-emerald-100">6</td>
+                                        </tr>
+                                        <tr class="hover:bg-amber-50">
+                                            <td class="py-2 px-3 border border-slate-300 font-bold text-left bg-slate-50 text-indigo-950">Weights (w)</td>
+                                            <td class="py-2 px-3 border border-slate-300 font-bold text-slate-800">2</td>
+                                            <td class="py-2 px-3 border border-slate-300 font-bold text-indigo-900 bg-emerald-100">3</td>
+                                            <td class="py-2 px-3 border border-slate-300 font-bold text-slate-800">4</td>
+                                            <td class="py-2 px-3 border border-slate-300 font-bold text-indigo-900 bg-emerald-100">5</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Simple Explanation for Output -->
+                            <div class="p-3.5 bg-emerald-50/90 rounded-xl border border-emerald-300 text-sm sm:text-base space-y-1">
+                                <p class="font-bold text-emerald-950 font-['Kalam'] text-base sm:text-lg">💡 Output Explanation:</p>
+                                <p class="text-slate-800">
+                                    I choose <strong class="text-indigo-900">Object 2</strong> and <strong class="text-indigo-900">Object 4</strong> because they give the <strong>maximum profit</strong>:
+                                </p>
+                                <ul class="list-disc pl-5 space-y-0.5 text-slate-800">
+                                    <li><strong>Total Profit:</strong> 2 + 6 = <strong class="text-emerald-800 font-bold">8</strong></li>
+                                    <li><strong>Total Weight:</strong> 3 + 5 = <strong class="text-slate-900 font-bold">8</strong> (fits within capacity M = 8)</li>
+                                    <li><strong>Selected:</strong> Object 2 and Object 4 give max profit.</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Right Side: Bag Diagram with objects inside -->
+                        <div class="md:col-span-5 flex flex-col items-center justify-center bg-white/95 p-3 rounded-xl border border-amber-300 shadow-sm">
+                            <canvas id="canvas-bag-ex1" width="300" height="235" class="w-full max-w-[300px] h-auto"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Example 2 -->
+                <div class="space-y-3 font-sans pt-2">
+                    <h3 class="text-xl font-bold text-inkBlue font-['Kalam']">
+                        Example 2 (Knapsack Capacity M = 5, n = 3)
+                    </h3>
+
+                    <!-- Left: Table & Output Explanation | Right: Knapsack Bag Diagram -->
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-5 items-center">
+                        <!-- Left Side: Table & Output Explanation -->
+                        <div class="md:col-span-7 space-y-3">
+                            <!-- Simple Horizontal Table: Row 1 = Profits, Row 2 = Weights -->
+                            <div class="overflow-x-auto bg-white/95 p-3 rounded-xl border border-amber-300 shadow-sm">
+                                <table class="w-full text-center text-sm sm:text-base border-collapse border border-slate-300">
+                                    <thead>
+                                        <tr class="bg-slate-900 text-white font-bold">
+                                            <th class="py-2 px-3 border border-slate-800 text-left">Object</th>
+                                            <th class="py-2 px-3 border border-slate-800">1</th>
+                                            <th class="py-2 px-3 border border-slate-800">2</th>
+                                            <th class="py-2 px-3 border border-slate-800">3</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr class="hover:bg-slate-50">
+                                            <td class="py-2 px-3 border border-slate-300 font-bold text-left bg-slate-50 text-emerald-900">Profits (p)</td>
+                                            <td class="py-2 px-3 border border-slate-300 font-bold text-emerald-800 bg-emerald-100">10</td>
+                                            <td class="py-2 px-3 border border-slate-300 font-bold text-emerald-800">40</td>
+                                            <td class="py-2 px-3 border border-slate-300 font-bold text-emerald-800 bg-emerald-100">50</td>
+                                        </tr>
+                                        <tr class="hover:bg-slate-50">
+                                            <td class="py-2 px-3 border border-slate-300 font-bold text-left bg-slate-50 text-indigo-950">Weights (w)</td>
+                                            <td class="py-2 px-3 border border-slate-300 font-bold text-indigo-900 bg-emerald-100">1</td>
+                                            <td class="py-2 px-3 border border-slate-300 font-bold text-slate-800">3</td>
+                                            <td class="py-2 px-3 border border-slate-300 font-bold text-indigo-900 bg-emerald-100">4</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Simple Explanation for Output -->
+                            <div class="p-3.5 bg-emerald-50/90 rounded-xl border border-emerald-300 text-sm sm:text-base space-y-1">
+                                <p class="font-bold text-emerald-950 font-['Kalam'] text-base sm:text-lg">💡 Output Explanation:</p>
+                                <p class="text-slate-800">
+                                    I choose <strong class="text-indigo-900">Object 1</strong> and <strong class="text-indigo-900">Object 3</strong> because they give the <strong>maximum profit</strong>:
+                                </p>
+                                <ul class="list-disc pl-5 space-y-0.5 text-slate-800">
+                                    <li><strong>Total Profit:</strong> 10 + 50 = <strong class="text-emerald-800 font-bold">60</strong></li>
+                                    <li><strong>Total Weight:</strong> 1 + 4 = <strong class="text-slate-900 font-bold">5</strong> (fits within capacity M = 5)</li>
+                                    <li><strong>Selected:</strong> Object 1 and Object 3 give max profit.</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Right Side: Bag Diagram with objects inside -->
+                        <div class="md:col-span-5 flex flex-col items-center justify-center bg-white/95 p-3 rounded-xl border border-amber-300 shadow-sm">
+                            <canvas id="canvas-bag-ex2" width="300" height="235" class="w-full max-w-[300px] h-auto"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            </div> <!-- End of Tab 1: Problem Statement -->
+
+            <!-- ==================================================================== -->
+            <!-- TAB 2: TABULAR METHOD (STEP-BY-STEP TABLE FILLING)                   -->
+            <!-- ==================================================================== -->
+            <div id="tab-tabular-method" class="tab-pane hidden space-y-8">
+
+                <!-- Section Title -->
+                <div class="border-b-2 border-inkRed pb-2 flex justify-between items-baseline">
+                    <div>
+                        <h1 class="text-3xl sm:text-4xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                            Tabular Method (Step-by-Step Filling)
+                        </h1>
+                        <p class="text-sm font-sans text-pencilGray mt-1">Exact Whiteboard DP Table Computation &amp; Optimal Backtracking</p>
+                    </div>
+                    <span class="text-xs sm:text-sm font-bold font-sans bg-amber-100 text-inkRed px-2.5 py-1 rounded border border-amber-300">
+                        Tab 2 • Tabular DP
+                    </span>
+                </div>
+
+                <!-- Parameters Box (Matching Whiteboard) -->
+                <div class="p-4 bg-white/95 rounded-xl border border-amber-300 shadow-sm space-y-3 font-sans">
+                    <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-2">
+                        <h2 class="text-xl font-bold text-inkBlue font-['Kalam']">
+                            📋 Given Whiteboard Parameters:
+                        </h2>
+                        <span class="text-xs bg-indigo-100 text-indigo-900 font-bold px-2.5 py-1 rounded">
+                            n = 4 Objects, Capacity M = 8 kg
+                        </span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-base">
+                        <div class="p-3 bg-amber-50 rounded-lg border border-amber-200">
+                            <span class="text-xs font-bold uppercase text-slate-500 block">Knapsack Capacity (M)</span>
+                            <span class="font-mono text-xl font-bold text-indigo-950">M = 8</span>
+                        </div>
+                        <div class="p-3 bg-amber-50 rounded-lg border border-amber-200">
+                            <span class="text-xs font-bold uppercase text-slate-500 block">Total Objects (n)</span>
+                            <span class="font-mono text-xl font-bold text-indigo-950">n = 4</span>
+                        </div>
+                        <div class="p-3 bg-emerald-50 rounded-lg border border-emerald-200">
+                            <span class="text-xs font-bold uppercase text-emerald-800 block">Profits P</span>
+                            <span class="font-mono text-xl font-bold text-emerald-900">P = {1, 2, 5, 6}</span>
+                        </div>
+                        <div class="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                            <span class="text-xs font-bold uppercase text-blue-800 block">Weights W</span>
+                            <span class="font-mono text-xl font-bold text-blue-900">W = {2, 3, 4, 5}</span>
+                        </div>
+                    </div>
+
+                    <!-- Intuitive Formula Banner & Cell Meaning -->
+                    <div class="p-4 sm:p-5 bg-slate-50 rounded-xl border border-slate-300 text-sm sm:text-base space-y-4">
+                        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-2">
+                            <strong class="text-inkBlue font-bold text-base sm:text-lg flex items-center gap-2">
+                                <span>🎯</span> DP Decision Rule &amp; Cell Meaning: Comparing Two Options
+                            </strong>
+                            <span class="text-xs bg-emerald-100 text-emerald-950 font-bold px-2.5 py-1 rounded">
+                                Pick Max Profit
+                            </span>
+                        </div>
+
+                        <!-- What each cell means -->
+                        <div class="p-3 bg-white rounded-lg border border-slate-200 text-slate-800 text-xs sm:text-sm">
+                            <strong class="text-indigo-950 block font-bold mb-1">
+                                💡 What does any cell V[i, w] actually mean in simple terms?
+                            </strong>
+                            <p>
+                                <em>"If my bag capacity was only <strong>w kg</strong>, and I could only choose from the first <strong>i items</strong>, what is the maximum profit I could achieve?"</em>
+                            </p>
+                            <p class="mt-1 text-slate-600">
+                                <strong>For example, what does <code class="font-mono font-bold text-indigo-900 bg-amber-50 px-1 py-0.5 rounded border border-amber-300">V[3, 5]</code> mean?</strong><br>
+                                It means: Considering only the first <strong>3 items</strong> (Obj 1, 2, 3), what is the maximum profit we can pack into a <strong>5 kg</strong> bag?
+                            </p>
+                        </div>
+
+                        <!-- Two Options -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs sm:text-sm font-sans">
+                            <div class="p-3 bg-white rounded-lg border-2 border-slate-200 space-y-1">
+                                <span class="font-bold text-slate-800 block text-xs uppercase text-slate-500">Option 1: Don't Take Item i</span>
+                                <p class="text-slate-600 text-xs">
+                                    Skip item <em>i</em>. Keep best profit from previous <em>i−1</em> items with the same capacity <em>w</em>:
+                                </p>
+                                <p class="font-mono font-bold text-indigo-950 text-base">V[i − 1, w]</p>
+                                <p class="text-xs text-slate-500 pt-0.5"><em>For V[3, 5]:</em> V[2, 5] = <strong>3</strong></p>
+                            </div>
+                            <div class="p-3 bg-white rounded-lg border-2 border-emerald-300 space-y-1">
+                                <span class="font-bold text-emerald-800 block text-xs uppercase text-emerald-600">Option 2: Take Item i</span>
+                                <p class="text-slate-600 text-xs">
+                                    Put item <em>i</em> in bag (+P<sub>i</sub> profit). Fill remaining <em>w − w<sub>i</sub></em> space with previous items:
+                                </p>
+                                <p class="font-mono font-bold text-emerald-900 text-base">V[i − 1, w − w<sub>i</sub>] + P<sub>i</sub></p>
+                                <p class="text-xs text-slate-500 pt-0.5"><em>For V[3, 5]:</em> V[2, 5 − 4] + 5 = 0 + 5 = <strong>5</strong></p>
+                            </div>
+                        </div>
+
+                        <div class="p-2.5 bg-amber-50 rounded-lg border border-amber-300 text-center font-mono font-bold text-indigo-950 text-sm sm:text-base">
+                            V[i, w] = max( V[i − 1, w], &nbsp; V[i − 1, w − w<sub>i</sub>] + P<sub>i</sub> )
+                            <span class="block text-xs font-sans font-normal text-slate-600 mt-0.5">
+                                For V[3, 5]: max(3, 5) = <strong>5</strong> &nbsp;(Option 2 gives higher profit!)
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 1. The Full DP Table (Exact Whiteboard Grid) -->
+                <section class="space-y-4">
+                    <div class="flex flex-wrap justify-between items-center gap-2">
+                        <h2 class="text-2xl font-bold text-inkRed flex items-center gap-2">
+                            <span>📊</span> 1. The Completed DP Matrix V[i, w]
+                        </h2>
+                        <span class="text-xs text-pencilGray font-sans">
+                            Highlighted cells mark the optimal backtracking path
+                        </span>
+                    </div>
+
+                    <div class="overflow-x-auto bg-white/95 p-4 rounded-xl border border-amber-300 shadow-md">
+                        <table class="w-full text-center border-collapse text-sm sm:text-base font-mono">
+                            <thead>
+                                <tr class="bg-indigo-950 text-white font-bold">
+                                    <th class="py-2.5 px-3 border border-indigo-900 text-xs">P<sub>i</sub></th>
+                                    <th class="py-2.5 px-3 border border-indigo-900 text-xs">w<sub>i</sub></th>
+                                    <th class="py-2.5 px-3 border border-indigo-900 text-xs bg-indigo-900">i &darr; / w &rarr;</th>
+                                    <th class="py-2.5 px-2.5 border border-indigo-900">0</th>
+                                    <th class="py-2.5 px-2.5 border border-indigo-900">1</th>
+                                    <th class="py-2.5 px-2.5 border border-indigo-900">2</th>
+                                    <th class="py-2.5 px-2.5 border border-indigo-900">3</th>
+                                    <th class="py-2.5 px-2.5 border border-indigo-900">4</th>
+                                    <th class="py-2.5 px-2.5 border border-indigo-900">5</th>
+                                    <th class="py-2.5 px-2.5 border border-indigo-900">6</th>
+                                    <th class="py-2.5 px-2.5 border border-indigo-900">7</th>
+                                    <th class="py-2.5 px-2.5 border border-indigo-900 bg-amber-500 text-slate-950 font-extrabold">8</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Row 0 -->
+                                <tr class="bg-slate-50 hover:bg-slate-100 text-slate-600">
+                                    <td class="py-2 px-3 border border-slate-300 font-bold bg-slate-100 text-slate-400">-</td>
+                                    <td class="py-2 px-3 border border-slate-300 font-bold bg-slate-100 text-slate-400">-</td>
+                                    <td class="py-2 px-3 border border-slate-300 font-bold bg-slate-200 text-slate-800">0</td>
+                                    <td class="py-2 px-2.5 border border-slate-300 font-bold bg-emerald-100 text-emerald-900" title="Backtrack End: V[0, 0] = 0">0</td>
+                                    <td class="py-2 px-2.5 border border-slate-300">0</td>
+                                    <td class="py-2 px-2.5 border border-slate-300">0</td>
+                                    <td class="py-2 px-2.5 border border-slate-300">0</td>
+                                    <td class="py-2 px-2.5 border border-slate-300">0</td>
+                                    <td class="py-2 px-2.5 border border-slate-300">0</td>
+                                    <td class="py-2 px-2.5 border border-slate-300">0</td>
+                                    <td class="py-2 px-2.5 border border-slate-300">0</td>
+                                    <td class="py-2 px-2.5 border border-slate-300">0</td>
+                                </tr>
+                                <!-- Row 1 -->
+                                <tr class="hover:bg-amber-50">
+                                    <td class="py-2 px-3 border border-slate-300 font-bold text-emerald-800 bg-slate-100">1</td>
+                                    <td class="py-2 px-3 border border-slate-300 font-bold text-blue-900 bg-slate-100">2</td>
+                                    <td class="py-2 px-3 border border-slate-300 font-bold bg-slate-200 text-slate-800">1</td>
+                                    <td class="py-2 px-2.5 border border-slate-300 font-bold text-slate-400">0</td>
+                                    <td class="py-2 px-2.5 border border-slate-300 font-bold text-slate-400">0</td>
+                                    <td class="py-2 px-2.5 border border-slate-300 font-bold text-slate-800">1</td>
+                                    <td class="py-2 px-2.5 border border-slate-300 font-bold text-slate-500 bg-rose-50" title="V[1, 3] = 1 (Different from V[2, 3] = 2 -> x2 = 1)">1</td>
+                                    <td class="py-2 px-2.5 border border-slate-300 font-bold text-slate-800">1</td>
+                                    <td class="py-2 px-2.5 border border-slate-300 font-bold text-slate-800">1</td>
+                                    <td class="py-2 px-2.5 border border-slate-300 font-bold text-slate-800">1</td>
+                                    <td class="py-2 px-2.5 border border-slate-300 font-bold text-slate-800">1</td>
+                                    <td class="py-2 px-2.5 border border-slate-300 font-bold text-slate-800">1</td>
+                                </tr>
+                                <!-- Row 2 -->
+                                <tr class="hover:bg-amber-50">
+                                    <td class="py-2 px-3 border border-slate-300 font-bold text-emerald-800 bg-slate-100">2</td>
+                                    <td class="py-2 px-3 border border-slate-300 font-bold text-blue-900 bg-slate-100">3</td>
+                                    <td class="py-2 px-3 border border-slate-300 font-bold bg-slate-200 text-slate-800">2</td>
+                                    <td class="py-2 px-2.5 border border-slate-300 font-bold text-slate-400">0</td>
+                                    <td class="py-2 px-2.5 border border-slate-300 font-bold text-slate-400">0</td>
+                                    <td class="py-2 px-2.5 border border-slate-300 font-bold text-slate-800">1</td>
+                                    <td class="py-2 px-2.5 border border-slate-300 font-bold bg-emerald-200 text-emerald-950 ring-2 ring-emerald-500" title="Backtrack Step 2: V[2, 3] = 2 (x2 = 1)">2</td>
+                                    <td class="py-2 px-2.5 border border-slate-300 font-bold text-slate-800">2</td>
+                                    <td class="py-2 px-2.5 border border-slate-300 font-bold text-slate-800">3</td>
+                                    <td class="py-2 px-2.5 border border-slate-300 font-bold text-slate-800">3</td>
+                                    <td class="py-2 px-2.5 border border-slate-300 font-bold text-slate-800">3</td>
+                                    <td class="py-2 px-2.5 border border-slate-300 font-bold text-slate-800">3</td>
+                                </tr>
+                                <!-- Row 3 -->
+                                <tr class="hover:bg-amber-50">
+                                    <td class="py-2 px-3 border border-slate-300 font-bold text-emerald-800 bg-slate-100">5</td>
+                                    <td class="py-2 px-3 border border-slate-300 font-bold text-blue-900 bg-slate-100">4</td>
+                                    <td class="py-2 px-3 border border-slate-300 font-bold bg-slate-200 text-slate-800">3</td>
+                                    <td class="py-2 px-2.5 border border-slate-300 font-bold text-slate-400">0</td>
+                                    <td class="py-2 px-2.5 border border-slate-300 font-bold text-slate-400">0</td>
+                                    <td class="py-2 px-2.5 border border-slate-300 font-bold text-slate-800">1</td>
+                                    <td class="py-2 px-2.5 border border-slate-300 font-bold bg-amber-100 text-indigo-950 ring-1 ring-amber-400" title="Backtrack Step 1: V[3, 3] = 2 (Same as above -> x3 = 0)">2</td>
+                                    <td class="py-2 px-2.5 border border-slate-300 font-bold text-slate-800">5</td>
+                                    <td class="py-2 px-2.5 border border-slate-300 font-bold text-slate-800">5</td>
+                                    <td class="py-2 px-2.5 border border-slate-300 font-bold text-slate-800">6</td>
+                                    <td class="py-2 px-2.5 border border-slate-300 font-bold text-slate-800">7</td>
+                                    <td class="py-2 px-2.5 border border-slate-300 font-bold text-slate-500 bg-rose-50" title="V[3, 8] = 7 (Different from V[4, 8] = 8 -> x4 = 1)">7</td>
+                                </tr>
+                                <!-- Row 4 -->
+                                <tr class="hover:bg-amber-50">
+                                    <td class="py-2 px-3 border border-slate-300 font-bold text-emerald-800 bg-slate-100">6</td>
+                                    <td class="py-2 px-3 border border-slate-300 font-bold text-blue-900 bg-slate-100">5</td>
+                                    <td class="py-2 px-3 border border-slate-300 font-bold bg-slate-200 text-slate-800">4</td>
+                                    <td class="py-2 px-2.5 border border-slate-300 font-bold text-slate-400">0</td>
+                                    <td class="py-2 px-2.5 border border-slate-300 font-bold text-slate-400">0</td>
+                                    <td class="py-2 px-2.5 border border-slate-300 font-bold text-slate-800">1</td>
+                                    <td class="py-2 px-2.5 border border-slate-300 font-bold text-slate-800">2</td>
+                                    <td class="py-2 px-2.5 border border-slate-300 font-bold text-slate-800">5</td>
+                                    <td class="py-2 px-2.5 border border-slate-300 font-bold text-slate-800">6</td>
+                                    <td class="py-2 px-2.5 border border-slate-300 font-bold text-slate-800">6</td>
+                                    <td class="py-2 px-2.5 border border-slate-300 font-bold text-slate-800">7</td>
+                                    <td class="py-2 px-2.5 border border-slate-300 font-extrabold text-white bg-emerald-600 ring-2 ring-emerald-800 text-lg" title="Backtrack Start: V[4, 8] = 8 (Optimal Solution!)">8</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Under-table Decision Variables (Exactly as Whiteboard) -->
+                    <div class="p-4 bg-emerald-50/95 rounded-xl border border-emerald-300 text-center font-sans space-y-2">
+                        <span class="text-xs uppercase font-bold text-emerald-800 tracking-wider">Optimal Decision Vector (from bottom of whiteboard)</span>
+                        <div class="flex justify-center items-center gap-6 font-mono text-xl sm:text-2xl font-bold">
+                            <span class="text-slate-600">x₁ = <strong class="text-slate-900">0</strong></span>
+                            <span class="text-emerald-700">x₂ = <strong class="text-emerald-900">1</strong></span>
+                            <span class="text-slate-600">x₃ = <strong class="text-slate-900">0</strong></span>
+                            <span class="text-emerald-700">x₄ = <strong class="text-emerald-900">1</strong></span>
+                        </div>
+                        <p class="text-sm text-slate-700 font-sans">
+                            Selected: <strong>Object 2</strong> (wt 3, profit 2) + <strong>Object 4</strong> (wt 5, profit 6) &nbsp;|&nbsp; 
+                            <strong>Total Weight = 8 kg</strong> &nbsp;|&nbsp; 
+                            <strong>Max Profit = $8</strong>
+                        </p>
+                    </div>
+                </section>
+
+                <!-- 2. Step-by-Step Row Filling Walkthrough -->
+                <section class="space-y-6 text-base sm:text-lg leading-relaxed">
+                    <h2 class="text-2xl font-bold text-inkRed flex items-center gap-2">
+                        <span>📝</span> 2. Step-by-Step Row-by-Row Filling Explanation
+                    </h2>
+
+                    <!-- Step 0: Row 0 & Col 0 -->
+                    <div class="pen-box space-y-2 font-sans">
+                        <h3 class="text-xl font-bold text-inkBlue font-['Kalam']">
+                            Step 0: Base Conditions (Row 0 &amp; Column 0)
+                        </h3>
+                        <p class="text-slate-700">
+                            <strong>Row 0 (i = 0):</strong> When we consider 0 objects, no matter what capacity <code>w</code> is available, the profit is always 0:
+                            <code class="bg-white px-2 py-0.5 rounded border border-slate-300 text-indigo-950 font-bold">V[0, w] = 0</code> for all <code>w ∈ {0, 1, ..., 8}</code>.
+                        </p>
+                        <p class="text-slate-700">
+                            <strong>Column 0 (w = 0):</strong> When the knapsack capacity is 0 kg, it cannot hold any object, so profit is 0:
+                            <code class="bg-white px-2 py-0.5 rounded border border-slate-300 text-indigo-950 font-bold">V[i, 0] = 0</code> for all <code>i ∈ {0, 1, 2, 3, 4}</code>.
+                        </p>
+                    </div>
+
+                    <!-- Step 1: Row 1 -->
+                    <div class="p-4 bg-white/95 rounded-xl border border-slate-300 space-y-3 font-sans">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-xl font-bold text-inkBlue font-['Kalam']">
+                                Step 1: Filling Row i = 1 (Object 1: w₁ = 2, p₁ = 1)
+                            </h3>
+                            <span class="text-xs bg-slate-100 text-slate-700 font-bold px-2 py-0.5 rounded font-mono">w₁ = 2, p₁ = 1</span>
+                        </div>
+                        <ul class="list-disc pl-6 space-y-1.5 text-slate-800 text-sm sm:text-base">
+                            <li>
+                                <strong>For w = 1:</strong> Since <code>w₁ = 2 &gt; 1</code>, Object 1 is too heavy to fit into 1 kg capacity. Copy from above:
+                                <code class="font-bold text-indigo-900 bg-slate-100 px-1.5 py-0.5 rounded">V[1, 1] = V[0, 1] = 0</code>.
+                            </li>
+                            <li>
+                                <strong>For w = 2:</strong> Object 1 fits exactly (<code>w₁ = 2 ≤ 2</code>)!<br>
+                                <code>V[1, 2] = max( V[0, 2], &nbsp; V[0, 2 − 2] + 1 ) = max(0, &nbsp; 0 + 1) = </code> <strong class="text-emerald-800 font-bold">1</strong>.
+                            </li>
+                            <li>
+                                <strong>For w = 3 to 8:</strong> Knapsack has at least 2 kg capacity, so we can take Object 1:<br>
+                                <code>V[1, w] = max( V[0, w], &nbsp; V[0, w − 2] + 1 ) = max(0, &nbsp; 0 + 1) = </code> <strong class="text-emerald-800 font-bold">1</strong> for all remaining columns.
+                            </li>
+                        </ul>
+                        <div class="p-2 bg-slate-50 rounded border border-slate-200 font-mono text-sm text-center text-indigo-950 font-bold">
+                            Row 1 Result: [0, 0, 1, 1, 1, 1, 1, 1, 1]
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Row 2 -->
+                    <div class="p-4 bg-white/95 rounded-xl border border-slate-300 space-y-3 font-sans">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-xl font-bold text-inkBlue font-['Kalam']">
+                                Step 2: Filling Row i = 2 (Object 2: w₂ = 3, p₂ = 2)
+                            </h3>
+                            <span class="text-xs bg-slate-100 text-slate-700 font-bold px-2 py-0.5 rounded font-mono">w₂ = 3, p₂ = 2</span>
+                        </div>
+                        <ul class="list-disc pl-6 space-y-1.5 text-slate-800 text-sm sm:text-base">
+                            <li>
+                                <strong>For w = 1 and w = 2:</strong> <code>w₂ = 3 &gt; w</code>, Object 2 cannot fit. Copy from above:
+                                <code class="font-bold text-indigo-900 bg-slate-100 px-1 rounded">V[2, 1] = V[1, 1] = 0</code> and 
+                                <code class="font-bold text-indigo-900 bg-slate-100 px-1 rounded">V[2, 2] = V[1, 2] = 1</code>.
+                            </li>
+                            <li>
+                                <strong>For w = 3:</strong> Object 2 fits!<br>
+                                <code>V[2, 3] = max( V[1, 3], &nbsp; V[1, 3 − 3] + 2 ) = max(1, &nbsp; 0 + 2) = </code> <strong class="text-emerald-800 font-bold">2</strong>.
+                            </li>
+                            <li>
+                                <strong>For w = 4:</strong><br>
+                                <code>V[2, 4] = max( V[1, 4], &nbsp; V[1, 4 − 3] + 2 ) = max(1, &nbsp; V[1, 1] + 2) = max(1, &nbsp; 0 + 2) = </code> <strong class="text-emerald-800 font-bold">2</strong>.
+                            </li>
+                            <li>
+                                <strong>For w = 5:</strong> Knapsack has 5 kg! We can fit both Object 1 (2 kg) and Object 2 (3 kg):<br>
+                                <code>V[2, 5] = max( V[1, 5], &nbsp; V[1, 5 − 3] + 2 ) = max(1, &nbsp; V[1, 2] + 2) = max(1, &nbsp; 1 + 2) = </code> <strong class="text-emerald-800 font-bold">3</strong>.
+                            </li>
+                            <li>
+                                <strong>For w = 6, 7, 8:</strong> With only objects 1 and 2 available (combined weight = 2 + 3 = 5 kg), maximum profit remains:<br>
+                                <code>V[2, w] = max(1, &nbsp; 1 + 2) = </code> <strong class="text-emerald-800 font-bold">3</strong>.
+                            </li>
+                        </ul>
+                        <div class="p-2 bg-slate-50 rounded border border-slate-200 font-mono text-sm text-center text-indigo-950 font-bold">
+                            Row 2 Result: [0, 0, 1, 2, 2, 3, 3, 3, 3]
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Row 3 -->
+                    <div class="p-4 bg-white/95 rounded-xl border border-slate-300 space-y-3 font-sans">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-xl font-bold text-inkBlue font-['Kalam']">
+                                Step 3: Filling Row i = 3 (Object 3: w₃ = 4, p₃ = 5)
+                            </h3>
+                            <span class="text-xs bg-slate-100 text-slate-700 font-bold px-2 py-0.5 rounded font-mono">w₃ = 4, p₃ = 5</span>
+                        </div>
+                        <ul class="list-disc pl-6 space-y-1.5 text-slate-800 text-sm sm:text-base">
+                            <li>
+                                <strong>For w = 1, 2, 3:</strong> <code>w₃ = 4 &gt; w</code>, Object 3 cannot fit. Copy from above:
+                                <code class="font-bold text-indigo-900 bg-slate-100 px-1 rounded">V[3, 1] = 0</code>, 
+                                <code class="font-bold text-indigo-900 bg-slate-100 px-1 rounded">V[3, 2] = 1</code>, 
+                                <code class="font-bold text-indigo-900 bg-slate-100 px-1 rounded">V[3, 3] = 2</code>.
+                            </li>
+                            <li>
+                                <strong>For w = 4:</strong> Object 3 fits alone (wt 4, profit 5):<br>
+                                <code>V[3, 4] = max( V[2, 4], &nbsp; V[2, 4 − 4] + 5 ) = max(2, &nbsp; 0 + 5) = </code> <strong class="text-emerald-800 font-bold">5</strong>.
+                            </li>
+                            <li class="bg-amber-50/70 p-2 rounded-lg border border-amber-200">
+                                <strong class="text-indigo-950">For w = 5 (V[3, 5]):</strong><br>
+                                <code>V[3, 5] = max( V[2, 5], &nbsp; V[2, 5 − 4] + 5 ) = max(3, &nbsp; V[2, 1] + 5) = max(3, &nbsp; 0 + 5) = </code> <strong class="text-emerald-800 font-bold">5</strong>.
+                                <p class="text-xs text-slate-700 mt-1">
+                                    💡 <em>What does this mean in simple terms?</em> In a 5 kg bag with the first 3 items:
+                                    <strong>Option 1</strong> (skip Obj 3) gave profit <strong>3</strong> (carrying Obj 1 + Obj 2).
+                                    <strong>Option 2</strong> (take Obj 3) gives profit <strong>5</strong> (carrying Obj 3 alone).
+                                    Since $5 &gt; $3, we choose <strong>5</strong>!
+                                </p>
+                            </li>
+                            <li>
+                                <strong>For w = 6:</strong> Fits Object 3 (4 kg) + Object 1 (2 kg):<br>
+                                <code>V[3, 6] = max( V[2, 6], &nbsp; V[2, 6 − 4] + 5 ) = max(3, &nbsp; V[2, 2] + 5) = max(3, &nbsp; 1 + 5) = </code> <strong class="text-emerald-800 font-bold">6</strong>.
+                            </li>
+                            <li>
+                                <strong>For w = 7:</strong> Fits Object 3 (4 kg) + Object 2 (3 kg):<br>
+                                <code>V[3, 7] = max( V[2, 7], &nbsp; V[2, 7 − 4] + 5 ) = max(3, &nbsp; V[2, 3] + 5) = max(3, &nbsp; 2 + 5) = </code> <strong class="text-emerald-800 font-bold">7</strong>.
+                            </li>
+                            <li>
+                                <strong>For w = 8:</strong><br>
+                                <code>V[3, 8] = max( V[2, 8], &nbsp; V[2, 8 − 4] + 5 ) = max(3, &nbsp; V[2, 4] + 5) = max(3, &nbsp; 2 + 5) = </code> <strong class="text-emerald-800 font-bold">7</strong>.
+                            </li>
+                        </ul>
+                        <div class="p-2 bg-slate-50 rounded border border-slate-200 font-mono text-sm text-center text-indigo-950 font-bold">
+                            Row 3 Result: [0, 0, 1, 2, 5, 5, 6, 7, 7]
+                        </div>
+                    </div>
+
+                    <!-- Step 4: Row 4 -->
+                    <div class="p-4 bg-white/95 rounded-xl border border-slate-300 space-y-3 font-sans">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-xl font-bold text-inkBlue font-['Kalam']">
+                                Step 4: Filling Row i = 4 (Object 4: w₄ = 5, p₄ = 6)
+                            </h3>
+                            <span class="text-xs bg-slate-100 text-slate-700 font-bold px-2 py-0.5 rounded font-mono">w₄ = 5, p₄ = 6</span>
+                        </div>
+                        <ul class="list-disc pl-6 space-y-1.5 text-slate-800 text-sm sm:text-base">
+                            <li>
+                                <strong>For w = 1, 2, 3, 4:</strong> <code>w₄ = 5 &gt; w</code>, Object 4 cannot fit. Copy directly from row 3:
+                                <code class="font-bold text-indigo-900 bg-slate-100 px-1 rounded">V[4, 1] = 0</code>, 
+                                <code class="font-bold text-indigo-900 bg-slate-100 px-1 rounded">V[4, 2] = 1</code>, 
+                                <code class="font-bold text-indigo-900 bg-slate-100 px-1 rounded">V[4, 3] = 2</code>, 
+                                <code class="font-bold text-indigo-900 bg-slate-100 px-1 rounded">V[4, 4] = 5</code>.
+                            </li>
+                            <li>
+                                <strong>For w = 5:</strong> Object 4 fits alone (wt 5, profit 6):<br>
+                                <code>V[4, 5] = max( V[3, 5], &nbsp; V[3, 5 − 5] + 6 ) = max(5, &nbsp; 0 + 6) = </code> <strong class="text-emerald-800 font-bold">6</strong>.
+                            </li>
+                            <li>
+                                <strong>For w = 6:</strong><br>
+                                <code>V[4, 6] = max( V[3, 6], &nbsp; V[3, 6 − 5] + 6 ) = max(6, &nbsp; V[3, 1] + 6) = max(6, &nbsp; 0 + 6) = </code> <strong class="text-emerald-800 font-bold">6</strong>.
+                            </li>
+                            <li>
+                                <strong>For w = 7:</strong> Fits Object 4 (5 kg) + Object 1 (2 kg):<br>
+                                <code>V[4, 7] = max( V[3, 7], &nbsp; V[3, 7 − 5] + 6 ) = max(7, &nbsp; V[3, 2] + 6) = max(7, &nbsp; 1 + 6) = </code> <strong class="text-emerald-800 font-bold">7</strong>.
+                            </li>
+                            <li>
+                                <strong>For w = 8:</strong> Knapsack has 8 kg! Fits Object 4 (5 kg) + Object 2 (3 kg):<br>
+                                <code>V[4, 8] = max( V[3, 8], &nbsp; V[3, 8 − 5] + 6 ) = max(7, &nbsp; V[3, 3] + 6) = max(7, &nbsp; 2 + 6) = </code> <strong class="text-emerald-700 font-extrabold text-xl bg-emerald-100 px-2 py-0.5 rounded">8</strong>!
+                            </li>
+                        </ul>
+                        <div class="p-2 bg-emerald-50 rounded border border-emerald-300 font-mono text-sm text-center text-emerald-950 font-bold">
+                            Row 4 Result: [0, 0, 1, 2, 5, 6, 6, 7, 8] &nbsp;→&nbsp; Optimal Profit = $8
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 3. Backtracking to Find Included Objects -->
+                <section class="space-y-4 text-base sm:text-lg leading-relaxed">
+                    <h2 class="text-2xl font-bold text-inkRed flex items-center gap-2">
+                        <span>🔍</span> 3. Backtracking: Which Objects are in the Bag?
+                    </h2>
+                    <p>
+                        Our table gave us the maximum profit: <strong class="text-emerald-800 font-bold">$8</strong> (at cell <code>V[4, 8]</code>). But which objects did we actually put in the bag?
+                    </p>
+
+                    <!-- Super Simple 2-Line Rule -->
+                    <div class="p-4 bg-amber-50 rounded-xl border-2 border-amber-300 font-sans space-y-2">
+                        <strong class="text-inkBlue block font-bold text-base sm:text-lg">
+                            💡 Simple Rule: Look at the number directly above!
+                        </strong>
+                        <p class="text-slate-800 text-sm sm:text-base">
+                            Just ask: <em>"Did the profit change compared to the row above?"</em>
+                        </p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm sm:text-base pt-1">
+                            <div class="p-3 bg-white rounded-lg border border-emerald-300 shadow-sm">
+                                <span class="font-bold text-emerald-800 block">1. If numbers are DIFFERENT:</span>
+                                <p class="text-slate-700 mt-1">
+                                    👉 <strong>YES, item is inside the bag!</strong> (<code class="font-bold text-emerald-900">x = 1</code>)<br>
+                                    Subtract its weight from your remaining bag space.
+                                </p>
+                            </div>
+                            <div class="p-3 bg-white rounded-lg border border-slate-300 shadow-sm">
+                                <span class="font-bold text-slate-800 block">2. If numbers are the SAME:</span>
+                                <p class="text-slate-700 mt-1">
+                                    👉 <strong>NO, item is NOT in the bag.</strong> (<code class="font-bold text-slate-800">x = 0</code>)<br>
+                                    Bag space stays exactly the same.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step-by-Step Backtracking Walkthrough -->
+                    <div class="space-y-3 font-sans text-sm sm:text-base">
+                        <!-- Step 1 -->
+                        <div class="p-3.5 bg-white rounded-xl border border-slate-300 space-y-1">
+                            <div class="flex items-center gap-2">
+                                <span class="bg-indigo-900 text-white font-bold text-xs px-2.5 py-0.5 rounded">Step 1</span>
+                                <strong class="text-inkBlue">Start at the bottom-right corner: V[4, 8] = 8</strong>
+                            </div>
+                            <p class="text-slate-700">
+                                Look at the cell directly above it: <code>V[3, 8] = 7</code>.<br>
+                                • Are they different? <strong>Yes (8 ≠ 7)</strong>. The profit jumped because we took Object 4!<br>
+                                • <strong>Decision:</strong> <span class="bg-emerald-100 text-emerald-900 font-bold px-2 py-0.5 rounded">x₄ = 1 (Object 4 is IN the bag)</span><br>
+                                • <strong>Bag space left:</strong> 8 kg − 5 kg = <strong>3 kg</strong>. Now check row 3 at column 3.
+                            </p>
+                        </div>
+
+                        <!-- Step 2 -->
+                        <div class="p-3.5 bg-white rounded-xl border border-slate-300 space-y-1">
+                            <div class="flex items-center gap-2">
+                                <span class="bg-indigo-900 text-white font-bold text-xs px-2.5 py-0.5 rounded">Step 2</span>
+                                <strong class="text-inkBlue">Check Row 3 at 3 kg space: V[3, 3] = 2</strong>
+                            </div>
+                            <p class="text-slate-700">
+                                Look at the cell directly above it: <code>V[2, 3] = 2</code>.<br>
+                                • Are they different? <strong>No (2 == 2)</strong>. The profit didn't change, so Object 3 was not used.<br>
+                                • <strong>Decision:</strong> <span class="bg-slate-100 text-slate-800 font-bold px-2 py-0.5 rounded">x₃ = 0 (Object 3 is NOT in the bag)</span><br>
+                                • <strong>Bag space left:</strong> Still <strong>3 kg</strong>. Now check row 2 at column 3.
+                            </p>
+                        </div>
+
+                        <!-- Step 3 -->
+                        <div class="p-3.5 bg-white rounded-xl border border-slate-300 space-y-1">
+                            <div class="flex items-center gap-2">
+                                <span class="bg-indigo-900 text-white font-bold text-xs px-2.5 py-0.5 rounded">Step 3</span>
+                                <strong class="text-inkBlue">Check Row 2 at 3 kg space: V[2, 3] = 2</strong>
+                            </div>
+                            <p class="text-slate-700">
+                                Look at the cell directly above it: <code>V[1, 3] = 1</code>.<br>
+                                • Are they different? <strong>Yes (2 ≠ 1)</strong>. The profit jumped from 1 to 2 because we took Object 2!<br>
+                                • <strong>Decision:</strong> <span class="bg-emerald-100 text-emerald-900 font-bold px-2 py-0.5 rounded">x₂ = 1 (Object 2 is IN the bag)</span><br>
+                                • <strong>Bag space left:</strong> 3 kg − 3 kg = <strong>0 kg</strong>. Bag is now full!
+                            </p>
+                        </div>
+
+                        <!-- Step 4 -->
+                        <div class="p-3.5 bg-white rounded-xl border border-slate-300 space-y-1">
+                            <div class="flex items-center gap-2">
+                                <span class="bg-indigo-900 text-white font-bold text-xs px-2.5 py-0.5 rounded">Step 4</span>
+                                <strong class="text-inkBlue">Check Object 1: 0 kg space left</strong>
+                            </div>
+                            <p class="text-slate-700">
+                                • Bag has 0 kg space left, so Object 1 cannot fit.<br>
+                                • <strong>Decision:</strong> <span class="bg-slate-100 text-slate-800 font-bold px-2 py-0.5 rounded">x₁ = 0 (Object 1 is NOT in the bag)</span>.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Final Answer Card -->
+                    <div class="p-5 bg-emerald-50 rounded-xl border-2 border-emerald-400 font-sans space-y-2 mt-4">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-xl font-bold text-emerald-950 font-['Kalam']">🎯 Final Computed Solution</h3>
+                            <span class="bg-emerald-200 text-emerald-900 font-bold px-3 py-1 rounded-full text-xs font-mono">Verified Match</span>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-base pt-1">
+                            <div class="p-3 bg-white rounded-lg border border-emerald-300">
+                                <span class="text-xs text-slate-500 font-bold block">Decision Vector</span>
+                                <strong class="font-mono text-lg text-emerald-900">X = (0, 1, 0, 1)</strong>
+                            </div>
+                            <div class="p-3 bg-white rounded-lg border border-emerald-300">
+                                <span class="text-xs text-slate-500 font-bold block">Included Items</span>
+                                <strong class="text-lg text-indigo-950">Object 2 &amp; Object 4</strong>
+                            </div>
+                            <div class="p-3 bg-white rounded-lg border border-emerald-300">
+                                <span class="text-xs text-slate-500 font-bold block">Maximum Profit</span>
+                                <strong class="font-mono text-xl text-emerald-800">Z = 2 + 6 = $8</strong>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div> <!-- End of Tab 2: Tabular Method -->
+
+            <!-- ==================================================================== -->
+            <!-- TAB 3: SETS METHOD (DOMINANCE RULE)                                   -->
+            <!-- ==================================================================== -->
+            <div id="tab-sets-method" class="tab-pane hidden space-y-8">
+
+                <!-- Section Title -->
+                <div class="border-b-2 border-inkRed pb-2 flex justify-between items-baseline">
+                    <div>
+                        <h1 class="text-3xl sm:text-4xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                            Sets Method (Tuple Generation &amp; Dominance Rule)
+                        </h1>
+                        <p class="text-sm font-sans text-pencilGray mt-1">Alternative Dynamic Programming Technique using Ordered Pairs (Profit, Weight)</p>
+                    </div>
+                    <span class="text-xs sm:text-sm font-bold font-sans bg-amber-100 text-inkRed px-2.5 py-1 rounded border border-amber-300">
+                        Tab 3 • Sets Method
+                    </span>
+                </div>
+
+                <!-- 1. Concept Overview & Ordered Pair Representation -->
+                <section class="space-y-4 text-base sm:text-lg leading-relaxed">
+                    <h2 class="text-2xl font-bold text-inkRed flex items-center gap-2">
+                        <span>📦</span> 1. Concept Overview: Ordered Pairs (Profit, Weight)
+                    </h2>
+                    <p>
+                        Instead of constructing an <code>(n + 1) × (M + 1)</code> 2D grid, the <strong>Sets Method</strong> generates a progressive sequence of sets containing ordered pairs:
+                    </p>
+                    <div class="p-3 bg-amber-50 rounded-xl border border-amber-300 text-center font-mono font-bold text-indigo-950 text-lg sm:text-xl">
+                        S₀, &nbsp; S₁, &nbsp; S₂, &nbsp; S₃, &nbsp; ... &nbsp; Sₙ
+                    </div>
+                    <p>
+                        Each element in a set is an ordered pair:
+                        <code class="font-mono font-bold bg-white px-2 py-0.5 rounded border border-amber-300 text-emerald-900">(Profit, Weight)</code> = <code class="font-mono font-bold text-slate-800">(P, w)</code>.
+                    </p>
+                    <div class="p-4 bg-white/95 rounded-xl border border-slate-300 font-sans space-y-2 text-sm sm:text-base">
+                        <strong class="text-inkBlue block font-bold text-base">📌 The Two-Step Set Generation Process:</strong>
+                        <ul class="list-disc pl-5 space-y-1 text-slate-700">
+                            <li><strong>Initial Base Set:</strong> Start with no items chosen: <code class="font-mono font-bold text-indigo-950 bg-slate-100 px-1.5 py-0.5 rounded">S₀ = {(0, 0)}</code>.</li>
+                            <li><strong>Step 1 (Generate Included Set S<sub>i−1</sub>¹):</strong> Add <code>(P<sub>i</sub>, w<sub>i</sub>)</code> to every tuple in <code>S<sub>i−1</sub></code>:
+                                <div class="font-mono font-bold text-emerald-900 bg-emerald-50 p-2 rounded mt-1 text-xs sm:text-sm">
+                                    S<sub>i−1</sub>¹ = S<sub>i−1</sub> + (P<sub>i</sub>, w<sub>i</sub>) = { (p + P<sub>i</sub>, &nbsp; w + w<sub>i</sub>) &nbsp;|&nbsp; (p, w) ∈ S<sub>i−1</sub> }
+                                </div>
+                            </li>
+                            <li><strong>Step 2 (Merge &amp; Filter):</strong> Form <code>S<sub>i</sub></code> by merging <code>S<sub>i−1</sub></code> (exclude item <em>i</em>) and <code>S<sub>i−1</sub>¹</code> (include item <em>i</em>), while applying the two filtering rules below.</li>
+                        </ul>
+                    </div>
+
+                    <!-- The Two Filtering Rules -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 font-sans text-sm sm:text-base pt-2">
+                        <!-- Rule 1: Capacity Limit -->
+                        <div class="p-4 bg-rose-50/90 rounded-xl border-2 border-rose-300 space-y-2">
+                            <span class="px-2 py-0.5 rounded bg-rose-200 text-rose-900 font-bold text-xs uppercase">Filter Rule 1</span>
+                            <h3 class="font-bold text-rose-950 text-base sm:text-lg">Capacity Limit (Weight ≤ M)</h3>
+                            <p class="text-slate-700 text-xs sm:text-sm">
+                                Discard any tuple whose total weight exceeds the knapsack capacity:
+                            </p>
+                            <div class="p-2 bg-white rounded border border-rose-300 font-mono text-center font-bold text-rose-800 text-sm sm:text-base">
+                                If w &gt; M (here w &gt; 8) &rarr; DISCARD
+                            </div>
+                            <p class="text-xs text-rose-900 italic">
+                                Knapsack cannot physically hold objects exceeding 8 kg.
+                            </p>
+                        </div>
+
+                        <!-- Rule 2: Dominance Rule -->
+                        <div class="p-4 bg-amber-50/90 rounded-xl border-2 border-amber-300 space-y-2">
+                            <span class="px-2 py-0.5 rounded bg-amber-200 text-amber-950 font-bold text-xs uppercase">Filter Rule 2</span>
+                            <h3 class="font-bold text-indigo-950 text-base sm:text-lg">Dominance Rule (Optimality Pruning)</h3>
+                            <p class="text-slate-700 text-xs sm:text-sm">
+                                If a choice exists that yields <strong>less profit with equal/more weight</strong>, prune it:
+                            </p>
+                            <div class="p-2 bg-white rounded border border-amber-300 font-mono text-center font-bold text-indigo-950 text-xs sm:text-sm">
+                                If p₁ ≤ p₂ and w₁ ≥ w₂ &rarr; Prune (p₁, w₁)
+                            </div>
+                            <p class="text-xs text-slate-600 italic">
+                                Why carry less profit with more weight? Pruning prevents combinatorial explosion.
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 2. Step-by-Step Walkthrough with Given Parameters -->
+                <section class="space-y-6 text-base sm:text-lg leading-relaxed">
+                    <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-2">
+                        <h2 class="text-2xl font-bold text-inkRed flex items-center gap-2">
+                            <span>📝</span> 2. Step-by-Step Set Generation (Forward Step)
+                        </h2>
+                        <span class="text-xs bg-indigo-100 text-indigo-900 font-bold px-2.5 py-1 rounded font-sans">
+                            Given: M = 8, P = {1, 2, 5, 6}, W = {2, 3, 4, 5}
+                        </span>
+                    </div>
+
+                    <!-- S0: Initial Set -->
+                    <div class="p-4 bg-white/95 rounded-xl border border-slate-300 space-y-2 font-sans">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-lg font-bold text-inkBlue font-['Kalam']">
+                                Initial State (0 Objects Considered):
+                            </h3>
+                            <span class="text-xs bg-slate-100 text-slate-700 font-bold px-2 py-0.5 rounded font-mono">Base Set</span>
+                        </div>
+                        <p class="text-sm text-slate-700">No items taken &rarr; Profit = 0, Weight = 0:</p>
+                        <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-200 font-mono font-bold text-indigo-950 text-base">
+                            S₀ = { (0, 0) }
+                        </div>
+                    </div>
+
+                    <!-- S1: Item 1 -->
+                    <div class="p-4 bg-white/95 rounded-xl border border-slate-300 space-y-2 font-sans">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-lg font-bold text-inkBlue font-['Kalam']">
+                                Item 1: Profit P₁ = 1, Weight w₁ = 2
+                            </h3>
+                            <span class="text-xs bg-emerald-100 text-emerald-900 font-bold px-2 py-0.5 rounded font-mono">Include / Exclude Item 1</span>
+                        </div>
+                        <ul class="list-disc pl-5 space-y-1 text-sm sm:text-base text-slate-800">
+                            <li>
+                                <strong>Include Item 1:</strong> Add (1, 2) to each tuple in S₀:
+                                <code class="font-mono font-bold text-emerald-900 bg-emerald-50 px-1.5 py-0.5 rounded ml-1">S₀¹ = { (0+1, 0+2) } = { (1, 2) }</code>
+                            </li>
+                            <li>
+                                <strong>Merge:</strong> Combine S₀ and S₀¹:
+                            </li>
+                        </ul>
+                        <div class="p-2.5 bg-emerald-50 rounded-lg border border-emerald-300 font-mono font-bold text-emerald-950 text-base">
+                            S₁ = { (0, 0), &nbsp; (1, 2) }
+                        </div>
+                    </div>
+
+                    <!-- S2: Item 2 -->
+                    <div class="p-4 bg-white/95 rounded-xl border border-slate-300 space-y-2 font-sans">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-lg font-bold text-inkBlue font-['Kalam']">
+                                Item 2: Profit P₂ = 2, Weight w₂ = 3
+                            </h3>
+                            <span class="text-xs bg-emerald-100 text-emerald-900 font-bold px-2 py-0.5 rounded font-mono">Include / Exclude Item 2</span>
+                        </div>
+                        <ul class="list-disc pl-5 space-y-1 text-sm sm:text-base text-slate-800">
+                            <li>
+                                <strong>Include Item 2:</strong> Add (2, 3) to each tuple in S₁:
+                                <code class="font-mono font-bold text-emerald-900 bg-emerald-50 px-1.5 py-0.5 rounded ml-1">S₁¹ = { (0+2, 0+3), (1+2, 2+3) } = { (2, 3), (3, 5) }</code>
+                            </li>
+                            <li>
+                                <strong>Merge:</strong> Combine S₁ and S₁¹:
+                            </li>
+                        </ul>
+                        <div class="p-2.5 bg-emerald-50 rounded-lg border border-emerald-300 font-mono font-bold text-emerald-950 text-base">
+                            S₂ = { (0, 0), &nbsp; (1, 2), &nbsp; (2, 3), &nbsp; (3, 5) }
+                        </div>
+                        <p class="text-xs text-slate-600">All weights ≤ 8. Pairs are strictly sorted by increasing weight &amp; profit.</p>
+                    </div>
+
+                    <!-- S3: Item 3 -->
+                    <div class="p-4 bg-white/95 rounded-xl border-2 border-amber-300 space-y-3 font-sans shadow-sm">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-lg font-bold text-inkBlue font-['Kalam']">
+                                Item 3: Profit P₃ = 5, Weight w₃ = 4 (Pruning Occurs Here!)
+                            </h3>
+                            <span class="text-xs bg-amber-200 text-amber-950 font-bold px-2 py-0.5 rounded font-mono">Capacity &amp; Dominance Filtering</span>
+                        </div>
+                        <ul class="list-disc pl-5 space-y-1.5 text-sm sm:text-base text-slate-800">
+                            <li>
+                                <strong>Include Item 3:</strong> Add (5, 4) to each tuple in S₂:
+                                <div class="font-mono text-emerald-900 bg-emerald-50 p-2 rounded mt-1 text-xs sm:text-sm">
+                                    S₂¹ = { (0+5, 0+4), &nbsp; (1+5, 2+4), &nbsp; (2+5, 3+4), &nbsp; (3+5, 5+4) }<br>
+                                    &nbsp;&nbsp;&nbsp;&nbsp; = { (5, 4), &nbsp; (6, 6), &nbsp; (7, 7), &nbsp; <span class="line-through bg-rose-100 text-rose-800 px-1 rounded">(8, 9)</span> }
+                                </div>
+                            </li>
+                            <li class="text-rose-900 font-bold">
+                                ❌ <strong>Capacity Limit Pruning:</strong> Discard <code>(8, 9)</code> because weight 9 &gt; 8 kg (knapsack capacity exceeded).
+                            </li>
+                            <li class="text-amber-950 font-bold">
+                                ⚡ <strong>Dominance Rule Pruning:</strong> Compare <code>(3, 5) ∈ S₂</code> with <code>(5, 4) ∈ S₂¹</code>:
+                                <div class="p-2 bg-amber-50 rounded border border-amber-300 font-normal text-slate-800 text-xs sm:text-sm mt-1">
+                                    • Pair <strong>(5, 4)</strong> gives <strong>Profit = 5</strong> with <strong>Weight = 4</strong>.<br>
+                                    • Pair <strong>(3, 5)</strong> gives only <strong>Profit = 3</strong> with <strong>Weight = 5</strong>.<br>
+                                    👉 <strong>(3, 5)</strong> has LESS profit and MORE weight! Therefore, <span class="line-through font-bold text-rose-800 bg-rose-100 px-1 rounded">(3, 5)</span> is <strong>strictly DOMINATED</strong> and pruned!
+                                </div>
+                            </li>
+                            <li>
+                                <strong>Merge Remaining Pairs:</strong>
+                            </li>
+                        </ul>
+                        <div class="p-2.5 bg-emerald-50 rounded-lg border border-emerald-400 font-mono font-bold text-emerald-950 text-base">
+                            S₃ = { (0, 0), &nbsp; (1, 2), &nbsp; (2, 3), &nbsp; (5, 4), &nbsp; (6, 6), &nbsp; (7, 7) }
+                        </div>
+                    </div>
+
+                    <!-- S4: Item 4 -->
+                    <div class="p-4 bg-white/95 rounded-xl border-2 border-emerald-400 space-y-3 font-sans shadow-sm">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-lg font-bold text-inkBlue font-['Kalam']">
+                                Item 4: Profit P₄ = 6, Weight w₄ = 5 (Final Set)
+                            </h3>
+                            <span class="text-xs bg-emerald-200 text-emerald-950 font-bold px-2 py-0.5 rounded font-mono">Final Pruning</span>
+                        </div>
+                        <ul class="list-disc pl-5 space-y-1.5 text-sm sm:text-base text-slate-800">
+                            <li>
+                                <strong>Include Item 4:</strong> Add (6, 5) to each tuple in S₃:
+                                <div class="font-mono text-emerald-900 bg-emerald-50 p-2 rounded mt-1 text-xs sm:text-sm leading-relaxed">
+                                    S₃¹ = { (0+6, 0+5), &nbsp; (1+6, 2+5), &nbsp; (2+6, 3+5), &nbsp; (5+6, 4+5), &nbsp; (6+6, 6+5), &nbsp; (7+6, 7+5) }<br>
+                                    &nbsp;&nbsp;&nbsp;&nbsp; = { (6, 5), &nbsp; (7, 7), &nbsp; (8, 8), &nbsp; <span class="line-through bg-rose-100 text-rose-800 px-1 rounded">(11, 9)</span>, &nbsp; <span class="line-through bg-rose-100 text-rose-800 px-1 rounded">(12, 11)</span>, &nbsp; <span class="line-through bg-rose-100 text-rose-800 px-1 rounded">(13, 12)</span> }
+                                </div>
+                            </li>
+                            <li class="text-rose-900 font-bold">
+                                ❌ <strong>Capacity Limit Pruning:</strong> Discard <code>(11, 9)</code>, <code>(12, 11)</code>, and <code>(13, 12)</code> because their weights (9, 11, 12) exceed 8 kg.
+                            </li>
+                            <li class="text-amber-950 font-bold">
+                                ⚡ <strong>Dominance Rule &amp; Duplicates Pruning:</strong>
+                                <div class="p-2 bg-amber-50 rounded border border-amber-300 font-normal text-slate-800 text-xs sm:text-sm mt-1">
+                                    • Compare <strong>(6, 6) ∈ S₃</strong> with <strong>(6, 5) ∈ S₃¹</strong>: Both give Profit = 6, but (6, 5) has less weight (5 &lt; 6). So <span class="line-through font-bold text-rose-800 bg-rose-100 px-1 rounded">(6, 6)</span> is <strong>dominated and pruned</strong>!<br>
+                                    • <strong>(7, 7)</strong> appears in both S₃ and S₃¹ (duplicate, keep one instance).
+                                </div>
+                            </li>
+                            <li>
+                                <strong>Final Merged &amp; Pruned Set:</strong>
+                            </li>
+                        </ul>
+                        <div class="p-3 bg-emerald-100 rounded-xl border-2 border-emerald-500 font-mono font-bold text-emerald-950 text-base sm:text-lg text-center">
+                            S₄ = { (0, 0), &nbsp; (1, 2), &nbsp; (2, 3), &nbsp; (5, 4), &nbsp; (6, 5), &nbsp; (7, 7), &nbsp; <span class="bg-amber-300 text-slate-950 px-2 py-0.5 rounded ring-2 ring-amber-500">(8, 8)</span> }
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 3. Step 2: Backtracking to Find Included Items -->
+                <section class="space-y-4 text-base sm:text-lg leading-relaxed">
+                    <h2 class="text-2xl font-bold text-inkRed flex items-center gap-2">
+                        <span>🔍</span> 3. Backtracking to Find Included Items (Backward Step)
+                    </h2>
+                    <p>
+                        The highest profit in the final set <code>S₄</code> within knapsack capacity 8 is the last pair:
+                        <strong class="font-mono text-emerald-900 bg-emerald-100 px-2 py-0.5 rounded border border-emerald-300">(8, 8) &rarr; Profit = 8, Weight = 8</strong>.
+                    </p>
+                    <p class="font-sans text-sm sm:text-base text-slate-700">
+                        To discover which items generated this optimal tuple, we trace backward through our sets:
+                    </p>
+
+                    <div class="space-y-3 font-sans text-sm sm:text-base">
+                        <!-- Check Item 4 -->
+                        <div class="p-3.5 bg-white rounded-xl border-l-4 border-emerald-500 border border-slate-300 shadow-sm space-y-1">
+                            <div class="flex items-center justify-between">
+                                <strong class="text-indigo-950 font-bold">Step 1: Check Item 4 (P₄ = 6, w₄ = 5)</strong>
+                                <span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-900 font-bold text-xs font-mono">x₄ = 1</span>
+                            </div>
+                            <p class="text-slate-700">
+                                • Is <code class="font-mono font-bold text-indigo-900">(8, 8)</code> present in <code>S₃</code>? <strong>No.</strong><br>
+                                • Since <code>(8, 8)</code> did not exist in S₃, it <em>must</em> have been generated by including Item 4!<br>
+                                • <strong>Decision:</strong> <span class="bg-emerald-100 text-emerald-900 font-bold px-2 py-0.5 rounded">x₄ = 1 (Item 4 is INCLUDED)</span>.<br>
+                                • Subtract Item 4 values from (8, 8): <code class="font-mono font-bold text-indigo-950">(8 − 6, &nbsp; 8 − 5) = (2, 3)</code>. Next search pair is <strong>(2, 3)</strong>.
+                            </p>
+                        </div>
+
+                        <!-- Check Item 3 -->
+                        <div class="p-3.5 bg-white rounded-xl border-l-4 border-slate-400 border border-slate-300 shadow-sm space-y-1">
+                            <div class="flex items-center justify-between">
+                                <strong class="text-slate-800 font-bold">Step 2: Check Item 3 (P₃ = 5, w₃ = 4)</strong>
+                                <span class="px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-bold text-xs font-mono">x₃ = 0</span>
+                            </div>
+                            <p class="text-slate-700">
+                                • Look for pair <code class="font-mono font-bold text-indigo-900">(2, 3)</code>.<br>
+                                • Is <code>(2, 3)</code> present in <code>S₃</code>? <strong>Yes.</strong><br>
+                                • Is <code>(2, 3)</code> already present in <code>S₂</code>? <strong>Yes.</strong><br>
+                                • Because <code>(2, 3)</code> was already achieved in S₂ without Item 3, Item 3 was NOT needed.<br>
+                                • <strong>Decision:</strong> <span class="bg-slate-100 text-slate-800 font-bold px-2 py-0.5 rounded">x₃ = 0 (Item 3 is EXCLUDED)</span>.<br>
+                                • Search pair remains <strong>(2, 3)</strong>.
+                            </p>
+                        </div>
+
+                        <!-- Check Item 2 -->
+                        <div class="p-3.5 bg-white rounded-xl border-l-4 border-emerald-500 border border-slate-300 shadow-sm space-y-1">
+                            <div class="flex items-center justify-between">
+                                <strong class="text-indigo-950 font-bold">Step 3: Check Item 2 (P₂ = 2, w₂ = 3)</strong>
+                                <span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-900 font-bold text-xs font-mono">x₂ = 1</span>
+                            </div>
+                            <p class="text-slate-700">
+                                • Look for pair <code class="font-mono font-bold text-indigo-900">(2, 3)</code>.<br>
+                                • Is <code>(2, 3)</code> present in <code>S₁</code>? <strong>No</strong> (S₁ only contains (0, 0) and (1, 2)).<br>
+                                • Since <code>(2, 3)</code> did not exist in S₁, it was generated by including Item 2!<br>
+                                • <strong>Decision:</strong> <span class="bg-emerald-100 text-emerald-900 font-bold px-2 py-0.5 rounded">x₂ = 1 (Item 2 is INCLUDED)</span>.<br>
+                                • Subtract Item 2 values from (2, 3): <code class="font-mono font-bold text-indigo-950">(2 − 2, &nbsp; 3 − 3) = (0, 0)</code>. Next search pair is <strong>(0, 0)</strong>.
+                            </p>
+                        </div>
+
+                        <!-- Check Item 1 -->
+                        <div class="p-3.5 bg-white rounded-xl border-l-4 border-slate-400 border border-slate-300 shadow-sm space-y-1">
+                            <div class="flex items-center justify-between">
+                                <strong class="text-slate-800 font-bold">Step 4: Check Item 1 (P₁ = 1, w₁ = 2)</strong>
+                                <span class="px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-bold text-xs font-mono">x₁ = 0</span>
+                            </div>
+                            <p class="text-slate-700">
+                                • Pair <code class="font-mono font-bold text-indigo-900">(0, 0)</code> is present in both <code>S₁</code> and <code>S₀</code>.<br>
+                                • <strong>Decision:</strong> <span class="bg-slate-100 text-slate-800 font-bold px-2 py-0.5 rounded">x₁ = 0 (Item 1 is EXCLUDED)</span>.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Final Result Card -->
+                    <div class="p-5 bg-emerald-50 rounded-xl border-2 border-emerald-400 font-sans space-y-2 mt-4">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-xl font-bold text-emerald-950 font-['Kalam']">🎯 Final Sets Method Result</h3>
+                            <span class="bg-emerald-200 text-emerald-900 font-bold px-3 py-1 rounded-full text-xs font-mono">Matches Tabular Method!</span>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-base pt-1">
+                            <div class="p-3 bg-white rounded-lg border border-emerald-300">
+                                <span class="text-xs text-slate-500 font-bold block">Decision Vector</span>
+                                <strong class="font-mono text-lg text-emerald-900">(x₁, x₂, x₃, x₄) = (0, 1, 0, 1)</strong>
+                            </div>
+                            <div class="p-3 bg-white rounded-lg border border-emerald-300">
+                                <span class="text-xs text-slate-500 font-bold block">Included Items</span>
+                                <strong class="text-lg text-indigo-950">Item 2 &amp; Item 4</strong>
+                            </div>
+                            <div class="p-3 bg-white rounded-lg border border-emerald-300">
+                                <span class="text-xs text-slate-500 font-bold block">Max Profit &amp; Total Weight</span>
+                                <strong class="font-mono text-xl text-emerald-800">Profit = $8, &nbsp; Weight = 8 kg</strong>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 4. Comparison: Tabular Method vs Sets Method -->
+                <section class="space-y-4 text-base sm:text-lg leading-relaxed">
+                    <h2 class="text-2xl font-bold text-inkRed flex items-center gap-2">
+                        <span>⚖️</span> 4. Comparison: Tabular Method vs. Sets Method
+                    </h2>
+                    <div class="overflow-x-auto bg-white/95 p-3 rounded-xl border border-slate-300 shadow-sm font-sans">
+                        <table class="w-full text-left text-sm sm:text-base border-collapse">
+                            <thead>
+                                <tr class="bg-indigo-950 text-white font-bold">
+                                    <th class="py-2.5 px-3 border border-indigo-900">Feature</th>
+                                    <th class="py-2.5 px-3 border border-indigo-900">Method 1: Tabular Method</th>
+                                    <th class="py-2.5 px-3 border border-indigo-900">Method 2: Sets Method</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-slate-800">
+                                <tr class="hover:bg-slate-50 border-b border-slate-200">
+                                    <td class="py-2.5 px-3 font-bold bg-slate-50">Data Structure</td>
+                                    <td class="py-2.5 px-3">2D Matrix <code>V[n+1][M+1]</code></td>
+                                    <td class="py-2.5 px-3">Dynamic List of Ordered Pairs <code>(P, w)</code></td>
+                                </tr>
+                                <tr class="hover:bg-slate-50 border-b border-slate-200">
+                                    <td class="py-2.5 px-3 font-bold bg-slate-50">Space Complexity</td>
+                                    <td class="py-2.5 px-3 font-mono">O(n × M)</td>
+                                    <td class="py-2.5 px-3 font-mono">O(2ⁿ) worst-case, far less in practice due to dominance pruning</td>
+                                </tr>
+                                <tr class="hover:bg-slate-50 border-b border-slate-200">
+                                    <td class="py-2.5 px-3 font-bold bg-slate-50">When Best Used</td>
+                                    <td class="py-2.5 px-3">When capacity <strong>M is small/moderate</strong></td>
+                                    <td class="py-2.5 px-3">When capacity <strong>M is huge</strong> (e.g. 10⁶) but <strong>n is small</strong></td>
+                                </tr>
+                                <tr class="hover:bg-slate-50">
+                                    <td class="py-2.5 px-3 font-bold bg-slate-50">Pruning Mechanism</td>
+                                    <td class="py-2.5 px-3">Evaluates every integer capacity 0 to M</td>
+                                    <td class="py-2.5 px-3">Prunes dominated &amp; overweight pairs immediately</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+            </div> <!-- End of Tab 3: Sets Method -->
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-center text-xs text-slate-600 py-8 font-sans">
+        <p>Personal Digital Lecture Notebook &copy; 2026. Handcrafted with Tailwind CSS, Google Fonts, and Vanilla Canvas Engines.</p>
+    </footer>
+
+    <!-- Interactive Script: Typography, Tab Switcher & Canvas Engines -->
+    <script>
+        // Tab Switcher
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('hidden'));
+            const activeSection = document.getElementById(tabId);
+            if (activeSection) activeSection.classList.remove('hidden');
+
+            document.querySelectorAll('.nav-tab').forEach(btn => {
+                btn.classList.remove('bg-amber-200', 'text-inkBlue', 'border-b-2', 'border-inkBlue');
+                btn.classList.add('text-slate-600');
+            });
+            const activeBtn = document.getElementById('nav-' + tabId);
+            if (activeBtn) {
+                activeBtn.classList.add('bg-amber-200', 'text-inkBlue', 'border-b-2', 'border-inkBlue');
+                activeBtn.classList.remove('text-slate-600');
+            }
+
+            // Redraw canvases when returning to Problem Statement tab
+            if (tabId === 'tab-problem-statement') {
+                setTimeout(() => {
+                    drawBagEx1();
+                    drawBagEx2();
+                }, 10);
+            }
+        }
+
+        // Font Mode Switcher
+        function toggleFontMode() {
+            const body = document.body;
+            const btnText = document.getElementById('fontBtnText');
+            body.classList.toggle('font-clean');
+            
+            if (body.classList.contains('font-clean')) {
+                btnText.textContent = "Notes Font";
+            } else {
+                btnText.textContent = "Clean Font";
+            }
+        }
+
+        // Canvas HiDPI Helper
+        function setupCanvas(canvasId, width, height) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return null;
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            ctx.scale(dpr, dpr);
+            return { canvas, ctx, width, height };
+        }
+
+        // -------------------------------------------------------------
+        // CANVAS: EXAMPLE 1 BAG (CAPACITY M = 8 WITH OBJECTS 2 & 4 INSIDE)
+        // -------------------------------------------------------------
+        function drawBagEx1() {
+            const setup = setupCanvas('canvas-bag-ex1', 300, 235);
+            if (!setup) return;
+            const { ctx } = setup;
+
+            ctx.clearRect(0, 0, 300, 235);
+
+            // Knapsack Bag Body
+            const bagX = 25, bagY = 28, bagW = 250, bagH = 195;
+            
+            // Strap at the top
+            ctx.beginPath();
+            ctx.arc(bagX + bagW / 2, bagY, 24, Math.PI, 0);
+            ctx.strokeStyle = '#b45309';
+            ctx.lineWidth = 4;
+            ctx.stroke();
+
+            // Bag body
+            ctx.fillStyle = '#fffbeb';
+            ctx.strokeStyle = '#b45309';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.roundRect(bagX, bagY, bagW, bagH, 16);
+            ctx.fill();
+            ctx.stroke();
+
+            // Bag Header Tag
+            ctx.fillStyle = '#78350f';
+            ctx.font = 'bold 14px Kalam, cursive';
+            ctx.textAlign = 'center';
+            ctx.fillText('🎒 Knapsack Bag (Capacity M = 8)', bagX + bagW / 2, bagY + 24);
+
+            // Inside: Object 2 (w=3, p=2)
+            const o2X = bagX + 15, o2Y = bagY + 36, oW = 100, oH = 76;
+            ctx.fillStyle = '#dcfce7';
+            ctx.strokeStyle = '#16a34a';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.roundRect(o2X, o2Y, oW, oH, 8);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = '#166534';
+            ctx.font = 'bold 13px Inter, sans-serif';
+            ctx.fillText('Object 2', o2X + oW / 2, o2Y + 22);
+            ctx.fillStyle = '#1e293b';
+            ctx.font = '12px Inter, sans-serif';
+            ctx.fillText('Weight: 3', o2X + oW / 2, o2Y + 44);
+            ctx.fillStyle = '#047857';
+            ctx.font = 'bold 12px Inter, sans-serif';
+            ctx.fillText('Profit: 2', o2X + oW / 2, o2Y + 64);
+
+            // Inside: Object 4 (w=5, p=6)
+            const o4X = bagX + 135, o4Y = bagY + 36;
+            ctx.fillStyle = '#dcfce7';
+            ctx.strokeStyle = '#16a34a';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.roundRect(o4X, o4Y, oW, oH, 8);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = '#166534';
+            ctx.font = 'bold 13px Inter, sans-serif';
+            ctx.fillText('Object 4', o4X + oW / 2, o4Y + 22);
+            ctx.fillStyle = '#1e293b';
+            ctx.font = '12px Inter, sans-serif';
+            ctx.fillText('Weight: 5', o4X + oW / 2, o4Y + 44);
+            ctx.fillStyle = '#047857';
+            ctx.font = 'bold 12px Inter, sans-serif';
+            ctx.fillText('Profit: 6', o4X + oW / 2, o4Y + 64);
+
+            // Inside bottom: Total inside summary banner
+            const sumX = bagX + 15, sumY = bagY + 122, sumW = 220, sumH = 60;
+            ctx.fillStyle = '#f0fdf4';
+            ctx.strokeStyle = '#86efac';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.roundRect(sumX, sumY, sumW, sumH, 8);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = '#1e293b';
+            ctx.font = 'bold 12px Inter, sans-serif';
+            ctx.fillText('Weight Inside: 3 + 5 = 8 / 8', sumX + sumW / 2, sumY + 23);
+            ctx.fillStyle = '#15803d';
+            ctx.font = 'bold 13px Inter, sans-serif';
+            ctx.fillText('Max Profit: 2 + 6 = 8', sumX + sumW / 2, sumY + 45);
+        }
+
+        // -------------------------------------------------------------
+        // CANVAS: EXAMPLE 2 BAG (CAPACITY M = 5 WITH OBJECTS 1 & 3 INSIDE)
+        // -------------------------------------------------------------
+        function drawBagEx2() {
+            const setup = setupCanvas('canvas-bag-ex2', 300, 235);
+            if (!setup) return;
+            const { ctx } = setup;
+
+            ctx.clearRect(0, 0, 300, 235);
+
+            // Knapsack Bag Body
+            const bagX = 25, bagY = 28, bagW = 250, bagH = 195;
+            
+            // Strap at top
+            ctx.beginPath();
+            ctx.arc(bagX + bagW / 2, bagY, 24, Math.PI, 0);
+            ctx.strokeStyle = '#059669';
+            ctx.lineWidth = 4;
+            ctx.stroke();
+
+            // Bag body
+            ctx.fillStyle = '#ecfdf5';
+            ctx.strokeStyle = '#059669';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.roundRect(bagX, bagY, bagW, bagH, 16);
+            ctx.fill();
+            ctx.stroke();
+
+            // Bag Header Tag
+            ctx.fillStyle = '#065f46';
+            ctx.font = 'bold 14px Kalam, cursive';
+            ctx.textAlign = 'center';
+            ctx.fillText('🎒 Knapsack Bag (Capacity M = 5)', bagX + bagW / 2, bagY + 24);
+
+            // Inside: Object 1 (w=1, p=10)
+            const o1X = bagX + 15, o1Y = bagY + 36, oW = 100, oH = 76;
+            ctx.fillStyle = '#dcfce7';
+            ctx.strokeStyle = '#16a34a';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.roundRect(o1X, o1Y, oW, oH, 8);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = '#166534';
+            ctx.font = 'bold 13px Inter, sans-serif';
+            ctx.fillText('Object 1', o1X + oW / 2, o1Y + 22);
+            ctx.fillStyle = '#1e293b';
+            ctx.font = '12px Inter, sans-serif';
+            ctx.fillText('Weight: 1', o1X + oW / 2, o1Y + 44);
+            ctx.fillStyle = '#047857';
+            ctx.font = 'bold 12px Inter, sans-serif';
+            ctx.fillText('Profit: 10', o1X + oW / 2, o1Y + 64);
+
+            // Inside: Object 3 (w=4, p=50)
+            const o3X = bagX + 135, o3Y = bagY + 36;
+            ctx.fillStyle = '#dcfce7';
+            ctx.strokeStyle = '#16a34a';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.roundRect(o3X, o3Y, oW, oH, 8);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = '#166534';
+            ctx.font = 'bold 13px Inter, sans-serif';
+            ctx.fillText('Object 3', o3X + oW / 2, o3Y + 22);
+            ctx.fillStyle = '#1e293b';
+            ctx.font = '12px Inter, sans-serif';
+            ctx.fillText('Weight: 4', o3X + oW / 2, o3Y + 44);
+            ctx.fillStyle = '#047857';
+            ctx.font = 'bold 12px Inter, sans-serif';
+            ctx.fillText('Profit: 50', o3X + oW / 2, o3Y + 64);
+
+            // Inside bottom: Total inside summary banner
+            const sumX = bagX + 15, sumY = bagY + 122, sumW = 220, sumH = 60;
+            ctx.fillStyle = '#ffffff';
+            ctx.strokeStyle = '#86efac';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.roundRect(sumX, sumY, sumW, sumH, 8);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = '#1e293b';
+            ctx.font = 'bold 12px Inter, sans-serif';
+            ctx.fillText('Weight Inside: 1 + 4 = 5 / 5', sumX + sumW / 2, sumY + 23);
+            ctx.fillStyle = '#15803d';
+            ctx.font = 'bold 13px Inter, sans-serif';
+            ctx.fillText('Max Profit: 10 + 50 = 60', sumX + sumW / 2, sumY + 45);
+        }
+
+        // Render canvases on load & resize
+        window.addEventListener('load', () => {
+            drawBagEx1();
+            drawBagEx2();
+        });
+        window.addEventListener('resize', () => {
+            drawBagEx1();
+            drawBagEx2();
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Study Notes - Complete DSA Directory & Roadmap</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Kalam:wght@400;700&family=Patrick+Hand&family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;600&display=swap"
+        rel="stylesheet">
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        notebookPaper: '#FAF6EE',
+                        paperDark: '#F4ECE1',
+                        inkBlue: '#1A365D',
+                        inkRed: '#9B2C2C',
+                        pencilGray: '#4A5568',
+                        marginRed: '#FC8181',
+                    },
+                    fontFamily: {
+                        notes: ['Patrick Hand', 'Kalam', 'cursive'],
+                        heading: ['Kalam', 'cursive'],
+                        clean: ['Inter', 'sans-serif'],
+                        code: ['Fira Code', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Digital Student Notebook Physical Styling */
+        body {
+            background-color: #cbd5e1;
+            font-family: 'Patrick Hand', 'Kalam', cursive;
+            color: #1e293b;
+        }
+
+        .lined-paper {
+            background-color: #FAF6EE;
+            background-image: repeating-linear-gradient(
+                #FAF6EE 0px,
+                #FAF6EE 31px,
+                #e2ebf3 32px
+            );
+            line-height: 32px;
+            position: relative;
+        }
+
+        .notebook-margin {
+            border-left: 2.5px solid #FC8181;
+            padding-left: 1.25rem;
+        }
+
+        @media (min-width: 640px) {
+            .notebook-margin {
+                padding-left: 2.25rem;
+            }
+        }
+
+        .spiral-ring {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #cbd5e1 0%, #64748b 50%, #334155 100%);
+            box-shadow: inset 1px 1px 2px rgba(255, 255, 255, 0.6), 2px 2px 4px rgba(0, 0, 0, 0.25);
+            margin: 11px 0;
+        }
+
+        /* Note Launch Badge */
+        .note-badge {
+            font-family: 'Inter', sans-serif !important;
+            font-size: 0.75rem !important;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 10px;
+            border-radius: 6px;
+            vertical-align: middle;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+        }
+
+        .note-badge:hover {
+            transform: translateY(-1.5px);
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.18);
+        }
+
+        /* Clean Mode Font Switcher */
+        body.font-clean,
+        body.font-clean * {
+            font-family: 'Inter', sans-serif !important;
+        }
+
+        body.font-clean pre,
+        body.font-clean code {
+            font-family: 'Fira Code', monospace !important;
+        }
+
+        /* Note Card Container */
+        .personal-card {
+            background: rgba(255, 255, 255, 0.78);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            border-left: 5px solid;
+            border-radius: 10px;
+            padding: 12px 16px;
+            transition: all 0.2s ease;
+        }
+
+        .personal-card:hover {
+            background: rgba(255, 255, 255, 0.95);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px -2px rgba(0, 0, 0, 0.08);
+        }
+    </style>
+</head>
+
+<body class="min-h-screen text-slate-800 antialiased transition-all duration-300 py-4 sm:py-8 px-2 sm:px-6">
+
+    <!-- Top Sticky Header Bar -->
+    <header
+        class="max-w-5xl mx-auto sticky top-2 z-50 bg-[#FAF6EE]/95 backdrop-blur-md border-2 border-amber-300/90 rounded-2xl shadow-xl px-4 py-3 mb-6">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-3">
+            <div class="flex items-center space-x-3">
+                <a href="../index.html"
+                    class="px-3 py-1.5 rounded-lg bg-amber-100 hover:bg-amber-200 border border-amber-300 text-inkBlue text-sm font-bold flex items-center gap-1.5 transition shadow-sm font-sans"
+                    title="Back to Main Bookshelf">
+                    <span>📚</span> <span>Bookshelf</span>
+                </a>
+                <div>
+                    <h1 class="text-2xl sm:text-3xl font-bold text-inkBlue font-['Kalam'] tracking-tight">Personal Study Notes Directory</h1>
+                    <p class="text-xs sm:text-sm text-pencilGray font-sans">Pedagogical DSA Curriculum & Interactive Lecture Notebooks • 24 Total Notebooks</p>
+                </div>
+            </div>
+
+            <!-- Controls: Search & Font Mode -->
+            <div class="flex items-center gap-2 w-full md:w-auto justify-end">
+                <div class="relative w-full sm:w-60">
+                    <input type="text" id="noteSearch" onkeyup="filterNotes()"
+                        placeholder="Search notebooks (e.g. MCM, Heap, Sort)..."
+                        class="w-full bg-white border border-amber-300 rounded-lg pl-8 pr-3 py-1.5 text-xs sm:text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500 font-sans shadow-inner">
+                    <span class="absolute left-2.5 top-2 text-slate-400 text-xs">🔍</span>
+                </div>
+                <button id="fontToggleBtn" onclick="toggleFontMode()"
+                    class="shrink-0 px-3 py-1.5 rounded-lg bg-inkBlue text-white hover:bg-slate-800 transition text-xs sm:text-sm font-bold shadow flex items-center gap-1 font-sans">
+                    <span>✍️</span> <span id="fontBtnText">Clean Font</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs: Quick Filter by Category -->
+        <nav
+            class="mt-3 pt-2 border-t border-amber-200 flex flex-wrap items-center justify-between gap-2 text-xs sm:text-sm select-none font-sans">
+            <div class="flex flex-wrap gap-1">
+                <button onclick="showCategory('all')" id="btn-cat-all"
+                    class="cat-nav-btn px-2.5 py-1 rounded-md font-bold bg-amber-300 text-inkBlue border border-amber-400 transition">
+                    All (24)
+                </button>
+                <button onclick="showCategory('stl')" id="btn-cat-stl"
+                    class="cat-nav-btn px-2.5 py-1 rounded-md font-bold text-slate-700 hover:bg-amber-100 transition">
+                    1. STL (9)
+                </button>
+                <button onclick="showCategory('searching')" id="btn-cat-searching"
+                    class="cat-nav-btn px-2.5 py-1 rounded-md font-bold text-slate-700 hover:bg-amber-100 transition">
+                    2. Searching (3)
+                </button>
+                <button onclick="showCategory('sorting')" id="btn-cat-sorting"
+                    class="cat-nav-btn px-2.5 py-1 rounded-md font-bold text-slate-700 hover:bg-amber-100 transition">
+                    3. Sorting (5)
+                </button>
+                <button onclick="showCategory('trees')" id="btn-cat-trees"
+                    class="cat-nav-btn px-2.5 py-1 rounded-md font-bold text-slate-700 hover:bg-amber-100 transition">
+                    4. Trees (B-Trees) (1)
+                </button>
+                <button onclick="showCategory('greedy')" id="btn-cat-greedy"
+                    class="cat-nav-btn px-2.5 py-1 rounded-md font-bold text-slate-700 hover:bg-amber-100 transition">
+                    5. Greedy (2)
+                </button>
+                <button onclick="showCategory('dp')" id="btn-cat-dp"
+                    class="cat-nav-btn px-2.5 py-1 rounded-md font-bold text-slate-700 hover:bg-amber-100 transition">
+                    6. Dynamic Prog (4)
+                </button>
+            </div>
+
+            <!-- Notes Indicator Legend -->
+            <div class="flex items-center gap-3 text-xs">
+                <span class="flex items-center gap-1 font-bold text-emerald-800">
+                    <span>Sequential Foundations → Algorithms → Advanced Structures</span>
+                </span>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Physical Binder Notebook Container -->
+    <main
+        class="max-w-5xl mx-auto flex relative bg-notebookPaper rounded-2xl shadow-2xl overflow-hidden border-2 border-amber-200 min-h-[900px]">
+
+        <!-- Left Spiral Rings Column -->
+        <div
+            class="w-8 sm:w-12 bg-[#F5EFEB] border-r-2 border-amber-300 flex flex-col items-center py-6 select-none shrink-0 no-print shadow-[inset_-4px_0_8px_rgba(0,0,0,0.04)]">
+            <script>
+                for (let i = 0; i < 48; i++) {
+                    document.write('<div class="spiral-ring"></div>');
+                }
+            </script>
+        </div>
+
+        <!-- Lined Notebook Paper Content Area -->
+        <div class="flex-1 lined-paper p-4 sm:p-8 notebook-margin text-xl sm:text-2xl text-slate-800 space-y-10 z-0">
+
+            <!-- Notebook Header Section -->
+            <div
+                class="border-b-2 border-inkRed pb-3 flex flex-col sm:flex-row justify-between items-start sm:items-baseline gap-2">
+                <div>
+                    <span
+                        class="text-xs sm:text-sm font-sans font-bold tracking-wider uppercase text-amber-900 bg-amber-100/80 px-2 py-0.5 rounded border border-amber-300">
+                        Personal Computer Science Lecture Notes
+                    </span>
+                    <h2 class="text-3xl sm:text-4xl font-bold text-inkBlue font-['Kalam'] mt-1">Pedagogical Topic Directory & Study Guide</h2>
+                </div>
+                <div class="text-right font-sans">
+                    <span class="text-xs sm:text-sm font-bold text-inkRed block">6 Study Units • 24 Interactive HTML Notebooks</span>
+                    <span class="text-xs text-slate-500">Click any notebook card to launch</span>
+                </div>
+            </div>
+
+            <!-- ======================================================================
+                 UNIT 1: STANDARD TEMPLATE LIBRARY (STL)
+                 ====================================================================== -->
+            <section id="sec-stl" class="note-section space-y-4">
+                <div class="flex items-baseline justify-between border-b-2 border-inkBlue/30 pb-1">
+                    <h3 class="text-2xl sm:text-3xl font-bold text-emerald-800 font-['Kalam'] flex items-center gap-2">
+                        <span>📦</span> Unit 1 – Standard Template Library (STL Containers)
+                    </h3>
+                    <span
+                        class="font-sans text-xs font-bold text-emerald-800 bg-emerald-100 px-2.5 py-0.5 rounded-full border border-emerald-300">
+                        9 Notebooks
+                    </span>
+                </div>
+                <p class="text-base sm:text-lg text-pencilGray font-sans leading-relaxed">
+                    Foundational memory models, dynamic allocation, pointer mechanics, iterators, and asymptotic bounds of C++ STL containers.
+                </p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pl-1 sm:pl-2">
+                    
+                    <!-- 1. Vector -->
+                    <div class="personal-card border-emerald-600 note-item" data-search="stl vector dynamic array capacity double reallocation amortized push_back">
+                        <div class="flex justify-between items-start gap-2">
+                            <div>
+                                <span class="text-[11px] font-sans font-bold uppercase text-emerald-800 bg-emerald-100 px-1.5 py-0.5 rounded border border-emerald-300">Sequence Container</span>
+                                <h4 class="text-xl font-bold text-inkBlue font-['Kalam'] mt-0.5">std::vector</h4>
+                            </div>
+                            <a href="stl_vector.html" class="note-badge bg-emerald-700 hover:bg-emerald-800 text-white">Open ↗</a>
+                        </div>
+                        <p class="text-sm font-sans text-slate-600 mt-1">Contiguous dynamic array, geometric capacity doubling, amortized $O(1)$ push_back, random access.</p>
+                        <span class="text-xs font-sans font-bold text-slate-500 mt-2 block">4 Topics • Canvas Interactive Engine</span>
+                    </div>
+
+                    <!-- 2. Deque -->
+                    <div class="personal-card border-rose-600 note-item" data-search="stl deque double ended queue block map chunks indexed push_front push_back">
+                        <div class="flex justify-between items-start gap-2">
+                            <div>
+                                <span class="text-[11px] font-sans font-bold uppercase text-rose-800 bg-rose-100 px-1.5 py-0.5 rounded border border-rose-300">Sequence Container</span>
+                                <h4 class="text-xl font-bold text-inkBlue font-['Kalam'] mt-0.5">std::deque</h4>
+                            </div>
+                            <a href="stl_deque.html" class="note-badge bg-rose-700 hover:bg-rose-800 text-white">Open ↗</a>
+                        </div>
+                        <p class="text-sm font-sans text-slate-600 mt-1">Double-ended queue, central map of fixed-size buffer chunks, $O(1)$ push & pop at both ends.</p>
+                        <span class="text-xs font-sans font-bold text-slate-500 mt-2 block">4 Topics • Canvas Interactive Engine</span>
+                    </div>
+
+                    <!-- 3. List -->
+                    <div class="personal-card border-amber-600 note-item" data-search="stl list doubly linked list nodes pointers forward backward traversal splice">
+                        <div class="flex justify-between items-start gap-2">
+                            <div>
+                                <span class="text-[11px] font-sans font-bold uppercase text-amber-800 bg-amber-100 px-1.5 py-0.5 rounded border border-amber-300">Sequence Container</span>
+                                <h4 class="text-xl font-bold text-inkBlue font-['Kalam'] mt-0.5">std::list</h4>
+                            </div>
+                            <a href="stl_list.html" class="note-badge bg-amber-700 hover:bg-amber-800 text-white">Open ↗</a>
+                        </div>
+                        <p class="text-sm font-sans text-slate-600 mt-1">Doubly linked list with prev/next pointers, constant time $O(1)$ splicing and non-invalidating node insertions.</p>
+                        <span class="text-xs font-sans font-bold text-slate-500 mt-2 block">4 Topics • Canvas Interactive Engine</span>
+                    </div>
+
+                    <!-- 4. Stack -->
+                    <div class="personal-card border-teal-600 note-item" data-search="stl stack lifo container adapter push pop top underlying deque vector">
+                        <div class="flex justify-between items-start gap-2">
+                            <div>
+                                <span class="text-[11px] font-sans font-bold uppercase text-teal-800 bg-teal-100 px-1.5 py-0.5 rounded border border-teal-300">Container Adapter</span>
+                                <h4 class="text-xl font-bold text-inkBlue font-['Kalam'] mt-0.5">std::stack</h4>
+                            </div>
+                            <a href="stl_stack.html" class="note-badge bg-teal-700 hover:bg-teal-800 text-white">Open ↗</a>
+                        </div>
+                        <p class="text-sm font-sans text-slate-600 mt-1">LIFO (Last-In, First-Out) adapter wrapping deque/vector, restriction to push, pop, top operations.</p>
+                        <span class="text-xs font-sans font-bold text-slate-500 mt-2 block">4 Topics • Canvas Interactive Engine</span>
+                    </div>
+
+                    <!-- 5. Queue -->
+                    <div class="personal-card border-cyan-600 note-item" data-search="stl queue fifo container adapter enqueue dequeue front back push pop">
+                        <div class="flex justify-between items-start gap-2">
+                            <div>
+                                <span class="text-[11px] font-sans font-bold uppercase text-cyan-800 bg-cyan-100 px-1.5 py-0.5 rounded border border-cyan-300">Container Adapter</span>
+                                <h4 class="text-xl font-bold text-inkBlue font-['Kalam'] mt-0.5">std::queue</h4>
+                            </div>
+                            <a href="stl_queue.html" class="note-badge bg-cyan-700 hover:bg-cyan-800 text-white">Open ↗</a>
+                        </div>
+                        <p class="text-sm font-sans text-slate-600 mt-1">FIFO (First-In, First-Out) adapter wrapping deque/list, standard pipeline queueing mechanics.</p>
+                        <span class="text-xs font-sans font-bold text-slate-500 mt-2 block">4 Topics • Canvas Interactive Engine</span>
+                    </div>
+
+                    <!-- 6. Set -->
+                    <div class="personal-card border-indigo-600 note-item" data-search="stl set ordered unique keys red black tree balanced bst logarithmic">
+                        <div class="flex justify-between items-start gap-2">
+                            <div>
+                                <span class="text-[11px] font-sans font-bold uppercase text-indigo-800 bg-indigo-100 px-1.5 py-0.5 rounded border border-indigo-300">Associative Tree</span>
+                                <h4 class="text-xl font-bold text-inkBlue font-['Kalam'] mt-0.5">std::set</h4>
+                            </div>
+                            <a href="stl_set.html" class="note-badge bg-indigo-700 hover:bg-indigo-800 text-white">Open ↗</a>
+                        </div>
+                        <p class="text-sm font-sans text-slate-600 mt-1">Ordered unique keys backed by self-balancing Red-Black Trees, guaranteeing strict $O(\log N)$ lookups.</p>
+                        <span class="text-xs font-sans font-bold text-slate-500 mt-2 block">4 Topics • Canvas Interactive Engine</span>
+                    </div>
+
+                    <!-- 7. Map -->
+                    <div class="personal-card border-blue-600 note-item" data-search="stl map ordered key value pairs red black tree associative dictionary">
+                        <div class="flex justify-between items-start gap-2">
+                            <div>
+                                <span class="text-[11px] font-sans font-bold uppercase text-blue-800 bg-blue-100 px-1.5 py-0.5 rounded border border-blue-300">Associative Tree</span>
+                                <h4 class="text-xl font-bold text-inkBlue font-['Kalam'] mt-0.5">std::map</h4>
+                            </div>
+                            <a href="stl_map.html" class="note-badge bg-blue-700 hover:bg-blue-800 text-white">Open ↗</a>
+                        </div>
+                        <p class="text-sm font-sans text-slate-600 mt-1">Sorted key-value associative mapping, Red-Black Tree mechanics, automatic logarithmic ordering.</p>
+                        <span class="text-xs font-sans font-bold text-slate-500 mt-2 block">4 Topics • Canvas Interactive Engine</span>
+                    </div>
+
+                    <!-- 8. Unordered Set -->
+                    <div class="personal-card border-purple-600 note-item" data-search="stl unordered_set hash table buckets chaining load factor constant time average">
+                        <div class="flex justify-between items-start gap-2">
+                            <div>
+                                <span class="text-[11px] font-sans font-bold uppercase text-purple-800 bg-purple-100 px-1.5 py-0.5 rounded border border-purple-300">Hash Table</span>
+                                <h4 class="text-xl font-bold text-inkBlue font-['Kalam'] mt-0.5">std::unordered_set</h4>
+                            </div>
+                            <a href="stl_unordered_set.html" class="note-badge bg-purple-700 hover:bg-purple-800 text-white">Open ↗</a>
+                        </div>
+                        <p class="text-sm font-sans text-slate-600 mt-1">Hash table with bucket chaining, average $O(1)$ search/insert, rehashing threshold and load factors.</p>
+                        <span class="text-xs font-sans font-bold text-slate-500 mt-2 block">4 Topics • Canvas Interactive Engine</span>
+                    </div>
+
+                    <!-- 9. Unordered Map -->
+                    <div class="personal-card border-pink-600 note-item" data-search="stl unordered_map hash table key value mapping average constant time lookup">
+                        <div class="flex justify-between items-start gap-2">
+                            <div>
+                                <span class="text-[11px] font-sans font-bold uppercase text-pink-800 bg-pink-100 px-1.5 py-0.5 rounded border border-pink-300">Hash Table</span>
+                                <h4 class="text-xl font-bold text-inkBlue font-['Kalam'] mt-0.5">std::unordered_map</h4>
+                            </div>
+                            <a href="stl_unordered_map.html" class="note-badge bg-pink-700 hover:bg-pink-800 text-white">Open ↗</a>
+                        </div>
+                        <p class="text-sm font-sans text-slate-600 mt-1">Hash-mapped key-value pairs, constant time average access, collision resolution via linked buckets.</p>
+                        <span class="text-xs font-sans font-bold text-slate-500 mt-2 block">4 Topics • Canvas Interactive Engine</span>
+                    </div>
+
+                </div>
+            </section>
+
+
+            <!-- ======================================================================
+                 UNIT 2: SEARCHING ALGORITHMS
+                 ====================================================================== -->
+            <section id="sec-searching" class="note-section space-y-4">
+                <div class="flex items-baseline justify-between border-b-2 border-inkBlue/30 pb-1">
+                    <h3 class="text-2xl sm:text-3xl font-bold text-sky-800 font-['Kalam'] flex items-center gap-2">
+                        <span>🔍</span> Unit 2 – Searching Algorithms
+                    </h3>
+                    <span
+                        class="font-sans text-xs font-bold text-sky-800 bg-sky-100 px-2.5 py-0.5 rounded-full border border-sky-300">
+                        3 Notebooks
+                    </span>
+                </div>
+                <p class="text-base sm:text-lg text-pencilGray font-sans leading-relaxed">
+                    Search methodologies transitioning from linear scans over unordered sequences to logarithmic interval trisections.
+                </p>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 pl-1 sm:pl-2">
+                    
+                    <!-- Linear Search -->
+                    <div class="personal-card border-emerald-600 note-item" data-search="linear search sequential scans array lists complexity inspection sentinel">
+                        <div class="flex justify-between items-start gap-2">
+                            <div>
+                                <span class="text-[11px] font-sans font-bold uppercase text-emerald-800 bg-emerald-100 px-1.5 py-0.5 rounded border border-emerald-300">Sequential Scan</span>
+                                <h4 class="text-xl font-bold text-inkBlue font-['Kalam'] mt-0.5">Linear Search</h4>
+                            </div>
+                            <a href="linear_search.html" class="note-badge bg-emerald-700 hover:bg-emerald-800 text-white">Open ↗</a>
+                        </div>
+                        <p class="text-sm font-sans text-slate-600 mt-1">Sequential traversal $O(N)$ with sentinel optimization, best for small or unsorted sequences.</p>
+                        <span class="text-xs font-sans font-bold text-slate-500 mt-2 block">4 Topics</span>
+                    </div>
+
+                    <!-- Binary Search -->
+                    <div class="personal-card border-indigo-600 note-item" data-search="binary search divide conquer range bounds mid pointers log complexity sorted">
+                        <div class="flex justify-between items-start gap-2">
+                            <div>
+                                <span class="text-[11px] font-sans font-bold uppercase text-indigo-800 bg-indigo-100 px-1.5 py-0.5 rounded border border-indigo-300">Divide & Conquer</span>
+                                <h4 class="text-xl font-bold text-inkBlue font-['Kalam'] mt-0.5">Binary Search</h4>
+                            </div>
+                            <a href="binary_search.html" class="note-badge bg-indigo-700 hover:bg-indigo-800 text-white">Open ↗</a>
+                        </div>
+                        <p class="text-sm font-sans text-slate-600 mt-1">Logarithmic $O(\log_2 N)$ bisection search on sorted arrays, invariant mid pointers, upper/lower bounds.</p>
+                        <span class="text-xs font-sans font-bold text-slate-500 mt-2 block">4 Topics</span>
+                    </div>
+
+                    <!-- Ternary Search -->
+                    <div class="personal-card border-pink-600 note-item" data-search="ternary search range trisections mid1 mid2 log3 complexity unimodal functions">
+                        <div class="flex justify-between items-start gap-2">
+                            <div>
+                                <span class="text-[11px] font-sans font-bold uppercase text-pink-800 bg-pink-100 px-1.5 py-0.5 rounded border border-pink-300">Interval Trisection</span>
+                                <h4 class="text-xl font-bold text-inkBlue font-['Kalam'] mt-0.5">Ternary Search</h4>
+                            </div>
+                            <a href="ternary_search.html" class="note-badge bg-pink-700 hover:bg-pink-800 text-white">Open ↗</a>
+                        </div>
+                        <p class="text-sm font-sans text-slate-600 mt-1">Dividing search interval into 3 parts via two midpoints, $O(\log_3 N)$ search on unimodal peaks and valleys.</p>
+                        <span class="text-xs font-sans font-bold text-slate-500 mt-2 block">4 Topics</span>
+                    </div>
+
+                </div>
+            </section>
+
+
+            <!-- ======================================================================
+                 UNIT 3: SORTING ALGORITHMS
+                 ====================================================================== -->
+            <section id="sec-sorting" class="note-section space-y-4">
+                <div class="flex items-baseline justify-between border-b-2 border-inkBlue/30 pb-1">
+                    <h3 class="text-2xl sm:text-3xl font-bold text-amber-800 font-['Kalam'] flex items-center gap-2">
+                        <span>⚡</span> Unit 3 – Sorting Algorithms
+                    </h3>
+                    <span
+                        class="font-sans text-xs font-bold text-amber-800 bg-amber-100 px-2.5 py-0.5 rounded-full border border-amber-300">
+                        5 Notebooks
+                    </span>
+                </div>
+                <p class="text-base sm:text-lg text-pencilGray font-sans leading-relaxed">
+                    Comparative sorting techniques starting with elementary $O(N^2)$ in-place passes up to optimal $O(N \log N)$ divide-and-conquer partitions.
+                </p>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pl-1 sm:pl-2">
+                    
+                    <!-- Bubble Sort -->
+                    <div class="personal-card border-amber-600 note-item" data-search="bubble sort adjacent swaps bubble sinking complexity array stability">
+                        <div class="flex justify-between items-start gap-2">
+                            <div>
+                                <span class="text-[11px] font-sans font-bold uppercase text-amber-800 bg-amber-100 px-1.5 py-0.5 rounded border border-amber-300">Elementary $O(N^2)$</span>
+                                <h4 class="text-xl font-bold text-inkBlue font-['Kalam'] mt-0.5">Bubble Sort</h4>
+                            </div>
+                            <a href="bubble_sort.html" class="note-badge bg-amber-700 hover:bg-amber-800 text-white">Open ↗</a>
+                        </div>
+                        <p class="text-sm font-sans text-slate-600 mt-1">Adjacent comparison and swapping passes, sinking large values to the end, early termination flag.</p>
+                        <span class="text-xs font-sans font-bold text-slate-500 mt-2 block">4 Topics • Stable</span>
+                    </div>
+
+                    <!-- Selection Sort -->
+                    <div class="personal-card border-emerald-600 note-item" data-search="selection sort minimum scans swap index complexity array unstability">
+                        <div class="flex justify-between items-start gap-2">
+                            <div>
+                                <span class="text-[11px] font-sans font-bold uppercase text-emerald-800 bg-emerald-100 px-1.5 py-0.5 rounded border border-emerald-300">Elementary $O(N^2)$</span>
+                                <h4 class="text-xl font-bold text-inkBlue font-['Kalam'] mt-0.5">Selection Sort</h4>
+                            </div>
+                            <a href="selection_sort.html" class="note-badge bg-emerald-700 hover:bg-emerald-800 text-white">Open ↗</a>
+                        </div>
+                        <p class="text-sm font-sans text-slate-600 mt-1">Linear scan for minimum element in unsorted suffix, performs at most $N$ swaps across all passes.</p>
+                        <span class="text-xs font-sans font-bold text-slate-500 mt-2 block">4 Topics • Unstable</span>
+                    </div>
+
+                    <!-- Insertion Sort -->
+                    <div class="personal-card border-teal-600 note-item" data-search="insertion sort card sort shift values insert key complexity array stability adaptive">
+                        <div class="flex justify-between items-start gap-2">
+                            <div>
+                                <span class="text-[11px] font-sans font-bold uppercase text-teal-800 bg-teal-100 px-1.5 py-0.5 rounded border border-teal-300">Adaptive $O(N^2)$</span>
+                                <h4 class="text-xl font-bold text-inkBlue font-['Kalam'] mt-0.5">Insertion Sort</h4>
+                            </div>
+                            <a href="insertion_sort.html" class="note-badge bg-teal-700 hover:bg-teal-800 text-white">Open ↗</a>
+                        </div>
+                        <p class="text-sm font-sans text-slate-600 mt-1">Maintains sorted prefix, shifting elements to insert current key into its position. $O(N)$ best-case.</p>
+                        <span class="text-xs font-sans font-bold text-slate-500 mt-2 block">4 Topics • Stable & Adaptive</span>
+                    </div>
+
+                    <!-- Merge Sort -->
+                    <div class="personal-card border-blue-600 note-item" data-search="merge sort divide conquer recursive splits temp array stable merge complexity log">
+                        <div class="flex justify-between items-start gap-2">
+                            <div>
+                                <span class="text-[11px] font-sans font-bold uppercase text-blue-800 bg-blue-100 px-1.5 py-0.5 rounded border border-blue-300">Divide & Conquer</span>
+                                <h4 class="text-xl font-bold text-inkBlue font-['Kalam'] mt-0.5">Merge Sort</h4>
+                            </div>
+                            <a href="merge_sort.html" class="note-badge bg-blue-700 hover:bg-blue-800 text-white">Open ↗</a>
+                        </div>
+                        <p class="text-sm font-sans text-slate-600 mt-1">Recursive split down to singletons, stable two-way merge pass with guaranteed $O(N \log N)$ worst-case.</p>
+                        <span class="text-xs font-sans font-bold text-slate-500 mt-2 block">4 Topics • Stable • $O(N)$ Space</span>
+                    </div>
+
+                    <!-- Quick Sort -->
+                    <div class="personal-card border-indigo-600 note-item" data-search="quick sort pivot partitions boundary pointers i j swap log complexity unstable">
+                        <div class="flex justify-between items-start gap-2">
+                            <div>
+                                <span class="text-[11px] font-sans font-bold uppercase text-indigo-800 bg-indigo-100 px-1.5 py-0.5 rounded border border-indigo-300">Divide & Conquer</span>
+                                <h4 class="text-xl font-bold text-inkBlue font-['Kalam'] mt-0.5">Quick Sort</h4>
+                            </div>
+                            <a href="quick_sort.html" class="note-badge bg-indigo-700 hover:bg-indigo-800 text-white">Open ↗</a>
+                        </div>
+                        <p class="text-sm font-sans text-slate-600 mt-1">In-place pivot partitioning (Hoare / Lomuto), recursive sub-array conquer, average $O(N \log N)$ runtime.</p>
+                        <span class="text-xs font-sans font-bold text-slate-500 mt-2 block">4 Topics • In-Place</span>
+                    </div>
+
+                </div>
+            </section>
+
+
+            <!-- ======================================================================
+                 UNIT 4: CONCEPT OF TREES (B-TREES)
+                 ====================================================================== -->
+            <section id="sec-trees" class="note-section space-y-4">
+                <div class="flex items-baseline justify-between border-b-2 border-inkBlue/30 pb-1">
+                    <h3 class="text-2xl sm:text-3xl font-bold text-emerald-800 font-['Kalam'] flex items-center gap-2">
+                        <span>🌳</span> Unit 4 – Concept of Trees (B-Trees & Multi-Way Trees)
+                    </h3>
+                    <span
+                        class="font-sans text-xs font-bold text-emerald-800 bg-emerald-100 px-2.5 py-0.5 rounded-full border border-emerald-300">
+                        1 Notebook (5 Topics)
+                    </span>
+                </div>
+                <p class="text-base sm:text-lg text-pencilGray font-sans leading-relaxed">
+                    Generalization of binary trees to multi-way balanced trees, disk block structures, indexing tiers, and B & B+ Tree operations.
+                </p>
+
+                <div class="grid grid-cols-1 gap-3 pl-1 sm:pl-2">
+                    
+                    <!-- B & B+ Trees -->
+                    <div class="personal-card border-emerald-700 note-item" data-search="concept of trees b-trees bplus trees multi-way m-way search trees disk tracks sectors blocks offsets multilevel index b tree plus search simulator">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-[11px] font-sans font-bold uppercase text-emerald-800 bg-emerald-100 px-1.5 py-0.5 rounded border border-emerald-300">Concept of Trees</span>
+                                    <span class="text-[11px] font-sans font-bold uppercase text-blue-800 bg-blue-100 px-1.5 py-0.5 rounded border border-blue-300">Multi-Way Trees</span>
+                                </div>
+                                <h4 class="text-2xl font-bold text-inkBlue font-['Kalam'] mt-1">B-Trees & B+ Trees (Concept of Trees)</h4>
+                            </div>
+                            <a href="dbms_b_trees_notes.html" class="note-badge bg-emerald-700 hover:bg-emerald-800 text-white text-sm py-1.5 px-4">
+                                📖 Open B-Tree Notebook ↗
+                            </a>
+                        </div>
+                        <p class="text-sm font-sans text-slate-700 mt-2 leading-relaxed">
+                            Comprehensive 5-topic exploration of physical disk geometry, blocks, record pointers, multi-level dense/sparse indexes, M-Way search trees, node splitting/merging invariants, and interactive B/B+ Tree visual simulators.
+                        </p>
+                        <div class="flex flex-wrap gap-2 text-xs font-sans font-bold text-slate-500 mt-3 pt-2 border-t border-slate-200">
+                            <span class="bg-amber-100 text-amber-900 px-2 py-0.5 rounded">1. Disk Structure</span>
+                            <span class="bg-amber-100 text-amber-900 px-2 py-0.5 rounded">2. Indexing & Blocks</span>
+                            <span class="bg-amber-100 text-amber-900 px-2 py-0.5 rounded">3. Multi-Level Indexing</span>
+                            <span class="bg-amber-100 text-amber-900 px-2 py-0.5 rounded">4. M-Way Search Trees</span>
+                            <span class="bg-amber-100 text-amber-900 px-2 py-0.5 rounded">5. B & B+ Trees</span>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+
+            <!-- ======================================================================
+                 UNIT 5: GREEDY ALGORITHMS & GRAPHS
+                 ====================================================================== -->
+            <section id="sec-greedy" class="note-section space-y-4">
+                <div class="flex items-baseline justify-between border-b-2 border-inkBlue/30 pb-1">
+                    <h3 class="text-2xl sm:text-3xl font-bold text-sky-800 font-['Kalam'] flex items-center gap-2">
+                        <span>🌲</span> Unit 5 – Greedy Algorithms & Spanning Trees
+                    </h3>
+                    <span
+                        class="font-sans text-xs font-bold text-sky-800 bg-sky-100 px-2.5 py-0.5 rounded-full border border-sky-300">
+                        2 Notebooks
+                    </span>
+                </div>
+                <p class="text-base sm:text-lg text-pencilGray font-sans leading-relaxed">
+                    Greedy choice property, optimal substructure, minimum-cost graph connections, and single-source shortest path relaxations.
+                </p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pl-1 sm:pl-2">
+                    
+                    <!-- MCST -->
+                    <div class="personal-card border-sky-600 note-item" data-search="minimum cost spanning tree mcst prims algorithm kruskals algorithm greedy graph tree cycles disconnected components">
+                        <div class="flex justify-between items-start gap-2">
+                            <div>
+                                <span class="text-[11px] font-sans font-bold uppercase text-sky-800 bg-sky-100 px-1.5 py-0.5 rounded border border-sky-300">Graph Spanning Trees</span>
+                                <h4 class="text-xl font-bold text-inkBlue font-['Kalam'] mt-0.5">Minimum Cost Spanning Tree (MCST)</h4>
+                            </div>
+                            <a href="mcst_notes.html" class="note-badge bg-sky-700 hover:bg-sky-800 text-white">Open ↗</a>
+                        </div>
+                        <p class="text-sm font-sans text-slate-600 mt-1">Deep-dive into Prim's vertex-growing algorithm and Kruskal's edge-sorting algorithm with Disjoint Set Union (DSU).</p>
+                        <span class="text-xs font-sans font-bold text-slate-500 mt-2 block">26 Topics • Proof of Correctness & Cut Property</span>
+                    </div>
+
+                    <!-- Dijkstra -->
+                    <div class="personal-card border-amber-600 note-item" data-search="dijkstra algorithms sssp single source shortest path relaxation table negative edge complexity">
+                        <div class="flex justify-between items-start gap-2">
+                            <div>
+                                <span class="text-[11px] font-sans font-bold uppercase text-amber-800 bg-amber-100 px-1.5 py-0.5 rounded border border-amber-300">Greedy Shortest Path</span>
+                                <h4 class="text-xl font-bold text-inkBlue font-['Kalam'] mt-0.5">Dijkstra's Algorithm (SSSP)</h4>
+                            </div>
+                            <a href="dijkstra_notes.html" class="note-badge bg-amber-700 hover:bg-amber-800 text-white">Open ↗</a>
+                        </div>
+                        <p class="text-sm font-sans text-slate-600 mt-1">Single-source shortest paths on non-negative weighted graphs, priority queue distance relaxations, why negative edges fail.</p>
+                        <span class="text-xs font-sans font-bold text-slate-500 mt-2 block">33 Topics • Complete Trace Examples</span>
+                    </div>
+
+                </div>
+            </section>
+
+
+            <!-- ======================================================================
+                 UNIT 6: DYNAMIC PROGRAMMING (DP)
+                 ====================================================================== -->
+            <section id="sec-dp" class="note-section space-y-4">
+                <div class="flex items-baseline justify-between border-b-2 border-inkBlue/30 pb-1">
+                    <h3 class="text-2xl sm:text-3xl font-bold text-purple-800 font-['Kalam'] flex items-center gap-2">
+                        <span>💎</span> Unit 6 – Dynamic Programming (DP)
+                    </h3>
+                    <span
+                        class="font-sans text-xs font-bold text-purple-800 bg-purple-100 px-2.5 py-0.5 rounded-full border border-purple-300">
+                        4 Notebooks
+                    </span>
+                </div>
+                <p class="text-base sm:text-lg text-pencilGray font-sans leading-relaxed">
+                    Multi-stage optimization, recurrence relations, overlapping subproblems, bottom-up memoization tables, and negative cycle handling.
+                </p>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pl-1 sm:pl-2">
+                    
+                    <!-- Bellman-Ford -->
+                    <div class="personal-card border-rose-600 note-item" data-search="bellman ford algorithms sssp single source shortest path relaxation negative edge negative weight cycle detection dynamic programming">
+                        <div class="flex justify-between items-start gap-2">
+                            <div>
+                                <span class="text-[11px] font-sans font-bold uppercase text-rose-800 bg-rose-100 px-1.5 py-0.5 rounded border border-rose-300">DP Graph SSSP</span>
+                                <h4 class="text-xl font-bold text-inkBlue font-['Kalam'] mt-0.5">Bellman-Ford Algorithm</h4>
+                            </div>
+                            <a href="bellman_ford_notes.html" class="note-badge bg-rose-700 hover:bg-rose-800 text-white">Open ↗</a>
+                        </div>
+                        <p class="text-sm font-sans text-slate-600 mt-1">DP edge relaxation in $|V|-1$ passes, handling directed negative weights, and negative cycle detection on pass $|V|$.</p>
+                        <span class="text-xs font-sans font-bold text-slate-500 mt-2 block">19 Topics • Negative Cycle Proof</span>
+                    </div>
+
+                    <!-- Optimal BST -->
+                    <div class="personal-card border-emerald-600 note-item" data-search="optimal binary search tree obst dynamic programming bst expected search cost dp interval knuth optimization">
+                        <div class="flex justify-between items-start gap-2">
+                            <div>
+                                <span class="text-[11px] font-sans font-bold uppercase text-emerald-800 bg-emerald-100 px-1.5 py-0.5 rounded border border-emerald-300">Tree DP Interval</span>
+                                <h4 class="text-xl font-bold text-inkBlue font-['Kalam'] mt-0.5">Optimal BST (OBST)</h4>
+                            </div>
+                            <a href="optimal_bst.html" class="note-badge bg-emerald-700 hover:bg-emerald-800 text-white">Open ↗</a>
+                        </div>
+                        <p class="text-sm font-sans text-slate-600 mt-1">Constructing minimum expected search cost BST under successful and unsuccessful search access probabilities.</p>
+                        <span class="text-xs font-sans font-bold text-slate-500 mt-2 block">4 Topics • Knuth Optimization</span>
+                    </div>
+
+                    <!-- Matrix Chain Multiplication -->
+                    <div class="personal-card border-purple-600 note-item" data-search="matrix chain multiplication mcm dynamic programming abdul bari catalan numbers parenthesization optimal split cost table k table">
+                        <div class="flex justify-between items-start gap-2">
+                            <div>
+                                <span class="text-[11px] font-sans font-bold uppercase text-purple-800 bg-purple-100 px-1.5 py-0.5 rounded border border-purple-300">Classic DP Interval</span>
+                                <h4 class="text-xl font-bold text-inkBlue font-['Kalam'] mt-0.5">Matrix Chain Mult (MCM)</h4>
+                            </div>
+                            <a href="matrix_chain_multiplication.html" class="note-badge bg-purple-700 hover:bg-purple-800 text-white">Open ↗</a>
+                        </div>
+                        <p class="text-sm font-sans text-slate-600 mt-1">Optimal parenthesization of matrix chains, Catalan combinatorics, diagonal DP cost table, $K$-table reconstruction.</p>
+                        <span class="text-xs font-sans font-bold text-slate-500 mt-2 block">5 Topics • Abdul Bari Method</span>
+                    </div>
+
+                    <!-- 0/1 Knapsack Problem -->
+                    <div class="personal-card border-indigo-600 note-item" data-search="0/1 knapsack problem zero one dynamic programming abdul bari tabulation table method sets method dominance rule purging capacity weights profits backtracking subset decision">
+                        <div class="flex justify-between items-start gap-2">
+                            <div>
+                                <span class="text-[11px] font-sans font-bold uppercase text-indigo-800 bg-indigo-100 px-1.5 py-0.5 rounded border border-indigo-300">0/1 Knapsack DP</span>
+                                <h4 class="text-xl font-bold text-inkBlue font-['Kalam'] mt-0.5">0/1 Knapsack Problem</h4>
+                            </div>
+                            <a href="zero_one_knapsack.html" class="note-badge bg-indigo-700 hover:bg-indigo-800 text-white">Open ↗</a>
+                        </div>
+                        <p class="text-sm font-sans text-slate-600 mt-1">Indivisible solid objects, Tabular method $V[i, w]$, Sets method with Dominance Rule purging, and decision sequence backtracking.</p>
+                        <span class="text-xs font-sans font-bold text-slate-500 mt-2 block">5 Modules • Tabular & Sets Methods</span>
+                    </div>
+
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-center text-xs text-slate-600 py-8 font-sans">
+        <p>Personal Notes Digital Bookshelf &copy; 2026. Handcrafted with Tailwind CSS, Google Fonts, and Vanilla Canvas Engines.</p>
+    </footer>
+
+    <!-- Interactive Filtering & Typography Script -->
+    <script>
+        function toggleFontMode() {
+            const body = document.body;
+            const btnText = document.getElementById('fontBtnText');
+            body.classList.toggle('font-clean');
+            
+            if (body.classList.contains('font-clean')) {
+                btnText.textContent = "Notes Font";
+            } else {
+                btnText.textContent = "Clean Font";
+            }
+        }
+
+        function filterNotes() {
+            const query = document.getElementById('noteSearch').value.toLowerCase();
+            const cards = document.querySelectorAll('.note-item');
+            
+            cards.forEach(card => {
+                const searchTags = card.getAttribute('data-search').toLowerCase();
+                const cardText = card.textContent.toLowerCase();
+                if (searchTags.includes(query) || cardText.includes(query)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            // Check sections visibility
+            const sections = document.querySelectorAll('.note-section');
+            sections.forEach(sec => {
+                const visible = sec.querySelectorAll('.note-item:not([style*="display: none"])');
+                if (visible.length === 0) {
+                    sec.style.opacity = '0.3';
+                } else {
+                    sec.style.opacity = '1';
+                }
+            });
+        }
+
+        function showCategory(cat) {
+            const sections = {
+                'stl': document.getElementById('sec-stl'),
+                'searching': document.getElementById('sec-searching'),
+                'sorting': document.getElementById('sec-sorting'),
+                'trees': document.getElementById('sec-trees'),
+                'greedy': document.getElementById('sec-greedy'),
+                'dp': document.getElementById('sec-dp'),
+            };
+
+            const buttons = ['all', 'stl', 'searching', 'sorting', 'trees', 'greedy', 'dp'];
+            buttons.forEach(b => {
+                const el = document.getElementById('btn-cat-' + b);
+                if (b === cat) {
+                    el.classList.remove('text-slate-700', 'hover:bg-amber-100');
+                    el.classList.add('bg-amber-300', 'text-inkBlue', 'border-amber-400');
+                } else {
+                    el.classList.remove('bg-amber-300', 'text-inkBlue', 'border-amber-400');
+                    el.classList.add('text-slate-700', 'hover:bg-amber-100');
+                }
+            });
+
+            if (cat === 'all') {
+                Object.values(sections).forEach(sec => {
+                    sec.style.display = 'block';
+                    sec.style.opacity = '1';
+                });
+            } else {
+                Object.entries(sections).forEach(([k, sec]) => {
+                    if (k === cat) {
+                        sec.style.display = 'block';
+                        sec.style.opacity = '1';
+                    } else {
+                        sec.style.display = 'none';
+                    }
+                });
+            }
+        }
+    </script>
+</body>
+
+</html>

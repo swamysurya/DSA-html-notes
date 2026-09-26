@@ -178,9 +178,19 @@
     <!-- Sticky Header -->
     <header class="sticky top-0 z-50 bg-[#FAF6EE] shadow-md border-b-2 border-amber-200 px-4 py-3 no-print">
         <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-3">
-            <div class="flex items-center space-x-3">
-                <span class="text-3xl font-bold text-inkBlue tracking-wide font-heading">🌲 Optimal Binary Search Tree (OBST)</span>
-                <span class="bg-amber-100 text-amber-900 text-xs font-bold px-2.5 py-1 rounded-full border border-amber-300 font-sans uppercase">Digital Lecture Notes</span>
+            <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+                <a href="../index.html" class="px-3 py-1.5 rounded-lg bg-amber-100 hover:bg-amber-200 border border-amber-300 text-inkBlue text-xs sm:text-sm font-bold flex items-center gap-1.5 transition shadow-sm font-sans" title="Back to Digital Bookshelf">
+                    <span>📚</span> <span>Bookshelf</span>
+                </a>
+                <a href="index.html" class="px-3 py-1.5 rounded-lg bg-emerald-100 hover:bg-emerald-200 border border-emerald-300 text-emerald-900 text-xs sm:text-sm font-bold flex items-center gap-1.5 transition shadow-sm font-sans" title="Back to Personal Notes Directory">
+                    <span>📋</span> <span>Notes Directory</span>
+                </a>
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl sm:text-3xl font-bold text-inkBlue tracking-wide font-heading">🌲 Optimal Binary Search Tree (OBST)</span>
+                    <span class="bg-purple-100 text-purple-900 text-xs sm:text-sm font-bold px-3 py-1 rounded-full border border-purple-300 font-sans">
+                        Dynamic Programming
+                    </span>
+                </div>
             </div>
             <button id="styleBtn" onclick="toggleStyleMode()" class="px-4 py-1.5 rounded-full text-sm font-bold bg-inkBlue text-white hover:bg-opacity-90 transition font-sans shadow-sm">
                 ✍️ Switch to Clean Print Font

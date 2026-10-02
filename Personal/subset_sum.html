@@ -1,0 +1,1301 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sum of Subsets: Backtracking & State-Space Tree - Digital Lecture Notes</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Kalam:wght@300;400;700&family=Patrick+Hand&family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap"
+        rel="stylesheet">
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        notebookBg: '#cbd5e1',
+                        notebookPaper: '#FAF6EE',
+                        inkBlue: '#1A365D',
+                        inkRed: '#9B2C2C',
+                        pencilGray: '#4A5568',
+                    },
+                    fontFamily: {
+                        notes: ['Patrick Hand', 'Kalam', 'cursive'],
+                        heading: ['Kalam', 'cursive'],
+                        clean: ['Inter', 'sans-serif'],
+                        code: ['Fira Code', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Physical Notebook Stylesheet -->
+    <style>
+        body {
+            background-color: #cbd5e1;
+            font-family: 'Patrick Hand', 'Kalam', cursive;
+            color: #1e293b;
+        }
+
+        .lined-paper {
+            background-color: #FAF6EE !important;
+            background-image: repeating-linear-gradient(#FAF6EE 0px,
+                    #FAF6EE 31px,
+                    #e2ebf3 32px) !important;
+            line-height: 32px;
+            position: relative;
+        }
+
+        .notebook-margin {
+            border-left: 2.5px solid #FC8181 !important;
+            padding-left: 1.25rem;
+        }
+
+        @media (min-width: 640px) {
+            .notebook-margin {
+                padding-left: 2.5rem;
+            }
+        }
+
+        .spiral-ring {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #cbd5e1 0%, #64748b 50%, #334155 100%);
+            box-shadow: inset 1px 1px 2px rgba(255, 255, 255, 0.6), 2px 2px 4px rgba(0, 0, 0, 0.25);
+            margin: 11px 0;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Kalam', cursive;
+        }
+
+        /* Clean Mode Font Switcher */
+        body.font-clean,
+        body.font-clean * {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+        }
+
+        body.font-clean pre,
+        body.font-clean code {
+            font-family: 'Fira Code', monospace !important;
+        }
+
+        /* Highlights & Badges */
+        .highlighter-yellow {
+            background: linear-gradient(104deg, rgba(254, 240, 138, 0.95) 0.9%, rgba(253, 224, 71, 0.85) 98%);
+            padding: 2px 8px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .highlighter-green {
+            background: linear-gradient(104deg, rgba(187, 247, 208, 0.95) 0.9%, rgba(134, 239, 172, 0.85) 98%);
+            padding: 2px 8px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .highlighter-red {
+            background: linear-gradient(104deg, rgba(254, 205, 211, 0.95) 0.9%, rgba(253, 164, 175, 0.85) 98%);
+            padding: 2px 8px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .pen-box {
+            background: rgba(255, 255, 255, 0.92);
+            border: 2px dashed #3b82f6;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .pen-box-red {
+            background: rgba(255, 255, 255, 0.92);
+            border: 2px dashed #ef4444;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .teacher-quote {
+            background: rgba(254, 243, 199, 0.92);
+            border-left: 5px solid #d97706;
+            border-radius: 6px;
+            padding: 0.85rem 1.2rem;
+            font-style: italic;
+        }
+
+        .sketch-card {
+            background: #ffffff;
+            border: 1.5px solid #cbd5e1;
+            box-shadow: 2px 3px 6px rgba(0, 0, 0, 0.06);
+            border-radius: 10px;
+        }
+
+        /* Pan & Zoom Canvas Container */
+        .zoom-canvas-wrapper {
+            position: relative;
+            overflow: hidden;
+            border: 2px solid #cbd5e1;
+            border-radius: 12px;
+            background-color: #FAF6EE;
+            background-image: 
+                radial-gradient(#cbd5e1 1.2px, transparent 1.2px), 
+                radial-gradient(#cbd5e1 1.2px, #FAF6EE 1.2px);
+            background-size: 24px 24px;
+            background-position: 0 0, 12px 12px;
+            cursor: grab;
+            user-select: none;
+        }
+
+        .zoom-canvas-wrapper:active {
+            cursor: grabbing;
+        }
+
+        .zoom-toolbar {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(4px);
+            padding: 4px 8px;
+            border-radius: 10px;
+            border: 1px solid #cbd5e1;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Fullscreen Maximize Mode */
+        .zoom-canvas-wrapper.is-fullscreen {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            z-index: 99999 !important;
+            border-radius: 0 !important;
+            border: none !important;
+            margin: 0 !important;
+        }
+
+        .zoom-canvas-wrapper.is-fullscreen .zoom-toolbar {
+            top: 18px;
+            right: 24px;
+            padding: 6px 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+        }
+
+        .zoom-btn {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: #1e293b;
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            transition: all 0.15s ease;
+        }
+
+        .zoom-btn:hover {
+            background: #e2e8f0;
+            color: #0f172a;
+            transform: scale(1.05);
+        }
+
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            body {
+                background: white !important;
+            }
+            .lined-paper {
+                background-image: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body class="text-xl text-slate-800 antialiased transition-all duration-300">
+
+    <!-- Sticky Header Navigation Bar -->
+    <header class="sticky top-0 z-50 bg-[#FAF6EE] shadow-md border-b-2 border-amber-200 px-4 py-3 no-print">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-3">
+            <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+                <a href="../index.html"
+                    class="px-3 py-1.5 rounded-lg bg-amber-100 hover:bg-amber-200 border border-amber-300 text-inkBlue text-xs sm:text-sm font-bold flex items-center gap-1.5 transition shadow-sm font-sans"
+                    title="Back to Digital Bookshelf">
+                    <span>📚</span> <span>Bookshelf</span>
+                </a>
+                <a href="index.html"
+                    class="px-3 py-1.5 rounded-lg bg-emerald-100 hover:bg-emerald-200 border border-emerald-300 text-emerald-900 text-xs sm:text-sm font-bold flex items-center gap-1.5 transition shadow-sm font-sans"
+                    title="Back to Personal Notes Directory">
+                    <span>📋</span> <span>Notes Directory</span>
+                </a>
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl sm:text-3xl font-bold text-inkBlue tracking-wide font-['Kalam']">➕ Sum of Subsets</span>
+                    <span
+                        class="bg-indigo-100 text-indigo-900 text-xs sm:text-sm font-bold px-3 py-1 rounded-full border border-indigo-300 font-sans">
+                        Abdul Bari Method • Backtracking
+                    </span>
+                </div>
+            </div>
+
+            <!-- Right: Font Toggle Button -->
+            <div class="flex items-center gap-2">
+                <button id="fontToggleBtn" onclick="toggleFontMode()"
+                    class="shrink-0 px-3.5 py-1.5 rounded-lg bg-inkBlue text-white hover:bg-slate-800 transition text-xs sm:text-sm font-bold shadow flex items-center gap-1.5 font-sans"
+                    title="Toggle between Handwritten and Clean typography">
+                    <span>✍️</span> <span id="fontBtnText">Clean Font</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <nav class="max-w-6xl mx-auto mt-2.5 flex flex-wrap gap-1 border-t border-amber-200 pt-2 text-sm sm:text-base font-sans">
+            <button onclick="switchTab('tab-formulation-rules')" id="nav-tab-formulation-rules"
+                class="nav-tab px-4 py-1.5 rounded-t-lg font-bold bg-amber-200 text-inkBlue border-b-2 border-inkBlue transition">
+                1. Problem &amp; Bounding Rules
+            </button>
+            <button onclick="switchTab('tab-state-space-tree')" id="nav-tab-state-space-tree"
+                class="nav-tab px-4 py-1.5 rounded-t-lg font-bold text-slate-600 hover:text-inkBlue transition">
+                2. State-Space Tree (Live (s, r) Nodes &amp; Pan/Zoom)
+            </button>
+            <button onclick="switchTab('tab-step-by-step')" id="nav-tab-step-by-step"
+                class="nav-tab px-4 py-1.5 rounded-t-lg font-bold text-slate-600 hover:text-inkBlue transition">
+                3. Step-by-Step Visual Trace
+            </button>
+            <button onclick="switchTab('tab-algorithm-complexity')" id="nav-tab-algorithm-complexity"
+                class="nav-tab px-4 py-1.5 rounded-t-lg font-bold text-slate-600 hover:text-inkBlue transition">
+                4. Recursive Algorithm &amp; Complexity
+            </button>
+        </nav>
+    </header>
+
+    <!-- Main Notebook Container -->
+    <main
+        class="max-w-6xl mx-auto flex relative bg-notebookPaper rounded-xl shadow-2xl overflow-hidden min-h-[950px] border border-amber-200 my-8">
+
+        <!-- Left Binder Column (50 Physical Spiral Rings) -->
+        <div
+            class="w-10 sm:w-16 bg-amber-50 border-r-2 border-amber-200 flex flex-col items-center py-8 select-none shrink-0 no-print space-y-6 z-10 shadow-[inset_-5px_0_10px_rgba(0,0,0,0.05)]">
+            <script>
+                for (let i = 0; i < 50; i++) document.write('<div class="spiral-ring"></div>');
+            </script>
+        </div>
+
+        <!-- Notebook Content Area -->
+        <div class="flex-1 lined-paper p-4 sm:p-8 notebook-margin sm:pl-8 overflow-hidden z-0">
+
+            <!-- ==================================================================== -->
+            <!-- TAB 1: PROBLEM STATEMENT & BOUNDING RULES                            -->
+            <!-- ==================================================================== -->
+            <div id="tab-formulation-rules" class="tab-pane space-y-8">
+
+                <!-- Section Header -->
+                <div class="border-b-2 border-inkRed pb-2 flex justify-between items-baseline">
+                    <div>
+                        <h1 class="text-3xl sm:text-4xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                            1. Sum of Subsets: Problem Setup &amp; Dual Bounding Functions
+                        </h1>
+                        <p class="text-sm font-sans text-pencilGray mt-1">Minimal words, high-density diagrams • Given weights W = {5, 10, 12, 13, 15, 18} and Target M = 30</p>
+                    </div>
+                    <span class="text-xs sm:text-sm font-bold font-sans bg-amber-100 text-inkRed px-2.5 py-1 rounded border border-amber-300">
+                        Tab 1 • Visual Setup
+                    </span>
+                </div>
+
+                <!-- Problem Statement Visual Board -->
+                <div class="sketch-card p-4 font-sans space-y-4">
+                    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-3">
+                        <div class="flex items-center gap-2">
+                            <span class="text-2xl">🎯</span>
+                            <span class="text-xl font-bold text-inkBlue font-['Kalam']">Problem Input Data:</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="px-3 py-1 bg-amber-100 border border-amber-300 rounded-lg font-mono font-bold text-amber-950 text-sm">
+                                n = 6 weights
+                            </span>
+                            <span class="px-3 py-1 bg-emerald-100 border border-emerald-300 rounded-lg font-mono font-bold text-emerald-950 text-sm">
+                                Target M = 30
+                            </span>
+                            <span class="px-3 py-1 bg-blue-100 border border-blue-300 rounded-lg font-mono font-bold text-blue-950 text-sm">
+                                Total Weight ∑w = 73
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- 6 Weights Visual Blocks -->
+                    <div class="grid grid-cols-2 sm:grid-cols-6 gap-2 text-center">
+                        <div class="p-2.5 bg-slate-50 border border-slate-300 rounded-lg shadow-sm">
+                            <span class="text-[11px] font-bold text-slate-500 uppercase block">w₁</span>
+                            <span class="text-2xl font-bold text-indigo-900 font-mono">5</span>
+                        </div>
+                        <div class="p-2.5 bg-slate-50 border border-slate-300 rounded-lg shadow-sm">
+                            <span class="text-[11px] font-bold text-slate-500 uppercase block">w₂</span>
+                            <span class="text-2xl font-bold text-indigo-900 font-mono">10</span>
+                        </div>
+                        <div class="p-2.5 bg-slate-50 border border-slate-300 rounded-lg shadow-sm">
+                            <span class="text-[11px] font-bold text-slate-500 uppercase block">w₃</span>
+                            <span class="text-2xl font-bold text-indigo-900 font-mono">12</span>
+                        </div>
+                        <div class="p-2.5 bg-slate-50 border border-slate-300 rounded-lg shadow-sm">
+                            <span class="text-[11px] font-bold text-slate-500 uppercase block">w₄</span>
+                            <span class="text-2xl font-bold text-indigo-900 font-mono">13</span>
+                        </div>
+                        <div class="p-2.5 bg-slate-50 border border-slate-300 rounded-lg shadow-sm">
+                            <span class="text-[11px] font-bold text-slate-500 uppercase block">w₅</span>
+                            <span class="text-2xl font-bold text-indigo-900 font-mono">15</span>
+                        </div>
+                        <div class="p-2.5 bg-slate-50 border border-slate-300 rounded-lg shadow-sm">
+                            <span class="text-[11px] font-bold text-slate-500 uppercase block">w₆</span>
+                            <span class="text-2xl font-bold text-indigo-900 font-mono">18</span>
+                        </div>
+                    </div>
+
+                    <!-- Decision Vector -->
+                    <div class="p-3 bg-indigo-50/70 border border-indigo-200 rounded-lg text-sm text-indigo-950 flex flex-col sm:flex-row justify-between items-center gap-2">
+                        <span><strong>Binary Solution Vector:</strong> $X = (x_1, x_2, \dots, x_6)$ where each $x_i \in \{0, 1\}$</span>
+                        <div class="flex gap-2 font-mono font-bold text-xs">
+                            <span class="bg-white px-2 py-0.5 rounded border border-emerald-400 text-emerald-800">xᵢ = 1 (Include wᵢ)</span>
+                            <span class="bg-white px-2 py-0.5 rounded border border-slate-400 text-slate-700">xᵢ = 0 (Exclude wᵢ)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dual Bounding Functions: Visual Infographic -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 font-sans">
+                    
+                    <!-- Bounding Function 1 -->
+                    <div class="sketch-card p-4 border-l-4 border-rose-500 space-y-2 bg-rose-50/40">
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold text-rose-950 text-base font-['Kalam']">✂️ Bounding Function 1: Overweight Check</span>
+                            <span class="text-[11px] font-bold bg-rose-200 text-rose-900 px-2 py-0.5 rounded">Left Branch (xₖ = 1)</span>
+                        </div>
+                        <div class="p-3 bg-white rounded border border-rose-200 font-mono text-center text-lg font-bold text-rose-900">
+                            s + wₖ ≤ M
+                        </div>
+                        <p class="text-xs text-slate-700 leading-relaxed">
+                            <strong>Intuition:</strong> If current sum $s$ plus the candidate weight $w_k$ exceeds target $M$, kill the node immediately. Because all weights are positive, going deeper will only increase the sum further!
+                        </p>
+                    </div>
+
+                    <!-- Bounding Function 2 -->
+                    <div class="sketch-card p-4 border-l-4 border-amber-500 space-y-2 bg-amber-50/40">
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold text-amber-950 text-base font-['Kalam']">✂️ Bounding Function 2: Underweight Check</span>
+                            <span class="text-[11px] font-bold bg-amber-200 text-amber-900 px-2 py-0.5 rounded">Right Branch (xₖ = 0)</span>
+                        </div>
+                        <div class="p-3 bg-white rounded border border-amber-200 font-mono text-center text-lg font-bold text-amber-900">
+                            s + r ≥ M &nbsp; (and s + wₖ₊₁ ≤ M)
+                        </div>
+                        <p class="text-xs text-slate-700 leading-relaxed">
+                            <strong>Intuition:</strong> If current sum $s$ plus all remaining available weights $r$ is strictly less than target $M$, there is not enough weight in existence to reach $M$. Kill the node immediately!
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Canvas: The 3 Valid Solutions Comparison Diagram -->
+                <div class="sketch-card p-4 font-sans space-y-2">
+                    <div class="flex justify-between items-center border-b border-slate-200 pb-2">
+                        <h3 class="text-xl font-bold text-inkBlue font-['Kalam']">🎨 Visual Solutions Gauge: All 3 Subsets that equal M = 30</h3>
+                        <span class="text-xs font-bold bg-emerald-100 text-emerald-900 px-2.5 py-1 rounded">Target = 30</span>
+                    </div>
+                    <div class="flex justify-center overflow-x-auto">
+                        <canvas id="canvas-solutions-gauge" width="700" height="230" class="max-w-full rounded border border-slate-200 bg-[#FCFBF7]"></canvas>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ==================================================================== -->
+            <!-- TAB 2: STATE-SPACE TREE (LIVE (s, r) NODES & PAN/ZOOM)               -->
+            <!-- ==================================================================== -->
+            <div id="tab-state-space-tree" class="tab-pane hidden space-y-6">
+
+                <!-- Section Header -->
+                <div class="border-b-2 border-inkRed pb-2 flex justify-between items-baseline">
+                    <div>
+                        <h1 class="text-3xl sm:text-4xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                            2. Complete Sum-of-Subsets State-Space Tree
+                        </h1>
+                        <p class="text-sm font-sans text-pencilGray mt-1">Exhaustive full tree: every branch from Root to Leaves with (s, r) nodes, pruning cuts &amp; all 3 solutions • Pan, Zoom &amp; Maximize</p>
+                    </div>
+                    <span class="text-xs sm:text-sm font-bold font-sans bg-amber-100 text-inkRed px-2.5 py-1 rounded border border-amber-300">
+                        Tab 2 • State-Space Tree
+                    </span>
+                </div>
+
+                <!-- Node Meaning Guide -->
+                <div class="grid grid-cols-1 sm:grid-cols-4 gap-2 font-sans text-xs">
+                    <div class="p-2 bg-blue-50 border border-blue-200 rounded-lg flex items-center gap-2">
+                        <span class="w-4 h-4 rounded-full bg-indigo-600 shrink-0"></span>
+                        <span><strong>Node Format:</strong> (s, r) = (Sum, Remaining)</span>
+                    </div>
+                    <div class="p-2 bg-emerald-50 border border-emerald-200 rounded-lg flex items-center gap-2">
+                        <span class="w-4 h-4 rounded-full bg-emerald-500 shrink-0"></span>
+                        <span><strong>Left Branch:</strong> Include wₖ (xₖ = 1)</span>
+                    </div>
+                    <div class="p-2 bg-slate-50 border border-slate-300 rounded-lg flex items-center gap-2">
+                        <span class="w-4 h-4 rounded-full bg-slate-400 shrink-0"></span>
+                        <span><strong>Right Branch:</strong> Exclude wₖ (xₖ = 0)</span>
+                    </div>
+                    <div class="p-2 bg-rose-50 border border-rose-200 rounded-lg flex items-center gap-2">
+                        <span class="w-4 h-4 rounded-full bg-rose-500 shrink-0"></span>
+                        <span><strong>Red Border / ✂️:</strong> Node Killed by Bounding Function</span>
+                    </div>
+                </div>
+
+                <!-- Pan & Zoom Tree Canvas -->
+                <div class="sketch-card p-3 font-sans">
+                    <div class="zoom-canvas-wrapper" id="subsetTreeWrapper" style="height: 640px;">
+                        
+                        <!-- Floating Zoom & Maximize Toolbar -->
+                        <div class="zoom-toolbar select-none">
+                            <span id="subsetZoomDisplay" class="text-xs font-mono font-bold text-slate-700 px-2">90%</span>
+                            <button onclick="subsetZoomIn()" class="zoom-btn" title="Zoom In (+)">➕</button>
+                            <button onclick="subsetZoomOut()" class="zoom-btn" title="Zoom Out (-)">➖</button>
+                            <button onclick="subsetResetZoom()" class="zoom-btn" title="Reset View (⟲)">⟲</button>
+                            <button onclick="subsetFitTree()" class="zoom-btn" title="Fit Entire Tree (⊡)">⊡</button>
+                            <button id="btnSubsetFullscreen" onclick="toggleSubsetFullscreen()" class="zoom-btn text-base" title="Maximize Fullscreen (⛶)">⛶</button>
+                        </div>
+
+                        <!-- Canvas: 3250px wide for complete state-space tree -->
+                        <canvas id="canvas-subset-tree" width="3250" height="1150"></canvas>
+                    </div>
+
+                    <div class="mt-2.5 flex flex-wrap justify-between items-center text-xs text-slate-600 px-1">
+                        <span>💡 Drag to pan • Scroll to zoom • Click <strong>⛶</strong> for Fullscreen mode (press <kbd>Esc</kbd> or <kbd>F</kbd> to exit)</span>
+                        <span class="text-emerald-800 font-bold">🏆 Solution 1 = {5, 10, 15} highlighted in gold</span>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ==================================================================== -->
+            <!-- TAB 3: STEP-BY-STEP VISUAL BACKTRACKING TRACE                        -->
+            <!-- ==================================================================== -->
+            <div id="tab-step-by-step" class="tab-pane hidden space-y-6">
+
+                <!-- Section Header -->
+                <div class="border-b-2 border-inkRed pb-2 flex justify-between items-baseline">
+                    <div>
+                        <h1 class="text-3xl sm:text-4xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                            3. Step-by-Step Visual Backtracking Walkthrough
+                        </h1>
+                        <p class="text-sm font-sans text-pencilGray mt-1">Chronological trace down the page with weight scales and pruning reasons</p>
+                    </div>
+                    <span class="text-xs sm:text-sm font-bold font-sans bg-amber-100 text-inkRed px-2.5 py-1 rounded border border-amber-300">
+                        Tab 3 • Visual Trace
+                    </span>
+                </div>
+
+                <div class="space-y-4 font-sans text-sm">
+                    
+                    <!-- STEP 1: INITIAL STATE TO LEVEL 3 -->
+                    <div class="sketch-card p-4 border-l-4 border-indigo-600 space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="text-base font-bold text-indigo-950 font-['Kalam']">Phase 1: Greedily Include First 3 Weights {5, 10, 12}</span>
+                            <span class="bg-indigo-100 text-indigo-900 text-xs font-bold px-2 py-0.5 rounded font-mono">s = 27, r = 46</span>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
+                            <div class="md:col-span-8 text-slate-700 space-y-1">
+                                <p>• <strong>Root:</strong> $(s=0, r=73)$.</p>
+                                <p>• <strong>Include w₁ = 5:</strong> $s = 0+5=5$, $r = 73-5=68$. ($5 \le 30$ ✅)</p>
+                                <p>• <strong>Include w₂ = 10:</strong> $s = 5+10=15$, $r = 68-10=58$. ($15 \le 30$ ✅)</p>
+                                <p>• <strong>Include w₃ = 12:</strong> $s = 15+12=27$, $r = 58-12=46$. ($27 \le 30$ ✅)</p>
+                            </div>
+                            <div class="md:col-span-4 flex justify-center">
+                                <canvas id="canvas-trace-1" width="180" height="110" class="rounded border border-slate-300 bg-white shadow-sm"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- STEP 2: OVERWEIGHT PRUNING -->
+                    <div class="sketch-card p-4 border-l-4 border-rose-500 space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="text-base font-bold text-rose-950 font-['Kalam']">Phase 2: Try Including w₄ = 13 ➜ Exceeds 30 ➜ KILLED ✕</span>
+                            <span class="bg-rose-100 text-rose-900 text-xs font-bold px-2 py-0.5 rounded font-mono">40 &gt; 30 (KILLED)</span>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
+                            <div class="md:col-span-8 text-slate-700 space-y-1.5">
+                                <p class="text-rose-800 font-bold">
+                                    Bounding Function 1 Triggers: $s + w_4 = 27 + 13 = \mathbf{40} > 30$.
+                                </p>
+                                <p>This branch is killed immediately! We do not explore any children of this node.</p>
+                                <p class="text-xs bg-rose-50 text-rose-900 p-2 rounded">
+                                    Next: Try excluding $w_4$ ($x_4 = 0$) ➜ $s = 27, r = 33$.
+                                    Then trying $w_5 = 15$ gives $27+15=42 > 30$ (Killed ✕).
+                                    Trying $w_6 = 18$ gives $27+18=45 > 30$ (Killed ✕).
+                                    Remaining weights exhausted $\implies$ <strong>BACKTRACK to w₃!</strong>
+                                </p>
+                            </div>
+                            <div class="md:col-span-4 flex justify-center">
+                                <canvas id="canvas-trace-2" width="180" height="110" class="rounded border border-slate-300 bg-white shadow-sm"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- STEP 3: BACKTRACK TO W3 AND DISCOVERY OF SOLUTION 1 -->
+                    <div class="sketch-card p-4 border-l-4 border-emerald-600 space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="text-base font-bold text-emerald-950 font-['Kalam']">Phase 3: Backtrack to w₃ = 0, w₄ = 0, Include w₅ = 15 ➜ SOLUTION 1! 🏆</span>
+                            <span class="bg-emerald-200 text-emerald-900 text-xs font-bold px-2 py-0.5 rounded font-mono">Sum = 30 (EXACT)</span>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
+                            <div class="md:col-span-8 text-slate-700 space-y-1.5">
+                                <p>• Backtrack up to $(s=15, r=58)$ and <strong>exclude w₃ = 12</strong> ($x_3 = 0$) ➜ $(s=15, r=46)$.</p>
+                                <p>• Try $x_4 = 1$ ($w_4 = 13$) ➜ $15+13=28$, but subsequent weights $15, 18$ both exceed 30 $\implies$ backtrack!</p>
+                                <p>• Try <strong>exclude w₄ = 13</strong> ($x_4 = 0$) ➜ $(s=15, r=33)$.</p>
+                                <p>• Now <strong>include w₅ = 15</strong> ($x_5 = 1$):</p>
+                                <div class="p-2 bg-emerald-100 rounded text-emerald-950 font-mono font-bold text-center">
+                                    s = 15 + 15 = 30 == Target M! 🎯
+                                </div>
+                                <p class="text-xs text-emerald-900 font-bold">
+                                    🎉 Vector: X = (1, 1, 0, 0, 1, 0) ➜ Subset {w₁, w₂, w₅} = {5, 10, 15} = 30!
+                                </p>
+                            </div>
+                            <div class="md:col-span-4 flex justify-center">
+                                <canvas id="canvas-trace-3" width="180" height="110" class="rounded border border-slate-300 bg-white shadow-sm"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- ==================================================================== -->
+            <!-- TAB 4: RECURSIVE ALGORITHM & COMPLEXITY                              -->
+            <!-- ==================================================================== -->
+            <div id="tab-algorithm-complexity" class="tab-pane hidden space-y-6">
+
+                <!-- Section Header -->
+                <div class="border-b-2 border-inkRed pb-2 flex justify-between items-baseline">
+                    <div>
+                        <h1 class="text-3xl sm:text-4xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                            4. Recursive Algorithm &amp; Complexity
+                        </h1>
+                        <p class="text-sm font-sans text-pencilGray mt-1">Abdul Bari canonical SumOfSub(s, k, r) procedure &amp; asymptotic bounds</p>
+                    </div>
+                    <span class="text-xs sm:text-sm font-bold font-sans bg-amber-100 text-inkRed px-2.5 py-1 rounded border border-amber-300">
+                        Tab 4 • Code &amp; Bounds
+                    </span>
+                </div>
+
+                <!-- Code Blueprint -->
+                <div class="bg-slate-900 text-slate-100 p-4 rounded-xl font-mono text-xs sm:text-sm shadow-md font-sans">
+                    <div class="text-slate-400 text-xs pb-2 border-b border-slate-700">
+                        Canonical SumOfSub(s, k, r) Backtracking Algorithm (Weights Sorted in Ascending Order)
+                    </div>
+                    <pre class="mt-3 text-emerald-300 font-mono">
+<span class="text-purple-400">function</span> <span class="text-yellow-300">SumOfSub</span>(s, k, r):
+    <span class="text-slate-400">// s = current sum of included weights</span>
+    <span class="text-slate-400">// k = current element index being decided</span>
+    <span class="text-slate-400">// r = sum of all remaining elements from k to n</span>
+
+    <span class="text-slate-400">// 1. GENERATE LEFT CHILD: Include w[k] (x[k] = 1)</span>
+    x[k] = 1
+
+    <span class="text-purple-400">if</span> (s + w[k] == M):
+        <span class="text-yellow-300">PrintSolution</span>(x, k)  <span class="text-slate-400">// Target M reached! 🎯</span>
+    <span class="text-purple-400">else if</span> (s + w[k] + w[k+1] &lt;= M):
+        <span class="text-yellow-300">SumOfSub</span>(s + w[k], k + 1, r - w[k])  <span class="text-slate-400">// Explore deeper</span>
+
+    <span class="text-slate-400">// 2. GENERATE RIGHT CHILD: Exclude w[k] (x[k] = 0)</span>
+    <span class="text-purple-400">if</span> (s + r - w[k] &gt;= M) <span class="text-purple-400">and</span> (s + w[k+1] &lt;= M):
+        x[k] = 0
+        <span class="text-yellow-300">SumOfSub</span>(s, k + 1, r - w[k])  <span class="text-slate-400">// Explore without w[k]</span></pre>
+                </div>
+
+                <!-- Complexity Table -->
+                <div class="sketch-card p-4 font-sans text-sm space-y-3">
+                    <h3 class="text-xl font-bold text-inkBlue font-['Kalam']">📊 Asymptotic Complexity</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse border border-slate-300">
+                            <thead>
+                                <tr class="bg-indigo-950 text-white font-bold text-xs sm:text-sm">
+                                    <th class="py-2 px-3 border border-indigo-900">Approach</th>
+                                    <th class="py-2 px-3 border border-indigo-900">Tree Nodes</th>
+                                    <th class="py-2 px-3 border border-indigo-900">Time Complexity</th>
+                                    <th class="py-2 px-3 border border-indigo-900">Space Complexity</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-slate-800 text-xs sm:text-sm">
+                                <tr class="border-b border-slate-200">
+                                    <td class="py-2 px-3 font-bold bg-slate-50">Pure Brute Force</td>
+                                    <td class="py-2 px-3 font-mono">2ⁿ⁺¹ - 1 (2⁶ = 64 leaves)</td>
+                                    <td class="py-2 px-3 font-mono text-rose-700 font-bold">O(2ⁿ)</td>
+                                    <td class="py-2 px-3 font-mono">O(n)</td>
+                                </tr>
+                                <tr class="bg-emerald-50">
+                                    <td class="py-2 px-3 font-bold bg-emerald-100 text-emerald-950">Backtracking (Dual Bounded)</td>
+                                    <td class="py-2 px-3 font-mono text-emerald-900 font-bold">Massive subtrees pruned early</td>
+                                    <td class="py-2 px-3 font-mono text-emerald-900 font-bold">Worst-case O(2ⁿ), polynomial in practice</td>
+                                    <td class="py-2 px-3 font-mono text-emerald-900 font-bold">O(n)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-center text-xs text-slate-600 py-8 font-sans">
+        <p>Personal Digital Lecture Notebook &copy; 2026. Handcrafted with Tailwind CSS, Google Fonts, and Vanilla Canvas Engines.</p>
+    </footer>
+
+    <!-- Interactive Script: Typography, Tab Switcher, Pan & Zoom Engine, and Canvas Renderers -->
+    <script>
+        // Tab Switcher
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('hidden'));
+            const activeSection = document.getElementById(tabId);
+            if (activeSection) activeSection.classList.remove('hidden');
+
+            document.querySelectorAll('.nav-tab').forEach(btn => {
+                btn.classList.remove('bg-amber-200', 'text-inkBlue', 'border-b-2', 'border-inkBlue');
+                btn.classList.add('text-slate-600');
+            });
+            const activeBtn = document.getElementById('nav-' + tabId);
+            if (activeBtn) {
+                activeBtn.classList.add('bg-amber-200', 'text-inkBlue', 'border-b-2', 'border-inkBlue');
+                activeBtn.classList.remove('text-slate-600');
+            }
+
+            // Redraw active canvases
+            setTimeout(() => {
+                if (tabId === 'tab-formulation-rules') drawSolutionsGauge();
+                if (tabId === 'tab-state-space-tree') subsetFitTree();
+                if (tabId === 'tab-step-by-step') drawTraceCanvases();
+            }, 30);
+        }
+
+        // Font Mode Switcher
+        function toggleFontMode() {
+            const body = document.body;
+            const btnText = document.getElementById('fontBtnText');
+            body.classList.toggle('font-clean');
+            
+            if (body.classList.contains('font-clean')) {
+                btnText.textContent = "Notes Font";
+            } else {
+                btnText.textContent = "Clean Font";
+            }
+        }
+
+        // Canvas HiDPI Helper
+        function setupCanvas(canvasId, width, height) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return null;
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            ctx.scale(dpr, dpr);
+            return { canvas, ctx, width, height };
+        }
+
+        // -------------------------------------------------------------
+        // CANVAS 1: SOLUTIONS GAUGE (Tab 1)
+        // -------------------------------------------------------------
+        function drawSolutionsGauge() {
+            const setup = setupCanvas('canvas-solutions-gauge', 700, 230);
+            if (!setup) return;
+            const { ctx } = setup;
+            ctx.clearRect(0, 0, 700, 230);
+
+            const sols = [
+                { title: 'Solution 1 (Traced in Lecture)', weights: [5, 10, 15], vec: 'X = (1, 1, 0, 0, 1, 0)' },
+                { title: 'Solution 2', weights: [12, 18], vec: 'X = (0, 0, 1, 0, 0, 1)' },
+                { title: 'Solution 3', weights: [5, 12, 13], vec: 'X = (1, 0, 1, 1, 0, 0)' }
+            ];
+
+            sols.forEach((s, idx) => {
+                const x = 30 + idx * 225;
+                const y = 25;
+                const w = 205;
+                const h = 180;
+
+                // Card background
+                ctx.fillStyle = idx === 0 ? '#ecfdf5' : '#ffffff';
+                ctx.strokeStyle = idx === 0 ? '#059669' : '#cbd5e1';
+                ctx.lineWidth = idx === 0 ? 2 : 1;
+                ctx.beginPath();
+                ctx.roundRect(x, y, w, h, 10);
+                ctx.fill();
+                ctx.stroke();
+
+                // Header
+                ctx.fillStyle = idx === 0 ? '#065f46' : '#1e293b';
+                ctx.font = 'bold 13px Kalam, cursive';
+                ctx.textAlign = 'center';
+                ctx.fillText(s.title, x + w / 2, y + 24);
+
+                // Weight blocks
+                let currX = x + 15;
+                s.weights.forEach(val => {
+                    const bw = (w - 30 - (s.weights.length - 1) * 8) / s.weights.length;
+                    ctx.fillStyle = '#f0fdf4';
+                    ctx.strokeStyle = '#10b981';
+                    ctx.lineWidth = 1.5;
+                    ctx.beginPath();
+                    ctx.roundRect(currX, y + 42, bw, 36, 6);
+                    ctx.fill();
+                    ctx.stroke();
+
+                    ctx.fillStyle = '#065f46';
+                    ctx.font = 'bold 15px monospace';
+                    ctx.fillText(val, currX + bw / 2, y + 65);
+                    currX += bw + 8;
+                });
+
+                // Plus equation
+                ctx.fillStyle = '#047857';
+                ctx.font = 'bold 14px Inter, sans-serif';
+                ctx.fillText(s.weights.join(' + ') + ' = 30', x + w / 2, y + 105);
+
+                // Vector pill
+                ctx.fillStyle = '#e0f2fe';
+                ctx.strokeStyle = '#0284c7';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.roundRect(x + 12, y + 125, w - 24, 28, 6);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.fillStyle = '#0369a1';
+                ctx.font = 'bold 11px monospace';
+                ctx.fillText(s.vec, x + w / 2, y + 143);
+            });
+        }
+
+        // -------------------------------------------------------------
+        // CANVAS 2: PAN & ZOOM STATE-SPACE TREE (Tab 2)
+        // -------------------------------------------------------------
+        let subsetScale = 0.85;
+        let subsetPanX = 80;
+        let subsetPanY = 40;
+        let isSubDragging = false;
+        let subStartX, subStartY;
+
+        // Full Exhaustive Tree Nodes for Abdul Bari's Sum of Subsets Lecture
+        // W = [5, 10, 12, 13, 15, 18], M = 30, Total = 73
+        const subsetNodes = [
+            // Level 0: Root (0, 73)
+            { id: 'root', x: 1600, y: 70, s: 0, r: 73, status: 'valid', label: 'Root (0, 73)' },
+
+            // ====================================================================
+            // LEFT MAIN SUBTREE: x1 = 1 (Include w1 = 5) ➜ (s = 5, r = 68)
+            // ====================================================================
+            { id: 'n_1_1', parent: 'root', x: 800, y: 220, s: 5, r: 68, edge: 'x₁ = 1 (w₁=5)', status: 'valid' },
+
+            // Level 2 under n_1_1: Decide w2 = 10
+            { id: 'n_2_1', parent: 'n_1_1', x: 450, y: 370, s: 15, r: 58, edge: 'x₂ = 1 (w₂=10)', status: 'valid' },
+            { id: 'n_2_0', parent: 'n_1_1', x: 1150, y: 370, s: 5, r: 58, edge: 'x₂ = 0', status: 'valid' },
+
+            // Level 3 under n_2_1: Decide w3 = 12
+            { id: 'n_3_1', parent: 'n_2_1', x: 240, y: 520, s: 27, r: 46, edge: 'x₃ = 1 (w₃=12)', status: 'valid' },
+            { id: 'n_3_0', parent: 'n_2_1', x: 660, y: 520, s: 15, r: 46, edge: 'x₃ = 0', status: 'valid' },
+
+            // Level 4 under n_3_1: Decide w4 = 13
+            { id: 'n_4_1_kill', parent: 'n_3_1', x: 120, y: 670, s: 40, r: 33, edge: 'x₄ = 1 (w₄=13)', status: 'pruned', reason: '40 > 30 (Overweight)' },
+            { id: 'n_4_0', parent: 'n_3_1', x: 360, y: 670, s: 27, r: 33, edge: 'x₄ = 0', status: 'valid' },
+
+            // Level 5 under n_4_0: Decide w5 = 15
+            { id: 'n_5_1_kill', parent: 'n_4_0', x: 280, y: 820, s: 42, r: 18, edge: 'x₅ = 1 (w₅=15)', status: 'pruned', reason: '42 > 30 (Overweight)' },
+            { id: 'n_5_0', parent: 'n_4_0', x: 440, y: 820, s: 27, r: 18, edge: 'x₅ = 0', status: 'valid' },
+
+            // Level 6 under n_5_0: Decide w6 = 18
+            { id: 'n_6_1_kill', parent: 'n_5_0', x: 380, y: 970, s: 45, r: 0, edge: 'x₆ = 1 (w₆=18)', status: 'pruned', reason: '45 > 30 (Overweight)' },
+            { id: 'n_6_0_kill', parent: 'n_5_0', x: 500, y: 970, s: 27, r: 0, edge: 'x₆ = 0', status: 'pruned', reason: '27 + 0 < 30 (Underweight)' },
+
+            // Level 4 under n_3_0 (s=15, r=46): Decide w4 = 13
+            { id: 'n_3_0_4_1', parent: 'n_3_0', x: 560, y: 670, s: 28, r: 33, edge: 'x₄ = 1 (w₄=13)', status: 'valid' },
+            { id: 'n_3_0_4_0', parent: 'n_3_0', x: 780, y: 670, s: 15, r: 33, edge: 'x₄ = 0', status: 'valid' },
+
+            // Under n_3_0_4_1 (28, 33): Decide w5 = 15
+            { id: 'n_3_0_5_1_kill', parent: 'n_3_0_4_1', x: 500, y: 820, s: 43, r: 18, edge: 'x₅ = 1', status: 'pruned', reason: '43 > 30 (Overweight)' },
+            { id: 'n_3_0_5_0', parent: 'n_3_0_4_1', x: 620, y: 820, s: 28, r: 18, edge: 'x₅ = 0', status: 'valid' },
+            { id: 'n_3_0_6_1_kill', parent: 'n_3_0_5_0', x: 560, y: 970, s: 46, r: 0, edge: 'x₆ = 1', status: 'pruned', reason: '46 > 30 (Overweight)' },
+            { id: 'n_3_0_6_0_kill', parent: 'n_3_0_5_0', x: 680, y: 970, s: 28, r: 0, edge: 'x₆ = 0', status: 'pruned', reason: '28 + 0 < 30 (Underweight)' },
+
+            // Under n_3_0_4_0 (15, 33): Decide w5 = 15 ➜ SOLUTION 1 FOUND! 🏆
+            { id: 'sol_1', parent: 'n_3_0_4_0', x: 720, y: 820, s: 30, r: 18, edge: 'x₅ = 1 (w₅=15)', status: 'solution', label: '🏆 SOL 1: {5, 10, 15}' },
+            { id: 'n_3_0_5_0_exc', parent: 'n_3_0_4_0', x: 840, y: 820, s: 15, r: 18, edge: 'x₅ = 0', status: 'valid' },
+            { id: 'n_3_0_6_1_exc_kill', parent: 'n_3_0_5_0_exc', x: 780, y: 970, s: 33, r: 0, edge: 'x₆ = 1', status: 'pruned', reason: '33 > 30 (Overweight)' },
+            { id: 'n_3_0_6_0_exc_kill', parent: 'n_3_0_5_0_exc', x: 900, y: 970, s: 15, r: 0, edge: 'x₆ = 0', status: 'pruned', reason: '15 + 0 < 30 (Underweight)' },
+
+            // Level 3 under n_2_0 (s=5, r=58): Decide w3 = 12
+            { id: 'n_2_0_3_1', parent: 'n_2_0', x: 1020, y: 520, s: 17, r: 46, edge: 'x₃ = 1 (w₃=12)', status: 'valid' },
+            { id: 'n_2_0_3_0', parent: 'n_2_0', x: 1300, y: 520, s: 5, r: 46, edge: 'x₃ = 0', status: 'valid' },
+
+            // Under n_2_0_3_1 (17, 46): Decide w4 = 13 ➜ SOLUTION 3 FOUND! 🏆
+            { id: 'sol_3', parent: 'n_2_0_3_1', x: 960, y: 670, s: 30, r: 33, edge: 'x₄ = 1 (w₄=13)', status: 'solution', label: '🏆 SOL 3: {5, 12, 13}' },
+            { id: 'n_2_0_4_0', parent: 'n_2_0_3_1', x: 1080, y: 670, s: 17, r: 33, edge: 'x₄ = 0', status: 'valid' },
+            { id: 'n_2_0_5_1_kill', parent: 'n_2_0_4_0', x: 1020, y: 820, s: 32, r: 18, edge: 'x₅ = 1', status: 'pruned', reason: '32 > 30 (Overweight)' },
+            { id: 'n_2_0_5_0', parent: 'n_2_0_4_0', x: 1140, y: 820, s: 17, r: 18, edge: 'x₅ = 0', status: 'valid' },
+            { id: 'n_2_0_6_1_kill', parent: 'n_2_0_5_0', x: 1080, y: 970, s: 35, r: 0, edge: 'x₆ = 1', status: 'pruned', reason: '35 > 30 (Overweight)' },
+            { id: 'n_2_0_6_0_kill', parent: 'n_2_0_5_0', x: 1200, y: 970, s: 17, r: 0, edge: 'x₆ = 0', status: 'pruned', reason: '17 + 0 < 30 (Underweight)' },
+
+            // Under n_2_0_3_0 (s=5, r=46): Decide w4 = 13
+            { id: 'n_2_0_3_0_4_1', parent: 'n_2_0_3_0', x: 1240, y: 670, s: 18, r: 33, edge: 'x₄ = 1 (w₄=13)', status: 'valid' },
+            { id: 'n_2_0_3_0_4_0', parent: 'n_2_0_3_0', x: 1380, y: 670, s: 5, r: 33, edge: 'x₄ = 0', status: 'valid' },
+            { id: 'n_2_0_3_0_5_1_kill', parent: 'n_2_0_3_0_4_1', x: 1180, y: 820, s: 33, r: 18, edge: 'x₅ = 1', status: 'pruned', reason: '33 > 30 (Overweight)' },
+            { id: 'n_2_0_3_0_5_0', parent: 'n_2_0_3_0_4_1', x: 1280, y: 820, s: 18, r: 18, edge: 'x₅ = 0', status: 'valid' },
+            { id: 'n_2_0_3_0_6_1_kill', parent: 'n_2_0_3_0_5_0', x: 1230, y: 970, s: 36, r: 0, edge: 'x₆ = 1', status: 'pruned', reason: '36 > 30 (Overweight)' },
+            { id: 'n_2_0_3_0_6_0_kill', parent: 'n_2_0_3_0_5_0', x: 1330, y: 970, s: 18, r: 0, edge: 'x₆ = 0', status: 'pruned', reason: '18 + 0 < 30 (Underweight)' },
+            { id: 'n_2_0_3_0_4_0_5_1', parent: 'n_2_0_3_0_4_0', x: 1340, y: 820, s: 20, r: 18, edge: 'x₅ = 1', status: 'valid' },
+            { id: 'n_2_0_3_0_4_0_5_0_kill', parent: 'n_2_0_3_0_4_0', x: 1440, y: 820, s: 5, r: 18, edge: 'x₅ = 0', status: 'pruned', reason: '5 + 18 < 30 (Underweight)' },
+            { id: 'n_2_0_3_0_4_0_6_1_kill', parent: 'n_2_0_3_0_4_0_5_1', x: 1300, y: 970, s: 38, r: 0, edge: 'x₆ = 1', status: 'pruned', reason: '38 > 30 (Overweight)' },
+            { id: 'n_2_0_3_0_4_0_6_0_kill', parent: 'n_2_0_3_0_4_0_5_1', x: 1380, y: 970, s: 20, r: 0, edge: 'x₆ = 0', status: 'pruned', reason: '20 + 0 < 30 (Underweight)' },
+
+            // ====================================================================
+            // RIGHT MAIN SUBTREE: x1 = 0 (Exclude w1 = 5) ➜ (s = 0, r = 68)
+            // ====================================================================
+            { id: 'n_1_0', parent: 'root', x: 2400, y: 220, s: 0, r: 68, edge: 'x₁ = 0', status: 'valid' },
+
+            // Level 2 under n_1_0: Decide w2 = 10
+            { id: 'n_r_2_1', parent: 'n_1_0', x: 2050, y: 370, s: 10, r: 58, edge: 'x₂ = 1 (w₂=10)', status: 'valid' },
+            { id: 'n_r_2_0', parent: 'n_1_0', x: 2750, y: 370, s: 0, r: 58, edge: 'x₂ = 0', status: 'valid' },
+
+            // Under n_r_2_1 (10, 58): Decide w3 = 12
+            { id: 'n_r_3_1', parent: 'n_r_2_1', x: 1850, y: 520, s: 22, r: 46, edge: 'x₃ = 1 (w₃=12)', status: 'valid' },
+            { id: 'n_r_3_0', parent: 'n_r_2_1', x: 2250, y: 520, s: 10, r: 46, edge: 'x₃ = 0', status: 'valid' },
+
+            // Under n_r_3_1 (22, 46): Decide w4 = 13
+            { id: 'n_r_4_1_kill', parent: 'n_r_3_1', x: 1750, y: 670, s: 35, r: 33, edge: 'x₄ = 1', status: 'pruned', reason: '35 > 30 (Overweight)' },
+            { id: 'n_r_4_0', parent: 'n_r_3_1', x: 1950, y: 670, s: 22, r: 33, edge: 'x₄ = 0', status: 'valid' },
+            { id: 'n_r_5_1_kill', parent: 'n_r_4_0', x: 1880, y: 820, s: 37, r: 18, edge: 'x₅ = 1', status: 'pruned', reason: '37 > 30 (Overweight)' },
+            { id: 'n_r_5_0', parent: 'n_r_4_0', x: 2020, y: 820, s: 22, r: 18, edge: 'x₅ = 0', status: 'valid' },
+            { id: 'n_r_6_1_kill', parent: 'n_r_5_0', x: 1960, y: 970, s: 40, r: 0, edge: 'x₆ = 1', status: 'pruned', reason: '40 > 30 (Overweight)' },
+            { id: 'n_r_6_0_kill', parent: 'n_r_5_0', x: 2080, y: 970, s: 22, r: 0, edge: 'x₆ = 0', status: 'pruned', reason: '22 + 0 < 30 (Underweight)' },
+
+            // Under n_r_3_0 (10, 46): Decide w4 = 13
+            { id: 'n_r_3_0_4_1', parent: 'n_r_3_0', x: 2160, y: 670, s: 23, r: 33, edge: 'x₄ = 1 (w₄=13)', status: 'valid' },
+            { id: 'n_r_3_0_4_0', parent: 'n_r_3_0', x: 2340, y: 670, s: 10, r: 33, edge: 'x₄ = 0', status: 'valid' },
+            { id: 'n_r_3_0_5_1_kill', parent: 'n_r_3_0_4_1', x: 2100, y: 820, s: 38, r: 18, edge: 'x₅ = 1', status: 'pruned', reason: '38 > 30 (Overweight)' },
+            { id: 'n_r_3_0_5_0', parent: 'n_r_3_0_4_1', x: 2220, y: 820, s: 23, r: 18, edge: 'x₅ = 0', status: 'valid' },
+            { id: 'n_r_3_0_6_1_kill', parent: 'n_r_3_0_5_0', x: 2160, y: 970, s: 41, r: 0, edge: 'x₆ = 1', status: 'pruned', reason: '41 > 30 (Overweight)' },
+            { id: 'n_r_3_0_6_0_kill', parent: 'n_r_3_0_5_0', x: 2280, y: 970, s: 23, r: 0, edge: 'x₆ = 0', status: 'pruned', reason: '23 + 0 < 30 (Underweight)' },
+            { id: 'n_r_3_0_4_0_5_1', parent: 'n_r_3_0_4_0', x: 2300, y: 820, s: 25, r: 18, edge: 'x₅ = 1', status: 'valid' },
+            { id: 'n_r_3_0_4_0_5_0_kill', parent: 'n_r_3_0_4_0', x: 2410, y: 820, s: 10, r: 18, edge: 'x₅ = 0', status: 'pruned', reason: '10 + 18 < 30 (Underweight)' },
+            { id: 'n_r_3_0_4_0_6_1_kill', parent: 'n_r_3_0_4_0_5_1', x: 2250, y: 970, s: 43, r: 0, edge: 'x₆ = 1', status: 'pruned', reason: '43 > 30 (Overweight)' },
+            { id: 'n_r_3_0_4_0_6_0_kill', parent: 'n_r_3_0_4_0_5_1', x: 2350, y: 970, s: 25, r: 0, edge: 'x₆ = 0', status: 'pruned', reason: '25 + 0 < 30 (Underweight)' },
+
+            // Under n_r_2_0 (0, 58): Decide w3 = 12
+            { id: 'n_r_2_0_3_1', parent: 'n_r_2_0', x: 2600, y: 520, s: 12, r: 46, edge: 'x₃ = 1 (w₃=12)', status: 'valid' },
+            { id: 'n_r_2_0_3_0', parent: 'n_r_2_0', x: 2980, y: 520, s: 0, r: 46, edge: 'x₃ = 0', status: 'valid' },
+
+            // Under n_r_2_0_3_1 (12, 46): Decide w4 = 13
+            { id: 'n_r_2_0_4_1', parent: 'n_r_2_0_3_1', x: 2500, y: 670, s: 25, r: 33, edge: 'x₄ = 1 (w₄=13)', status: 'valid' },
+            { id: 'n_r_2_0_4_0', parent: 'n_r_2_0_3_1', x: 2700, y: 670, s: 12, r: 33, edge: 'x₄ = 0', status: 'valid' },
+            { id: 'n_r_2_0_5_1_kill', parent: 'n_r_2_0_4_1', x: 2440, y: 820, s: 40, r: 18, edge: 'x₅ = 1', status: 'pruned', reason: '40 > 30 (Overweight)' },
+            { id: 'n_r_2_0_5_0', parent: 'n_r_2_0_4_1', x: 2560, y: 820, s: 25, r: 18, edge: 'x₅ = 0', status: 'valid' },
+            { id: 'n_r_2_0_6_1_kill', parent: 'n_r_2_0_5_0', x: 2500, y: 970, s: 43, r: 0, edge: 'x₆ = 1', status: 'pruned', reason: '43 > 30 (Overweight)' },
+            { id: 'n_r_2_0_6_0_kill', parent: 'n_r_2_0_5_0', x: 2620, y: 970, s: 25, r: 0, edge: 'x₆ = 0', status: 'pruned', reason: '25 + 0 < 30 (Underweight)' },
+
+            // Under n_r_2_0_4_0 (12, 33): Decide w5 = 15
+            { id: 'n_r_2_0_4_0_5_1_kill', parent: 'n_r_2_0_4_0', x: 2650, y: 820, s: 27, r: 18, edge: 'x₅ = 1', status: 'valid' },
+            { id: 'n_r_2_0_4_0_5_1_6_kill', parent: 'n_r_2_0_4_0_5_1_kill', x: 2600, y: 970, s: 45, r: 0, edge: 'x₆ = 1', status: 'pruned', reason: '45 > 30 (Overweight)' },
+            { id: 'n_r_2_0_4_0_5_1_0_kill', parent: 'n_r_2_0_4_0_5_1_kill', x: 2700, y: 970, s: 27, r: 0, edge: 'x₆ = 0', status: 'pruned', reason: '27 + 0 < 30 (Underweight)' },
+
+            // Decide w5 = 0 under n_r_2_0_4_0 (12, 18) ➜ SOLUTION 2 FOUND! 🏆
+            { id: 'n_r_2_0_4_0_5_0', parent: 'n_r_2_0_4_0', x: 2780, y: 820, s: 12, r: 18, edge: 'x₅ = 0', status: 'valid' },
+            { id: 'sol_2', parent: 'n_r_2_0_4_0_5_0', x: 2750, y: 970, s: 30, r: 0, edge: 'x₆ = 1 (w₆=18)', status: 'solution', label: '🏆 SOL 2: {12, 18}' },
+            { id: 'n_r_2_0_4_0_6_0_kill', parent: 'n_r_2_0_4_0_5_0', x: 2860, y: 970, s: 12, r: 0, edge: 'x₆ = 0', status: 'pruned', reason: '12 + 0 < 30 (Underweight)' },
+
+            // Under n_r_2_0_3_0 (0, 46): Decide w4 = 13
+            { id: 'n_r_2_0_3_0_4_1', parent: 'n_r_2_0_3_0', x: 2900, y: 670, s: 13, r: 33, edge: 'x₄ = 1 (w₄=13)', status: 'valid' },
+            { id: 'n_r_2_0_3_0_4_0', parent: 'n_r_2_0_3_0', x: 3080, y: 670, s: 0, r: 33, edge: 'x₄ = 0', status: 'valid' },
+            { id: 'n_r_2_0_3_0_5_1', parent: 'n_r_2_0_3_0_4_1', x: 2850, y: 820, s: 28, r: 18, edge: 'x₅ = 1', status: 'valid' },
+            { id: 'n_r_2_0_3_0_6_1_kill', parent: 'n_r_2_0_3_0_5_1', x: 2800, y: 970, s: 46, r: 0, edge: 'x₆ = 1', status: 'pruned', reason: '46 > 30 (Overweight)' },
+            { id: 'n_r_2_0_3_0_6_0_kill', parent: 'n_r_2_0_3_0_5_1', x: 2900, y: 970, s: 28, r: 0, edge: 'x₆ = 0', status: 'pruned', reason: '28 + 0 < 30 (Underweight)' },
+            { id: 'n_r_2_0_3_0_5_0', parent: 'n_r_2_0_3_0_4_1', x: 2970, y: 820, s: 13, r: 18, edge: 'x₅ = 0', status: 'valid' },
+            { id: 'n_r_2_0_3_0_5_0_6_1_kill', parent: 'n_r_2_0_3_0_5_0', x: 2940, y: 970, s: 31, r: 0, edge: 'x₆ = 1', status: 'pruned', reason: '31 > 30 (Overweight)' },
+            { id: 'n_r_2_0_3_0_5_0_6_0_kill', parent: 'n_r_2_0_3_0_5_0', x: 3020, y: 970, s: 13, r: 0, edge: 'x₆ = 0', status: 'pruned', reason: '13 + 0 < 30 (Underweight)' },
+            { id: 'n_r_2_0_3_0_4_0_5_1', parent: 'n_r_2_0_3_0_4_0', x: 3040, y: 820, s: 15, r: 18, edge: 'x₅ = 1', status: 'valid' },
+            { id: 'n_r_2_0_3_0_4_0_5_0_kill', parent: 'n_r_2_0_3_0_4_0', x: 3140, y: 820, s: 0, r: 18, edge: 'x₅ = 0', status: 'pruned', reason: '0 + 18 < 30 (Underweight)' },
+            { id: 'n_r_2_0_3_0_4_0_6_1_kill', parent: 'n_r_2_0_3_0_4_0_5_1', x: 3000, y: 970, s: 33, r: 0, edge: 'x₆ = 1', status: 'pruned', reason: '33 > 30 (Overweight)' },
+            { id: 'n_r_2_0_3_0_4_0_6_0_kill', parent: 'n_r_2_0_3_0_4_0_5_1', x: 3080, y: 970, s: 15, r: 0, edge: 'x₆ = 0', status: 'pruned', reason: '15 + 0 < 30 (Underweight)' },
+        ];
+
+        function renderSubsetTree() {
+            const canvas = document.getElementById('canvas-subset-tree');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+
+            if (canvas.width !== 3250 * dpr || canvas.height !== 1150 * dpr) {
+                canvas.width = 3250 * dpr;
+                canvas.height = 1150 * dpr;
+                canvas.style.width = '3250px';
+                canvas.style.height = '1150px';
+            }
+
+            ctx.save();
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            ctx.scale(dpr, dpr);
+            ctx.translate(subsetPanX, subsetPanY);
+            ctx.scale(subsetScale, subsetScale);
+
+            // Level Guides
+            const lvls = [
+                { y: 70, label: 'Root: Start (0, 73)' },
+                { y: 220, label: 'Level 1: Decide w₁ = 5' },
+                { y: 380, label: 'Level 2: Decide w₂ = 10' },
+                { y: 540, label: 'Level 3: Decide w₃ = 12' },
+                { y: 700, label: 'Level 4: Decide w₄ = 13' },
+                { y: 860, label: 'Level 5: Decide w₅ = 15' },
+                { y: 1020, label: 'Level 6: Decide w₆ = 18' }
+            ];
+
+            ctx.font = 'bold 12px Inter, sans-serif';
+            ctx.fillStyle = '#94a3b8';
+            ctx.textAlign = 'left';
+            lvls.forEach(l => {
+                ctx.fillText(l.label, 30, l.y);
+                ctx.strokeStyle = '#e2e8f0';
+                ctx.lineWidth = 1;
+                ctx.setLineDash([4, 4]);
+                ctx.beginPath();
+                ctx.moveTo(30, l.y + 16);
+                ctx.lineTo(3200, l.y + 16);
+                ctx.stroke();
+            });
+            ctx.setLineDash([]);
+
+            // Draw Edges
+            subsetNodes.forEach(node => {
+                if (node.parent) {
+                    const p = subsetNodes.find(n => n.id === node.parent);
+                    if (p) {
+                        ctx.beginPath();
+                        ctx.moveTo(p.x, p.y + 24);
+                        ctx.lineTo(node.x, node.y - 24);
+
+                        if (node.status === 'solution') {
+                            ctx.strokeStyle = '#d97706';
+                            ctx.lineWidth = 3;
+                            ctx.setLineDash([]);
+                        } else if (node.status === 'pruned') {
+                            ctx.strokeStyle = '#f87171';
+                            ctx.lineWidth = 1.5;
+                            ctx.setLineDash([3, 3]);
+                        } else {
+                            ctx.strokeStyle = '#3b82f6';
+                            ctx.lineWidth = 2;
+                            ctx.setLineDash([]);
+                        }
+                        ctx.stroke();
+
+                        // Edge label (x=1 or x=0)
+                        if (node.edge) {
+                            const midX = (p.x + node.x) / 2;
+                            const midY = (p.y + node.y) / 2;
+                            ctx.fillStyle = node.edge.includes('1') ? '#065f46' : '#475569';
+                            ctx.font = 'bold 10px Inter, sans-serif';
+                            ctx.textAlign = 'center';
+                            ctx.fillText(node.edge, midX - 8, midY);
+                        }
+                    }
+                }
+            });
+
+            // Draw Nodes: Oval with (s, r)
+            subsetNodes.forEach(node => {
+                drawSubsetNode(ctx, node);
+            });
+
+            ctx.restore();
+
+            const disp = document.getElementById('subsetZoomDisplay');
+            if (disp) disp.textContent = Math.round(subsetScale * 100) + '%';
+        }
+
+        function drawSubsetNode(ctx, node) {
+            const { x, y, s, r, status, label, reason } = node;
+            const w = status === 'solution' ? 120 : 86;
+            const h = 42;
+
+            ctx.save();
+            ctx.translate(x - w / 2, y - h / 2);
+
+            // Shape & Border
+            ctx.beginPath();
+            ctx.roundRect(0, 0, w, h, 8);
+
+            if (status === 'solution') {
+                ctx.fillStyle = '#fef3c7';
+                ctx.strokeStyle = '#d97706';
+                ctx.lineWidth = 2.5;
+            } else if (status === 'pruned') {
+                ctx.fillStyle = '#fee2e2';
+                ctx.strokeStyle = '#ef4444';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([3, 3]);
+            } else {
+                ctx.fillStyle = '#ffffff';
+                ctx.strokeStyle = '#3b82f6';
+                ctx.lineWidth = 1.8;
+            }
+
+            ctx.fill();
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Values (s, r)
+            ctx.fillStyle = status === 'pruned' ? '#991b1b' : (status === 'solution' ? '#92400e' : '#1e293b');
+            ctx.font = 'bold 13px monospace';
+            ctx.textAlign = 'center';
+            ctx.fillText(`(${s}, ${r})`, w / 2, h / 2 + 4);
+
+            // Pruned icon or Solution badge
+            if (status === 'pruned') {
+                ctx.fillStyle = '#dc2626';
+                ctx.font = 'bold 13px Inter, sans-serif';
+                ctx.fillText('✂️ KILLED', w / 2, h + 14);
+                if (reason) {
+                    ctx.font = '9px Inter, sans-serif';
+                    ctx.fillText(reason, w / 2, h + 26);
+                }
+            } else if (status === 'solution') {
+                ctx.fillStyle = '#b45309';
+                ctx.font = 'bold 11px Inter, sans-serif';
+                ctx.fillText(label || '🏆 SOL', w / 2, h + 15);
+            }
+
+            ctx.restore();
+        }
+
+        // Pan & Zoom Event Handlers for Subset Tree
+        const subWrapper = document.getElementById('subsetTreeWrapper');
+        if (subWrapper) {
+            subWrapper.addEventListener('mousedown', (e) => {
+                isSubDragging = true;
+                subStartX = e.clientX - subsetPanX;
+                subStartY = e.clientY - subsetPanY;
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (!isSubDragging) return;
+                subsetPanX = e.clientX - subStartX;
+                subsetPanY = e.clientY - subStartY;
+                renderSubsetTree();
+            });
+
+            window.addEventListener('mouseup', () => {
+                isSubDragging = false;
+            });
+
+            subWrapper.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                const factor = e.deltaY < 0 ? 1.1 : 0.9;
+                subsetScale = Math.min(Math.max(subsetScale * factor, 0.35), 2.2);
+                renderSubsetTree();
+            }, { passive: false });
+        }
+
+        function subsetZoomIn() {
+            subsetScale = Math.min(subsetScale * 1.2, 2.2);
+            renderSubsetTree();
+        }
+
+        function subsetZoomOut() {
+            subsetScale = Math.max(subsetScale * 0.8, 0.35);
+            renderSubsetTree();
+        }
+
+        function subsetResetZoom() {
+            subsetScale = 0.55;
+            subsetPanX = 60;
+            subsetPanY = 40;
+            renderSubsetTree();
+        }
+
+        function subsetFitTree() {
+            const containerW = subWrapper ? subWrapper.clientWidth : 1000;
+            subsetScale = Math.max(containerW / 3350, 0.28);
+            subsetPanX = Math.max((containerW - 3250 * subsetScale) / 2, 10);
+            subsetPanY = 30;
+            renderSubsetTree();
+        }
+
+        function toggleSubsetFullscreen() {
+            const wrapper = document.getElementById('subsetTreeWrapper');
+            const btn = document.getElementById('btnSubsetFullscreen');
+            if (!wrapper) return;
+
+            const isFull = wrapper.classList.toggle('is-fullscreen');
+
+            if (isFull) {
+                if (btn) {
+                    btn.innerHTML = '🗗';
+                    btn.title = 'Exit Fullscreen (Esc)';
+                }
+                if (wrapper.requestFullscreen) {
+                    wrapper.requestFullscreen().catch(() => {});
+                }
+                subsetScale = Math.min(window.innerWidth / 3300, 0.85);
+                subsetPanX = Math.max((window.innerWidth - 3250 * subsetScale) / 2, 20);
+                subsetPanY = 40;
+            } else {
+                if (btn) {
+                    btn.innerHTML = '⛶';
+                    btn.title = 'Maximize Fullscreen (⛶)';
+                }
+                if (document.fullscreenElement) {
+                    document.exitFullscreen().catch(() => {});
+                }
+                subsetResetZoom();
+            }
+
+            renderSubsetTree();
+        }
+
+        document.addEventListener('fullscreenchange', () => {
+            const wrapper = document.getElementById('subsetTreeWrapper');
+            const btn = document.getElementById('btnSubsetFullscreen');
+            if (!document.fullscreenElement && wrapper && wrapper.classList.contains('is-fullscreen')) {
+                wrapper.classList.remove('is-fullscreen');
+                if (btn) {
+                    btn.innerHTML = '⛶';
+                    btn.title = 'Maximize Fullscreen (⛶)';
+                }
+                subsetResetZoom();
+            }
+        });
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const wrapper = document.getElementById('subsetTreeWrapper');
+                const btn = document.getElementById('btnSubsetFullscreen');
+                if (wrapper && wrapper.classList.contains('is-fullscreen')) {
+                    wrapper.classList.remove('is-fullscreen');
+                    if (btn) {
+                        btn.innerHTML = '⛶';
+                        btn.title = 'Maximize Fullscreen (⛶)';
+                    }
+                    if (document.fullscreenElement) {
+                        document.exitFullscreen().catch(() => {});
+                    }
+                    subsetResetZoom();
+                }
+            } else if ((e.key === 'f' || e.key === 'F') && !e.target.matches('input, textarea')) {
+                const tabTree = document.getElementById('tab-state-space-tree');
+                if (tabTree && !tabTree.classList.contains('hidden')) {
+                    toggleSubsetFullscreen();
+                }
+            }
+        });
+
+        // -------------------------------------------------------------
+        // CANVAS 3: STEP-BY-STEP VISUAL SCALE CANVASES (Tab 3)
+        // -------------------------------------------------------------
+        function drawTraceCanvases() {
+            // Snapshot 1: Phase 1 Balance Scale
+            const c1 = setupCanvas('canvas-trace-1', 180, 110);
+            if (c1) {
+                const { ctx } = c1;
+                ctx.clearRect(0, 0, 180, 110);
+                drawWeightGauge(ctx, 27, 30, '#10b981', 's = 27 / 30 (Safe)');
+            }
+
+            // Snapshot 2: Phase 2 Overweight Balance Scale
+            const c2 = setupCanvas('canvas-trace-2', 180, 110);
+            if (c2) {
+                const { ctx } = c2;
+                ctx.clearRect(0, 0, 180, 110);
+                drawWeightGauge(ctx, 40, 30, '#ef4444', 's = 40 > 30 (KILLED ✕)');
+            }
+
+            // Snapshot 3: Phase 3 Exact Target Reached
+            const c3 = setupCanvas('canvas-trace-3', 180, 110);
+            if (c3) {
+                const { ctx } = c3;
+                ctx.clearRect(0, 0, 180, 110);
+                drawWeightGauge(ctx, 30, 30, '#f59e0b', 's = 30 == 30 (TARGET! 🏆)');
+            }
+        }
+
+        function drawWeightGauge(ctx, current, target, color, label) {
+            // Progress Bar style gauge
+            ctx.fillStyle = '#f8fafc';
+            ctx.fillRect(0, 0, 180, 110);
+
+            ctx.fillStyle = '#1e293b';
+            ctx.font = 'bold 11px Inter, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(label, 90, 26);
+
+            // Gauge track
+            const barW = 140;
+            const barH = 18;
+            const barX = 20;
+            const barY = 45;
+
+            ctx.fillStyle = '#e2e8f0';
+            ctx.beginPath();
+            ctx.roundRect(barX, barY, barW, barH, 6);
+            ctx.fill();
+
+            // Gauge fill
+            const fillRatio = Math.min(current / 45, 1.0);
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.roundRect(barX, barY, barW * fillRatio, barH, 6);
+            ctx.fill();
+
+            // Target marker at 30/45
+            const targetX = barX + barW * (30 / 45);
+            ctx.strokeStyle = '#0f172a';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(targetX, barY - 4);
+            ctx.lineTo(targetX, barY + barH + 4);
+            ctx.stroke();
+
+            ctx.fillStyle = '#475569';
+            ctx.font = '10px monospace';
+            ctx.fillText('Target 30', targetX, barY + barH + 18);
+        }
+
+        // Initialize on load & resize
+        window.addEventListener('load', () => {
+            drawSolutionsGauge();
+            renderSubsetTree();
+            drawTraceCanvases();
+        });
+
+        window.addEventListener('resize', () => {
+            drawSolutionsGauge();
+            renderSubsetTree();
+            drawTraceCanvases();
+        });
+    </script>
+</body>
+
+</html>

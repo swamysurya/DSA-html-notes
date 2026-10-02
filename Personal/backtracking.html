@@ -1,0 +1,1971 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter: Backtracking - Digital Lecture Notes</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Kalam:wght@300;400;700&family=Patrick+Hand&family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap"
+        rel="stylesheet">
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        notebookBg: '#cbd5e1',
+                        notebookPaper: '#FAF6EE',
+                        inkBlue: '#1A365D',
+                        inkRed: '#9B2C2C',
+                        pencilGray: '#4A5568',
+                    },
+                    fontFamily: {
+                        notes: ['Patrick Hand', 'Kalam', 'cursive'],
+                        heading: ['Kalam', 'cursive'],
+                        clean: ['Inter', 'sans-serif'],
+                        code: ['Fira Code', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Physical Notebook Styling -->
+    <style>
+        body {
+            background-color: #cbd5e1;
+            font-family: 'Patrick Hand', 'Kalam', cursive;
+            color: #1e293b;
+        }
+
+        .lined-paper {
+            background-color: #FAF6EE !important;
+            background-image: repeating-linear-gradient(#FAF6EE 0px,
+                    #FAF6EE 31px,
+                    #e2ebf3 32px) !important;
+            line-height: 32px;
+            position: relative;
+        }
+
+        .notebook-margin {
+            border-left: 2.5px solid #FC8181 !important;
+            padding-left: 1.25rem;
+        }
+
+        @media (min-width: 640px) {
+            .notebook-margin {
+                padding-left: 2.5rem;
+            }
+        }
+
+        .spiral-ring {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #cbd5e1 0%, #64748b 50%, #334155 100%);
+            box-shadow: inset 1px 1px 2px rgba(255, 255, 255, 0.6), 2px 2px 4px rgba(0, 0, 0, 0.25);
+            margin: 11px 0;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Kalam', cursive;
+        }
+
+        /* Clean Mode Font Switcher */
+        body.font-clean,
+        body.font-clean * {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+        }
+
+        body.font-clean pre,
+        body.font-clean code {
+            font-family: 'Fira Code', monospace !important;
+        }
+
+        /* Handwritten Highlighters & Sticky Callouts */
+        .highlighter-yellow {
+            background: linear-gradient(104deg, rgba(254, 240, 138, 0.95) 0.9%, rgba(253, 224, 71, 0.85) 98%);
+            padding: 2px 8px;
+            border-radius: 4px;
+            box-decoration-break: clone;
+            -webkit-box-decoration-break: clone;
+            display: inline-block;
+        }
+
+        .highlighter-green {
+            background: linear-gradient(104deg, rgba(187, 247, 208, 0.95) 0.9%, rgba(134, 239, 172, 0.85) 98%);
+            padding: 2px 8px;
+            border-radius: 4px;
+            box-decoration-break: clone;
+            -webkit-box-decoration-break: clone;
+            display: inline-block;
+        }
+
+        .highlighter-blue {
+            background: linear-gradient(104deg, rgba(191, 219, 254, 0.95) 0.9%, rgba(147, 197, 253, 0.85) 98%);
+            padding: 2px 8px;
+            border-radius: 4px;
+            box-decoration-break: clone;
+            -webkit-box-decoration-break: clone;
+            display: inline-block;
+        }
+
+        .highlighter-red {
+            background: linear-gradient(104deg, rgba(254, 205, 211, 0.95) 0.9%, rgba(253, 164, 175, 0.85) 98%);
+            padding: 2px 8px;
+            border-radius: 4px;
+            box-decoration-break: clone;
+            -webkit-box-decoration-break: clone;
+            display: inline-block;
+        }
+
+        .pen-box {
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px dashed #3b82f6;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .pen-box-red {
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px dashed #ef4444;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .teacher-quote {
+            background: rgba(254, 243, 199, 0.9);
+            border-left: 5px solid #d97706;
+            border-radius: 6px;
+            padding: 0.85rem 1.2rem;
+            font-style: italic;
+        }
+
+        .sketch-card {
+            background: #ffffff;
+            border: 1.5px solid #cbd5e1;
+            box-shadow: 2px 3px 6px rgba(0, 0, 0, 0.06);
+            border-radius: 10px;
+        }
+
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            body {
+                background: white !important;
+            }
+            .lined-paper {
+                background-image: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body class="text-xl text-slate-800 antialiased transition-all duration-300">
+
+    <!-- Sticky Header Navigation Bar -->
+    <header class="sticky top-0 z-50 bg-[#FAF6EE] shadow-md border-b-2 border-amber-200 px-4 py-3 no-print">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-3">
+            <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+                <a href="../index.html"
+                    class="px-3 py-1.5 rounded-lg bg-amber-100 hover:bg-amber-200 border border-amber-300 text-inkBlue text-xs sm:text-sm font-bold flex items-center gap-1.5 transition shadow-sm font-sans"
+                    title="Back to Digital Bookshelf">
+                    <span>📚</span> <span>Bookshelf</span>
+                </a>
+                <a href="index.html"
+                    class="px-3 py-1.5 rounded-lg bg-emerald-100 hover:bg-emerald-200 border border-emerald-300 text-emerald-900 text-xs sm:text-sm font-bold flex items-center gap-1.5 transition shadow-sm font-sans"
+                    title="Back to Personal Notes Directory">
+                    <span>📋</span> <span>Notes Directory</span>
+                </a>
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl sm:text-3xl font-bold text-inkBlue tracking-wide font-['Kalam']">🌱 Chapter: Backtracking</span>
+                    <span
+                        class="bg-indigo-100 text-indigo-900 text-xs sm:text-sm font-bold px-3 py-1 rounded-full border border-indigo-300 font-sans">
+                        State-Space Search
+                    </span>
+                </div>
+            </div>
+
+            <!-- Right: Font Toggle Button -->
+            <div class="flex items-center gap-2">
+                <button id="fontToggleBtn" onclick="toggleFontMode()"
+                    class="shrink-0 px-3.5 py-1.5 rounded-lg bg-inkBlue text-white hover:bg-slate-800 transition text-xs sm:text-sm font-bold shadow flex items-center gap-1.5 font-sans"
+                    title="Toggle between Handwritten and Clean typography">
+                    <span>✍️</span> <span id="fontBtnText">Clean Font</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <nav class="max-w-6xl mx-auto mt-2.5 flex flex-wrap gap-1 border-t border-amber-200 pt-2 text-sm sm:text-base font-sans">
+            <button onclick="switchTab('tab-concepts-comparison')" id="nav-tab-concepts-comparison"
+                class="nav-tab px-4 py-1.5 rounded-t-lg font-bold bg-amber-200 text-inkBlue border-b-2 border-inkBlue transition">
+                1. Concepts &amp; Comparisons (§1–§5)
+            </button>
+            <button onclick="switchTab('tab-state-space-tree')" id="nav-tab-state-space-tree"
+                class="nav-tab px-4 py-1.5 rounded-t-lg font-bold text-slate-600 hover:text-inkBlue transition">
+                2. Students &amp; State-Space Tree (§6–§9)
+            </button>
+            <button onclick="switchTab('tab-pruning-bounding')" id="nav-tab-pruning-bounding"
+                class="nav-tab px-4 py-1.5 rounded-t-lg font-bold text-slate-600 hover:text-inkBlue transition">
+                3. Constraints &amp; Pruning (§10–§14)
+            </button>
+            <button onclick="switchTab('tab-branch-bound-patterns')" id="nav-tab-branch-bound-patterns"
+                class="nav-tab px-4 py-1.5 rounded-t-lg font-bold text-slate-600 hover:text-inkBlue transition">
+                4. Branch &amp; Bound &amp; Patterns (§15–§20)
+            </button>
+        </nav>
+    </header>
+
+    <!-- Main Notebook Container -->
+    <main
+        class="max-w-6xl mx-auto flex relative bg-notebookPaper rounded-xl shadow-2xl overflow-hidden min-h-[950px] border border-amber-200 my-8">
+
+        <!-- Left Binder Column (50 Physical Spiral Rings) -->
+        <div
+            class="w-10 sm:w-16 bg-amber-50 border-r-2 border-amber-200 flex flex-col items-center py-8 select-none shrink-0 no-print space-y-6 z-10 shadow-[inset_-5px_0_10px_rgba(0,0,0,0.05)]">
+            <script>
+                for (let i = 0; i < 50; i++) document.write('<div class="spiral-ring"></div>');
+            </script>
+        </div>
+
+        <!-- Notebook Content Area -->
+        <div class="flex-1 lined-paper p-4 sm:p-8 notebook-margin sm:pl-8 overflow-hidden z-0">
+
+            <!-- ==================================================================== -->
+            <!-- TAB 1: CONCEPTS & STRATEGY COMPARISONS (§1 - §5)                     -->
+            <!-- ==================================================================== -->
+            <div id="tab-concepts-comparison" class="tab-pane space-y-8">
+
+                <!-- Section Header -->
+                <div class="border-b-2 border-inkRed pb-2 flex justify-between items-baseline">
+                    <div>
+                        <h1 class="text-3xl sm:text-4xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                            1. What is Backtracking? Foundations &amp; Paradigm Comparisons
+                        </h1>
+                        <p class="text-sm font-sans text-pencilGray mt-1">Core philosophy, Brute-Force pruning, and 3-way comparison with Dynamic Programming &amp; Greedy</p>
+                    </div>
+                    <span class="text-xs sm:text-sm font-bold font-sans bg-amber-100 text-inkRed px-2.5 py-1 rounded border border-amber-300">
+                        Tab 1 • Core Principles
+                    </span>
+                </div>
+
+                <!-- 1. What is Backtracking? -->
+                <section class="space-y-4 text-lg leading-relaxed">
+                    <h2 class="text-2xl font-bold text-inkRed flex items-center gap-2">
+                        <span>📌</span> 1. What is Backtracking?
+                    </h2>
+
+                    <p>
+                        <strong class="text-inkBlue font-bold text-xl">Backtracking is a problem-solving strategy used to explore possible solutions.</strong>
+                    </p>
+
+                    <p>
+                        Suppose we have a problem where there can be many possible choices. We try one choice and continue building a solution. If we reach a point where that choice <strong class="text-rose-800">cannot lead to a valid solution</strong>, we go back (<span class="highlighter-yellow font-bold">backtrack</span>) and try another choice.
+                    </p>
+
+                    <!-- Quote Block -->
+                    <div class="teacher-quote text-xl">
+                        💡 <strong>So, backtracking is basically:</strong>
+                        <div class="text-2xl font-bold text-amber-900 mt-1 not-italic">
+                            “Systematic trial and error with pruning.”
+                        </div>
+                    </div>
+
+                    <!-- Flowchart of Backtracking Logic -->
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-5 items-center my-4 font-sans">
+                        <div class="md:col-span-5 bg-white p-4 rounded-xl border border-slate-300 shadow-sm text-sm">
+                            <span class="text-xs font-bold uppercase tracking-wider text-indigo-900 bg-indigo-100 px-2 py-0.5 rounded">Standard Decision Loop</span>
+                            <pre class="font-mono text-slate-800 mt-2 text-sm leading-relaxed bg-slate-50 p-3 rounded border border-slate-200">
+Choose
+  ↓
+Explore
+  ↓
+Check
+  ↓
+Valid?
+ /   \
+Yes   No
+ |     |
+Continue  Backtrack</pre>
+                        </div>
+                        <div class="md:col-span-7 bg-amber-50/90 p-4 rounded-xl border border-amber-300">
+                            <h3 class="text-xl font-bold text-inkBlue font-['Kalam'] mb-1">🔑 Key Idea to Remember:</h3>
+                            <div class="p-3 bg-white rounded-lg border-l-4 border-emerald-600 shadow-sm">
+                                <p class="text-lg font-bold text-emerald-950 font-['Kalam']">
+                                    Make a choice → explore it → if it doesn't work, undo the choice → try another choice.
+                                </p>
+                            </div>
+                            <p class="text-sm text-slate-600 mt-2 font-sans">
+                                The "undo" step is the soul of backtracking: it cleanly restores the candidate state to what it was before the choice was made so other alternatives can be evaluated without residual side effects.
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 2. Backtracking and Brute Force -->
+                <section class="space-y-4 text-lg leading-relaxed pt-4 border-t border-amber-200">
+                    <h2 class="text-2xl font-bold text-inkRed flex items-center gap-2">
+                        <span>⚔️</span> 2. Backtracking and Brute Force
+                    </h2>
+
+                    <p>
+                        Backtracking is fundamentally based on the idea of <strong class="text-inkBlue">systematic brute-force search</strong>.
+                    </p>
+
+                    <p>
+                        A pure brute-force approach generally means:
+                    </p>
+
+                    <div class="p-3 bg-white rounded-lg border border-slate-300 shadow-sm font-sans text-base">
+                        💬 <strong class="text-slate-900">“Try all possible candidates and identify the solution(s) that satisfy the problem requirements.”</strong>
+                    </div>
+
+                    <p>
+                        The fatal flaw with pure brute force is that it blindly generates and explores complete candidates—wasting immense time and memory exploring subtrees that were already doomed from early stages.
+                    </p>
+
+                    <p>
+                        Backtracking rescues this process by introducing <span class="highlighter-green font-bold">pruning</span>:
+                    </p>
+
+                    <!-- Side-by-side Brute Force vs Backtracking -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 font-sans text-sm my-3">
+                        <!-- Brute Force Box -->
+                        <div class="sketch-card p-4 border-rose-300 bg-rose-50/50">
+                            <div class="flex items-center justify-between pb-2 border-b border-rose-200">
+                                <span class="font-bold text-rose-900 text-base">Brute Force (Blind Exhaustion)</span>
+                                <span class="text-xs bg-rose-200 text-rose-900 px-2 py-0.5 rounded font-bold">No Pruning</span>
+                            </div>
+                            <pre class="font-mono text-slate-800 mt-3 bg-white p-3 rounded border border-rose-200 text-xs sm:text-sm">
+Generate complete candidate solution
+          ↓
+Check candidate against constraints
+          ↓
+Keep valid solutions / Discard invalid</pre>
+                            <p class="text-xs text-rose-800 mt-2">
+                                ⚠️ Suffers full combinatorial explosion: $O(b^d)$ or $O(n!)$ complete paths generated even if step 1 makes the whole candidate invalid!
+                            </p>
+                        </div>
+
+                        <!-- Backtracking Box -->
+                        <div class="sketch-card p-4 border-emerald-300 bg-emerald-50/50">
+                            <div class="flex items-center justify-between pb-2 border-b border-emerald-200">
+                                <span class="font-bold text-emerald-950 text-base">Backtracking (Intelligent Search)</span>
+                                <span class="text-xs bg-emerald-200 text-emerald-900 px-2 py-0.5 rounded font-bold">Early Pruning</span>
+                            </div>
+                            <pre class="font-mono text-slate-800 mt-3 bg-white p-3 rounded border border-emerald-200 text-xs sm:text-sm">
+Make a choice (extend partial solution)
+     ↓
+Check whether it can still lead to a valid solution
+     ↓
+ ┌───────────────┐
+ │               │
+Valid          Invalid
+ │               │
+Continue       Backtrack (Prune!)</pre>
+                            <p class="text-xs text-emerald-800 mt-2">
+                                ✅ Cuts off entire subtrees at root or intermediate levels, preventing exponential unnecessary calculations.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="teacher-quote text-xl">
+                        💡 <strong>The Master Equation:</strong>
+                        <div class="text-2xl font-bold text-amber-900 mt-1 not-italic">
+                            Backtracking = Systematic Brute-Force Search + Pruning
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 3. Backtracking vs Dynamic Programming vs Greedy -->
+                <section class="space-y-4 text-lg leading-relaxed pt-4 border-t border-amber-200">
+                    <h2 class="text-2xl font-bold text-inkRed flex items-center gap-2">
+                        <span>⚖️</span> 3. Backtracking vs Dynamic Programming vs Greedy
+                    </h2>
+
+                    <p>
+                        These are three monumental algorithmic problem-solving strategies in computer science. Each approaches the search space from a distinct philosophical angle:
+                    </p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 font-sans text-sm">
+                        <div class="p-3.5 bg-blue-50/80 rounded-xl border border-blue-200 space-y-1">
+                            <span class="font-bold text-blue-900 text-base flex items-center gap-1.5">
+                                <span>🔄</span> Backtracking
+                            </span>
+                            <p class="font-['Kalam'] text-base text-blue-950 font-bold">
+                                “Explore choices → Reject invalid paths → Try another choice”
+                            </p>
+                        </div>
+                        <div class="p-3.5 bg-purple-50/80 rounded-xl border border-purple-200 space-y-1">
+                            <span class="font-bold text-purple-900 text-base flex items-center gap-1.5">
+                                <span>🧠</span> Dynamic Programming
+                            </span>
+                            <p class="font-['Kalam'] text-base text-purple-950 font-bold">
+                                “Break into subproblems → Solve repeated subproblems once → Reuse the results”
+                            </p>
+                        </div>
+                        <div class="p-3.5 bg-amber-50/80 rounded-xl border border-amber-200 space-y-1">
+                            <span class="font-bold text-amber-900 text-base flex items-center gap-1.5">
+                                <span>⚡</span> Greedy Method
+                            </span>
+                            <p class="font-['Kalam'] text-base text-amber-950 font-bold">
+                                “Make the best choice right now → Commit to that choice → Continue”
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- In One Line Quote -->
+                    <div class="p-4 bg-white rounded-xl border-l-4 border-indigo-700 shadow-sm font-sans">
+                        <span class="text-xs uppercase font-bold text-indigo-900 bg-indigo-100 px-2 py-0.5 rounded">In One Line</span>
+                        <p class="text-lg sm:text-xl font-bold text-inkBlue font-['Kalam'] mt-2">
+                            “Backtracking explores choices, DP remembers solutions to subproblems, and Greedy commits to the best current choice.”
+                        </p>
+                    </div>
+
+                    <!-- Comparison Table -->
+                    <div class="overflow-x-auto bg-white/95 p-3 rounded-xl border border-amber-300 shadow-sm font-sans text-sm sm:text-base">
+                        <table class="w-full text-left border-collapse border border-slate-300">
+                            <thead>
+                                <tr class="bg-indigo-900 text-white font-bold">
+                                    <th class="py-2.5 px-3 border border-indigo-800">Strategy</th>
+                                    <th class="py-2.5 px-3 border border-indigo-800">Main Idea</th>
+                                    <th class="py-2.5 px-3 border border-indigo-800">Common Use</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="hover:bg-amber-50 border-b border-slate-200">
+                                    <td class="py-2.5 px-3 font-bold text-indigo-950 border-r border-slate-200 bg-slate-50">Backtracking</td>
+                                    <td class="py-2.5 px-3 border-r border-slate-200">Explore choices and backtrack when necessary</td>
+                                    <td class="py-2.5 px-3 text-slate-800">Finding valid/all possible solutions (N-Queens, Sudoku, Subsets)</td>
+                                </tr>
+                                <tr class="hover:bg-amber-50 border-b border-slate-200">
+                                    <td class="py-2.5 px-3 font-bold text-purple-900 border-r border-slate-200 bg-slate-50">Dynamic Programming</td>
+                                    <td class="py-2.5 px-3 border-r border-slate-200">Solve and reuse overlapping subproblems</td>
+                                    <td class="py-2.5 px-3 text-slate-800">Optimization (min/max), counting, paths (0/1 Knapsack, MCM, OBST)</td>
+                                </tr>
+                                <tr class="hover:bg-amber-50">
+                                    <td class="py-2.5 px-3 font-bold text-amber-900 border-r border-slate-200 bg-slate-50">Greedy</td>
+                                    <td class="py-2.5 px-3 border-r border-slate-200">Make the best local choice</td>
+                                    <td class="py-2.5 px-3 text-slate-800">Optimization problems with the greedy-choice property (MST, Dijkstra)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Important Clarification -->
+                    <div class="pen-box space-y-2 font-sans text-base">
+                        <h3 class="text-xl font-bold text-inkBlue font-['Kalam']">🔍 Important Clarification on Optimization:</h3>
+                        <p class="text-slate-800">
+                            Backtracking <strong>can</strong> be used to find an optimal solution if we explore the relevant possibilities and keep the best one (or prune using Branch and Bound bounds). However, its defining idea is <span class="highlighter-yellow font-bold">searching through choices with backtracking</span>, rather than optimization itself.
+                        </p>
+                        <p class="text-slate-800">
+                            Similarly, greedy methods can solve optimization problems, but <em>only</em> when the problem satisfies the rigorous mathematical <strong>greedy-choice property</strong> and optimal substructure.
+                        </p>
+                    </div>
+                </section>
+
+                <!-- 4. Greedy Example — Coin Change -->
+                <section class="space-y-4 text-lg leading-relaxed pt-4 border-t border-amber-200">
+                    <h2 class="text-2xl font-bold text-inkRed flex items-center gap-2">
+                        <span>🪙</span> 4. Greedy Example — Coin Change
+                    </h2>
+
+                    <p>
+                        Let us examine how Greedy behaves on a simple Coin Change problem to see why greedy choices can lead to sub-optimal answers:
+                    </p>
+
+                    <div class="p-3 bg-white rounded-lg border border-slate-300 font-mono font-bold text-indigo-950 inline-block">
+                        Coins = {1, 3, 4} &nbsp;|&nbsp; Target = 6
+                    </div>
+
+                    <p>
+                        Suppose we apply a standard <strong>Greedy Strategy</strong>: at every step, choose the <span class="highlighter-yellow font-bold">largest possible coin</span> that does not exceed the remaining target.
+                    </p>
+
+                    <!-- Greedy Trace -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center font-sans">
+                        <div class="bg-white p-4 rounded-xl border border-amber-300 shadow-sm text-sm">
+                            <span class="text-xs uppercase font-bold text-amber-900 bg-amber-100 px-2 py-0.5 rounded">Greedy Step-by-Step Execution</span>
+                            <pre class="font-mono text-slate-800 mt-2 bg-slate-50 p-3 rounded border border-slate-200">
+Remaining: 6
+↓
+Take largest coin 4 → remaining: 6 - 4 = 2
+↓
+Take largest coin 1 → remaining: 2 - 1 = 1
+↓
+Take largest coin 1 → remaining: 1 - 1 = 0</pre>
+                            <div class="mt-3 p-2 bg-rose-50 border border-rose-200 rounded text-rose-900 font-bold">
+                                Greedy Combination: 4 + 1 + 1 = 6 &nbsp;➜&nbsp; Total Coins = 3
+                            </div>
+                        </div>
+
+                        <div class="bg-emerald-50/80 p-4 rounded-xl border border-emerald-300 shadow-sm text-sm">
+                            <span class="text-xs uppercase font-bold text-emerald-900 bg-emerald-100 px-2 py-0.5 rounded">The Truly Optimal Solution</span>
+                            <div class="mt-2 p-3 bg-white rounded border border-emerald-200">
+                                <p class="text-base text-slate-800">
+                                    Notice that choosing two 3-value coins also makes 6:
+                                </p>
+                                <p class="font-mono font-bold text-emerald-800 text-lg mt-1">
+                                    3 + 3 = 6
+                                </p>
+                                <p class="text-base font-bold text-emerald-950 mt-1">
+                                    Total Coins Used = 2
+                                </p>
+                            </div>
+                            <div class="mt-3 text-xs text-emerald-900 leading-relaxed">
+                                Because 2 coins &lt; 3 coins, <strong>the optimal solution uses only 2 coins</strong>. Greedy got stuck because taking 4 locked it into suboptimal 1s!
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="teacher-quote text-xl">
+                        ⚠️ <strong>Core Takeaway:</strong>
+                        <div class="text-2xl font-bold text-amber-900 mt-1 not-italic">
+                            “Greedy gives 3 coins, but the optimal solution uses only 2 coins. Greedy does not always produce the optimal solution!”
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 5. Dynamic Programming Example — Coin Change -->
+                <section class="space-y-4 text-lg leading-relaxed pt-4 border-t border-amber-200">
+                    <h2 class="text-2xl font-bold text-inkRed flex items-center gap-2">
+                        <span>📊</span> 5. Dynamic Programming Example — Coin Change
+                    </h2>
+
+                    <p>
+                        Let us solve the exact same problem using <strong>Dynamic Programming</strong>:
+                    </p>
+
+                    <div class="p-3 bg-white rounded-lg border border-slate-300 font-mono font-bold text-indigo-950 inline-block">
+                        Coins = {1, 3, 4} &nbsp;|&nbsp; Target = 6 &nbsp;|&nbsp; Objective: Minimize Coins
+                    </div>
+
+                    <p>
+                        DP calculates the exact answer for smaller amounts first and stores them in a lookup array (<code class="font-mono text-purple-900 bg-purple-100 px-1 rounded">dp[v]</code>), so larger amounts can reuse these optimal subproblem results:
+                    </p>
+
+                    <!-- DP Table -->
+                    <div class="overflow-x-auto bg-white p-3 rounded-xl border border-purple-200 shadow-sm font-sans text-sm">
+                        <table class="w-full text-center border-collapse border border-slate-300">
+                            <thead>
+                                <tr class="bg-purple-900 text-white font-bold">
+                                    <th class="py-2 px-3 border border-purple-800">Amount (v)</th>
+                                    <th class="py-2 px-3 border border-purple-800">0</th>
+                                    <th class="py-2 px-3 border border-purple-800">1</th>
+                                    <th class="py-2 px-3 border border-purple-800">2</th>
+                                    <th class="py-2 px-3 border border-purple-800">3</th>
+                                    <th class="py-2 px-3 border border-purple-800">4</th>
+                                    <th class="py-2 px-3 border border-purple-800">5</th>
+                                    <th class="py-2 px-3 border border-purple-800 bg-emerald-600">6 (Target)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="hover:bg-purple-50 font-mono">
+                                    <td class="py-2 px-3 border border-slate-300 font-bold bg-slate-100 text-slate-800">dp[v]</td>
+                                    <td class="py-2 px-3 border border-slate-300">0</td>
+                                    <td class="py-2 px-3 border border-slate-300">1</td>
+                                    <td class="py-2 px-3 border border-slate-300">2</td>
+                                    <td class="py-2 px-3 border border-slate-300">1</td>
+                                    <td class="py-2 px-3 border border-slate-300">1</td>
+                                    <td class="py-2 px-3 border border-slate-300">2</td>
+                                    <td class="py-2 px-3 border border-slate-300 font-bold text-emerald-800 bg-emerald-100 text-base">2</td>
+                                </tr>
+                                <tr class="text-xs text-slate-600 bg-slate-50">
+                                    <td class="py-1 px-3 border border-slate-300 font-sans font-bold">Optimal Pick</td>
+                                    <td class="py-1 px-3 border border-slate-300">-</td>
+                                    <td class="py-1 px-3 border border-slate-300">1</td>
+                                    <td class="py-1 px-3 border border-slate-300">1+1</td>
+                                    <td class="py-1 px-3 border border-slate-300">3</td>
+                                    <td class="py-1 px-3 border border-slate-300">4</td>
+                                    <td class="py-1 px-3 border border-slate-300">1+4</td>
+                                    <td class="py-1 px-3 border border-slate-300 font-bold text-emerald-900 bg-emerald-50">3 + 3</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <p>
+                        For Target = 6, DP considers all valid coin transitions:
+                    </p>
+                    <ul class="list-disc pl-8 space-y-1 font-sans text-base">
+                        <li>Pick coin 1 ➜ $1 + dp[5] = 1 + 2 = 3$ coins</li>
+                        <li>Pick coin 3 ➜ $1 + dp[3] = 1 + 1 = \mathbf{2}$ coins <span class="text-emerald-700 font-bold">(Minimum!)</span></li>
+                        <li>Pick coin 4 ➜ $1 + dp[2] = 1 + 2 = 3$ coins</li>
+                    </ul>
+
+                    <div class="p-3 bg-emerald-50 rounded-lg border border-emerald-300 font-sans text-base text-emerald-950 font-bold">
+                        🎯 Minimum number of coins = 2 (Solution: 3 + 3 = 6). DP guarantees optimality by testing all subproblems and caching.
+                    </div>
+
+                    <!-- Canvas: Coin Change Comparison -->
+                    <div class="sketch-card p-4 my-4 font-sans">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-3 border-b border-slate-200 pb-2">
+                            <div>
+                                <h3 class="text-xl font-bold text-inkBlue font-['Kalam']">🎨 Visual Canvas: Greedy Trap vs DP Optimality</h3>
+                                <p class="text-xs text-slate-600">Comparison of coin choice steps for Target = 6 with Coins = {1, 3, 4}</p>
+                            </div>
+                            <span class="text-xs bg-indigo-100 text-indigo-900 font-bold px-2 py-1 rounded">Vanilla HTML5 Canvas Engine</span>
+                        </div>
+                        <div class="flex justify-center overflow-x-auto">
+                            <canvas id="canvas-coin-change" width="650" height="240" class="max-w-full rounded border border-slate-200 bg-amber-50/40"></canvas>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+
+            <!-- ==================================================================== -->
+            <!-- TAB 2: STUDENTS ARRANGEMENT & STATE-SPACE TREE (§6 - §9)             -->
+            <!-- ==================================================================== -->
+            <div id="tab-state-space-tree" class="tab-pane hidden space-y-8">
+
+                <!-- Section Header -->
+                <div class="border-b-2 border-inkRed pb-2 flex justify-between items-baseline">
+                    <div>
+                        <h1 class="text-3xl sm:text-4xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                            2. The State-Space Tree &amp; Backtracking Mechanism
+                        </h1>
+                        <p class="text-sm font-sans text-pencilGray mt-1">Arranging students, tree levels, depth exploration, and undoing choices</p>
+                    </div>
+                    <span class="text-xs sm:text-sm font-bold font-sans bg-amber-100 text-inkRed px-2.5 py-1 rounded border border-amber-300">
+                        Tab 2 • State-Space Tree
+                    </span>
+                </div>
+
+                <!-- 6. Backtracking Example — Arranging Students -->
+                <section class="space-y-4 text-lg leading-relaxed">
+                    <h2 class="text-2xl font-bold text-inkRed flex items-center gap-2">
+                        <span>🪑</span> 6. Backtracking Example — Arranging Students
+                    </h2>
+
+                    <p>
+                        To clearly understand how backtracking moves through decisions, let us explore an intuitive real-world arrangement problem:
+                    </p>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 font-sans text-base">
+                        <div class="p-4 bg-white rounded-xl border border-blue-200 shadow-sm space-y-2">
+                            <span class="text-xs font-bold uppercase text-blue-900 bg-blue-100 px-2 py-0.5 rounded">The Students</span>
+                            <ul class="list-disc pl-5 text-slate-800 space-y-1">
+                                <li><strong class="text-blue-900">Boy 1 (B1)</strong></li>
+                                <li><strong class="text-blue-900">Boy 2 (B2)</strong></li>
+                                <li><strong class="text-rose-900">Girl 1 (G1)</strong></li>
+                            </ul>
+                        </div>
+                        <div class="p-4 bg-white rounded-xl border border-amber-200 shadow-sm space-y-2">
+                            <span class="text-xs font-bold uppercase text-amber-900 bg-amber-100 px-2 py-0.5 rounded">The Chairs</span>
+                            <ul class="list-disc pl-5 text-slate-800 space-y-1">
+                                <li><strong>Chair 1</strong> (First position)</li>
+                                <li><strong>Chair 2</strong> (Middle position)</li>
+                                <li><strong>Chair 3</strong> (Last position)</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <p>
+                        We need to find <span class="highlighter-yellow font-bold">all possible arrangements</span> (permutations) of these 3 students on the 3 chairs.
+                    </p>
+
+                    <div class="pen-box font-sans text-base">
+                        <p class="font-bold text-inkBlue text-lg">Combinatorial Calculation:</p>
+                        <p class="text-slate-800 mt-1">
+                            Since there are 3 distinct students and 3 available chairs, the total number of permutations is given by factorial:
+                        </p>
+                        <p class="font-mono text-xl font-bold text-indigo-950 mt-2">
+                            3! = 3 × 2 × 1 = 6 possible arrangements
+                        </p>
+                    </div>
+                </section>
+
+                <!-- 7. Building the State-Space Tree -->
+                <section class="space-y-4 text-lg leading-relaxed pt-4 border-t border-amber-200">
+                    <h2 class="text-2xl font-bold text-inkRed flex items-center gap-2">
+                        <span>🌳</span> 7. Building the State-Space Tree
+                    </h2>
+
+                    <p>
+                        To find all arrangements systematically, we represent the possible choices using a <strong class="text-inkBlue font-bold">State-Space Tree</strong>.
+                    </p>
+
+                    <div class="teacher-quote text-xl">
+                        💡 <strong>Definition of a State-Space Tree:</strong>
+                        <div class="text-2xl font-bold text-amber-900 mt-1 not-italic">
+                            “A tree representing all possible states and choices that can be reached while solving the problem.”
+                        </div>
+                    </div>
+
+                    <!-- Step-by-Step Tree Generation -->
+                    <div class="space-y-4 font-sans text-base">
+                        <div class="bg-white p-4 rounded-xl border border-slate-300 shadow-sm space-y-2">
+                            <h3 class="font-bold text-inkBlue font-['Kalam'] text-lg">Step 1: The Root State (No chairs filled)</h3>
+                            <p class="text-slate-700">At the root, nobody has been seated yet:</p>
+                            <pre class="bg-slate-50 p-2.5 rounded border border-slate-200 font-mono text-sm text-center">Root (Start) — []</pre>
+                        </div>
+
+                        <div class="bg-white p-4 rounded-xl border border-slate-300 shadow-sm space-y-2">
+                            <h3 class="font-bold text-inkBlue font-['Kalam'] text-lg">Step 2: Choices for Chair 1</h3>
+                            <p class="text-slate-700">Any of the 3 students can be assigned to Chair 1:</p>
+                            <pre class="bg-slate-50 p-2.5 rounded border border-slate-200 font-mono text-sm text-center">
+                         Start
+                       /   |   \
+                     B1    B2   G1</pre>
+                        </div>
+
+                        <div class="bg-white p-4 rounded-xl border border-slate-300 shadow-sm space-y-2">
+                            <h3 class="font-bold text-inkBlue font-['Kalam'] text-lg">Step 3: Choose B1 for Chair 1 → Expand Chair 2</h3>
+                            <p class="text-slate-700">Suppose we choose <strong>B1</strong>. Now B1 has occupied Chair 1. The remaining choices for Chair 2 are <strong>B2</strong> and <strong>G1</strong>:</p>
+                            <pre class="bg-slate-50 p-2.5 rounded border border-slate-200 font-mono text-sm text-center">
+                         Start
+                           |
+                          B1
+                        /    \
+                       B2     G1</pre>
+                        </div>
+
+                        <div class="bg-white p-4 rounded-xl border border-slate-300 shadow-sm space-y-2">
+                            <h3 class="font-bold text-inkBlue font-['Kalam'] text-lg">Step 4: Choose B2 for Chair 2 → Only G1 remains for Chair 3</h3>
+                            <p class="text-slate-700">If we choose <strong>B2</strong> for Chair 2, only <strong>G1</strong> is left for Chair 3:</p>
+                            <pre class="bg-slate-50 p-2.5 rounded border border-slate-200 font-mono text-sm text-center">
+                         Start
+                           |
+                          B1
+                           |
+                          B2
+                           |
+                          G1  (Leaf node reached!)</pre>
+                            <p class="text-emerald-800 font-bold">
+                                🎉 This gives our first complete solution: <span class="bg-emerald-100 text-emerald-950 px-2 py-0.5 rounded font-mono">B1 → B2 → G1</span>
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 8. Backtracking -->
+                <section class="space-y-4 text-lg leading-relaxed pt-4 border-t border-amber-200">
+                    <h2 class="text-2xl font-bold text-inkRed flex items-center gap-2">
+                        <span>↩️</span> 8. Backtracking
+                    </h2>
+
+                    <p>
+                        Now we have reached the end of this first path. We have a complete solution, but we need <em>all</em> solutions.
+                    </p>
+
+                    <p>
+                        We <span class="highlighter-yellow font-bold">go back</span>. This is where the name <strong class="text-inkBlue">Backtracking</strong> comes from:
+                    </p>
+
+                    <div class="p-4 bg-amber-50 rounded-xl border border-amber-300 font-sans text-base space-y-2">
+                        <p class="text-slate-800">
+                            We undo the previous choice and try another possibility:
+                        </p>
+                        <pre class="bg-white p-3 rounded border border-amber-200 font-mono text-center text-sm font-bold text-indigo-950">
+B1 → B2 → G1
+       ↑
+   Backtrack!</pre>
+                        <p class="text-slate-800">
+                            We return to state <strong class="text-blue-900 font-mono">B1</strong> and pick the other unexplored branch: <strong>G1</strong> for Chair 2 instead of B2!
+                        </p>
+                        <pre class="bg-white p-3 rounded border border-amber-200 font-mono text-center text-sm text-indigo-950">
+                         Start
+                           |
+                          B1
+                           |
+                          G1  (Middle chair)
+                           |
+                          B2  (Last chair)</pre>
+                        <p class="text-emerald-800 font-bold">
+                            🎉 This gives our second complete solution: <span class="bg-emerald-100 text-emerald-950 px-2 py-0.5 rounded font-mono">B1 → G1 → B2</span>
+                        </p>
+                    </div>
+
+                    <p>
+                        We continue this exact recursive process—exploring down to a leaf, then backtracking to the nearest unexplored branch—until all possible arrangements are found!
+                    </p>
+                </section>
+
+                <!-- 9. Complete State-Space Tree -->
+                <section class="space-y-4 text-lg leading-relaxed pt-4 border-t border-amber-200">
+                    <h2 class="text-2xl font-bold text-inkRed flex items-center gap-2">
+                        <span>🌳</span> 9. Complete State-Space Tree (All 6 Solutions)
+                    </h2>
+
+                    <p>
+                        The complete unconstrained state-space tree for 3 students and 3 chairs branches out symmetrically into 6 leaf nodes:
+                    </p>
+
+                    <div class="bg-slate-900 text-emerald-300 p-4 rounded-xl font-mono text-xs sm:text-sm overflow-x-auto shadow-inner leading-relaxed">
+<pre>
+                              Start
+                         /      |      \
+                       B1       B2       G1           (Chair 1)
+                      /  \     /  \     /  \
+                    B2   G1   B1   G1   B1   B2       (Chair 2)
+                    |    |    |    |    |    |
+                    G1   B2   G1   B1   B2   B1       (Chair 3)
+                    ↓    ↓    ↓    ↓    ↓    ↓
+                   (1)  (2)  (3)  (4)  (5)  (6)       (6 Leaf Solutions)</pre>
+                    </div>
+
+                    <!-- 6 Solutions Listing -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 font-mono text-sm text-center font-bold">
+                        <div class="p-2.5 bg-blue-50 border border-blue-200 rounded-lg text-blue-900">
+                            1: B1 → B2 → G1<br>
+                            2: B1 → G1 → B2
+                        </div>
+                        <div class="p-2.5 bg-indigo-50 border border-indigo-200 rounded-lg text-indigo-900">
+                            3: B2 → B1 → G1<br>
+                            4: B2 → G1 → B1
+                        </div>
+                        <div class="p-2.5 bg-purple-50 border border-purple-200 rounded-lg text-purple-900">
+                            5: G1 → B1 → B2<br>
+                            6: G1 → B2 → B1
+                        </div>
+                    </div>
+
+                    <div class="teacher-quote text-xl">
+                        💡 <strong>Fundamental Theorem of State-Space Trees:</strong>
+                        <div class="text-2xl font-bold text-amber-900 mt-1 not-italic">
+                            “One root-to-leaf path represents exactly one complete candidate solution.”
+                        </div>
+                    </div>
+
+                    <!-- Canvas: Complete State-Space Tree -->
+                    <div class="sketch-card p-4 my-4 font-sans">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-3 border-b border-slate-200 pb-2">
+                            <div>
+                                <h3 class="text-xl font-bold text-inkBlue font-['Kalam']">🎨 Visual Canvas: Complete State-Space Tree Architecture</h3>
+                                <p class="text-xs text-slate-600">Full 3-level tree showing Chair 1, Chair 2, Chair 3 decisions, leaves, and backtrack return path</p>
+                            </div>
+                            <span class="text-xs bg-emerald-100 text-emerald-900 font-bold px-2 py-1 rounded">Interactive High-DPI Engine</span>
+                        </div>
+                        <div class="flex justify-center overflow-x-auto">
+                            <canvas id="canvas-state-space-tree" width="760" height="380" class="max-w-full rounded border border-slate-200 bg-[#FCFBF7]"></canvas>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+
+            <!-- ==================================================================== -->
+            <!-- TAB 3: CONSTRAINTS, PRUNING & BOUNDING FUNCTIONS (§10 - §14)         -->
+            <!-- ==================================================================== -->
+            <div id="tab-pruning-bounding" class="tab-pane hidden space-y-8">
+
+                <!-- Section Header -->
+                <div class="border-b-2 border-inkRed pb-2 flex justify-between items-baseline">
+                    <div>
+                        <h1 class="text-3xl sm:text-4xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                            3. Constraints, Pruning &amp; Bounding Functions
+                        </h1>
+                        <p class="text-sm font-sans text-pencilGray mt-1">Cutting off dead branches early: bounding condition, search space reduction, and computational savings</p>
+                    </div>
+                    <span class="text-xs sm:text-sm font-bold font-sans bg-amber-100 text-inkRed px-2.5 py-1 rounded border border-amber-300">
+                        Tab 3 • Pruning &amp; Bounding
+                    </span>
+                </div>
+
+                <!-- 10. Adding a Constraint -->
+                <section class="space-y-4 text-lg leading-relaxed">
+                    <h2 class="text-2xl font-bold text-inkRed flex items-center gap-2">
+                        <span>✂️</span> 10. Adding a Constraint
+                    </h2>
+
+                    <p>
+                        Now let us make the problem realistic and interesting by introducing a problem restriction:
+                    </p>
+
+                    <!-- Problem Constraint Box -->
+                    <div class="pen-box-red font-sans">
+                        <span class="text-xs font-bold uppercase text-rose-900 bg-rose-100 px-2 py-0.5 rounded">Problem Constraint</span>
+                        <p class="text-2xl font-bold text-rose-900 font-['Kalam'] mt-1">
+                            “Girl 1 (G1) should NOT sit in the middle chair (Chair 2).”
+                        </p>
+                    </div>
+
+                    <p>
+                        With this constraint present, <strong>we do NOT need to explore every branch to the leaf</strong>!
+                    </p>
+
+                    <p>
+                        Let us trace what happens under the branch starting with Chair 1 = B1:
+                    </p>
+
+                    <!-- Two Branches Comparison -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 font-sans text-sm my-3">
+                        <!-- Branch 1 -->
+                        <div class="bg-emerald-50/80 p-4 rounded-xl border border-emerald-300 space-y-2">
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-emerald-950 text-base">Branch 1: Choose B2 for Chair 2</span>
+                                <span class="bg-emerald-200 text-emerald-900 font-bold px-2 py-0.5 rounded text-xs">Valid</span>
+                            </div>
+                            <pre class="bg-white p-2.5 rounded border border-emerald-200 font-mono text-slate-800">
+B1 (Chair 1) → B2 (Chair 2)</pre>
+                            <p class="text-slate-700">
+                                <strong>Check constraint:</strong> Is G1 sitting in the middle chair?
+                            </p>
+                            <p class="text-emerald-800 font-bold">
+                                ➜ NO. B2 is in the middle chair. Constraint is satisfied!
+                            </p>
+                            <p class="text-slate-700">
+                                Therefore, we continue down to Chair 3:
+                            </p>
+                            <div class="p-2 bg-emerald-100 text-emerald-900 rounded font-bold font-mono text-center">
+                                B1 → B2 → G1 &nbsp;✅ (Valid Solution)
+                            </div>
+                        </div>
+
+                        <!-- Branch 2 -->
+                        <div class="bg-rose-50/80 p-4 rounded-xl border border-rose-300 space-y-2">
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-rose-950 text-base">Branch 2: Choose G1 for Chair 2</span>
+                                <span class="bg-rose-200 text-rose-900 font-bold px-2 py-0.5 rounded text-xs">Violated!</span>
+                            </div>
+                            <pre class="bg-white p-2.5 rounded border border-rose-200 font-mono text-slate-800">
+B1 (Chair 1) → G1 (Chair 2)</pre>
+                            <p class="text-slate-700">
+                                <strong>Check constraint:</strong> Is G1 sitting in the middle chair?
+                            </p>
+                            <p class="text-rose-800 font-bold">
+                                ➜ YES! This directly violates our constraint!
+                            </p>
+                            <p class="text-slate-700">
+                                Therefore:
+                            </p>
+                            <div class="p-2 bg-rose-200 text-rose-950 rounded font-bold font-mono text-center">
+                                B1 → G1 &nbsp;❌ (STOP & PRUNE!)
+                            </div>
+                            <p class="text-xs text-rose-900 font-semibold">
+                                We immediately stop exploring this branch. We <strong>DO NOT generate its children</strong> (we never even evaluate placing B2 on Chair 3)!
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 11. What is Pruning? -->
+                <section class="space-y-4 text-lg leading-relaxed pt-4 border-t border-amber-200">
+                    <h2 class="text-2xl font-bold text-inkRed flex items-center gap-2">
+                        <span>✂️</span> 11. What is Pruning?
+                    </h2>
+
+                    <div class="teacher-quote text-xl">
+                        💡 <strong>Formal Definition of Pruning:</strong>
+                        <div class="text-2xl font-bold text-amber-900 mt-1 not-italic">
+                            “Pruning means stopping the exploration of a branch the moment we know it cannot produce a valid solution.”
+                        </div>
+                    </div>
+
+                    <p>
+                        Instead of wasting cycles generating deeply nested candidate branches and checking them only at the very end:
+                    </p>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 font-sans text-sm">
+                        <div class="p-3.5 bg-slate-100 rounded-lg border border-slate-300">
+                            <span class="font-bold text-slate-700">❌ Wasteful Blind Search:</span>
+                            <pre class="font-mono text-slate-800 text-xs mt-1">
+Choice → Continue → Continue → Complete candidate → Check valid?</pre>
+                        </div>
+                        <div class="p-3.5 bg-emerald-50 rounded-lg border border-emerald-300">
+                            <span class="font-bold text-emerald-900">✅ Backtracking with Pruning:</span>
+                            <pre class="font-mono text-emerald-900 text-xs mt-1">
+Choice → Check constraint → Invalid? → STOP IMMEDIATELY ✕</pre>
+                        </div>
+                    </div>
+
+                    <p>
+                        This single mechanism saves massive amounts of unnecessary computation. In problems like $N$-Queens, pruning turns an impossible $O(n^n)$ or $O(n!)$ search into an instant solution for large $N$.
+                    </p>
+                </section>
+
+                <!-- 12. What is a Bounding Function? -->
+                <section class="space-y-4 text-lg leading-relaxed pt-4 border-t border-amber-200">
+                    <h2 class="text-2xl font-bold text-inkRed flex items-center gap-2">
+                        <span>🛡️</span> 12. What is a Bounding Function?
+                    </h2>
+
+                    <p>
+                        The mathematical condition or predicate used to determine whether we should continue exploring a particular branch is called a <strong class="text-inkBlue font-bold">Bounding Function</strong> (often called a <em>Feasibility / Criterion Function</em>).
+                    </p>
+
+                    <div class="pen-box font-sans text-base space-y-2">
+                        <span class="text-xs uppercase font-bold text-indigo-900 bg-indigo-100 px-2 py-0.5 rounded">Our Example Bounding Function</span>
+                        <div class="p-3 bg-white rounded border border-slate-200">
+                            <p class="font-mono text-indigo-950 font-bold text-base">
+                                Criterion: Chair[2] ≠ 'G1'
+                            </p>
+                            <p class="text-slate-600 text-sm mt-1">
+                                For any partial arrangement of length ≥ 2:
+                            </p>
+                            <pre class="bg-slate-50 p-2 rounded text-xs font-mono text-slate-800 mt-1">
+Is Chair 2 == G1?
+     ↓
+   YES  ➜ Return FALSE (Bounding function fails → Prune branch ✕)
+    NO  ➜ Return TRUE  (Bounding function holds → Keep exploring ↓)</pre>
+                        </div>
+                    </div>
+
+                    <div class="teacher-quote text-xl">
+                        💡 <strong>Simple Definition:</strong>
+                        <div class="text-2xl font-bold text-amber-900 mt-1 not-italic">
+                            “Bounding Function = A condition used to determine whether a partial solution can continue to be explored or must be discarded.”
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 13. Backtracking With a Bounding Function -->
+                <section class="space-y-4 text-lg leading-relaxed pt-4 border-t border-amber-200">
+                    <h2 class="text-2xl font-bold text-inkRed flex items-center gap-2">
+                        <span>🔄</span> 13. Backtracking With a Bounding Function
+                    </h2>
+
+                    <p>
+                        With the bounding function actively guarding every branch, the entire backtracking search engine operates as follows:
+                    </p>
+
+                    <div class="bg-white p-4 rounded-xl border border-slate-300 font-sans shadow-sm text-sm">
+                        <pre class="font-mono text-slate-900 text-center text-xs sm:text-sm leading-relaxed">
+             Make a choice
+                   ↓
+             Check constraint
+                   ↓
+              Bounding Function Test
+              /                    \
+        [Valid / TRUE]       [Invalid / FALSE]
+             ↓                       ↓
+       Explore further            Prune ✕ (Cut off subtree)
+             ↓                       ↓
+      Make next choice           Undo choice &amp; Backtrack
+             ↓                       ↓
+            ...                 Try alternative branch</pre>
+                    </div>
+
+                    <div class="p-3 bg-indigo-50 border-l-4 border-indigo-700 text-indigo-950 font-sans text-base">
+                        💡 <strong>So remember:</strong> Backtracking explores the state-space tree, while the <strong>bounding condition</strong> prunes branches that cannot lead to valid solutions.
+                    </div>
+                </section>
+
+                <!-- 14. Why Backtracking Saves Work -->
+                <section class="space-y-4 text-lg leading-relaxed pt-4 border-t border-amber-200">
+                    <h2 class="text-2xl font-bold text-inkRed flex items-center gap-2">
+                        <span>⚡</span> 14. Why Backtracking Saves Work
+                    </h2>
+
+                    <p>
+                        Consider a problem with 10 decision stages and 3 choices at each stage ($3^{10} = 59,049$ leaves):
+                    </p>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 font-sans text-sm">
+                        <div class="sketch-card p-4 border-rose-300 bg-rose-50/40">
+                            <h4 class="font-bold text-rose-900 text-base">Without Early Pruning (Brute Force)</h4>
+                            <p class="text-slate-700 mt-1">
+                                Generates all 59,049 full solutions to depth 10 before checking if stage 2 violated a rule.
+                            </p>
+                            <div class="p-2 bg-rose-100 rounded text-rose-900 font-bold text-center mt-2">
+                                59,049 complete paths evaluated
+                            </div>
+                        </div>
+
+                        <div class="sketch-card p-4 border-emerald-300 bg-emerald-50/40">
+                            <h4 class="font-bold text-emerald-950 text-base">With Backtracking Pruning</h4>
+                            <p class="text-slate-700 mt-1">
+                                Detects constraint violation at Stage 2. Instantly prunes the entire subtree of $3^8 = 6,561$ sub-solutions in 1 single check!
+                            </p>
+                            <div class="p-2 bg-emerald-100 rounded text-emerald-900 font-bold text-center mt-2">
+                                6,561 wasted operations eliminated at once!
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Canvas: Pruned State-Space Tree -->
+                    <div class="sketch-card p-4 my-4 font-sans">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-3 border-b border-slate-200 pb-2">
+                            <div>
+                                <h3 class="text-xl font-bold text-inkBlue font-['Kalam']">🎨 Visual Canvas: Pruned State-Space Tree (Constraint: G1 ≠ Chair 2)</h3>
+                                <p class="text-xs text-slate-600">Green paths indicate valid explored solutions; Red scissors and ghosted boxes indicate pruned subtrees</p>
+                            </div>
+                            <span class="text-xs bg-rose-100 text-rose-900 font-bold px-2 py-1 rounded">Pruning Visualizer</span>
+                        </div>
+                        <div class="flex justify-center overflow-x-auto">
+                            <canvas id="canvas-pruned-tree" width="760" height="380" class="max-w-full rounded border border-slate-200 bg-[#FCFBF7]"></canvas>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+
+            <!-- ==================================================================== -->
+            <!-- TAB 4: BRANCH & BOUND, PATTERNS & SUMMARY (§15 - §20)                -->
+            <!-- ==================================================================== -->
+            <div id="tab-branch-bound-patterns" class="tab-pane hidden space-y-8">
+
+                <!-- Section Header -->
+                <div class="border-b-2 border-inkRed pb-2 flex justify-between items-baseline">
+                    <div>
+                        <h1 class="text-3xl sm:text-4xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                            4. Applications, Algorithmic Pattern &amp; Branch and Bound
+                        </h1>
+                        <p class="text-sm font-sans text-pencilGray mt-1">Classic problems, universal recursion template, DFS vs BFS/Best-First, and the Master Mental Model</p>
+                    </div>
+                    <span class="text-xs sm:text-sm font-bold font-sans bg-amber-100 text-inkRed px-2.5 py-1 rounded border border-amber-300">
+                        Tab 4 • Paradigms &amp; Summary
+                    </span>
+                </div>
+
+                <!-- 15. Where is Backtracking Used? -->
+                <section class="space-y-4 text-lg leading-relaxed">
+                    <h2 class="text-2xl font-bold text-inkRed flex items-center gap-2">
+                        <span>🌍</span> 15. Where is Backtracking Used?
+                    </h2>
+
+                    <p>
+                        Backtracking is the primary algorithmic tool for problems involving <span class="highlighter-yellow font-bold">choices, constraints, and multiple possible solutions</span>.
+                    </p>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 font-sans text-sm">
+                        <!-- N-Queens -->
+                        <div class="sketch-card p-3.5 border-indigo-200 space-y-2 flex flex-col justify-between">
+                            <div>
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-1.5 text-indigo-950 font-bold text-base">
+                                        <span>👑</span> <span>N-Queens</span>
+                                    </div>
+                                    <a href="n_queens.html" class="text-[11px] font-bold text-rose-700 hover:text-rose-900 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded shadow-sm transition">
+                                        Open 4-Queens ↗
+                                    </a>
+                                </div>
+                                <p class="text-slate-700 text-xs mt-1">
+                                    Place $N$ queens on an $N \times N$ chessboard such that no two queens attack each other (no shared row, column, or diagonal).
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Subset Sum -->
+                        <div class="sketch-card p-3.5 border-emerald-200 space-y-2 flex flex-col justify-between">
+                            <div>
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-1.5 text-emerald-950 font-bold text-base">
+                                        <span>➕</span> <span>Subset Sum</span>
+                                    </div>
+                                    <a href="subset_sum.html" class="text-[11px] font-bold text-emerald-700 hover:text-emerald-900 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded shadow-sm transition">
+                                        Open Subset Sum ↗
+                                    </a>
+                                </div>
+                                <p class="text-slate-700 text-xs mt-1">
+                                    Given a set of integers, find all subsets whose elements sum up exactly to a specified target value $M$.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Graph Coloring -->
+                        <div class="sketch-card p-3.5 border-purple-200 space-y-1">
+                            <div class="flex items-center gap-2 text-purple-950 font-bold text-base">
+                                <span>🎨</span> <span>Graph Coloring</span>
+                            </div>
+                            <p class="text-slate-700 text-xs">
+                                Assign at most $M$ colors to vertices such that no two adjacent vertices share the exact same color.
+                            </p>
+                        </div>
+
+                        <!-- Permutations -->
+                        <div class="sketch-card p-3.5 border-amber-200 space-y-1">
+                            <div class="flex items-center gap-2 text-amber-950 font-bold text-base">
+                                <span>🔀</span> <span>Permutations</span>
+                            </div>
+                            <p class="text-slate-700 text-xs">
+                                Generate all possible ordered arrangements of $n$ distinct elements without repetition.
+                            </p>
+                        </div>
+
+                        <!-- Combinations -->
+                        <div class="sketch-card p-3.5 border-blue-200 space-y-1">
+                            <div class="flex items-center gap-2 text-blue-950 font-bold text-base">
+                                <span>📦</span> <span>Combinations</span>
+                            </div>
+                            <p class="text-slate-700 text-xs">
+                                Select subsets of size $k$ from a collection of $n$ items satisfying given conditions.
+                            </p>
+                        </div>
+
+                        <!-- Sudoku -->
+                        <div class="sketch-card p-3.5 border-rose-200 space-y-1">
+                            <div class="flex items-center gap-2 text-rose-950 font-bold text-base">
+                                <span>🔢</span> <span>Sudoku</span>
+                            </div>
+                            <p class="text-slate-700 text-xs">
+                                Fill a $9 \times 9$ grid with digits 1–9 such that each row, column, and $3 \times 3$ subgrid contains each digit exactly once.
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 16. Backtracking Pattern -->
+                <section class="space-y-4 text-lg leading-relaxed pt-4 border-t border-amber-200">
+                    <h2 class="text-2xl font-bold text-inkRed flex items-center gap-2">
+                        <span>🧩</span> 16. The Canonical Backtracking Code Pattern
+                    </h2>
+
+                    <p>
+                        Almost every backtracking algorithm follows the exact same recursive template:
+                    </p>
+
+                    <!-- Code Block -->
+                    <div class="bg-slate-900 rounded-xl p-4 font-mono text-xs sm:text-sm text-slate-100 shadow-md">
+                        <div class="text-slate-400 text-xs pb-2 border-b border-slate-700 font-sans">
+                            Universal Backtracking Recursive Blueprint
+                        </div>
+                        <pre class="mt-3 text-emerald-300">
+<span class="text-purple-400">function</span> <span class="text-yellow-300">Backtrack</span>(state):
+
+    <span class="text-slate-400">// 1. BASE CASE: If solution is complete</span>
+    <span class="text-purple-400">if</span> solution is complete:
+        record_solution(state)
+        <span class="text-purple-400">return</span>
+
+    <span class="text-slate-400">// 2. EXPLORE ALL CHOICES AT CURRENT STAGE</span>
+    <span class="text-purple-400">for each</span> possible choice <span class="text-purple-400">in</span> candidate_choices:
+
+        <span class="text-slate-400">// 3. BOUNDING FUNCTION: Check feasibility</span>
+        <span class="text-purple-400">if</span> choice violates constraint:
+            <span class="text-purple-400">continue</span>  <span class="text-rose-400">// PRUNE! Do not explore this subtree</span>
+
+        <span class="text-slate-400">// 4. CHOOSE</span>
+        make the choice (add choice to state)
+
+        <span class="text-slate-400">// 5. EXPLORE DEEPER (Recursion)</span>
+        Backtrack(new_state)
+
+        <span class="text-slate-400">// 6. UN-CHOOSE (The Crucial Backtrack Action!)</span>
+        undo the choice (restore state to prior status)</pre>
+                    </div>
+
+                    <div class="teacher-quote text-xl">
+                        💡 <strong>The Magic 3-Step Dance:</strong>
+                        <div class="text-2xl font-bold text-amber-900 mt-1 not-italic">
+                            Make Choice ➜ Explore ➜ Undo Choice
+                        </div>
+                    </div>
+
+                    <p>
+                        That <strong>undo</strong> operation is what allows the algorithm to return cleanly up the recursion stack and try the next alternative choice with zero side effects.
+                    </p>
+                </section>
+
+                <!-- 17 & 18: Backtracking vs Branch and Bound -->
+                <section class="space-y-4 text-lg leading-relaxed pt-4 border-t border-amber-200">
+                    <h2 class="text-2xl font-bold text-inkRed flex items-center gap-2">
+                        <span>⚖️</span> 17 &amp; 18. Backtracking vs Branch and Bound
+                    </h2>
+
+                    <p>
+                        There is another major strategy that also explores a state-space tree: <strong class="text-indigo-900">Branch and Bound</strong>.
+                    </p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 font-sans text-sm my-2">
+                        <!-- Backtracking (DFS) -->
+                        <div class="sketch-card p-4 border-blue-300 bg-blue-50/40">
+                            <span class="text-xs uppercase font-bold text-blue-900 bg-blue-100 px-2 py-0.5 rounded">Strategy 1: Backtracking</span>
+                            <h3 class="text-xl font-bold text-inkBlue font-['Kalam'] mt-1">Depth-First Search (DFS)</h3>
+                            <p class="text-slate-700 text-xs sm:text-sm mt-1">
+                                Goes <strong>deep first</strong> along one path until reaching a dead-end or complete solution, then backtracks up one level.
+                            </p>
+                            <pre class="bg-white p-2 rounded border border-blue-200 font-mono text-xs text-slate-800 mt-2">
+Traversal Order:
+Root → Deep Child 1 → Deep Child 2 → Backtrack</pre>
+                            <p class="text-xs text-blue-900 font-bold mt-2">
+                                Backtracking = DFS-style exploration + Constraint-based pruning
+                            </p>
+                        </div>
+
+                        <!-- Branch and Bound (BFS / Best-First) -->
+                        <div class="sketch-card p-4 border-amber-300 bg-amber-50/40">
+                            <span class="text-xs uppercase font-bold text-amber-900 bg-amber-100 px-2 py-0.5 rounded">Strategy 2: Branch &amp; Bound</span>
+                            <h3 class="text-xl font-bold text-inkBlue font-['Kalam'] mt-1">Breadth-First / Best-First</h3>
+                            <p class="text-slate-700 text-xs sm:text-sm mt-1">
+                                Explores nodes <strong>level by level</strong> (using a Queue) or in order of <strong>best potential bound</strong> (using a Priority Queue).
+                            </p>
+                            <pre class="bg-white p-2 rounded border border-amber-200 font-mono text-xs text-slate-800 mt-2">
+Traversal Order:
+Level 0 → All Level 1 nodes → All Level 2 nodes</pre>
+                            <p class="text-xs text-amber-900 font-bold mt-2">
+                                Branch &amp; Bound = BFS/Best-First exploration + Bound on solution quality
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 19. Detailed Comparison Table -->
+                    <div class="space-y-2 mt-4">
+                        <h3 class="text-xl font-bold text-inkBlue font-['Kalam']">📋 19. Backtracking vs Branch and Bound Comparison</h3>
+                        <div class="overflow-x-auto bg-white p-3 rounded-xl border border-slate-300 shadow-sm font-sans text-sm sm:text-base">
+                            <table class="w-full text-left border-collapse border border-slate-300">
+                                <thead>
+                                    <tr class="bg-slate-800 text-white font-bold">
+                                        <th class="py-2.5 px-3 border border-slate-700">Feature</th>
+                                        <th class="py-2.5 px-3 border border-slate-700 text-blue-200">Backtracking</th>
+                                        <th class="py-2.5 px-3 border border-slate-700 text-amber-200">Branch and Bound</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="text-slate-800">
+                                    <tr class="hover:bg-slate-50 border-b border-slate-200">
+                                        <td class="py-2 px-3 font-bold bg-slate-50">Underlying Tree</td>
+                                        <td class="py-2 px-3">State-space tree</td>
+                                        <td class="py-2 px-3">State-space tree</td>
+                                    </tr>
+                                    <tr class="hover:bg-slate-50 border-b border-slate-200">
+                                        <td class="py-2 px-3 font-bold bg-slate-50">Common Traversal</td>
+                                        <td class="py-2 px-3 font-bold text-blue-900">DFS (Depth-First Search)</td>
+                                        <td class="py-2 px-3 font-bold text-amber-900">BFS / Best-First (LC-BB)</td>
+                                    </tr>
+                                    <tr class="hover:bg-slate-50 border-b border-slate-200">
+                                        <td class="py-2 px-3 font-bold bg-slate-50">Main Purpose</td>
+                                        <td class="py-2 px-3">Find valid / all possible solutions</td>
+                                        <td class="py-2 px-3">Often find optimal solutions (min/max)</td>
+                                    </tr>
+                                    <tr class="hover:bg-slate-50 border-b border-slate-200">
+                                        <td class="py-2 px-3 font-bold bg-slate-50">Pruning Based On</td>
+                                        <td class="py-2 px-3">Constraints / Feasibility violation</td>
+                                        <td class="py-2 px-3">Bound on solution quality (Upper/Lower Bound)</td>
+                                    </tr>
+                                    <tr class="hover:bg-slate-50">
+                                        <td class="py-2 px-3 font-bold bg-slate-50">Typical Applications</td>
+                                        <td class="py-2 px-3">N-Queens, Sudoku, Graph Coloring, Subset Sum</td>
+                                        <td class="py-2 px-3">Assignment Problem, 0/1 Knapsack, TSP</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Simple Core Questions -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 font-sans text-base my-3">
+                        <div class="p-3.5 bg-blue-100/90 rounded-xl border border-blue-300">
+                            <span class="text-xs uppercase font-bold text-blue-900">Backtracking asks:</span>
+                            <p class="text-lg font-bold text-blue-950 font-['Kalam'] mt-1">
+                                “Can this path still produce a valid solution?”
+                            </p>
+                        </div>
+                        <div class="p-3.5 bg-amber-100/90 rounded-xl border border-amber-300">
+                            <span class="text-xs uppercase font-bold text-amber-900">Branch &amp; Bound asks:</span>
+                            <p class="text-lg font-bold text-amber-950 font-['Kalam'] mt-1">
+                                “Can this branch still produce a better solution than what we have found?”
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Canvas: DFS vs BFS Traversal Order -->
+                    <div class="sketch-card p-4 my-4 font-sans">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-3 border-b border-slate-200 pb-2">
+                            <div>
+                                <h3 class="text-xl font-bold text-inkBlue font-['Kalam']">🎨 Visual Canvas: DFS (Backtracking) vs BFS/Best-First (Branch &amp; Bound)</h3>
+                                <p class="text-xs text-slate-600">Numbered arrows showing the exact exploration sequence across identical trees</p>
+                            </div>
+                            <span class="text-xs bg-indigo-100 text-indigo-900 font-bold px-2 py-1 rounded">Traversal Engine</span>
+                        </div>
+                        <div class="flex justify-center overflow-x-auto">
+                            <canvas id="canvas-dfs-vs-bfs" width="760" height="300" class="max-w-full rounded border border-slate-200 bg-[#FCFBF7]"></canvas>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 20. Final Summary & Mental Model -->
+                <section class="space-y-4 text-lg leading-relaxed pt-4 border-t border-amber-200">
+                    <h2 class="text-2xl font-bold text-inkRed flex items-center gap-2">
+                        <span>🧠</span> 20. Final Summary &amp; Master Mental Model
+                    </h2>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2.5 font-sans text-xs sm:text-sm">
+                        <div class="p-3 bg-blue-50 border border-blue-300 rounded-lg">
+                            <strong class="text-blue-900 block text-base font-['Kalam']">Backtracking</strong>
+                            Explore → Check → Prune if invalid → Backtrack → Try another choice
+                        </div>
+                        <div class="p-3 bg-purple-50 border border-purple-300 rounded-lg">
+                            <strong class="text-purple-900 block text-base font-['Kalam']">Dynamic Programming</strong>
+                            Break into subproblems → Solve → Store → Reuse
+                        </div>
+                        <div class="p-3 bg-amber-50 border border-amber-300 rounded-lg">
+                            <strong class="text-amber-900 block text-base font-['Kalam']">Greedy</strong>
+                            Choose best current option → Commit → Continue
+                        </div>
+                        <div class="p-3 bg-emerald-50 border border-emerald-300 rounded-lg">
+                            <strong class="text-emerald-950 block text-base font-['Kalam']">Branch &amp; Bound</strong>
+                            Branch into possibilities → Calculate bound → Prune if cannot improve
+                        </div>
+                    </div>
+
+                    <!-- Mental Model Flowchart -->
+                    <div class="bg-slate-900 text-emerald-300 p-4 rounded-xl font-mono text-xs sm:text-sm overflow-x-auto shadow-inner leading-relaxed">
+<pre>
+                    Problem
+                       |
+                Multiple Choices
+                       |
+              ┌────────┴────────┐
+              ↓                 ↓
+         Backtracking       Other Strategies
+              |
+        State-Space Tree
+              |
+        Choose a Branch
+              |
+        Check Constraint
+          /          \
+       Valid        Invalid
+         |             |
+      Continue      Prune ✕
+         |
+      Go Deeper
+         |
+      Solution?
+       /     \
+     Yes      No
+      |        |
+   Record    Backtrack
+              |
+        Try Another Branch</pre>
+                    </div>
+
+                    <!-- Final One Sentence to Remember -->
+                    <div class="teacher-quote text-xl">
+                        🏆 <strong>One Sentence to Remember Forever:</strong>
+                        <div class="text-2xl font-bold text-amber-900 mt-2 not-italic">
+                            “Backtracking is a systematic search strategy that builds a solution step by step, prunes choices that cannot lead to a valid solution, and backtracks to explore alternative choices.”
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-center text-xs text-slate-600 py-8 font-sans">
+        <p>Personal Digital Lecture Notebook &copy; 2026. Handcrafted with Tailwind CSS, Google Fonts, and Vanilla HTML5 Canvas Engines.</p>
+    </footer>
+
+    <!-- Interactive Script: Typography, Tab Switching & HTML5 Canvas Engines -->
+    <script>
+        // Tab Switcher
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('hidden'));
+            const activeSection = document.getElementById(tabId);
+            if (activeSection) activeSection.classList.remove('hidden');
+
+            document.querySelectorAll('.nav-tab').forEach(btn => {
+                btn.classList.remove('bg-amber-200', 'text-inkBlue', 'border-b-2', 'border-inkBlue');
+                btn.classList.add('text-slate-600');
+            });
+            const activeBtn = document.getElementById('nav-' + tabId);
+            if (activeBtn) {
+                activeBtn.classList.add('bg-amber-200', 'text-inkBlue', 'border-b-2', 'border-inkBlue');
+                activeBtn.classList.remove('text-slate-600');
+            }
+
+            // Redraw relevant canvases after DOM update
+            setTimeout(() => {
+                if (tabId === 'tab-concepts-comparison') drawCoinChange();
+                if (tabId === 'tab-state-space-tree') drawStateSpaceTree();
+                if (tabId === 'tab-pruning-bounding') drawPrunedTree();
+                if (tabId === 'tab-branch-bound-patterns') drawDfsVsBfs();
+            }, 20);
+        }
+
+        // Font Mode Switcher
+        function toggleFontMode() {
+            const body = document.body;
+            const btnText = document.getElementById('fontBtnText');
+            body.classList.toggle('font-clean');
+            
+            if (body.classList.contains('font-clean')) {
+                btnText.textContent = "Notes Font";
+            } else {
+                btnText.textContent = "Clean Font";
+            }
+        }
+
+        // HiDPI Canvas Helper
+        function setupCanvas(canvasId, width, height) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return null;
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            ctx.scale(dpr, dpr);
+            return { canvas, ctx, width, height };
+        }
+
+        // -------------------------------------------------------------
+        // CANVAS 1: COIN CHANGE COMPARISON (Tab 1)
+        // -------------------------------------------------------------
+        function drawCoinChange() {
+            const setup = setupCanvas('canvas-coin-change', 650, 240);
+            if (!setup) return;
+            const { ctx } = setup;
+            ctx.clearRect(0, 0, 650, 240);
+
+            // Left Box: Greedy Approach
+            ctx.fillStyle = '#fff1f2';
+            ctx.strokeStyle = '#f43f5e';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.roundRect(20, 20, 290, 200, 10);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = '#9f1239';
+            ctx.font = 'bold 15px Kalam, cursive';
+            ctx.textAlign = 'center';
+            ctx.fillText('❌ Greedy Strategy (Coins: {1, 3, 4})', 165, 45);
+
+            ctx.font = '13px Inter, sans-serif';
+            ctx.fillStyle = '#475569';
+            ctx.fillText('Always picks largest coin ≤ remaining', 165, 65);
+
+            // Coins drawn for Greedy: 4, 1, 1
+            drawCoin(ctx, 75, 120, 26, '4', '#fbbf24', '#b45309');
+            drawPlus(ctx, 120, 120);
+            drawCoin(ctx, 155, 120, 22, '1', '#cbd5e1', '#475569');
+            drawPlus(ctx, 195, 120);
+            drawCoin(ctx, 230, 120, 22, '1', '#cbd5e1', '#475569');
+
+            ctx.fillStyle = '#be123c';
+            ctx.font = 'bold 14px Inter, sans-serif';
+            ctx.fillText('Total Coins: 3 (Suboptimal!)', 165, 175);
+            ctx.font = '12px Inter, sans-serif';
+            ctx.fillStyle = '#881337';
+            ctx.fillText('Trapped after choosing 4!', 165, 195);
+
+            // Right Box: Dynamic Programming Approach
+            ctx.fillStyle = '#f0fdf4';
+            ctx.strokeStyle = '#22c55e';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.roundRect(340, 20, 290, 200, 10);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = '#166534';
+            ctx.font = 'bold 15px Kalam, cursive';
+            ctx.fillText('✅ Dynamic Programming (Optimal)', 485, 45);
+
+            ctx.font = '13px Inter, sans-serif';
+            ctx.fillStyle = '#475569';
+            ctx.fillText('Evaluates subproblems & reuses results', 485, 65);
+
+            // Coins drawn for DP: 3, 3
+            drawCoin(ctx, 420, 120, 26, '3', '#a7f3d0', '#047857');
+            drawPlus(ctx, 485, 120);
+            drawCoin(ctx, 550, 120, 26, '3', '#a7f3d0', '#047857');
+
+            ctx.fillStyle = '#15803d';
+            ctx.font = 'bold 14px Inter, sans-serif';
+            ctx.fillText('Total Coins: 2 (Truly Optimal!)', 485, 175);
+            ctx.font = '12px Inter, sans-serif';
+            ctx.fillStyle = '#14532d';
+            ctx.fillText('Reuses dp[3] = 1 ➜ 1 + 1 = 2 coins', 485, 195);
+        }
+
+        function drawCoin(ctx, x, y, r, label, fill, stroke) {
+            ctx.save();
+            ctx.fillStyle = fill;
+            ctx.strokeStyle = stroke;
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            ctx.arc(x, y, r, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = stroke;
+            ctx.font = 'bold 16px Inter, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(label, x, y);
+            ctx.restore();
+        }
+
+        function drawPlus(ctx, x, y) {
+            ctx.save();
+            ctx.fillStyle = '#64748b';
+            ctx.font = 'bold 18px Inter, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('+', x, y);
+            ctx.restore();
+        }
+
+        // -------------------------------------------------------------
+        // CANVAS 2: FULL STATE-SPACE TREE (Tab 2)
+        // -------------------------------------------------------------
+        function drawStateSpaceTree() {
+            const setup = setupCanvas('canvas-state-space-tree', 760, 380);
+            if (!setup) return;
+            const { ctx } = setup;
+            ctx.clearRect(0, 0, 760, 380);
+
+            // Levels indicator on the left
+            ctx.font = 'bold 11px Inter, sans-serif';
+            ctx.fillStyle = '#64748b';
+            ctx.textAlign = 'left';
+            ctx.fillText('Level 0: Start', 15, 35);
+            ctx.fillText('Level 1: Chair 1', 15, 115);
+            ctx.fillText('Level 2: Chair 2', 15, 205);
+            ctx.fillText('Level 3: Chair 3', 15, 295);
+            ctx.fillText('Leaves: Solutions', 15, 360);
+
+            // Root Node
+            drawNode(ctx, 380, 35, 'Start []', '#e0e7ff', '#3730a3', 42, 14);
+
+            // Level 1 Nodes (Chair 1: B1, B2, G1)
+            const l1 = [
+                { x: 170, y: 115, label: 'B1', fill: '#dbeafe', stroke: '#1d4ed8' },
+                { x: 380, y: 115, label: 'B2', fill: '#dbeafe', stroke: '#1d4ed8' },
+                { x: 590, y: 115, label: 'G1', fill: '#fce7f3', stroke: '#be185d' }
+            ];
+
+            l1.forEach(n => {
+                drawEdge(ctx, 380, 48, n.x, n.y - 14, '#94a3b8');
+                drawNode(ctx, n.x, n.y, n.label, n.fill, n.stroke, 22, 14);
+            });
+
+            // Level 2 Nodes (Chair 2)
+            const l2 = [
+                { x: 110, y: 205, label: 'B2', pIdx: 0, fill: '#dbeafe', stroke: '#1d4ed8' },
+                { x: 230, y: 205, label: 'G1', pIdx: 0, fill: '#fce7f3', stroke: '#be185d' },
+                { x: 320, y: 205, label: 'B1', pIdx: 1, fill: '#dbeafe', stroke: '#1d4ed8' },
+                { x: 440, y: 205, label: 'G1', pIdx: 1, fill: '#fce7f3', stroke: '#be185d' },
+                { x: 530, y: 205, label: 'B1', pIdx: 2, fill: '#dbeafe', stroke: '#1d4ed8' },
+                { x: 650, y: 205, label: 'B2', pIdx: 2, fill: '#dbeafe', stroke: '#1d4ed8' }
+            ];
+
+            l2.forEach(n => {
+                const parent = l1[n.pIdx];
+                // Highlight edge for first solution B1->B2
+                const isHighlight = (n.pIdx === 0 && n.x === 110);
+                drawEdge(ctx, parent.x, parent.y + 14, n.x, n.y - 14, isHighlight ? '#10b981' : '#94a3b8', isHighlight ? 3 : 1.5);
+                drawNode(ctx, n.x, n.y, n.label, n.fill, n.stroke, 20, 13);
+            });
+
+            // Level 3 Nodes (Chair 3) & Leaves
+            const l3 = [
+                { x: 110, y: 295, label: 'G1', pIdx: 0, sol: 'B1-B2-G1', fill: '#fce7f3', stroke: '#be185d' },
+                { x: 230, y: 295, label: 'B2', pIdx: 1, sol: 'B1-G1-B2', fill: '#dbeafe', stroke: '#1d4ed8' },
+                { x: 320, y: 295, label: 'G1', pIdx: 2, sol: 'B2-B1-G1', fill: '#fce7f3', stroke: '#be185d' },
+                { x: 440, y: 295, label: 'B1', pIdx: 3, sol: 'B2-G1-B1', fill: '#dbeafe', stroke: '#1d4ed8' },
+                { x: 530, y: 295, label: 'B2', pIdx: 4, sol: 'G1-B1-B2', fill: '#dbeafe', stroke: '#1d4ed8' },
+                { x: 650, y: 295, label: 'B1', pIdx: 5, sol: 'G1-B2-B1', fill: '#dbeafe', stroke: '#1d4ed8' }
+            ];
+
+            l3.forEach((n, idx) => {
+                const parent = l2[n.pIdx];
+                const isHighlight = (idx === 0);
+                drawEdge(ctx, parent.x, parent.y + 14, n.x, n.y - 14, isHighlight ? '#10b981' : '#94a3b8', isHighlight ? 3 : 1.5);
+                drawNode(ctx, n.x, n.y, n.label, n.fill, n.stroke, 18, 12);
+
+                // Leaf solution tag
+                ctx.fillStyle = isHighlight ? '#047857' : '#1e293b';
+                ctx.font = isHighlight ? 'bold 11px Inter, sans-serif' : '10px Inter, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(`Sol ${idx + 1}: ${n.sol}`, n.x, 355);
+            });
+
+            // Backtracking Curve Annotations from G1 back to B1 to explore G1
+            ctx.save();
+            ctx.strokeStyle = '#d97706';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([4, 4]);
+            ctx.beginPath();
+            ctx.moveTo(110, 280);
+            ctx.quadraticCurveTo(80, 205, 150, 130);
+            ctx.stroke();
+
+            ctx.fillStyle = '#b45309';
+            ctx.font = 'bold 11px Kalam, cursive';
+            ctx.fillText('Backtrack ↩', 75, 175);
+            ctx.restore();
+        }
+
+        // -------------------------------------------------------------
+        // CANVAS 3: PRUNED STATE-SPACE TREE (Tab 3)
+        // -------------------------------------------------------------
+        function drawPrunedTree() {
+            const setup = setupCanvas('canvas-pruned-tree', 760, 380);
+            if (!setup) return;
+            const { ctx } = setup;
+            ctx.clearRect(0, 0, 760, 380);
+
+            // Banner Constraint
+            ctx.fillStyle = '#fee2e2';
+            ctx.strokeStyle = '#ef4444';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.roundRect(160, 10, 440, 28, 6);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = '#991b1b';
+            ctx.font = 'bold 13px Inter, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('🔒 Bounding Condition: G1 cannot sit on Chair 2 (Middle)!', 380, 28);
+
+            // Root Node
+            drawNode(ctx, 380, 60, 'Start []', '#e0e7ff', '#3730a3', 42, 14);
+
+            // Level 1 Nodes
+            const l1 = [
+                { x: 170, y: 130, label: 'B1', fill: '#dbeafe', stroke: '#1d4ed8' },
+                { x: 380, y: 130, label: 'B2', fill: '#dbeafe', stroke: '#1d4ed8' },
+                { x: 590, y: 130, label: 'G1', fill: '#fce7f3', stroke: '#be185d' }
+            ];
+
+            l1.forEach(n => {
+                drawEdge(ctx, 380, 74, n.x, n.y - 14, '#94a3b8');
+                drawNode(ctx, n.x, n.y, n.label, n.fill, n.stroke, 22, 14);
+            });
+
+            // Level 2 Nodes (Chair 2)
+            // Under B1: B2 (valid), G1 (PRUNED)
+            // Under B2: B1 (valid), G1 (PRUNED)
+            // Under G1: B1 (valid), B2 (valid)
+            const l2 = [
+                { x: 110, y: 215, label: 'B2', pIdx: 0, pruned: false },
+                { x: 230, y: 215, label: 'G1', pIdx: 0, pruned: true },
+                { x: 320, y: 215, label: 'B1', pIdx: 1, pruned: false },
+                { x: 440, y: 215, label: 'G1', pIdx: 1, pruned: true },
+                { x: 530, y: 215, label: 'B1', pIdx: 2, pruned: false },
+                { x: 650, y: 215, label: 'B2', pIdx: 2, pruned: false }
+            ];
+
+            l2.forEach(n => {
+                const parent = l1[n.pIdx];
+                if (n.pruned) {
+                    drawEdge(ctx, parent.x, parent.y + 14, n.x, n.y - 14, '#f87171', 2, true);
+                    drawNode(ctx, n.x, n.y, n.label, '#fee2e2', '#dc2626', 20, 13);
+                    
+                    // Big Red X and Scissors tag
+                    ctx.fillStyle = '#b91c1c';
+                    ctx.font = 'bold 16px Inter, sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('✂️ PRUNED ✕', n.x, n.y + 35);
+                    ctx.font = '10px Inter, sans-serif';
+                    ctx.fillText('(Violates rule)', n.x, n.y + 48);
+                } else {
+                    drawEdge(ctx, parent.x, parent.y + 14, n.x, n.y - 14, '#059669', 2);
+                    drawNode(ctx, n.x, n.y, n.label, '#d1fae5', '#059669', 20, 13);
+                }
+            });
+
+            // Level 3 Nodes (Only for unpruned branches!)
+            const l3 = [
+                { x: 110, y: 310, label: 'G1', pX: 110, pY: 215, sol: 'B1-B2-G1 ✅' },
+                { x: 320, y: 310, label: 'G1', pX: 320, pY: 215, sol: 'B2-B1-G1 ✅' },
+                { x: 530, y: 310, label: 'B2', pX: 530, pY: 215, sol: 'G1-B1-B2 ✅' },
+                { x: 650, y: 310, label: 'B1', pX: 650, pY: 215, sol: 'G1-B2-B1 ✅' }
+            ];
+
+            l3.forEach(n => {
+                drawEdge(ctx, n.pX, n.pY + 14, n.x, n.y - 14, '#059669', 2);
+                drawNode(ctx, n.x, n.y, n.label, '#d1fae5', '#059669', 18, 12);
+
+                ctx.fillStyle = '#065f46';
+                ctx.font = 'bold 11px Inter, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(n.sol, n.x, 355);
+            });
+
+            // Ghosted cut-off subtree notice under pruned nodes
+            ctx.save();
+            ctx.strokeStyle = '#fca5a5';
+            ctx.setLineDash([3, 3]);
+            ctx.strokeRect(210, 275, 40, 50);
+            ctx.strokeRect(420, 275, 40, 50);
+            ctx.fillStyle = '#991b1b';
+            ctx.font = '10px Inter, sans-serif';
+            ctx.fillText('Never generated', 230, 305);
+            ctx.fillText('Never generated', 440, 305);
+            ctx.restore();
+        }
+
+        // -------------------------------------------------------------
+        // CANVAS 4: DFS (Backtracking) vs BFS (Branch & Bound) (Tab 4)
+        // -------------------------------------------------------------
+        function drawDfsVsBfs() {
+            const setup = setupCanvas('canvas-dfs-vs-bfs', 760, 300);
+            if (!setup) return;
+            const { ctx } = setup;
+            ctx.clearRect(0, 0, 760, 300);
+
+            // Left Side: Backtracking (DFS Order)
+            ctx.fillStyle = '#eff6ff';
+            ctx.strokeStyle = '#93c5fd';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.roundRect(20, 15, 345, 270, 10);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = '#1e40af';
+            ctx.font = 'bold 15px Kalam, cursive';
+            ctx.textAlign = 'center';
+            ctx.fillText('1. Backtracking: Depth-First Search (DFS)', 192, 40);
+            ctx.font = '12px Inter, sans-serif';
+            ctx.fillStyle = '#475569';
+            ctx.fillText('Explores deep path first, then backtracks up', 192, 60);
+
+            // DFS Tree Nodes
+            // A(1) -> B(2) -> D(3), E(5); A -> C(6)
+            drawNumberedNode(ctx, 192, 90, 'A', '1', '#dbeafe', '#1d4ed8');
+            drawNumberedNode(ctx, 115, 160, 'B', '2', '#dbeafe', '#1d4ed8');
+            drawNumberedNode(ctx, 270, 160, 'C', '6', '#dbeafe', '#1d4ed8');
+
+            drawNumberedNode(ctx, 80, 235, 'D', '3', '#bfdbfe', '#2563eb');
+            drawNumberedNode(ctx, 150, 235, 'E', '5', '#bfdbfe', '#2563eb');
+
+            drawEdge(ctx, 192, 105, 115, 145, '#3b82f6', 2);
+            drawEdge(ctx, 192, 105, 270, 145, '#94a3b8', 1.5);
+            drawEdge(ctx, 115, 175, 80, 220, '#3b82f6', 2);
+            drawEdge(ctx, 115, 175, 150, 220, '#3b82f6', 2);
+
+            // Red backtrack curve from D back to B
+            ctx.save();
+            ctx.strokeStyle = '#f59e0b';
+            ctx.lineWidth = 1.5;
+            ctx.setLineDash([3, 3]);
+            ctx.beginPath();
+            ctx.moveTo(80, 220);
+            ctx.quadraticCurveTo(60, 185, 100, 170);
+            ctx.stroke();
+            ctx.fillStyle = '#b45309';
+            ctx.font = 'bold 11px Inter, sans-serif';
+            ctx.fillText('step 4: back', 60, 195);
+            ctx.restore();
+
+            // Right Side: Branch and Bound (BFS Order)
+            ctx.fillStyle = '#fefce8';
+            ctx.strokeStyle = '#fde047';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.roundRect(395, 15, 345, 270, 10);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = '#854d0e';
+            ctx.font = 'bold 15px Kalam, cursive';
+            ctx.textAlign = 'center';
+            ctx.fillText('2. Branch & Bound: Breadth-First (BFS)', 567, 40);
+            ctx.font = '12px Inter, sans-serif';
+            ctx.fillStyle = '#475569';
+            ctx.fillText('Explores all nodes level by level (FIFO / LC)', 567, 60);
+
+            // BFS Tree Nodes: A(1) -> B(2), C(3) -> D(4), E(5), F(6), G(7)
+            drawNumberedNode(ctx, 567, 90, 'A', '1', '#fef08a', '#ca8a04');
+            drawNumberedNode(ctx, 480, 160, 'B', '2', '#fef08a', '#ca8a04');
+            drawNumberedNode(ctx, 655, 160, 'C', '3', '#fef08a', '#ca8a04');
+
+            drawNumberedNode(ctx, 450, 235, 'D', '4', '#fde047', '#a16207');
+            drawNumberedNode(ctx, 510, 235, 'E', '5', '#fde047', '#a16207');
+            drawNumberedNode(ctx, 625, 235, 'F', '6', '#fde047', '#a16207');
+            drawNumberedNode(ctx, 685, 235, 'G', '7', '#fde047', '#a16207');
+
+            drawEdge(ctx, 567, 105, 480, 145, '#ca8a04', 1.8);
+            drawEdge(ctx, 567, 105, 655, 145, '#ca8a04', 1.8);
+            drawEdge(ctx, 480, 175, 450, 220, '#ca8a04', 1.5);
+            drawEdge(ctx, 480, 175, 510, 220, '#ca8a04', 1.5);
+            drawEdge(ctx, 655, 175, 625, 220, '#ca8a04', 1.5);
+            drawEdge(ctx, 655, 175, 685, 220, '#ca8a04', 1.5);
+
+            // Level scanning dashed lines
+            ctx.save();
+            ctx.strokeStyle = '#ca8a04';
+            ctx.setLineDash([4, 4]);
+            ctx.strokeRect(405, 145, 325, 30);
+            ctx.fillStyle = '#854d0e';
+            ctx.font = '10px Inter, sans-serif';
+            ctx.fillText('Level 1 scanned together', 567, 138);
+            ctx.restore();
+        }
+
+        // Node Helper with circular badge
+        function drawNumberedNode(ctx, x, y, label, step, fill, stroke) {
+            ctx.save();
+            ctx.fillStyle = fill;
+            ctx.strokeStyle = stroke;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(x, y, 16, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = stroke;
+            ctx.font = 'bold 13px Inter, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(label, x, y);
+
+            // Sequence Badge in corner
+            ctx.fillStyle = '#dc2626';
+            ctx.beginPath();
+            ctx.arc(x + 13, y - 13, 9, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 10px Inter, sans-serif';
+            ctx.fillText(step, x + 13, y - 13);
+            ctx.restore();
+        }
+
+        function drawNode(ctx, x, y, label, fill, stroke, r = 20, fontSize = 13) {
+            ctx.save();
+            ctx.fillStyle = fill;
+            ctx.strokeStyle = stroke;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(x, y, r, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = stroke;
+            ctx.font = `bold ${fontSize}px Inter, sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(label, x, y);
+            ctx.restore();
+        }
+
+        function drawEdge(ctx, x1, y1, x2, y2, color = '#94a3b8', width = 1.5, dashed = false) {
+            ctx.save();
+            ctx.strokeStyle = color;
+            ctx.lineWidth = width;
+            if (dashed) ctx.setLineDash([4, 4]);
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        // Initialize all canvases on window load & resize
+        window.addEventListener('load', () => {
+            drawCoinChange();
+            drawStateSpaceTree();
+            drawPrunedTree();
+            drawDfsVsBfs();
+        });
+
+        window.addEventListener('resize', () => {
+            drawCoinChange();
+            drawStateSpaceTree();
+            drawPrunedTree();
+            drawDfsVsBfs();
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,1918 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Min Stack Concept & Implementation - Digital Lecture Notes</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Kalam:wght@300;400;700&family=Patrick+Hand&family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap"
+        rel="stylesheet">
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        notebookBg: '#cbd5e1',
+                        notebookPaper: '#FAF6EE',
+                        inkBlue: '#1A365D',
+                        inkRed: '#9B2C2C',
+                        pencilGray: '#4A5568',
+                    },
+                    fontFamily: {
+                        notes: ['Patrick Hand', 'Kalam', 'cursive'],
+                        heading: ['Kalam', 'cursive'],
+                        clean: ['Inter', 'sans-serif'],
+                        code: ['Fira Code', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Shared Notebook Styles -->
+    <link rel="stylesheet" href="../notebook.css">
+
+    <!-- Physical Notebook Custom Stylesheet -->
+    <style>
+        body {
+            background-color: #cbd5e1;
+            font-family: 'Patrick Hand', 'Kalam', cursive;
+            color: #1e293b;
+        }
+
+        .lined-paper {
+            background-color: #FAF6EE !important;
+            background-image: repeating-linear-gradient(
+                #FAF6EE 0px,
+                #FAF6EE 31px,
+                #e2ebf3 32px
+            ) !important;
+            line-height: 32px;
+            position: relative;
+        }
+
+        .notebook-margin {
+            border-left: 2.5px solid #FC8181 !important;
+            padding-left: 1.25rem;
+        }
+
+        @media (min-width: 640px) {
+            .notebook-margin {
+                padding-left: 2.5rem;
+            }
+        }
+
+        .spiral-ring {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #cbd5e1 0%, #64748b 50%, #334155 100%);
+            box-shadow: inset 1px 1px 2px rgba(255, 255, 255, 0.6), 2px 2px 4px rgba(0, 0, 0, 0.25);
+            margin: 11px 0;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Kalam', cursive;
+        }
+
+        /* Clean Mode Font Switcher */
+        body.font-clean,
+        body.font-clean * {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+        }
+
+        body.font-clean pre,
+        body.font-clean code {
+            font-family: 'Fira Code', monospace !important;
+        }
+
+        /* Handwritten Highlighters & Annotations */
+        .highlighter-yellow {
+            background: linear-gradient(104deg, rgba(254, 240, 138, 0.95) 0.9%, rgba(253, 224, 71, 0.85) 98%);
+            padding: 2px 8px;
+            border-radius: 4px;
+            box-decoration-break: clone;
+            -webkit-box-decoration-break: clone;
+            display: inline-block;
+        }
+
+        .highlighter-green {
+            background: linear-gradient(104deg, rgba(187, 247, 208, 0.95) 0.9%, rgba(134, 239, 172, 0.85) 98%);
+            padding: 2px 8px;
+            border-radius: 4px;
+            box-decoration-break: clone;
+            -webkit-box-decoration-break: clone;
+            display: inline-block;
+        }
+
+        .highlighter-blue {
+            background: linear-gradient(104deg, rgba(191, 219, 254, 0.95) 0.9%, rgba(147, 197, 253, 0.85) 98%);
+            padding: 2px 8px;
+            border-radius: 4px;
+            box-decoration-break: clone;
+            -webkit-box-decoration-break: clone;
+            display: inline-block;
+        }
+
+        .pen-box {
+            background: rgba(255, 255, 255, 0.92);
+            border: 2px dashed #3b82f6;
+            border-radius: 8px;
+            padding: 1.25rem;
+        }
+
+        .note-box {
+            background: rgba(254, 243, 199, 0.9);
+            border-left: 5px solid #d97706;
+            border-radius: 8px;
+            padding: 1rem 1.25rem;
+        }
+
+        .math-badge {
+            background: #EFF6FF;
+            border: 1.5px solid #3B82F6;
+            color: #1E3A8A;
+            border-radius: 6px;
+            padding: 2px 8px;
+            font-family: 'Fira Code', monospace;
+            font-weight: 600;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Step Card Styling */
+        .step-card {
+            background: rgba(255, 255, 255, 0.92);
+            border: 2px solid #E2E8F0;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s ease;
+        }
+
+        .step-card:hover {
+            border-color: #94A3B8;
+            box-shadow: 0 8px 15px -3px rgba(0, 0, 0, 0.08);
+        }
+
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            body {
+                background: white !important;
+            }
+            .lined-paper {
+                background-image: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body class="text-xl text-slate-800 antialiased transition-all duration-300">
+
+    <!-- Sticky Header Navigation Bar -->
+    <header class="sticky top-0 z-50 bg-[#FAF6EE] shadow-md border-b-2 border-amber-200 px-4 py-3 no-print">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-3">
+            <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+                <a href="../index.html"
+                    class="px-3 py-1.5 rounded-lg bg-amber-100 hover:bg-amber-200 border border-amber-300 text-inkBlue text-xs sm:text-sm font-bold flex items-center gap-1.5 transition shadow-sm font-sans"
+                    title="Back to Digital Bookshelf">
+                    <span>📚</span> <span>Bookshelf</span>
+                </a>
+                <a href="index.html"
+                    class="px-3 py-1.5 rounded-lg bg-emerald-100 hover:bg-emerald-200 border border-emerald-300 text-emerald-900 text-xs sm:text-sm font-bold flex items-center gap-1.5 transition shadow-sm font-sans"
+                    title="Back to Personal Notes Directory">
+                    <span>📋</span> <span>Notes Directory</span>
+                </a>
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl sm:text-3xl font-bold text-inkBlue tracking-wide font-['Kalam']">🥞 Min Stack Concept</span>
+                    <span class="bg-indigo-100 text-indigo-900 text-xs sm:text-sm font-bold px-3 py-1 rounded-full border border-indigo-300 font-sans">
+                        LeetCode 155 • O(1) Minimum
+                    </span>
+                </div>
+            </div>
+
+            <!-- Right: Font Toggle Button -->
+            <div class="flex items-center gap-2">
+                <button id="fontToggleBtn" onclick="toggleFontMode()"
+                    class="shrink-0 px-3.5 py-1.5 rounded-lg bg-inkBlue text-white hover:bg-slate-800 transition text-xs sm:text-sm font-bold shadow flex items-center gap-1.5 font-sans"
+                    title="Toggle between Handwritten and Clean typography">
+                    <span>✍️</span> <span id="fontBtnText">Clean Font</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <nav class="max-w-6xl mx-auto mt-2.5 flex flex-wrap gap-1 border-t border-amber-200 pt-2 text-sm sm:text-base font-sans">
+            <button onclick="switchTab('definitions')" id="tab-btn-definitions"
+                class="nav-tab px-4 py-1.5 rounded-t-lg font-bold bg-amber-200 text-inkBlue border-b-2 border-inkBlue transition">
+                1. Definitions & Concepts
+            </button>
+            <button onclick="switchTab('step-by-step')" id="tab-btn-step-by-step"
+                class="nav-tab px-4 py-1.5 rounded-t-lg font-bold text-slate-600 hover:text-inkBlue transition">
+                2. Step-by-Step Walkthrough
+            </button>
+            <button onclick="switchTab('complexity')" id="tab-btn-complexity"
+                class="nav-tab px-4 py-1.5 rounded-t-lg font-bold text-slate-600 hover:text-inkBlue transition">
+                3. Complexity & Code
+            </button>
+            <button onclick="switchTab('visualization')" id="tab-btn-visualization"
+                class="nav-tab px-4 py-1.5 rounded-t-lg font-bold text-slate-600 hover:text-inkBlue transition">
+                4. Interactive Simulator
+            </button>
+        </nav>
+    </header>
+
+    <!-- Main Notebook Container -->
+    <main class="max-w-6xl mx-auto flex relative bg-notebookPaper rounded-xl shadow-2xl overflow-hidden min-h-[950px] border border-amber-200 my-8">
+
+        <!-- Left Binder Column (50 Physical Spiral Rings) -->
+        <div class="w-10 sm:w-16 bg-amber-50 border-r-2 border-amber-200 flex flex-col items-center py-8 select-none shrink-0 no-print space-y-6 z-10 shadow-[inset_-5px_0_10px_rgba(0,0,0,0.05)]">
+            <script>
+                for (let i = 0; i < 50; i++) document.write('<div class="spiral-ring"></div>');
+            </script>
+        </div>
+
+        <!-- Notebook Content Area -->
+        <div class="flex-1 lined-paper p-4 sm:p-8 notebook-margin sm:pl-8 overflow-hidden z-0">
+
+            <!-- ==================================================================== -->
+            <!-- TAB 1: DEFINITIONS & CONCEPTS                                        -->
+            <!-- ==================================================================== -->
+            <section id="sec-definitions" class="tab-content active space-y-8">
+                
+                <!-- Section Title -->
+                <div class="border-b-2 border-inkRed pb-2 flex justify-between items-baseline">
+                    <div>
+                        <h1 class="text-3xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4 font-['Kalam']">
+                            Min Stack Design &amp; Principles
+                        </h1>
+                        <p class="text-sm sm:text-base font-sans text-pencilGray mt-1">
+                            Constant Time $O(1)$ Minimum Retrieval in a LIFO Stack Data Structure
+                        </p>
+                    </div>
+                    <span class="text-xs sm:text-sm font-bold font-sans bg-amber-100 text-inkRed px-2.5 py-1 rounded border border-amber-300">
+                        Page 1 • Foundations
+                    </span>
+                </div>
+
+                <!-- 1. The Core Problem Formulation -->
+                <div class="space-y-4">
+                    <h2 class="text-2xl sm:text-3xl font-bold text-inkRed flex items-center gap-2">
+                        <span>📌</span> 1. The Min Stack Problem
+                    </h2>
+                    <p class="leading-relaxed text-lg sm:text-xl">
+                        A standard stack operates under a strict <strong class="text-inkBlue">Last-In, First-Out (LIFO)</strong> policy. We can easily perform:
+                    </p>
+                    <ul class="list-disc pl-8 space-y-1 font-sans text-base sm:text-lg">
+                        <li><code class="font-mono font-bold text-inkBlue">push(val)</code>: Inserts element onto the top of the stack in <strong class="text-emerald-700">O(1)</strong> time.</li>
+                        <li><code class="font-mono font-bold text-inkBlue">pop()</code>: Removes the element from the top of the stack in <strong class="text-emerald-700">O(1)</strong> time.</li>
+                        <li><code class="font-mono font-bold text-inkBlue">top()</code>: Inspects the top element in <strong class="text-emerald-700">O(1)</strong> time.</li>
+                    </ul>
+
+                    <div class="note-box space-y-2">
+                        <h3 class="text-xl font-bold text-amber-900 font-heading">⚠️ The Problem with getMin() in Standard Stacks</h3>
+                        <p class="text-base sm:text-lg leading-relaxed">
+                            Suppose we also want a function <code class="font-mono font-bold bg-white px-1.5 py-0.5 rounded border border-amber-400">getMin()</code> that retrieves the smallest value currently present in the entire stack.
+                        </p>
+                        <ul class="list-disc pl-6 space-y-1 text-sm sm:text-base font-sans">
+                            <li><strong>Naive Approach:</strong> Iterate over all $N$ stack elements to find the smallest. Cost: <strong class="text-rose-800">$O(N)$ time</strong> per query!</li>
+                            <li><strong>Sorting Approach:</strong> If we sort elements to find the minimum instantly at the end, we <strong class="text-rose-800">destroy the LIFO order</strong> required for stack operations!</li>
+                            <li><strong>Single Variable Trap:</strong> If we merely store a variable <code class="font-mono">int minVal</code>, what happens when the current minimum element is <code class="font-mono">pop()</code>'d? We have no way of knowing what the <em>previous minimum</em> was without traversing!</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 2. The Two Primary Paradigms -->
+                <div class="space-y-6">
+                    <h2 class="text-2xl sm:text-3xl font-bold text-inkRed flex items-center gap-2">
+                        <span>💡</span> 2. Architectural Approaches
+                    </h2>
+
+                    <!-- Approach Comparison Grid -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        
+                        <!-- Approach 1: Auxiliary Min Stack -->
+                        <div class="pen-box bg-white/90 space-y-3 border-2 border-indigo-300">
+                            <div class="flex items-center justify-between border-b pb-2 border-indigo-200">
+                                <h3 class="text-xl sm:text-2xl font-bold text-inkBlue font-['Kalam']">
+                                    Approach 1: Two Stacks / Pair Stack
+                                </h3>
+                                <span class="text-xs font-bold font-sans bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded">
+                                    O(N) Auxiliary Space
+                                </span>
+                            </div>
+                            <p class="text-base sm:text-lg text-pencilGray leading-relaxed">
+                                Maintain two synchronized stacks:
+                            </p>
+                            <ol class="list-decimal pl-6 space-y-1.5 text-sm sm:text-base font-sans">
+                                <li><strong>Main Stack (<code class="font-mono font-bold text-inkBlue">st</code>):</strong> Holds all actual elements in order of insertion.</li>
+                                <li><strong>Auxiliary Min Stack (<code class="font-mono font-bold text-emerald-800">minSt</code>):</strong> Holds the running minimum corresponding to each height of the main stack.</li>
+                            </ol>
+                            <div class="bg-indigo-50 p-3 rounded-lg text-sm font-sans space-y-1 text-indigo-950 border border-indigo-200">
+                                <p><strong>Push(x):</strong> Push $x$ to <code class="font-mono">st</code>. For <code class="font-mono">minSt</code>, push $\min(x, \text{minSt.top()})$.</p>
+                                <p><strong>Pop():</strong> Pop top element from both <code class="font-mono">st</code> and <code class="font-mono">minSt</code> simultaneously.</p>
+                                <p><strong>getMin():</strong> Directly return <code class="font-mono">minSt.top()</code> in $O(1)$!</p>
+                            </div>
+                            <span class="text-xs text-pencilGray italic block">
+                                *Variation: Optimized minSt only pushes when $x \le \text{minSt.top()}$, and pops from minSt only when popped value $== \text{minSt.top()}$.
+                            </span>
+                        </div>
+
+                        <!-- Approach 2: Mathematical 2x - min Encoding -->
+                        <div class="pen-box bg-white/90 space-y-3 border-2 border-emerald-300">
+                            <div class="flex items-center justify-between border-b pb-2 border-emerald-200">
+                                <h3 class="text-xl sm:text-2xl font-bold text-emerald-900 font-['Kalam']">
+                                    Approach 2: O(1) Space (Math Trick)
+                                </h3>
+                                <span class="text-xs font-bold font-sans bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded">
+                                    O(1) Auxiliary Space
+                                </span>
+                            </div>
+                            <p class="text-base sm:text-lg text-pencilGray leading-relaxed">
+                                Store only <strong>one single stack</strong> and <strong>one variable</strong> <code class="font-mono font-bold text-inkBlue">minEle</code>:
+                            </p>
+                            <ol class="list-decimal pl-6 space-y-1.5 text-sm sm:text-base font-sans">
+                                <li>When pushing $x \ge \text{minEle}$: Push $x$ normally.</li>
+                                <li>When pushing $x < \text{minEle}$: Encode the previous minimum into a flag value:
+                                    <div class="my-1 text-center font-mono font-bold text-indigo-900 bg-white py-1 rounded border border-indigo-200">
+                                        encoded = 2x - minEle
+                                    </div>
+                                    Push <code class="font-mono">encoded</code> to stack, then update <code class="font-mono">minEle = x</code>!
+                                </li>
+                            </ol>
+                            <div class="bg-emerald-50 p-3 rounded-lg text-sm font-sans space-y-1 text-emerald-950 border border-emerald-200">
+                                <p><strong>Pop():</strong> Let $y = \text{stack.top()}$. If $y < \text{minEle}$, it is an encoded sentinel! The popped minimum is <code class="font-mono">minEle</code>. Restore previous minimum: <span class="math-badge">prevMin = 2·minEle - y</span>.</p>
+                                <p><strong>getMin():</strong> Return <code class="font-mono">minEle</code> directly in $O(1)$!</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. Mathematical Proof & Derivation of 2x - min -->
+                <div class="space-y-4">
+                    <h2 class="text-2xl sm:text-3xl font-bold text-inkRed flex items-center gap-2">
+                        <span>📐</span> 3. Mathematical Derivation: Why Does $2x - \text{min}$ Work?
+                    </h2>
+                    
+                    <div class="bg-white/95 p-5 rounded-xl border-2 border-slate-300 shadow-sm space-y-4 font-sans text-base sm:text-lg">
+                        <p class="font-semibold text-inkBlue">
+                            How can we store a new element $x$ AND remember the old minimum $\text{min}_{\text{old}}$ using only a single slot?
+                        </p>
+                        
+                        <div class="space-y-3 pl-4 border-l-4 border-indigo-500">
+                            <div>
+                                <h4 class="font-bold text-slate-800">Theorem 1: The Encoded Value is Strictly Smaller than $x$</h4>
+                                <p class="text-slate-700 text-sm sm:text-base">
+                                    When $x < \text{min}_{\text{old}}$, the difference $(x - \text{min}_{\text{old}}) < 0$ is strictly negative.
+                                </p>
+                                <div class="bg-slate-50 p-2.5 rounded font-mono text-xs sm:text-sm text-slate-800 my-1">
+                                    encoded = 2x - min<sub>old</sub> = x + (x - min<sub>old</sub>) &lt; x
+                                </div>
+                                <p class="text-slate-700 text-sm sm:text-base">
+                                    Since $x$ becomes the new <code class="font-mono font-bold">minEle</code>, we guarantee:
+                                    <span class="font-mono font-bold text-indigo-800">encoded &lt; minEle</span>.
+                                    This gives us a <strong>foolproof signal flag</strong>! Whenever the value on top of the stack is strictly less than <code class="font-mono">minEle</code>, we know with 100% mathematical certainty that this slot represents a minimum update!
+                                </p>
+                            </div>
+
+                            <div class="pt-2">
+                                <h4 class="font-bold text-slate-800">Theorem 2: Perfect Reconstruction of Previous Minimum on Pop</h4>
+                                <p class="text-slate-700 text-sm sm:text-base">
+                                    When popping an encoded flag $y$:
+                                </p>
+                                <div class="bg-slate-50 p-2.5 rounded font-mono text-xs sm:text-sm text-slate-800 my-1">
+                                    y = 2x - min<sub>old</sub>  &nbsp;&nbsp;&nbsp;[where x = current minEle]
+                                    <br>
+                                    min<sub>old</sub> = 2·minEle - y
+                                </div>
+                                <p class="text-slate-700 text-sm sm:text-base">
+                                    We extract the true minimum element (<code class="font-mono">minEle</code>) to return to the user, and instantaneously restore the previous minimum via simple arithmetic without any extra stack!
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Conceptual Architecture Canvas -->
+                        <div class="mt-4 pt-2">
+                            <span class="text-sm font-bold text-pencilGray block mb-2">Architectural Comparison Diagram:</span>
+                            <canvas id="concept-canvas" class="border border-slate-300 rounded-lg bg-white w-full" style="height: 240px;"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+
+
+            <!-- ==================================================================== -->
+            <!-- TAB 2: STEP-BY-STEP WALKTHROUGH                                      -->
+            <!-- ==================================================================== -->
+            <section id="sec-step-by-step" class="tab-content space-y-8">
+                
+                <!-- Section Title -->
+                <div class="border-b-2 border-inkRed pb-2 flex justify-between items-baseline">
+                    <div>
+                        <h1 class="text-3xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4 font-['Kalam']">
+                            Complete Sequential Execution Trace
+                        </h1>
+                        <p class="text-sm sm:text-base font-sans text-pencilGray mt-1">
+                            Chronological operations breakdown with dedicated state canvases for both Two-Stack and O(1) Math Encoding
+                        </p>
+                    </div>
+                    <span class="text-xs sm:text-sm font-bold font-sans bg-amber-100 text-inkRed px-2.5 py-1 rounded border border-amber-300">
+                        Page 2 • Execution
+                    </span>
+                </div>
+
+                <div class="teacher-quote text-base sm:text-lg">
+                    💡 <strong>Study Note:</strong> Below are 10 sequential stack operations down the page. Notice how at every step, both the Two-Stack and O(1) Math-Encoded models maintain immediate access to the current minimum element in $O(1)$ time without searching!
+                </div>
+
+                <!-- Step-by-Step Container (10 Sequential Cards) -->
+                <div class="space-y-8">
+
+                    <!-- STEP 1 -->
+                    <div class="step-card p-5 space-y-4">
+                        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-2">
+                            <div class="flex items-center gap-3">
+                                <span class="bg-indigo-600 text-white font-mono font-bold text-sm px-2.5 py-1 rounded-md">STEP 1</span>
+                                <h3 class="text-2xl font-bold text-inkBlue font-['Kalam']">Operation: push(12)</h3>
+                            </div>
+                            <div class="flex items-center gap-2 font-sans text-xs sm:text-sm">
+                                <span class="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded border border-emerald-300">New Min: 12</span>
+                                <span class="bg-slate-100 text-slate-700 font-bold px-2 py-0.5 rounded border border-slate-300">Stack Size: 1</span>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+                            <div class="lg:col-span-7 space-y-2 text-base font-sans">
+                                <p><strong>Action:</strong> Initial push on an empty stack.</p>
+                                <ul class="list-disc pl-5 space-y-1 text-slate-700">
+                                    <li><strong>Two-Stack:</strong> Push <span class="math-badge">12</span> to Main Stack, and <span class="math-badge">12</span> to Auxiliary Min Stack.</li>
+                                    <li><strong>Math Encoding:</strong> Stack was empty! Set <code class="font-mono font-bold text-indigo-900">minEle = 12</code>, push <span class="math-badge">12</span> directly.</li>
+                                </ul>
+                                <div class="bg-amber-50 p-2.5 rounded border border-amber-200 text-xs sm:text-sm text-amber-900">
+                                    🔍 <strong>Result:</strong> <code class="font-mono">getMin() = 12</code>, <code class="font-mono">top() = 12</code>.
+                                </div>
+                            </div>
+                            <div class="lg:col-span-5">
+                                <canvas id="step-canvas-1" class="border border-slate-200 rounded-lg bg-white w-full" style="height: 180px;"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- STEP 2 -->
+                    <div class="step-card p-5 space-y-4">
+                        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-2">
+                            <div class="flex items-center gap-3">
+                                <span class="bg-indigo-600 text-white font-mono font-bold text-sm px-2.5 py-1 rounded-md">STEP 2</span>
+                                <h3 class="text-2xl font-bold text-inkBlue font-['Kalam']">Operation: push(15)</h3>
+                            </div>
+                            <div class="flex items-center gap-2 font-sans text-xs sm:text-sm">
+                                <span class="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded border border-emerald-300">Min Remains: 12</span>
+                                <span class="bg-slate-100 text-slate-700 font-bold px-2 py-0.5 rounded border border-slate-300">Stack Size: 2</span>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+                            <div class="lg:col-span-7 space-y-2 text-base font-sans">
+                                <p><strong>Action:</strong> Push 15. We compare with current minimum (12): $15 > 12$.</p>
+                                <ul class="list-disc pl-5 space-y-1 text-slate-700">
+                                    <li><strong>Two-Stack:</strong> Push 15 to Main Stack. Min stack pushes $\min(15, 12) = 12$.</li>
+                                    <li><strong>Math Encoding:</strong> Since $15 \ge \text{minEle}$ ($15 \ge 12$), push 15 directly! <code class="font-mono font-bold text-indigo-900">minEle</code> stays 12.</li>
+                                </ul>
+                                <div class="bg-blue-50 p-2.5 rounded border border-blue-200 text-xs sm:text-sm text-blue-900">
+                                    💡 <strong>Observation:</strong> Non-minimum pushes do not require any mathematical transformation!
+                                </div>
+                            </div>
+                            <div class="lg:col-span-5">
+                                <canvas id="step-canvas-2" class="border border-slate-200 rounded-lg bg-white w-full" style="height: 180px;"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- STEP 3 -->
+                    <div class="step-card p-5 space-y-4">
+                        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-2">
+                            <div class="flex items-center gap-3">
+                                <span class="bg-rose-600 text-white font-mono font-bold text-sm px-2.5 py-1 rounded-md">STEP 3</span>
+                                <h3 class="text-2xl font-bold text-inkRed font-['Kalam']">Operation: push(10) — ✨ New Minimum!</h3>
+                            </div>
+                            <div class="flex items-center gap-2 font-sans text-xs sm:text-sm">
+                                <span class="bg-rose-100 text-rose-800 font-bold px-2 py-0.5 rounded border border-rose-300">New Min: 10</span>
+                                <span class="bg-slate-100 text-slate-700 font-bold px-2 py-0.5 rounded border border-slate-300">Stack Size: 3</span>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+                            <div class="lg:col-span-7 space-y-2 text-base font-sans">
+                                <p><strong>Action:</strong> Push 10. We compare: $10 < 12$. A strictly smaller element has arrived!</p>
+                                <ul class="list-disc pl-5 space-y-1 text-slate-700">
+                                    <li><strong>Two-Stack:</strong> Push 10 to Main Stack. Min Stack pushes $\min(10, 12) = 10$.</li>
+                                    <li><strong>Math Encoding:</strong> Compute encoded flag:
+                                        <div class="my-1 font-mono font-bold text-rose-800 bg-rose-50 p-1.5 rounded border border-rose-200">
+                                            encoded = 2·x - minEle = 2·(10) - 12 = 20 - 12 = 8
+                                        </div>
+                                        Push <span class="math-badge">8</span> to stack. Update <code class="font-mono font-bold text-indigo-900">minEle = 10</code>!
+                                    </li>
+                                </ul>
+                                <div class="bg-amber-50 p-2.5 rounded border border-amber-200 text-xs sm:text-sm text-amber-900">
+                                    ⚡ <strong>Key Insight:</strong> The stored number is 8, which is strictly less than the new min 10 ($8 < 10$). That is our signature!
+                                </div>
+                            </div>
+                            <div class="lg:col-span-5">
+                                <canvas id="step-canvas-3" class="border border-slate-200 rounded-lg bg-white w-full" style="height: 180px;"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- STEP 4 -->
+                    <div class="step-card p-5 space-y-4">
+                        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-2">
+                            <div class="flex items-center gap-3">
+                                <span class="bg-indigo-600 text-white font-mono font-bold text-sm px-2.5 py-1 rounded-md">STEP 4</span>
+                                <h3 class="text-2xl font-bold text-inkBlue font-['Kalam']">Operation: push(14)</h3>
+                            </div>
+                            <div class="flex items-center gap-2 font-sans text-xs sm:text-sm">
+                                <span class="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded border border-emerald-300">Min Remains: 10</span>
+                                <span class="bg-slate-100 text-slate-700 font-bold px-2 py-0.5 rounded border border-slate-300">Stack Size: 4</span>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+                            <div class="lg:col-span-7 space-y-2 text-base font-sans">
+                                <p><strong>Action:</strong> Push 14. Check: $14 \ge \text{minEle}$ ($14 \ge 10$).</p>
+                                <ul class="list-disc pl-5 space-y-1 text-slate-700">
+                                    <li><strong>Two-Stack:</strong> Push 14 to Main Stack. Min stack pushes 10.</li>
+                                    <li><strong>Math Encoding:</strong> Push 14 directly. <code class="font-mono font-bold text-indigo-900">minEle</code> stays 10.</li>
+                                </ul>
+                                <div class="bg-slate-50 p-2 rounded text-xs font-mono text-slate-600">
+                                    Stack contents: [bottom: 12, 15, (enc: 8), top: 14]
+                                </div>
+                            </div>
+                            <div class="lg:col-span-5">
+                                <canvas id="step-canvas-4" class="border border-slate-200 rounded-lg bg-white w-full" style="height: 180px;"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- STEP 5 -->
+                    <div class="step-card p-5 space-y-4">
+                        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-2">
+                            <div class="flex items-center gap-3">
+                                <span class="bg-emerald-600 text-white font-mono font-bold text-sm px-2.5 py-1 rounded-md">STEP 5</span>
+                                <h3 class="text-2xl font-bold text-emerald-800 font-['Kalam']">Operation: getMin() Query</h3>
+                            </div>
+                            <div class="flex items-center gap-2 font-sans text-xs sm:text-sm">
+                                <span class="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded border border-emerald-300">Returns: 10</span>
+                                <span class="bg-blue-100 text-blue-800 font-bold px-2 py-0.5 rounded border border-blue-300">Time: O(1)</span>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+                            <div class="lg:col-span-7 space-y-2 text-base font-sans">
+                                <p><strong>Action:</strong> Query the smallest element in the current stack without mutating it.</p>
+                                <ul class="list-disc pl-5 space-y-1 text-slate-700">
+                                    <li><strong>Two-Stack:</strong> Returns <code class="font-mono font-bold text-emerald-800">minSt.top() = 10</code>. Cost: exactly 1 pointer dereference!</li>
+                                    <li><strong>Math Encoding:</strong> Directly returns variable <code class="font-mono font-bold text-indigo-900">minEle = 10</code>. Cost: exactly 1 variable access!</li>
+                                </ul>
+                                <div class="bg-emerald-50 p-2.5 rounded border border-emerald-200 text-xs sm:text-sm text-emerald-950 font-bold">
+                                    ✅ No iteration, no linear scanning, zero overhead. Guaranteed O(1)!
+                                </div>
+                            </div>
+                            <div class="lg:col-span-5">
+                                <canvas id="step-canvas-5" class="border border-slate-200 rounded-lg bg-white w-full" style="height: 180px;"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- STEP 6 -->
+                    <div class="step-card p-5 space-y-4">
+                        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-2">
+                            <div class="flex items-center gap-3">
+                                <span class="bg-rose-600 text-white font-mono font-bold text-sm px-2.5 py-1 rounded-md">STEP 6</span>
+                                <h3 class="text-2xl font-bold text-inkRed font-['Kalam']">Operation: push(7) — ✨ Another New Min!</h3>
+                            </div>
+                            <div class="flex items-center gap-2 font-sans text-xs sm:text-sm">
+                                <span class="bg-rose-100 text-rose-800 font-bold px-2 py-0.5 rounded border border-rose-300">New Min: 7</span>
+                                <span class="bg-slate-100 text-slate-700 font-bold px-2 py-0.5 rounded border border-slate-300">Stack Size: 5</span>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+                            <div class="lg:col-span-7 space-y-2 text-base font-sans">
+                                <p><strong>Action:</strong> Push 7. Compare: $7 < 10$. New minimum!</p>
+                                <ul class="list-disc pl-5 space-y-1 text-slate-700">
+                                    <li><strong>Two-Stack:</strong> Push 7 to Main Stack, push 7 to Min Stack.</li>
+                                    <li><strong>Math Encoding:</strong> Compute encoded flag:
+                                        <div class="my-1 font-mono font-bold text-rose-800 bg-rose-50 p-1.5 rounded border border-rose-200">
+                                            encoded = 2·(7) - 10 = 14 - 10 = 4
+                                        </div>
+                                        Push <span class="math-badge">4</span> to stack. Update <code class="font-mono font-bold text-indigo-900">minEle = 7</code>!
+                                    </li>
+                                </ul>
+                                <div class="bg-amber-50 p-2.5 rounded border border-amber-200 text-xs sm:text-sm text-amber-900">
+                                    Notice $4 < 7$. The top of the stack is 4, which acts as a flag indicating 7 is the minimum!
+                                </div>
+                            </div>
+                            <div class="lg:col-span-5">
+                                <canvas id="step-canvas-6" class="border border-slate-200 rounded-lg bg-white w-full" style="height: 180px;"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- STEP 7 -->
+                    <div class="step-card p-5 space-y-4">
+                        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-2">
+                            <div class="flex items-center gap-3">
+                                <span class="bg-amber-600 text-white font-mono font-bold text-sm px-2.5 py-1 rounded-md">STEP 7</span>
+                                <h3 class="text-2xl font-bold text-amber-900 font-['Kalam']">Operation: top() Query</h3>
+                            </div>
+                            <div class="flex items-center gap-2 font-sans text-xs sm:text-sm">
+                                <span class="bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded border border-amber-300">Returns: 7</span>
+                                <span class="bg-blue-100 text-blue-800 font-bold px-2 py-0.5 rounded border border-blue-300">Time: O(1)</span>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+                            <div class="lg:col-span-7 space-y-2 text-base font-sans">
+                                <p><strong>Action:</strong> Query the top element. Notice the subtlety in the Math-Encoded stack!</p>
+                                <ul class="list-disc pl-5 space-y-1 text-slate-700">
+                                    <li><strong>Two-Stack:</strong> Simply returns <code class="font-mono font-bold text-inkBlue">st.top() = 7</code>.</li>
+                                    <li><strong>Math Encoding:</strong> Look at stack top: $y = 4$.
+                                        <div class="my-1 bg-amber-50 p-2 rounded text-xs sm:text-sm font-sans border border-amber-300 text-amber-950">
+                                            Since $y < \text{minEle}$ ($4 < 7$), this slot is an encoded sentinel! The real element pushed was the current <code class="font-mono font-bold">minEle</code>!
+                                            <br>Therefore, <code class="font-mono font-bold text-emerald-800">top() returns minEle = 7</code>!
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="lg:col-span-5">
+                                <canvas id="step-canvas-7" class="border border-slate-200 rounded-lg bg-white w-full" style="height: 180px;"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- STEP 8 -->
+                    <div class="step-card p-5 space-y-4">
+                        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-2">
+                            <div class="flex items-center gap-3">
+                                <span class="bg-purple-600 text-white font-mono font-bold text-sm px-2.5 py-1 rounded-md">STEP 8</span>
+                                <h3 class="text-2xl font-bold text-purple-900 font-['Kalam']">Operation: pop() — ⏪ Restoring Previous Min!</h3>
+                            </div>
+                            <div class="flex items-center gap-2 font-sans text-xs sm:text-sm">
+                                <span class="bg-purple-100 text-purple-800 font-bold px-2 py-0.5 rounded border border-purple-300">Popped: 7</span>
+                                <span class="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded border border-emerald-300">Restored Min: 10</span>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+                            <div class="lg:col-span-7 space-y-2 text-base font-sans">
+                                <p><strong>Action:</strong> Remove the top element (7). This was the current minimum!</p>
+                                <ul class="list-disc pl-5 space-y-1 text-slate-700">
+                                    <li><strong>Two-Stack:</strong> Pop 7 from Main Stack. Pop 7 from Min Stack. Min stack top is now 10!</li>
+                                    <li><strong>Math Encoding:</strong> Top contains $y = 4$.
+                                        <div class="my-1 bg-purple-50 p-2.5 rounded border border-purple-300 font-mono text-xs sm:text-sm text-purple-950">
+                                            y &lt; minEle (4 &lt; 7) &rarr; Encoded Flag detected!
+                                            <br>
+                                            prevMin = 2·minEle - y = 2·(7) - 4 = 14 - 4 = 10
+                                        </div>
+                                        Pop 4 from stack. Update <code class="font-mono font-bold text-emerald-700">minEle = 10</code>!
+                                    </li>
+                                </ul>
+                                <div class="bg-emerald-50 p-2 rounded text-xs text-emerald-900 font-bold">
+                                    🎉 The previous minimum 10 has been mathematically reconstructed without any auxiliary storage!
+                                </div>
+                            </div>
+                            <div class="lg:col-span-5">
+                                <canvas id="step-canvas-8" class="border border-slate-200 rounded-lg bg-white w-full" style="height: 180px;"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- STEP 9 -->
+                    <div class="step-card p-5 space-y-4">
+                        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-2">
+                            <div class="flex items-center gap-3">
+                                <span class="bg-slate-700 text-white font-mono font-bold text-sm px-2.5 py-1 rounded-md">STEP 9</span>
+                                <h3 class="text-2xl font-bold text-slate-800 font-['Kalam']">Operation: pop()</h3>
+                            </div>
+                            <div class="flex items-center gap-2 font-sans text-xs sm:text-sm">
+                                <span class="bg-slate-100 text-slate-800 font-bold px-2 py-0.5 rounded border border-slate-300">Popped: 14</span>
+                                <span class="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded border border-emerald-300">Min Remains: 10</span>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+                            <div class="lg:col-span-7 space-y-2 text-base font-sans">
+                                <p><strong>Action:</strong> Remove top element (14). Check: $14 \ge \text{minEle}$ ($14 \ge 10$).</p>
+                                <ul class="list-disc pl-5 space-y-1 text-slate-700">
+                                    <li><strong>Two-Stack:</strong> Pop 14 from Main Stack, pop 10 from Min Stack.</li>
+                                    <li><strong>Math Encoding:</strong> Top is $y = 14 \ge 10$. Not encoded! Pop 14 normally. <code class="font-mono font-bold text-indigo-900">minEle</code> stays 10.</li>
+                                </ul>
+                            </div>
+                            <div class="lg:col-span-5">
+                                <canvas id="step-canvas-9" class="border border-slate-200 rounded-lg bg-white w-full" style="height: 180px;"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- STEP 10 -->
+                    <div class="step-card p-5 space-y-4">
+                        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-2">
+                            <div class="flex items-center gap-3">
+                                <span class="bg-purple-600 text-white font-mono font-bold text-sm px-2.5 py-1 rounded-md">STEP 10</span>
+                                <h3 class="text-2xl font-bold text-purple-900 font-['Kalam']">Operation: pop() — ⏪ Restoring Initial Min!</h3>
+                            </div>
+                            <div class="flex items-center gap-2 font-sans text-xs sm:text-sm">
+                                <span class="bg-purple-100 text-purple-800 font-bold px-2 py-0.5 rounded border border-purple-300">Popped: 10</span>
+                                <span class="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded border border-emerald-300">Restored Min: 12</span>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+                            <div class="lg:col-span-7 space-y-2 text-base font-sans">
+                                <p><strong>Action:</strong> Remove top element (10). This was the minimum!</p>
+                                <ul class="list-disc pl-5 space-y-1 text-slate-700">
+                                    <li><strong>Two-Stack:</strong> Pop 10 from Main Stack, pop 10 from Min Stack. Top of min stack is now 12!</li>
+                                    <li><strong>Math Encoding:</strong> Top contains $y = 8$.
+                                        <div class="my-1 bg-purple-50 p-2.5 rounded border border-purple-300 font-mono text-xs sm:text-sm text-purple-950">
+                                            y &lt; minEle (8 &lt; 10) &rarr; Encoded Flag detected!
+                                            <br>
+                                            prevMin = 2·minEle - y = 2·(10) - 8 = 20 - 8 = 12
+                                        </div>
+                                        Pop 8 from stack. Update <code class="font-mono font-bold text-emerald-700">minEle = 12</code>!
+                                    </li>
+                                </ul>
+                                <div class="bg-emerald-50 p-2 rounded text-xs text-emerald-900 font-bold">
+                                    Current stack is now [12, 15], with minimum restored to 12. Complete symmetry maintained!
+                                </div>
+                            </div>
+                            <div class="lg:col-span-5">
+                                <canvas id="step-canvas-10" class="border border-slate-200 rounded-lg bg-white w-full" style="height: 180px;"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- ==================================================================== -->
+            <!-- TAB 3: COMPLEXITY & CODE IMPLEMENTATIONS                             -->
+            <!-- ==================================================================== -->
+            <section id="sec-complexity" class="tab-content space-y-8">
+                
+                <!-- Section Title -->
+                <div class="border-b-2 border-inkRed pb-2 flex justify-between items-baseline">
+                    <div>
+                        <h1 class="text-3xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4 font-['Kalam']">
+                            Complexity Analysis &amp; Production Code
+                        </h1>
+                        <p class="text-sm sm:text-base font-sans text-pencilGray mt-1">
+                            Asymptotic bounds, trade-offs, integer overflow guards, and multi-language implementations
+                        </p>
+                    </div>
+                    <span class="text-xs sm:text-sm font-bold font-sans bg-amber-100 text-inkRed px-2.5 py-1 rounded border border-amber-300">
+                        Page 3 • Implementation
+                    </span>
+                </div>
+
+                <!-- 1. Complexity Comparison Table -->
+                <div class="space-y-4">
+                    <h2 class="text-2xl sm:text-3xl font-bold text-inkRed flex items-center gap-2">
+                        <span>📊</span> 1. Asymptotic Complexity Comparison
+                    </h2>
+
+                    <div class="overflow-x-auto bg-white/95 rounded-xl border border-slate-300 shadow-sm p-3">
+                        <table class="w-full text-left font-sans text-sm sm:text-base border-collapse">
+                            <thead>
+                                <tr class="border-b-2 border-slate-300 bg-amber-50 text-inkBlue">
+                                    <th class="p-3 font-bold">Operation / Metric</th>
+                                    <th class="p-3 font-bold">Standard Stack</th>
+                                    <th class="p-3 font-bold">Approach 1: Two Stacks</th>
+                                    <th class="p-3 font-bold">Approach 2: Math O(1) Trick</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-200">
+                                <tr>
+                                    <td class="p-3 font-mono font-semibold text-slate-800">push(val)</td>
+                                    <td class="p-3 text-emerald-700 font-bold">$O(1)$</td>
+                                    <td class="p-3 text-emerald-700 font-bold">$O(1)$</td>
+                                    <td class="p-3 text-emerald-700 font-bold">$O(1)$</td>
+                                </tr>
+                                <tr class="bg-slate-50/50">
+                                    <td class="p-3 font-mono font-semibold text-slate-800">pop()</td>
+                                    <td class="p-3 text-emerald-700 font-bold">$O(1)$</td>
+                                    <td class="p-3 text-emerald-700 font-bold">$O(1)$</td>
+                                    <td class="p-3 text-emerald-700 font-bold">$O(1)$</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 font-mono font-semibold text-slate-800">top()</td>
+                                    <td class="p-3 text-emerald-700 font-bold">$O(1)$</td>
+                                    <td class="p-3 text-emerald-700 font-bold">$O(1)$</td>
+                                    <td class="p-3 text-emerald-700 font-bold">$O(1)$</td>
+                                </tr>
+                                <tr class="bg-amber-100/40">
+                                    <td class="p-3 font-mono font-semibold text-inkRed">getMin()</td>
+                                    <td class="p-3 text-rose-700 font-bold">$O(N)$ (scan)</td>
+                                    <td class="p-3 text-emerald-700 font-bold">$O(1)$ (aux top)</td>
+                                    <td class="p-3 text-emerald-700 font-bold">$O(1)$ (var access)</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 font-semibold text-slate-800">Auxiliary Space</td>
+                                    <td class="p-3 text-emerald-700 font-bold">$O(1)$</td>
+                                    <td class="p-3 text-rose-700 font-bold">$O(N)$ (extra stack)</td>
+                                    <td class="p-3 text-emerald-700 font-bold">$O(1)$ (optimal)</td>
+                                </tr>
+                                <tr class="bg-slate-50/50">
+                                    <td class="p-3 font-semibold text-slate-800">Overflow Risk</td>
+                                    <td class="p-3 text-slate-600">None</td>
+                                    <td class="p-3 text-emerald-700 font-bold">None (Safe)</td>
+                                    <td class="p-3 text-amber-700 font-bold">Requires 64-bit Int (<code class="font-mono">long long</code>)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 2. The Integer Overflow Pitfall (Interview Favorite) -->
+                <div class="note-box space-y-3 font-sans">
+                    <h3 class="text-xl font-bold text-amber-900 font-heading">🚨 Interview Trap: 32-bit Signed Integer Overflow</h3>
+                    <p class="text-base sm:text-lg leading-relaxed text-slate-800">
+                        In C++ or Java, standard <code class="font-mono">int</code> is 32-bit signed with values ranging from $-2^{31}$ to $2^{31}-1$ (approx $-2.14 \times 10^9$ to $+2.14 \times 10^9$).
+                    </p>
+                    <p class="text-sm sm:text-base text-slate-700">
+                        When evaluating the formula <span class="math-badge">2·x - minEle</span>, if $x$ is a very large negative number (e.g. $-2 \cdot 10^9$) and $\text{minEle} = 2 \cdot 10^9$, then:
+                        <br>
+                        <code class="font-mono font-bold text-rose-800">2·(-2·10^9) - 2·10^9 = -6·10^9 &lt; INT_MIN</code> &rarr; <strong>Underflows!</strong>
+                    </p>
+                    <p class="text-sm sm:text-base font-bold text-emerald-900">
+                        🛡️ Remediation: Always use 64-bit integer types (<code class="font-mono">long long</code> in C++, <code class="font-mono">long</code> in Java) for the internal stack and <code class="font-mono">minEle</code> variable.
+                    </p>
+                </div>
+
+                <!-- 3. Multi-Language Implementations -->
+                <div class="space-y-4">
+                    <h2 class="text-2xl sm:text-3xl font-bold text-inkRed flex items-center gap-2">
+                        <span>💻</span> 2. Full Source Code Implementations
+                    </h2>
+
+                    <!-- Language Switcher Tabs -->
+                    <div class="flex gap-2 border-b border-slate-300 pb-2">
+                        <button onclick="showCodeTab('cpp')" id="code-btn-cpp" class="code-tab-btn px-4 py-1.5 rounded-lg font-bold bg-inkBlue text-white text-sm font-sans transition">
+                            C++ (Both Approaches)
+                        </button>
+                        <button onclick="showCodeTab('java')" id="code-btn-java" class="code-tab-btn px-4 py-1.5 rounded-lg font-bold bg-slate-200 text-slate-700 text-sm font-sans transition">
+                            Java (Optimal O(1) Space)
+                        </button>
+                        <button onclick="showCodeTab('py')" id="code-btn-py" class="code-tab-btn px-4 py-1.5 rounded-lg font-bold bg-slate-200 text-slate-700 text-sm font-sans transition">
+                            Python 3 (Clean Class)
+                        </button>
+                    </div>
+
+                    <!-- C++ CODE -->
+                    <div id="code-panel-cpp" class="code-panel block">
+                        <div class="bg-slate-900 text-slate-100 rounded-xl p-4 font-mono text-sm leading-relaxed overflow-x-auto shadow-lg border border-slate-800">
+<pre><code><span class="text-emerald-400">// =========================================================================</span>
+<span class="text-emerald-400">// APPROACH 2: Optimal O(1) Auxiliary Space with 2*x - minEle Encoding</span>
+<span class="text-emerald-400">// LeetCode 155 Min Stack</span>
+<span class="text-emerald-400">// =========================================================================</span>
+<span class="text-purple-400">#include</span> <span class="text-amber-300">&lt;stack&gt;</span>
+<span class="text-purple-400">#include</span> <span class="text-amber-300">&lt;stdexcept&gt;</span>
+
+<span class="text-blue-400">class</span> <span class="text-yellow-300">MinStack</span> {
+<span class="text-blue-400">private</span>:
+    <span class="text-emerald-400">// Using long long to prevent 32-bit integer arithmetic overflow</span>
+    std::stack&lt;<span class="text-blue-400">long long</span>&gt; st;
+    <span class="text-blue-400">long long</span> minEle;
+
+<span class="text-blue-400">public</span>:
+    <span class="text-yellow-300">MinStack</span>() : minEle(<span class="text-purple-300">0</span>) {}
+
+    <span class="text-blue-400">void</span> <span class="text-yellow-300">push</span>(<span class="text-blue-400">int</span> val) {
+        <span class="text-blue-400">long long</span> x = val;
+        <span class="text-purple-400">if</span> (st.empty()) {
+            minEle = x;
+            st.push(x);
+        } <span class="text-purple-400">else if</span> (x &gt;= minEle) {
+            <span class="text-emerald-400">// Element is not smaller than current minimum</span>
+            st.push(x);
+        } <span class="text-purple-400">else</span> {
+            <span class="text-emerald-400">// New minimum discovered! Store encoded flag: 2*x - minEle</span>
+            <span class="text-blue-400">long long</span> encoded = <span class="text-purple-300">2</span> * x - minEle;
+            st.push(encoded);
+            minEle = x;
+        }
+    }
+
+    <span class="text-blue-400">void</span> <span class="text-yellow-300">pop</span>() {
+        <span class="text-purple-400">if</span> (st.empty()) <span class="text-purple-400">return</span>;
+        
+        <span class="text-blue-400">long long</span> y = st.top();
+        st.pop();
+
+        <span class="text-purple-400">if</span> (y &lt; minEle) {
+            <span class="text-emerald-400">// Encoded flag detected! Restore previous minimum</span>
+            minEle = <span class="text-purple-300">2</span> * minEle - y;
+        }
+    }
+
+    <span class="text-blue-400">int</span> <span class="text-yellow-300">top</span>() {
+        <span class="text-purple-400">if</span> (st.empty()) <span class="text-purple-400">throw</span> std::runtime_error(<span class="text-amber-300">"Stack is empty"</span>);
+        <span class="text-blue-400">long long</span> y = st.top();
+        <span class="text-purple-400">if</span> (y &lt; minEle) {
+            <span class="text-emerald-400">// Top is an encoded marker; real element is minEle</span>
+            <span class="text-purple-400">return</span> (<span class="text-blue-400">int</span>)minEle;
+        }
+        <span class="text-purple-400">return</span> (<span class="text-blue-400">int</span>)y;
+    }
+
+    <span class="text-blue-400">int</span> <span class="text-yellow-300">getMin</span>() {
+        <span class="text-purple-400">if</span> (st.empty()) <span class="text-purple-400">throw</span> std::runtime_error(<span class="text-amber-300">"Stack is empty"</span>);
+        <span class="text-purple-400">return</span> (<span class="text-blue-400">int</span>)minEle;
+    }
+};</code></pre>
+                        </div>
+                    </div>
+
+                    <!-- JAVA CODE -->
+                    <div id="code-panel-java" class="code-panel hidden">
+                        <div class="bg-slate-900 text-slate-100 rounded-xl p-4 font-mono text-sm leading-relaxed overflow-x-auto shadow-lg border border-slate-800">
+<pre><code><span class="text-purple-400">import</span> java.util.Stack;
+
+<span class="text-blue-400">class</span> <span class="text-yellow-300">MinStack</span> {
+    <span class="text-blue-400">private</span> Stack&lt;Long&gt; stack;
+    <span class="text-blue-400">private</span> Long minEle;
+
+    <span class="text-blue-400">public</span> <span class="text-yellow-300">MinStack</span>() {
+        stack = <span class="text-blue-400">new</span> Stack&lt;&gt;();
+    }
+
+    <span class="text-blue-400">public void</span> <span class="text-yellow-300">push</span>(<span class="text-blue-400">int</span> val) {
+        <span class="text-blue-400">long</span> x = val;
+        <span class="text-purple-400">if</span> (stack.isEmpty()) {
+            minEle = x;
+            stack.push(x);
+        } <span class="text-purple-400">else if</span> (x &gt;= minEle) {
+            stack.push(x);
+        } <span class="text-purple-400">else</span> {
+            stack.push(<span class="text-purple-300">2L</span> * x - minEle);
+            minEle = x;
+        }
+    }
+
+    <span class="text-blue-400">public void</span> <span class="text-yellow-300">pop</span>() {
+        <span class="text-purple-400">if</span> (stack.isEmpty()) <span class="text-purple-400">return</span>;
+        <span class="text-blue-400">long</span> y = stack.pop();
+        <span class="text-purple-400">if</span> (y &lt; minEle) {
+            minEle = <span class="text-purple-300">2L</span> * minEle - y; <span class="text-emerald-400">// Recover previous min</span>
+        }
+    }
+
+    <span class="text-blue-400">public int</span> <span class="text-yellow-300">top</span>() {
+        <span class="text-blue-400">long</span> y = stack.peek();
+        <span class="text-purple-400">if</span> (y &lt; minEle) {
+            <span class="text-purple-400">return</span> minEle.intValue();
+        }
+        <span class="text-purple-400">return</span> (<span class="text-blue-400">int</span>)y;
+    }
+
+    <span class="text-blue-400">public int</span> <span class="text-yellow-300">getMin</span>() {
+        <span class="text-purple-400">return</span> minEle.intValue();
+    }
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <!-- PYTHON CODE -->
+                    <div id="code-panel-py" class="code-panel hidden">
+                        <div class="bg-slate-900 text-slate-100 rounded-xl p-4 font-mono text-sm leading-relaxed overflow-x-auto shadow-lg border border-slate-800">
+<pre><code><span class="text-blue-400">class</span> <span class="text-yellow-300">MinStack</span>:
+    <span class="text-blue-400">def</span> <span class="text-yellow-300">__init__</span>(<span class="text-purple-400">self</span>):
+        <span class="text-purple-400">self</span>.stack = []
+        <span class="text-purple-400">self</span>.min_ele = <span class="text-purple-300">None</span>
+
+    <span class="text-blue-400">def</span> <span class="text-yellow-300">push</span>(<span class="text-purple-400">self</span>, val: <span class="text-blue-400">int</span>) -&gt; <span class="text-purple-300">None</span>:
+        <span class="text-purple-400">if not</span> <span class="text-purple-400">self</span>.stack:
+            <span class="text-purple-400">self</span>.min_ele = val
+            <span class="text-purple-400">self</span>.stack.append(val)
+        <span class="text-purple-400">elif</span> val &gt;= <span class="text-purple-400">self</span>.min_ele:
+            <span class="text-purple-400">self</span>.stack.append(val)
+        <span class="text-purple-400">else</span>:
+            <span class="text-emerald-400"># New min! Store 2*val - min_ele</span>
+            <span class="text-purple-400">self</span>.stack.append(<span class="text-purple-300">2</span> * val - <span class="text-purple-400">self</span>.min_ele)
+            <span class="text-purple-400">self</span>.min_ele = val
+
+    <span class="text-blue-400">def</span> <span class="text-yellow-300">pop</span>(<span class="text-purple-400">self</span>) -&gt; <span class="text-purple-300">None</span>:
+        <span class="text-purple-400">if not</span> <span class="text-purple-400">self</span>.stack:
+            <span class="text-purple-400">return</span>
+        y = <span class="text-purple-400">self</span>.stack.pop()
+        <span class="text-purple-400">if</span> y &lt; <span class="text-purple-400">self</span>.min_ele:
+            <span class="text-emerald-400"># Recover previous min</span>
+            <span class="text-purple-400">self</span>.min_ele = <span class="text-purple-300">2</span> * <span class="text-purple-400">self</span>.min_ele - y
+
+    <span class="text-blue-400">def</span> <span class="text-yellow-300">top</span>(<span class="text-purple-400">self</span>) -&gt; <span class="text-blue-400">int</span>:
+        y = <span class="text-purple-400">self</span>.stack[-<span class="text-purple-300">1</span>]
+        <span class="text-purple-400">return self</span>.min_ele <span class="text-purple-400">if</span> y &lt; <span class="text-purple-400">self</span>.min_ele <span class="text-purple-400">else</span> y
+
+    <span class="text-blue-400">def</span> <span class="text-yellow-300">getMin</span>(<span class="text-purple-400">self</span>) -&gt; <span class="text-blue-400">int</span>:
+        <span class="text-purple-400">return self</span>.min_ele</code></pre>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+
+
+            <!-- ==================================================================== -->
+            <!-- TAB 4: INTERACTIVE SIMULATOR                                         -->
+            <!-- ==================================================================== -->
+            <section id="sec-visualization" class="tab-content space-y-8">
+                
+                <!-- Section Title -->
+                <div class="border-b-2 border-inkRed pb-2 flex justify-between items-baseline">
+                    <div>
+                        <h1 class="text-3xl sm:text-5xl font-bold text-inkBlue underline decoration-2 underline-offset-4 font-['Kalam']">
+                            Interactive Min Stack Simulator
+                        </h1>
+                        <p class="text-sm sm:text-base font-sans text-pencilGray mt-1">
+                            Live visualization engine with real-time stack rendering, state logs, and dual architecture toggle
+                        </p>
+                    </div>
+                    <span class="text-xs sm:text-sm font-bold font-sans bg-amber-100 text-inkRed px-2.5 py-1 rounded border border-amber-300">
+                        Page 4 • Playground
+                    </span>
+                </div>
+
+                <!-- Control Panel -->
+                <div class="bg-white/95 rounded-xl p-4 sm:p-6 border-2 border-amber-300 shadow-sm space-y-4 font-sans">
+                    <div class="flex flex-wrap items-center justify-between gap-4">
+                        
+                        <!-- Inputs -->
+                        <div class="flex items-center gap-2">
+                            <label for="sim-input" class="font-bold text-inkBlue text-sm sm:text-base">Value:</label>
+                            <input type="number" id="sim-input" value="10"
+                                class="w-24 px-3 py-1.5 border border-slate-300 rounded-lg text-slate-800 font-mono font-bold focus:outline-none focus:ring-2 focus:ring-amber-500">
+                            <button onclick="simPush()" class="px-4 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow transition">
+                                Push ↓
+                            </button>
+                            <button onclick="simPop()" class="px-4 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-bold text-sm shadow transition">
+                                Pop ↑
+                            </button>
+                        </div>
+
+                        <!-- Read Queries -->
+                        <div class="flex items-center gap-2">
+                            <button onclick="simTop()" class="px-3.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow transition">
+                                top()
+                            </button>
+                            <button onclick="simGetMin()" class="px-3.5 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-bold text-sm shadow transition">
+                                getMin()
+                            </button>
+                            <button onclick="simReset()" class="px-3.5 py-1.5 rounded-lg bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-sm transition">
+                                Reset ↺
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Quick Preset Buttons -->
+                    <div class="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-200 text-xs">
+                        <span class="font-bold text-slate-600">Quick Push:</span>
+                        <button onclick="pushPreset(18)" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 rounded border border-slate-300 font-mono font-bold">+18</button>
+                        <button onclick="pushPreset(12)" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 rounded border border-slate-300 font-mono font-bold">+12</button>
+                        <button onclick="pushPreset(15)" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 rounded border border-slate-300 font-mono font-bold">+15</button>
+                        <button onclick="pushPreset(8)" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 rounded border border-slate-300 font-mono font-bold">+8 (new min)</button>
+                        <button onclick="pushPreset(20)" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 rounded border border-slate-300 font-mono font-bold">+20</button>
+                        <button onclick="pushPreset(5)" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 rounded border border-slate-300 font-mono font-bold">+5 (new min)</button>
+                    </div>
+
+                    <!-- Mode Toggle -->
+                    <div class="flex items-center justify-between pt-2 border-t border-slate-200 text-xs sm:text-sm">
+                        <div class="flex items-center gap-3">
+                            <span class="font-bold text-inkBlue">View Mode:</span>
+                            <label class="flex items-center gap-1 cursor-pointer">
+                                <input type="radio" name="simMode" value="math" checked onchange="toggleSimMode('math')">
+                                <span class="font-semibold text-slate-800">O(1) Math Encoding (Single Stack)</span>
+                            </label>
+                            <label class="flex items-center gap-1 cursor-pointer">
+                                <input type="radio" name="simMode" value="two" onchange="toggleSimMode('two')">
+                                <span class="font-semibold text-slate-800">Two Stacks (Main + Aux Min)</span>
+                            </label>
+                        </div>
+                        <div id="sim-status-badge" class="font-mono font-bold text-xs bg-slate-100 text-slate-700 px-2.5 py-1 rounded border">
+                            Ready
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Live Canvas Display -->
+                <div class="bg-white rounded-xl p-4 border border-slate-300 shadow-inner">
+                    <canvas id="simulator-canvas" class="w-full bg-[#FAF9F5] rounded-lg" style="height: 380px;"></canvas>
+                </div>
+
+                <!-- Live Activity Log -->
+                <div class="bg-white/95 rounded-xl p-4 border border-slate-300 shadow-sm space-y-2 font-sans">
+                    <div class="flex items-center justify-between border-b pb-1">
+                        <h4 class="font-bold text-inkBlue text-sm sm:text-base flex items-center gap-2">
+                            <span>📜</span> Operation Execution Log
+                        </h4>
+                        <span class="text-xs text-slate-500">Latest operations at bottom</span>
+                    </div>
+                    <div id="sim-log-box" class="h-32 overflow-y-auto font-mono text-xs text-slate-700 space-y-1 bg-slate-50 p-3 rounded border border-slate-200">
+                        <div>[Init] Simulator loaded. Ready for stack operations.</div>
+                    </div>
+                </div>
+
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Footer Note -->
+    <footer class="text-center text-slate-500 text-sm font-sans pb-8 no-print">
+        Digital Student Notebook • Data Structures &amp; Algorithms Study Series • Designed for High-DPI Screens
+    </footer>
+
+    <!-- JavaScript Engine -->
+    <script>
+        /* ----------------------------------------------------------------------
+           1. TYPOGRAPHY & TAB CONTROLLERS
+        ---------------------------------------------------------------------- */
+        let isCleanFont = false;
+        let currentTab = 'definitions';
+
+        function toggleFontMode() {
+            isCleanFont = !isCleanFont;
+            document.body.classList.toggle('font-clean', isCleanFont);
+            const btnText = document.getElementById('fontBtnText');
+            btnText.innerText = isCleanFont ? 'Handwritten' : 'Clean Font';
+            
+            // Re-render canvases with new font styling
+            redrawAllCanvases();
+        }
+
+        function switchTab(tabId) {
+            currentTab = tabId;
+            const sections = document.querySelectorAll('.tab-content');
+            sections.forEach(s => s.classList.remove('active'));
+
+            const targetSection = document.getElementById(`sec-${tabId}`);
+            if (targetSection) targetSection.classList.add('active');
+
+            const tabBtns = document.querySelectorAll('.nav-tab');
+            tabBtns.forEach(btn => {
+                btn.classList.remove('bg-amber-200', 'text-inkBlue', 'border-b-2', 'border-inkBlue');
+                btn.classList.add('text-slate-600', 'hover:text-inkBlue');
+            });
+
+            const activeBtn = document.getElementById(`tab-btn-${tabId}`);
+            if (activeBtn) {
+                activeBtn.classList.remove('text-slate-600', 'hover:text-inkBlue');
+                activeBtn.classList.add('bg-amber-200', 'text-inkBlue', 'border-b-2', 'border-inkBlue');
+            }
+
+            setTimeout(() => {
+                if (tabId === 'definitions') drawConceptDiagram();
+                if (tabId === 'step-by-step') drawAllStepCanvases();
+                if (tabId === 'visualization') drawSimulator();
+            }, 60);
+        }
+
+        function showCodeTab(lang) {
+            ['cpp', 'java', 'py'].forEach(l => {
+                const panel = document.getElementById(`code-panel-${l}`);
+                const btn = document.getElementById(`code-btn-${l}`);
+                if (panel && btn) {
+                    if (l === lang) {
+                        panel.classList.remove('hidden');
+                        btn.className = 'code-tab-btn px-4 py-1.5 rounded-lg font-bold bg-inkBlue text-white text-sm font-sans transition';
+                    } else {
+                        panel.classList.add('hidden');
+                        btn.className = 'code-tab-btn px-4 py-1.5 rounded-lg font-bold bg-slate-200 text-slate-700 text-sm font-sans transition';
+                    }
+                }
+            });
+        }
+
+        /* ----------------------------------------------------------------------
+           2. HIGH-DPI CANVAS SETUP HELPER
+        ---------------------------------------------------------------------- */
+        function setupCanvas(canvas, width, height) {
+            const dpr = window.devicePixelRatio || 1;
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+            canvas.width = Math.floor(width * dpr);
+            canvas.height = Math.floor(height * dpr);
+            const ctx = canvas.getContext('2d');
+            ctx.scale(dpr, dpr);
+            ctx.clearRect(0, 0, width, height);
+            return ctx;
+        }
+
+        /* ----------------------------------------------------------------------
+           3. CONCEPT DIAGRAM (TAB 1)
+        ---------------------------------------------------------------------- */
+        function drawConceptDiagram() {
+            const canvas = document.getElementById('concept-canvas');
+            if (!canvas) return;
+            const w = canvas.parentElement.clientWidth || 550;
+            const h = 240;
+            const ctx = setupCanvas(canvas, w, h);
+
+            ctx.fillStyle = '#FAF9F5';
+            ctx.fillRect(0, 0, w, h);
+
+            // Title
+            ctx.fillStyle = '#1A365D';
+            ctx.font = isCleanFont ? 'bold 14px Inter' : 'bold 16px Kalam';
+            ctx.textAlign = 'left';
+            ctx.fillText("Stack Architecture Comparison for Sequence: [12, 15, 10]", 20, 28);
+
+            // Column 1: Approach 1 (Two Stacks)
+            const col1X = 30;
+            ctx.fillStyle = '#4338CA';
+            ctx.font = isCleanFont ? 'bold 12px Inter' : 'bold 14px Kalam';
+            ctx.fillText("Approach 1: Two Stacks (O(N) Space)", col1X, 60);
+
+            // Main Stack cylinder
+            drawMiniStack(ctx, col1X + 20, 80, ["10", "15", "12"], "Main Stack (st)", "#3B82F6");
+            // Aux Min Stack cylinder
+            drawMiniStack(ctx, col1X + 130, 80, ["10", "12", "12"], "Min Stack (minSt)", "#10B981");
+
+            // Column 2: Approach 2 (Encoded Math Stack)
+            const col2X = Math.max(col1X + 270, w / 2 + 20);
+            ctx.fillStyle = '#065F46';
+            ctx.font = isCleanFont ? 'bold 12px Inter' : 'bold 14px Kalam';
+            ctx.fillText("Approach 2: O(1) Math Encoded Stack", col2X, 60);
+
+            // Encoded Stack cylinder
+            drawMiniStack(ctx, col2X + 20, 80, ["8 (enc)", "15", "12"], "Single Stack (st)", "#6366F1");
+
+            // minEle variable display
+            ctx.fillStyle = '#FEF3C7';
+            ctx.strokeStyle = '#D97706';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.roundRect(col2X + 140, 100, 110, 50, 8);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = '#92400E';
+            ctx.font = isCleanFont ? 'bold 11px Inter' : 'bold 13px Kalam';
+            ctx.textAlign = 'center';
+            ctx.fillText("Current minEle", col2X + 195, 120);
+            ctx.font = 'bold 18px Fira Code, monospace';
+            ctx.fillStyle = '#B45309';
+            ctx.fillText("10", col2X + 195, 142);
+
+            // Annotation note
+            ctx.fillStyle = '#4A5568';
+            ctx.font = isCleanFont ? '10px Inter' : '11px Kalam';
+            ctx.textAlign = 'left';
+            ctx.fillText("*Note: 8 < minEle (10), signalling encoded slot!", col2X + 20, 222);
+        }
+
+        function drawMiniStack(ctx, x, y, items, label, accentColor) {
+            const slotW = 75;
+            const slotH = 26;
+            const maxVisible = 3;
+
+            // Draw stack bucket lines
+            ctx.strokeStyle = '#64748B';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(x - 4, y);
+            ctx.lineTo(x - 4, y + (maxVisible * slotH) + 6);
+            ctx.lineTo(x + slotW + 4, y + (maxVisible * slotH) + 6);
+            ctx.lineTo(x + slotW + 4, y);
+            ctx.stroke();
+
+            // Draw slots from bottom to top
+            // items are [top, middle, bottom]
+            for (let i = 0; i < items.length; i++) {
+                const itemY = y + (i * slotH) + 4;
+                ctx.fillStyle = i === 0 ? '#FEF3C7' : '#FFFFFF';
+                ctx.strokeStyle = i === 0 ? accentColor : '#CBD5E1';
+                ctx.lineWidth = 1.5;
+                ctx.fillRect(x, itemY, slotW, slotH - 4);
+                ctx.strokeRect(x, itemY, slotW, slotH - 4);
+
+                ctx.fillStyle = i === 0 ? '#92400E' : '#1E293B';
+                ctx.font = 'bold 11px Fira Code, monospace';
+                ctx.textAlign = 'center';
+                ctx.fillText(items[i], x + slotW / 2, itemY + slotH / 2);
+            }
+
+            // Label
+            ctx.fillStyle = '#475569';
+            ctx.font = isCleanFont ? '10px Inter' : '11px Kalam';
+            ctx.textAlign = 'center';
+            ctx.fillText(label, x + slotW / 2, y + (maxVisible * slotH) + 20);
+        }
+
+        /* ----------------------------------------------------------------------
+           4. STEP-BY-STEP CANVASES (TAB 2)
+        ---------------------------------------------------------------------- */
+        // Data definition for all 10 sequential steps
+        const stepStates = [
+            {
+                // Step 1: push(12)
+                canvasId: 'step-canvas-1',
+                mainStack: [12],
+                auxMinStack: [12],
+                mathStack: [12],
+                minEle: 12,
+                topVal: 12,
+                note: "st.empty() -> direct push, minEle = 12"
+            },
+            {
+                // Step 2: push(15)
+                canvasId: 'step-canvas-2',
+                mainStack: [15, 12],
+                auxMinStack: [12, 12],
+                mathStack: [15, 12],
+                minEle: 12,
+                topVal: 15,
+                note: "15 >= minEle (12) -> direct push 15"
+            },
+            {
+                // Step 3: push(10)
+                canvasId: 'step-canvas-3',
+                mainStack: [10, 15, 12],
+                auxMinStack: [10, 12, 12],
+                mathStack: ["8*", 15, 12],
+                minEle: 10,
+                topVal: 10,
+                note: "10 < 12 -> Encoded: 2(10)-12 = 8. minEle=10"
+            },
+            {
+                // Step 4: push(14)
+                canvasId: 'step-canvas-4',
+                mainStack: [14, 10, 15, 12],
+                auxMinStack: [10, 10, 12, 12],
+                mathStack: [14, "8*", 15, 12],
+                minEle: 10,
+                topVal: 14,
+                note: "14 >= 10 -> direct push 14"
+            },
+            {
+                // Step 5: getMin()
+                canvasId: 'step-canvas-5',
+                mainStack: [14, 10, 15, 12],
+                auxMinStack: [10, 10, 12, 12],
+                mathStack: [14, "8*", 15, 12],
+                minEle: 10,
+                topVal: 14,
+                isQuery: true,
+                note: "getMin() inspects minEle = 10 in O(1)"
+            },
+            {
+                // Step 6: push(7)
+                canvasId: 'step-canvas-6',
+                mainStack: [7, 14, 10, 15, 12],
+                auxMinStack: [7, 10, 10, 12, 12],
+                mathStack: ["4*", 14, "8*", 15, 12],
+                minEle: 7,
+                topVal: 7,
+                note: "7 < 10 -> Encoded: 2(7)-10 = 4. minEle=7"
+            },
+            {
+                // Step 7: top()
+                canvasId: 'step-canvas-7',
+                mainStack: [7, 14, 10, 15, 12],
+                auxMinStack: [7, 10, 10, 12, 12],
+                mathStack: ["4*", 14, "8*", 15, 12],
+                minEle: 7,
+                topVal: 7,
+                isQuery: true,
+                note: "Top y=4 < minEle (7) -> returns minEle=7"
+            },
+            {
+                // Step 8: pop() -> removes 7
+                canvasId: 'step-canvas-8',
+                mainStack: [14, 10, 15, 12],
+                auxMinStack: [10, 10, 12, 12],
+                mathStack: [14, "8*", 15, 12],
+                minEle: 10,
+                topVal: 14,
+                note: "Popped 4 < 7 -> prevMin = 2(7)-4 = 10"
+            },
+            {
+                // Step 9: pop() -> removes 14
+                canvasId: 'step-canvas-9',
+                mainStack: [10, 15, 12],
+                auxMinStack: [10, 12, 12],
+                mathStack: ["8*", 15, 12],
+                minEle: 10,
+                topVal: 10,
+                note: "Popped 14 >= 10 -> normal pop, min remains 10"
+            },
+            {
+                // Step 10: pop() -> removes 10
+                canvasId: 'step-canvas-10',
+                mainStack: [15, 12],
+                auxMinStack: [12, 12],
+                mathStack: [15, 12],
+                minEle: 12,
+                topVal: 15,
+                note: "Popped 8 < 10 -> prevMin = 2(10)-8 = 12"
+            }
+        ];
+
+        function drawAllStepCanvases() {
+            stepStates.forEach(step => {
+                drawStepCanvas(step);
+            });
+        }
+
+        function drawStepCanvas(step) {
+            const canvas = document.getElementById(step.canvasId);
+            if (!canvas) return;
+            const w = canvas.parentElement.clientWidth || 380;
+            const h = 180;
+            const ctx = setupCanvas(canvas, w, h);
+
+            ctx.fillStyle = '#FAF9F5';
+            ctx.fillRect(0, 0, w, h);
+
+            // Two-Stack side (left)
+            const leftX = 25;
+            ctx.fillStyle = '#1E3A8A';
+            ctx.font = isCleanFont ? 'bold 11px Inter' : 'bold 12px Kalam';
+            ctx.textAlign = 'left';
+            ctx.fillText("Two-Stack State:", leftX, 22);
+
+            drawStateStack(ctx, leftX, 35, step.mainStack, "Main", "#3B82F6");
+            drawStateStack(ctx, leftX + 68, 35, step.auxMinStack, "AuxMin", "#10B981");
+
+            // Math Encoding side (right)
+            const rightX = Math.max(leftX + 160, w * 0.52);
+            ctx.fillStyle = '#065F46';
+            ctx.font = isCleanFont ? 'bold 11px Inter' : 'bold 12px Kalam';
+            ctx.fillText("Math O(1) State:", rightX, 22);
+
+            drawStateStack(ctx, rightX, 35, step.mathStack, "Stack", "#8B5CF6");
+
+            // MinEle badge on right
+            const badgeX = rightX + 76;
+            ctx.fillStyle = '#EFF6FF';
+            ctx.strokeStyle = '#3B82F6';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.roundRect(badgeX, 42, 68, 44, 6);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = '#1E40AF';
+            ctx.font = isCleanFont ? '9px Inter' : '10px Kalam';
+            ctx.textAlign = 'center';
+            ctx.fillText("minEle", badgeX + 34, 56);
+            ctx.font = 'bold 15px Fira Code, monospace';
+            ctx.fillText(String(step.minEle), badgeX + 34, 76);
+
+            // Pointer arrow to minEle
+            ctx.fillStyle = '#D97706';
+            ctx.font = '10px sans-serif';
+            ctx.fillText("🔑 O(1)", badgeX + 34, 102);
+
+            // Bottom annotation
+            ctx.fillStyle = '#4A5568';
+            ctx.font = isCleanFont ? '9px Inter' : '10px Kalam';
+            ctx.textAlign = 'left';
+            ctx.fillText(step.note, leftX, 168);
+        }
+
+        function drawStateStack(ctx, x, y, elements, label, borderColor) {
+            const slotW = 56;
+            const slotH = 22;
+            const maxSlots = 5;
+
+            // Draw bucket boundary
+            const bucketH = maxSlots * slotH + 6;
+            ctx.strokeStyle = '#94A3B8';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(x - 3, y);
+            ctx.lineTo(x - 3, y + bucketH);
+            ctx.lineTo(x + slotW + 3, y + bucketH);
+            ctx.lineTo(x + slotW + 3, y);
+            ctx.stroke();
+
+            // Elements are displayed from top to bottom
+            // Empty slots at top if fewer than maxSlots
+            const emptyCount = maxSlots - elements.length;
+            for (let i = 0; i < elements.length; i++) {
+                const curY = y + (emptyCount + i) * slotH + 3;
+                const isTop = (i === 0);
+
+                ctx.fillStyle = isTop ? '#FEF3C7' : '#FFFFFF';
+                ctx.strokeStyle = isTop ? borderColor : '#E2E8F0';
+                ctx.lineWidth = 1.5;
+                ctx.fillRect(x, curY, slotW, slotH - 3);
+                ctx.strokeRect(x, curY, slotW, slotH - 3);
+
+                ctx.fillStyle = isTop ? '#92400E' : '#1E293B';
+                ctx.font = 'bold 11px Fira Code, monospace';
+                ctx.textAlign = 'center';
+                ctx.fillText(String(elements[i]), x + slotW / 2, curY + slotH / 2 - 1);
+            }
+
+            // Stack label under bucket
+            ctx.fillStyle = '#64748B';
+            ctx.font = isCleanFont ? '9px Inter' : '10px Kalam';
+            ctx.textAlign = 'center';
+            ctx.fillText(label, x + slotW / 2, y + bucketH + 14);
+        }
+
+        /* ----------------------------------------------------------------------
+           5. INTERACTIVE SIMULATOR (TAB 4)
+        ---------------------------------------------------------------------- */
+        let simMode = 'math'; // 'math' or 'two'
+        let simMainStack = [12, 15, 10]; // stored bottom-to-top internally: index 0 is bottom
+        let simAuxMinStack = [12, 12, 10];
+        let simMathStack = [12, 15, 8];
+        let simMinEle = 10;
+        let simTopHighlight = false;
+        let simMinHighlight = false;
+
+        function toggleSimMode(mode) {
+            simMode = mode;
+            logSim(`Switched view mode to: ${mode === 'math' ? 'O(1) Math Encoding' : 'Two Stacks'}`);
+            drawSimulator();
+        }
+
+        function logSim(msg) {
+            const box = document.getElementById('sim-log-box');
+            if (!box) return;
+            const item = document.createElement('div');
+            item.innerHTML = `&bull; ${msg}`;
+            box.appendChild(item);
+            box.scrollTop = box.scrollHeight;
+        }
+
+        function pushPreset(val) {
+            document.getElementById('sim-input').value = val;
+            simPush();
+        }
+
+        function simPush() {
+            const input = document.getElementById('sim-input');
+            const val = parseInt(input.value);
+            if (isNaN(val)) return;
+
+            if (simMainStack.length >= 8) {
+                alert("Simulator limit reached (max 8 elements for clean display). Please pop elements first!");
+                return;
+            }
+
+            // Two-Stack Logic
+            simMainStack.push(val);
+            if (simAuxMinStack.length === 0) {
+                simAuxMinStack.push(val);
+            } else {
+                const curMin = simAuxMinStack[simAuxMinStack.length - 1];
+                simAuxMinStack.push(Math.min(val, curMin));
+            }
+
+            // Math Encoding Logic
+            if (simMathStack.length === 0) {
+                simMinEle = val;
+                simMathStack.push(val);
+                logSim(`<strong>push(${val})</strong>: Stack empty &rarr; stored ${val}, minEle = ${val}`);
+            } else if (val >= simMinEle) {
+                simMathStack.push(val);
+                logSim(`<strong>push(${val})</strong>: ${val} &ge; minEle (${simMinEle}) &rarr; direct push`);
+            } else {
+                const encoded = 2 * val - simMinEle;
+                simMathStack.push(encoded);
+                logSim(`<strong>push(${val})</strong>: ✨ New Min! Encoded = 2·(${val}) - ${simMinEle} = ${encoded}. minEle = ${val}`);
+                simMinEle = val;
+            }
+
+            updateStatusBadge(`Pushed ${val}`);
+            simTopHighlight = false;
+            simMinHighlight = false;
+            drawSimulator();
+        }
+
+        function simPop() {
+            if (simMainStack.length === 0) {
+                logSim(`<span class="text-rose-600 font-bold">pop() failed: Stack is empty!</span>`);
+                updateStatusBadge("Stack Empty");
+                return;
+            }
+
+            // Two-Stack Pop
+            const poppedMain = simMainStack.pop();
+            simAuxMinStack.pop();
+
+            // Math Encoding Pop
+            const y = simMathStack.pop();
+            let poppedRealVal = y;
+
+            if (simMathStack.length === 0) {
+                poppedRealVal = simMinEle;
+                simMinEle = null;
+                logSim(`<strong>pop()</strong>: Popped last element ${poppedRealVal}. Stack is now empty.`);
+            } else if (y < simMinEle) {
+                // Encoded slot popped!
+                poppedRealVal = simMinEle;
+                const prevMin = 2 * simMinEle - y;
+                logSim(`<strong>pop()</strong>: ⏪ Popped encoded sentinel ${y} &lt; minEle (${simMinEle})! Restored prevMin = 2·(${simMinEle}) - (${y}) = <strong>${prevMin}</strong>`);
+                simMinEle = prevMin;
+            } else {
+                logSim(`<strong>pop()</strong>: Popped regular element ${y}. minEle stays ${simMinEle}`);
+            }
+
+            updateStatusBadge(`Popped ${poppedRealVal}`);
+            simTopHighlight = false;
+            simMinHighlight = false;
+            drawSimulator();
+        }
+
+        function simTop() {
+            if (simMainStack.length === 0) {
+                logSim(`<span class="text-rose-600 font-bold">top() failed: Stack is empty!</span>`);
+                updateStatusBadge("Stack Empty");
+                return;
+            }
+
+            let topResult;
+            if (simMode === 'two') {
+                topResult = simMainStack[simMainStack.length - 1];
+            } else {
+                const y = simMathStack[simMathStack.length - 1];
+                topResult = (y < simMinEle) ? simMinEle : y;
+            }
+
+            logSim(`🔍 <strong>top()</strong>: Top element is <strong>${topResult}</strong>`);
+            updateStatusBadge(`top() = ${topResult}`);
+            simTopHighlight = true;
+            simMinHighlight = false;
+            drawSimulator();
+        }
+
+        function simGetMin() {
+            if (simMainStack.length === 0) {
+                logSim(`<span class="text-rose-600 font-bold">getMin() failed: Stack is empty!</span>`);
+                updateStatusBadge("Stack Empty");
+                return;
+            }
+
+            const minResult = (simMode === 'two') ? simAuxMinStack[simAuxMinStack.length - 1] : simMinEle;
+            logSim(`🎯 <strong>getMin()</strong>: Current minimum is <strong>${minResult}</strong> (retrieved in O(1))`);
+            updateStatusBadge(`getMin() = ${minResult}`);
+            simMinHighlight = true;
+            simTopHighlight = false;
+            drawSimulator();
+        }
+
+        function simReset() {
+            simMainStack = [12, 15, 10];
+            simAuxMinStack = [12, 12, 10];
+            simMathStack = [12, 15, 8];
+            simMinEle = 10;
+            simTopHighlight = false;
+            simMinHighlight = false;
+            logSim(`<em>Simulator reset to sample state [12, 15, 10].</em>`);
+            updateStatusBadge("Reset");
+            drawSimulator();
+        }
+
+        function updateStatusBadge(text) {
+            const badge = document.getElementById('sim-status-badge');
+            if (badge) badge.innerText = text;
+        }
+
+        function drawSimulator() {
+            const canvas = document.getElementById('simulator-canvas');
+            if (!canvas) return;
+            const w = canvas.parentElement.clientWidth || 600;
+            const h = 380;
+            const ctx = setupCanvas(canvas, w, h);
+
+            ctx.fillStyle = '#FAF9F5';
+            ctx.fillRect(0, 0, w, h);
+
+            // Watermark grid / lines
+            ctx.strokeStyle = '#F1F5F9';
+            ctx.lineWidth = 1;
+            for (let y = 30; y < h; y += 30) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(w, y);
+                ctx.stroke();
+            }
+
+            if (simMode === 'two') {
+                // Two Stacks Visualization
+                drawSimTwoStacks(ctx, w, h);
+            } else {
+                // Math-Encoded Visualization
+                drawSimMathStack(ctx, w, h);
+            }
+        }
+
+        function drawSimTwoStacks(ctx, w, h) {
+            const stack1X = w * 0.22;
+            const stack2X = w * 0.58;
+            const bottomY = 320;
+            const slotW = 100;
+            const slotH = 30;
+
+            // Titles
+            ctx.fillStyle = '#1E3A8A';
+            ctx.font = isCleanFont ? 'bold 15px Inter' : 'bold 18px Kalam';
+            ctx.textAlign = 'center';
+            ctx.fillText("Main Stack (Elements)", stack1X + slotW / 2, 45);
+
+            ctx.fillStyle = '#065F46';
+            ctx.fillText("Auxiliary Min Stack (minSt)", stack2X + slotW / 2, 45);
+
+            // Draw Buckets
+            drawCylinderBucket(ctx, stack1X, 70, slotW, 260);
+            drawCylinderBucket(ctx, stack2X, 70, slotW, 260);
+
+            // Draw Main Stack items (bottom to top)
+            for (let i = 0; i < simMainStack.length; i++) {
+                const curY = bottomY - (i + 1) * slotH;
+                const isTop = (i === simMainStack.length - 1);
+
+                ctx.fillStyle = (isTop && simTopHighlight) ? '#FDE68A' : (isTop ? '#E0E7FF' : '#FFFFFF');
+                ctx.strokeStyle = (isTop && simTopHighlight) ? '#D97706' : '#6366F1';
+                ctx.lineWidth = isTop ? 2 : 1.5;
+                ctx.beginPath();
+                ctx.roundRect(stack1X + 4, curY, slotW - 8, slotH - 4, 4);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.fillStyle = '#1E293B';
+                ctx.font = 'bold 14px Fira Code, monospace';
+                ctx.fillText(String(simMainStack[i]), stack1X + slotW / 2, curY + slotH / 2);
+
+                if (isTop) {
+                    ctx.fillStyle = '#4F46E5';
+                    ctx.font = 'bold 11px sans-serif';
+                    ctx.fillText("← TOP", stack1X + slotW + 28, curY + slotH / 2);
+                }
+            }
+
+            // Draw Aux Min Stack items
+            for (let i = 0; i < simAuxMinStack.length; i++) {
+                const curY = bottomY - (i + 1) * slotH;
+                const isTop = (i === simAuxMinStack.length - 1);
+
+                ctx.fillStyle = (isTop && simMinHighlight) ? '#A7F3D0' : (isTop ? '#D1FAE5' : '#FFFFFF');
+                ctx.strokeStyle = (isTop && simMinHighlight) ? '#059669' : '#10B981';
+                ctx.lineWidth = isTop ? 2 : 1.5;
+                ctx.beginPath();
+                ctx.roundRect(stack2X + 4, curY, slotW - 8, slotH - 4, 4);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.fillStyle = '#065F46';
+                ctx.font = 'bold 14px Fira Code, monospace';
+                ctx.fillText(String(simAuxMinStack[i]), stack2X + slotW / 2, curY + slotH / 2);
+
+                if (isTop) {
+                    ctx.fillStyle = '#059669';
+                    ctx.font = 'bold 11px sans-serif';
+                    ctx.fillText("← MIN", stack2X + slotW + 28, curY + slotH / 2);
+                }
+            }
+
+            // Under labels
+            ctx.fillStyle = '#64748B';
+            ctx.font = isCleanFont ? '12px Inter' : '13px Kalam';
+            ctx.fillText(`Size: ${simMainStack.length}`, stack1X + slotW / 2, bottomY + 28);
+            ctx.fillText(`getMin() = ${simAuxMinStack.length > 0 ? simAuxMinStack[simAuxMinStack.length - 1] : 'N/A'}`, stack2X + slotW / 2, bottomY + 28);
+        }
+
+        function drawSimMathStack(ctx, w, h) {
+            const stackX = w * 0.35;
+            const bottomY = 320;
+            const slotW = 140;
+            const slotH = 30;
+
+            // Title
+            ctx.fillStyle = '#1E3A8A';
+            ctx.font = isCleanFont ? 'bold 16px Inter' : 'bold 18px Kalam';
+            ctx.textAlign = 'center';
+            ctx.fillText("Single Encoded Stack (O(1) Aux Space)", stackX + slotW / 2, 45);
+
+            // Draw Bucket
+            drawCylinderBucket(ctx, stackX, 70, slotW, 260);
+
+            // Draw Elements (bottom to top)
+            for (let i = 0; i < simMathStack.length; i++) {
+                const curY = bottomY - (i + 1) * slotH;
+                const isTop = (i === simMathStack.length - 1);
+                const rawVal = simMathStack[i];
+                const isEncoded = (simMinEle !== null && rawVal < simMinEle);
+
+                if (isEncoded) {
+                    ctx.fillStyle = (isTop && simTopHighlight) ? '#FDE68A' : '#EDE9FE';
+                    ctx.strokeStyle = '#8B5CF6';
+                } else {
+                    ctx.fillStyle = (isTop && simTopHighlight) ? '#FDE68A' : '#FFFFFF';
+                    ctx.strokeStyle = '#94A3B8';
+                }
+
+                ctx.lineWidth = isTop ? 2.5 : 1.5;
+                ctx.beginPath();
+                ctx.roundRect(stackX + 6, curY, slotW - 12, slotH - 4, 4);
+                ctx.fill();
+                ctx.stroke();
+
+                // Text
+                ctx.fillStyle = isEncoded ? '#6D28D9' : '#1E293B';
+                ctx.font = 'bold 14px Fira Code, monospace';
+                const labelText = isEncoded ? `${rawVal} (enc)` : String(rawVal);
+                ctx.fillText(labelText, stackX + slotW / 2, curY + slotH / 2);
+
+                if (isTop) {
+                    ctx.fillStyle = '#4F46E5';
+                    ctx.font = 'bold 11px sans-serif';
+                    ctx.textAlign = 'left';
+                    ctx.fillText("← TOP", stackX + slotW + 12, curY + slotH / 2);
+                    ctx.textAlign = 'center';
+                }
+            }
+
+            // Draw minEle Badge on Right
+            const badgeX = stackX + slotW + 70;
+            if (badgeX + 110 <= w) {
+                ctx.fillStyle = simMinHighlight ? '#A7F3D0' : '#EFF6FF';
+                ctx.strokeStyle = simMinHighlight ? '#059669' : '#3B82F6';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.roundRect(badgeX, 120, 110, 75, 10);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.fillStyle = '#1E40AF';
+                ctx.font = isCleanFont ? 'bold 12px Inter' : 'bold 14px Kalam';
+                ctx.fillText("Variable minEle", badgeX + 55, 142);
+                ctx.font = 'bold 22px Fira Code, monospace';
+                ctx.fillStyle = '#1E3A8A';
+                ctx.fillText(simMinEle !== null ? String(simMinEle) : "null", badgeX + 55, 172);
+
+                ctx.fillStyle = '#4A5568';
+                ctx.font = isCleanFont ? '10px Inter' : '11px Kalam';
+                ctx.fillText("getMin() in O(1)", badgeX + 55, 215);
+            }
+
+            // Under label
+            ctx.fillStyle = '#64748B';
+            ctx.font = isCleanFont ? '12px Inter' : '13px Kalam';
+            ctx.fillText(`Stack Size: ${simMathStack.length} | Current minEle: ${simMinEle !== null ? simMinEle : 'Empty'}`, stackX + slotW / 2, bottomY + 28);
+        }
+
+        function drawCylinderBucket(ctx, x, y, width, height) {
+            ctx.strokeStyle = '#64748B';
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.lineTo(x, y + height);
+            ctx.lineTo(x + width, y + height);
+            ctx.lineTo(x + width, y);
+            ctx.stroke();
+        }
+
+        /* ----------------------------------------------------------------------
+           6. WINDOW LIFECYCLE HANDLERS
+        ---------------------------------------------------------------------- */
+        function redrawAllCanvases() {
+            drawConceptDiagram();
+            drawAllStepCanvases();
+            drawSimulator();
+        }
+
+        window.onload = () => {
+            redrawAllCanvases();
+        };
+
+        window.onresize = () => {
+            redrawAllCanvases();
+        };
+    </script>
+</body>
+
+</html>

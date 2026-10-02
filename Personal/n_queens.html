@@ -1,0 +1,1353 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4-Queens Problem: Backtracking & State-Space Tree - Digital Lecture Notes</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Kalam:wght@300;400;700&family=Patrick+Hand&family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap"
+        rel="stylesheet">
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        notebookBg: '#cbd5e1',
+                        notebookPaper: '#FAF6EE',
+                        inkBlue: '#1A365D',
+                        inkRed: '#9B2C2C',
+                        pencilGray: '#4A5568',
+                    },
+                    fontFamily: {
+                        notes: ['Patrick Hand', 'Kalam', 'cursive'],
+                        heading: ['Kalam', 'cursive'],
+                        clean: ['Inter', 'sans-serif'],
+                        code: ['Fira Code', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Physical Notebook Stylesheet -->
+    <style>
+        body {
+            background-color: #cbd5e1;
+            font-family: 'Patrick Hand', 'Kalam', cursive;
+            color: #1e293b;
+        }
+
+        .lined-paper {
+            background-color: #FAF6EE !important;
+            background-image: repeating-linear-gradient(#FAF6EE 0px,
+                    #FAF6EE 31px,
+                    #e2ebf3 32px) !important;
+            line-height: 32px;
+            position: relative;
+        }
+
+        .notebook-margin {
+            border-left: 2.5px solid #FC8181 !important;
+            padding-left: 1.25rem;
+        }
+
+        @media (min-width: 640px) {
+            .notebook-margin {
+                padding-left: 2.5rem;
+            }
+        }
+
+        .spiral-ring {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #cbd5e1 0%, #64748b 50%, #334155 100%);
+            box-shadow: inset 1px 1px 2px rgba(255, 255, 255, 0.6), 2px 2px 4px rgba(0, 0, 0, 0.25);
+            margin: 11px 0;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Kalam', cursive;
+        }
+
+        /* Clean Mode Font Switcher */
+        body.font-clean,
+        body.font-clean * {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+        }
+
+        body.font-clean pre,
+        body.font-clean code {
+            font-family: 'Fira Code', monospace !important;
+        }
+
+        /* Handwritten Highlighters & Annotations */
+        .highlighter-yellow {
+            background: linear-gradient(104deg, rgba(254, 240, 138, 0.95) 0.9%, rgba(253, 224, 71, 0.85) 98%);
+            padding: 2px 8px;
+            border-radius: 4px;
+            box-decoration-break: clone;
+            -webkit-box-decoration-break: clone;
+            display: inline-block;
+        }
+
+        .highlighter-green {
+            background: linear-gradient(104deg, rgba(187, 247, 208, 0.95) 0.9%, rgba(134, 239, 172, 0.85) 98%);
+            padding: 2px 8px;
+            border-radius: 4px;
+            box-decoration-break: clone;
+            -webkit-box-decoration-break: clone;
+            display: inline-block;
+        }
+
+        .highlighter-blue {
+            background: linear-gradient(104deg, rgba(191, 219, 254, 0.95) 0.9%, rgba(147, 197, 253, 0.85) 98%);
+            padding: 2px 8px;
+            border-radius: 4px;
+            box-decoration-break: clone;
+            -webkit-box-decoration-break: clone;
+            display: inline-block;
+        }
+
+        .highlighter-red {
+            background: linear-gradient(104deg, rgba(254, 205, 211, 0.95) 0.9%, rgba(253, 164, 175, 0.85) 98%);
+            padding: 2px 8px;
+            border-radius: 4px;
+            box-decoration-break: clone;
+            -webkit-box-decoration-break: clone;
+            display: inline-block;
+        }
+
+        .pen-box {
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px dashed #3b82f6;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .pen-box-red {
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px dashed #ef4444;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .teacher-quote {
+            background: rgba(254, 243, 199, 0.9);
+            border-left: 5px solid #d97706;
+            border-radius: 6px;
+            padding: 0.85rem 1.2rem;
+            font-style: italic;
+        }
+
+        .sketch-card {
+            background: #ffffff;
+            border: 1.5px solid #cbd5e1;
+            box-shadow: 2px 3px 6px rgba(0, 0, 0, 0.06);
+            border-radius: 10px;
+        }
+
+        /* Pan & Zoom Canvas Container */
+        .zoom-canvas-wrapper {
+            position: relative;
+            overflow: hidden;
+            border: 2px solid #cbd5e1;
+            border-radius: 12px;
+            background-color: #FAF6EE;
+            background-image: 
+                radial-gradient(#cbd5e1 1.2px, transparent 1.2px), 
+                radial-gradient(#cbd5e1 1.2px, #FAF6EE 1.2px);
+            background-size: 24px 24px;
+            background-position: 0 0, 12px 12px;
+            cursor: grab;
+            user-select: none;
+        }
+
+        .zoom-canvas-wrapper:active {
+            cursor: grabbing;
+        }
+
+        .zoom-toolbar {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(4px);
+            padding: 4px 8px;
+            border-radius: 10px;
+            border: 1px solid #cbd5e1;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Fullscreen Maximize Mode */
+        .zoom-canvas-wrapper.is-fullscreen {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            z-index: 99999 !important;
+            border-radius: 0 !important;
+            border: none !important;
+            margin: 0 !important;
+        }
+
+        .zoom-canvas-wrapper.is-fullscreen .zoom-toolbar {
+            top: 18px;
+            right: 24px;
+            padding: 6px 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+        }
+
+        .zoom-btn {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: #1e293b;
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            transition: all 0.15s ease;
+        }
+
+        .zoom-btn:hover {
+            background: #e2e8f0;
+            color: #0f172a;
+            transform: scale(1.05);
+        }
+
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            body {
+                background: white !important;
+            }
+            .lined-paper {
+                background-image: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body class="text-xl text-slate-800 antialiased transition-all duration-300">
+
+    <!-- Sticky Header Navigation Bar -->
+    <header class="sticky top-0 z-50 bg-[#FAF6EE] shadow-md border-b-2 border-amber-200 px-4 py-3 no-print">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-3">
+            <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+                <a href="../index.html"
+                    class="px-3 py-1.5 rounded-lg bg-amber-100 hover:bg-amber-200 border border-amber-300 text-inkBlue text-xs sm:text-sm font-bold flex items-center gap-1.5 transition shadow-sm font-sans"
+                    title="Back to Digital Bookshelf">
+                    <span>📚</span> <span>Bookshelf</span>
+                </a>
+                <a href="index.html"
+                    class="px-3 py-1.5 rounded-lg bg-emerald-100 hover:bg-emerald-200 border border-emerald-300 text-emerald-900 text-xs sm:text-sm font-bold flex items-center gap-1.5 transition shadow-sm font-sans"
+                    title="Back to Personal Notes Directory">
+                    <span>📋</span> <span>Notes Directory</span>
+                </a>
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl sm:text-3xl font-bold text-inkBlue tracking-wide font-['Kalam']">👑 4-Queens Problem</span>
+                    <span
+                        class="bg-rose-100 text-rose-900 text-xs sm:text-sm font-bold px-3 py-1 rounded-full border border-rose-300 font-sans">
+                        State-Space Tree &amp; Backtracking
+                    </span>
+                </div>
+            </div>
+
+            <!-- Right: Font Toggle Button -->
+            <div class="flex items-center gap-2">
+                <button id="fontToggleBtn" onclick="toggleFontMode()"
+                    class="shrink-0 px-3.5 py-1.5 rounded-lg bg-inkBlue text-white hover:bg-slate-800 transition text-xs sm:text-sm font-bold shadow flex items-center gap-1.5 font-sans"
+                    title="Toggle between Handwritten and Clean typography">
+                    <span>✍️</span> <span id="fontBtnText">Clean Font</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <nav class="max-w-6xl mx-auto mt-2.5 flex flex-wrap gap-1 border-t border-amber-200 pt-2 text-sm sm:text-base font-sans">
+            <button onclick="switchTab('tab-problem-formulation')" id="nav-tab-problem-formulation"
+                class="nav-tab px-4 py-1.5 rounded-t-lg font-bold bg-amber-200 text-inkBlue border-b-2 border-inkBlue transition">
+                1. Problem Statement &amp; Formulation
+            </button>
+            <button onclick="switchTab('tab-state-space-tree')" id="nav-tab-state-space-tree"
+                class="nav-tab px-4 py-1.5 rounded-t-lg font-bold text-slate-600 hover:text-inkBlue transition">
+                2. State-Space Tree (with Mini Chessboards &amp; Pan/Zoom)
+            </button>
+            <button onclick="switchTab('tab-step-by-step')" id="nav-tab-step-by-step"
+                class="nav-tab px-4 py-1.5 rounded-t-lg font-bold text-slate-600 hover:text-inkBlue transition">
+                3. Step-by-Step Backtracking Walkthrough
+            </button>
+            <button onclick="switchTab('tab-bounding-algorithm')" id="nav-tab-bounding-algorithm"
+                class="nav-tab px-4 py-1.5 rounded-t-lg font-bold text-slate-600 hover:text-inkBlue transition">
+                4. Bounding Function &amp; Algorithm
+            </button>
+        </nav>
+    </header>
+
+    <!-- Main Notebook Container -->
+    <main
+        class="max-w-6xl mx-auto flex relative bg-notebookPaper rounded-xl shadow-2xl overflow-hidden min-h-[950px] border border-amber-200 my-8">
+
+        <!-- Left Binder Column (50 Physical Spiral Rings) -->
+        <div
+            class="w-10 sm:w-16 bg-amber-50 border-r-2 border-amber-200 flex flex-col items-center py-8 select-none shrink-0 no-print space-y-6 z-10 shadow-[inset_-5px_0_10px_rgba(0,0,0,0.05)]">
+            <script>
+                for (let i = 0; i < 50; i++) document.write('<div class="spiral-ring"></div>');
+            </script>
+        </div>
+
+        <!-- Notebook Content Area -->
+        <div class="flex-1 lined-paper p-4 sm:p-8 notebook-margin sm:pl-8 overflow-hidden z-0">
+
+            <!-- ==================================================================== -->
+            <!-- TAB 1: PROBLEM STATEMENT & FORMULATION                               -->
+            <!-- ==================================================================== -->
+            <div id="tab-problem-formulation" class="tab-pane space-y-8">
+
+                <!-- Section Header -->
+                <div class="border-b-2 border-inkRed pb-2 flex justify-between items-baseline">
+                    <div>
+                        <h1 class="text-3xl sm:text-4xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                            1. The 4-Queens Problem: Statement &amp; Formulation
+                        </h1>
+                        <p class="text-sm font-sans text-pencilGray mt-1">Chess rules, non-attacking constraints, and the 2 valid solutions</p>
+                    </div>
+                    <span class="text-xs sm:text-sm font-bold font-sans bg-amber-100 text-inkRed px-2.5 py-1 rounded border border-amber-300">
+                        Tab 1 • Problem Formulation
+                    </span>
+                </div>
+
+                <!-- Problem Statement Definition -->
+                <section class="space-y-4 text-lg leading-relaxed">
+                    <h2 class="text-2xl font-bold text-inkRed flex items-center gap-2">
+                        <span>📌</span> 1. Problem Statement
+                    </h2>
+
+                    <p>
+                        The <strong class="text-inkBlue font-bold text-xl">4-Queens Problem</strong> is the classic challenge of placing <strong class="text-rose-800">4 non-attacking queens</strong> on a standard <strong class="text-indigo-950 font-mono">4 × 4 chessboard</strong>.
+                    </p>
+
+                    <div class="teacher-quote text-xl">
+                        👑 <strong>The Core Constraint:</strong>
+                        <div class="text-2xl font-bold text-amber-900 mt-1 not-italic">
+                            “No two queens may attack each other: they cannot share the same row, the same column, or the same diagonal.”
+                        </div>
+                    </div>
+
+                    <p>
+                        In chess, a Queen is the most lethal piece: she can move arbitrarily many squares vertically, horizontally, or along any diagonal. Therefore, placing 4 queens safely requires enforcing three strict rules simultaneously:
+                    </p>
+
+                    <!-- Three Rules Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 font-sans text-sm my-3">
+                        <div class="p-3.5 bg-blue-50 rounded-xl border border-blue-200 space-y-1">
+                            <span class="font-bold text-blue-900 text-base flex items-center gap-1.5">
+                                <span>↔️</span> 1. Row Constraint
+                            </span>
+                            <p class="text-slate-700 text-xs">
+                                No two queens can be in the same row. By assigning exactly <strong>one queen per row</strong> (Row $i$ holds Queen $i$), this condition is satisfied automatically by design!
+                            </p>
+                        </div>
+                        <div class="p-3.5 bg-amber-50 rounded-xl border border-amber-200 space-y-1">
+                            <span class="font-bold text-amber-900 text-base flex items-center gap-1.5">
+                                <span>↕️</span> 2. Column Constraint
+                            </span>
+                            <p class="text-slate-700 text-xs">
+                                No two queens can share the same column. If Queen $i$ is at column $x[i]$ and Queen $j$ is at column $x[j]$, we must ensure:
+                            </p>
+                            <p class="font-mono text-center font-bold text-amber-950 bg-white p-1 rounded border border-amber-200">
+                                x[i] ≠ x[j] &nbsp; (for all i ≠ j)
+                            </p>
+                        </div>
+                        <div class="p-3.5 bg-rose-50 rounded-xl border border-rose-200 space-y-1">
+                            <span class="font-bold text-rose-900 text-base flex items-center gap-1.5">
+                                <span>↗️</span> 3. Diagonal Constraint
+                            </span>
+                            <p class="text-slate-700 text-xs">
+                                No two queens can share a major or minor diagonal. This translates to the absolute difference condition:
+                            </p>
+                            <p class="font-mono text-center font-bold text-rose-950 bg-white p-1 rounded border border-rose-200">
+                                |i - j| ≠ |x[i] - x[j]|
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- The Two Complete Solutions for 4-Queens -->
+                <section class="space-y-4 text-lg leading-relaxed pt-4 border-t border-amber-200">
+                    <h2 class="text-2xl font-bold text-inkRed flex items-center gap-2">
+                        <span>🏆</span> 2. The Two Distinct Solutions
+                    </h2>
+
+                    <p>
+                        For $N = 1$, the problem is trivial ($[1]$). For $N = 2$ and $N = 3$, it is mathematically proven that <strong class="text-rose-800">zero valid solutions exist</strong>. For $N = 4$, there exist <span class="highlighter-green font-bold">exactly two symmetric solutions</span>:
+                    </p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 font-sans text-sm my-3">
+                        <div class="p-4 bg-emerald-50 rounded-xl border border-emerald-300 space-y-2 shadow-sm">
+                            <div class="flex justify-between items-center">
+                                <span class="text-base font-bold text-emerald-950 font-['Kalam']">Solution 1: [2, 4, 1, 3]</span>
+                                <span class="bg-emerald-200 text-emerald-900 text-xs px-2 py-0.5 rounded font-bold">Valid</span>
+                            </div>
+                            <ul class="list-disc pl-5 text-slate-800 space-y-0.5 text-xs sm:text-sm">
+                                <li>Row 1: Queen at <strong>Col 2</strong> $(1, 2)$</li>
+                                <li>Row 2: Queen at <strong>Col 4</strong> $(2, 4)$</li>
+                                <li>Row 3: Queen at <strong>Col 1</strong> $(3, 1)$</li>
+                                <li>Row 4: Queen at <strong>Col 3</strong> $(4, 3)$</li>
+                            </ul>
+                        </div>
+
+                        <div class="p-4 bg-emerald-50 rounded-xl border border-emerald-300 space-y-2 shadow-sm">
+                            <div class="flex justify-between items-center">
+                                <span class="text-base font-bold text-emerald-950 font-['Kalam']">Solution 2: [3, 1, 4, 2]</span>
+                                <span class="bg-emerald-200 text-emerald-900 text-xs px-2 py-0.5 rounded font-bold">Valid (Mirror)</span>
+                            </div>
+                            <ul class="list-disc pl-5 text-slate-800 space-y-0.5 text-xs sm:text-sm">
+                                <li>Row 1: Queen at <strong>Col 3</strong> $(1, 3)$</li>
+                                <li>Row 2: Queen at <strong>Col 1</strong> $(2, 1)$</li>
+                                <li>Row 3: Queen at <strong>Col 4</strong> $(3, 4)$</li>
+                                <li>Row 4: Queen at <strong>Col 2</strong> $(4, 2)$</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Canvas: Side-by-Side Dual Chessboard Solutions -->
+                    <div class="sketch-card p-4 my-4 font-sans">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-3 border-b border-slate-200 pb-2">
+                            <div>
+                                <h3 class="text-xl font-bold text-inkBlue font-['Kalam']">🎨 Visual Canvas: The 2 Solutions on 4×4 Chessboards</h3>
+                                <p class="text-xs text-slate-600">Complete non-attacking arrangements with coordinates and peaceful line-of-sight</p>
+                            </div>
+                            <span class="text-xs bg-emerald-100 text-emerald-900 font-bold px-2 py-1 rounded">Vanilla HTML5 Canvas Engine</span>
+                        </div>
+                        <div class="flex justify-center overflow-x-auto">
+                            <canvas id="canvas-solutions-boards" width="680" height="280" class="max-w-full rounded border border-slate-200 bg-[#FCFBF7]"></canvas>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+
+            <!-- ==================================================================== -->
+            <!-- TAB 2: STATE-SPACE TREE (WITH MINI CHESSBOARDS & PAN/ZOOM)           -->
+            <!-- ==================================================================== -->
+            <div id="tab-state-space-tree" class="tab-pane hidden space-y-8">
+
+                <!-- Section Header -->
+                <div class="border-b-2 border-inkRed pb-2 flex justify-between items-baseline">
+                    <div>
+                        <h1 class="text-3xl sm:text-4xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                            2. 4-Queens State-Space Tree (with Live Chessboards)
+                        </h1>
+                        <p class="text-sm font-sans text-pencilGray mt-1">Every tree node renders its exact 4×4 chessboard configuration with Pan &amp; Zoom controls</p>
+                    </div>
+                    <span class="text-xs sm:text-sm font-bold font-sans bg-amber-100 text-inkRed px-2.5 py-1 rounded border border-amber-300">
+                        Tab 2 • State-Space Tree
+                    </span>
+                </div>
+
+                <section class="space-y-4 text-lg leading-relaxed">
+                    <p>
+                        In a pure brute force search, placing 4 queens across 4 columns without pruning would generate <strong class="text-rose-800 font-mono">$4^4 = 256$</strong> leaf nodes. With backtracking, each node checks the bounding function: if placing a queen in Row $k$ clashes with any previously placed queen in Rows $1 \dots k-1$, the branch is <span class="highlighter-red font-bold">pruned immediately</span>.
+                    </p>
+
+                    <div class="p-3 bg-amber-50 rounded-lg border border-amber-300 font-sans text-sm flex flex-wrap items-center justify-between gap-2">
+                        <div class="flex items-center gap-2">
+                            <span>💡</span>
+                            <span><strong>Interactive Controls:</strong> Drag canvas to pan • Use Mouse Wheel to Zoom in/out • Click toolbar buttons to navigate.</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <label class="flex items-center gap-1.5 cursor-pointer font-bold text-indigo-950">
+                                <input type="checkbox" id="togglePrunedBranches" checked onchange="togglePrunedFilter(this.checked)" class="rounded text-indigo-600 focus:ring-indigo-500">
+                                <span>Show Pruned Nodes (✂️)</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Pan & Zoom State-Space Tree Canvas Container -->
+                    <div class="sketch-card p-3 my-2 font-sans">
+                        <div class="zoom-canvas-wrapper" id="treeCanvasWrapper" style="height: 620px;">
+                            
+                            <!-- Floating Zoom & Maximize Toolbar -->
+                            <div class="zoom-toolbar select-none">
+                                <span id="zoomLevelDisplay" class="text-xs font-mono font-bold text-slate-700 px-2">100%</span>
+                                <button onclick="zoomIn()" class="zoom-btn" title="Zoom In (+)">➕</button>
+                                <button onclick="zoomOut()" class="zoom-btn" title="Zoom Out (-)">➖</button>
+                                <button onclick="resetZoom()" class="zoom-btn" title="Reset View (⟲)">⟲</button>
+                                <button onclick="fitTreeToScreen()" class="zoom-btn" title="Fit Entire Tree (⊡)">⊡</button>
+                                <button id="btnFullscreenToggle" onclick="toggleFullscreen()" class="zoom-btn text-base" title="Maximize to Fullscreen (⛶)">⛶</button>
+                            </div>
+
+                            <!-- HTML5 Canvas -->
+                            <canvas id="canvas-state-space-tree" width="1800" height="1100"></canvas>
+                        </div>
+
+                        <!-- Legend Bar Below Canvas -->
+                        <div class="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-700 border-t border-slate-200 pt-2 px-1">
+                            <div class="flex items-center gap-3">
+                                <span class="flex items-center gap-1">
+                                    <span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span>
+                                    <strong>Valid Partial State</strong>
+                                </span>
+                                <span class="flex items-center gap-1">
+                                    <span class="w-3 h-3 rounded-full bg-rose-500 inline-block"></span>
+                                    <strong>Pruned / Conflict Node (❌)</strong>
+                                </span>
+                                <span class="flex items-center gap-1">
+                                    <span class="w-3 h-3 rounded-full bg-amber-400 inline-block"></span>
+                                    <strong>Complete Solution (🏆)</strong>
+                                </span>
+                            </div>
+                            <span class="text-slate-500 italic">Nodes render full 4×4 miniature boards with placed queens 👑</span>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+
+            <!-- ==================================================================== -->
+            <!-- TAB 3: STEP-BY-STEP BACKTRACKING WALKTHROUGH                         -->
+            <!-- ==================================================================== -->
+            <div id="tab-step-by-step" class="tab-pane hidden space-y-8">
+
+                <!-- Section Header -->
+                <div class="border-b-2 border-inkRed pb-2 flex justify-between items-baseline">
+                    <div>
+                        <h1 class="text-3xl sm:text-4xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                            3. Step-by-Step Backtracking Execution Trace
+                        </h1>
+                        <p class="text-sm font-sans text-pencilGray mt-1">Detailed chronological trace laid out sequentially down the page with state diagrams</p>
+                    </div>
+                    <span class="text-xs sm:text-sm font-bold font-sans bg-amber-100 text-inkRed px-2.5 py-1 rounded border border-amber-300">
+                        Tab 3 • Execution Trace
+                    </span>
+                </div>
+
+                <section class="space-y-6 text-lg leading-relaxed font-sans">
+                    <p class="text-base text-slate-800">
+                        Let us trace the algorithm systematically starting with placing Queen 1 on Chair/Row 1. Notice how every dead-end triggers a retreat up the recursion stack!
+                    </p>
+
+                    <!-- STEP 1: PLACE Q1 AT (1,1) -->
+                    <div class="sketch-card p-4 border-l-4 border-indigo-600 space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="text-base font-bold text-indigo-950 font-['Kalam']">Step 1: Place Queen 1 at (1, 1)</span>
+                            <span class="text-xs bg-indigo-100 text-indigo-900 font-bold px-2 py-0.5 rounded">Row 1 Placed</span>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+                            <div class="md:col-span-8 text-sm text-slate-700 space-y-1.5">
+                                <p><strong>Action:</strong> Place Queen 1 at row 1, column 1 ➜ State: <code class="font-mono bg-slate-100 px-1 rounded text-indigo-900 font-bold">[1]</code>.</p>
+                                <p><strong>Bounding Check:</strong> No prior queens exist. Trivially valid! Proceed to Row 2.</p>
+                            </div>
+                            <div class="md:col-span-4 flex justify-center">
+                                <canvas id="canvas-step-1" width="140" height="140" class="rounded border border-slate-300 shadow-sm"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- STEP 2: TRY ROW 2 UNDER [1] -->
+                    <div class="sketch-card p-4 border-l-4 border-rose-500 space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="text-base font-bold text-rose-950 font-['Kalam']">Step 2: Try Row 2 Columns under Queen at (1, 1)</span>
+                            <span class="text-xs bg-rose-100 text-rose-900 font-bold px-2 py-0.5 rounded">Pruning &amp; Advance</span>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+                            <div class="md:col-span-8 text-sm text-slate-700 space-y-2">
+                                <ul class="list-disc pl-5 space-y-1">
+                                    <li>Try $(2, 1)$ ➜ Column clash with $(1, 1)$ ($x[2] == x[1]$) ➜ <strong class="text-rose-700">PRUNE ✕</strong></li>
+                                    <li>Try $(2, 2)$ ➜ Diagonal clash ($|2-1| = |2-1| = 1$) ➜ <strong class="text-rose-700">PRUNE ✕</strong></li>
+                                    <li>Try $(2, 3)$ ➜ Column $3 \ne 1$, Diagonal $|2-1| = 1 \ne |3-1| = 2$ ➜ <strong class="text-emerald-700 font-bold">VALID ✅</strong></li>
+                                </ul>
+                                <p class="text-xs text-slate-600 bg-slate-50 p-2 rounded">State advances to <code class="font-mono font-bold text-indigo-950">[1, 3]</code>. Proceed to Row 3!</p>
+                            </div>
+                            <div class="md:col-span-4 flex justify-center">
+                                <canvas id="canvas-step-2" width="140" height="140" class="rounded border border-slate-300 shadow-sm"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- STEP 3: TRY ROW 3 UNDER [1, 3] -> ALL BLOCKED -> BACKTRACK -->
+                    <div class="sketch-card p-4 border-l-4 border-amber-500 space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="text-base font-bold text-amber-950 font-['Kalam']">Step 3: Try Row 3 under [1, 3] ➜ Deadlock &amp; Backtrack!</span>
+                            <span class="text-xs bg-amber-100 text-amber-900 font-bold px-2 py-0.5 rounded">The Backtrack Moment</span>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+                            <div class="md:col-span-8 text-sm text-slate-700 space-y-2">
+                                <p>We now attempt to seat Queen 3 on Row 3 with prior state <code class="font-mono font-bold text-indigo-950">[1, 3]</code>:</p>
+                                <ul class="list-disc pl-5 space-y-1">
+                                    <li>Try $(3, 1)$ ➜ Column clash with $(1, 1)$ ➜ <strong class="text-rose-700">PRUNE ✕</strong></li>
+                                    <li>Try $(3, 2)$ ➜ Diagonal clash with $(2, 3)$ ($|3-2|=1, |2-3|=1$) ➜ <strong class="text-rose-700">PRUNE ✕</strong></li>
+                                    <li>Try $(3, 3)$ ➜ Column clash with $(2, 3)$ ➜ <strong class="text-rose-700">PRUNE ✕</strong></li>
+                                    <li>Try $(3, 4)$ ➜ Diagonal clash with $(2, 3)$ ($|3-2|=1, |4-3|=1$) ➜ <strong class="text-rose-700">PRUNE ✕</strong></li>
+                                </ul>
+                                <div class="p-2 bg-amber-100 rounded text-amber-950 font-bold text-xs">
+                                    ↩️ ALL 4 columns fail for Row 3! We BACKTRACK to Row 2: remove Queen from $(2, 3)$ and try column 4!
+                                </div>
+                            </div>
+                            <div class="md:col-span-4 flex justify-center">
+                                <canvas id="canvas-step-3" width="140" height="140" class="rounded border border-slate-300 shadow-sm"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- STEP 4: EXPLORE [1, 4] -> ROW 3 AT (3, 2) -> ROW 4 BLOCKED -> BACKTRACK TO ROOT -->
+                    <div class="sketch-card p-4 border-l-4 border-purple-600 space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="text-base font-bold text-purple-950 font-['Kalam']">Step 4: Explore [1, 4] ➜ [1, 4, 2] ➜ Backtrack to Root!</span>
+                            <span class="text-xs bg-purple-100 text-purple-900 font-bold px-2 py-0.5 rounded">Deep Prune</span>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+                            <div class="md:col-span-8 text-sm text-slate-700 space-y-1.5">
+                                <p>Under $(2, 4)$, only $(3, 2)$ is valid for Row 3 ➜ State: <code class="font-mono font-bold text-indigo-950">[1, 4, 2]</code>.</p>
+                                <p>For Row 4: cols 1, 2, 3, 4 are completely attacked by the first 3 queens! Row 4 fails. Row 3 has no more cols. Row 2 has no more cols.</p>
+                                <p class="text-purple-900 font-bold text-xs bg-purple-50 p-2 rounded">
+                                    ↩️ We backtrack all the way back to the Root! No solution exists with Queen 1 at Col 1.
+                                </p>
+                            </div>
+                            <div class="md:col-span-4 flex justify-center">
+                                <canvas id="canvas-step-4" width="140" height="140" class="rounded border border-slate-300 shadow-sm"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- STEP 5: PLACE Q1 AT (1, 2) -> DISCOVERY OF SOLUTION 1 -->
+                    <div class="sketch-card p-4 border-l-4 border-emerald-600 space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="text-base font-bold text-emerald-950 font-['Kalam']">Step 5: Queen 1 at (1, 2) ➜ Solution 1 Found! [2, 4, 1, 3] 🏆</span>
+                            <span class="text-xs bg-emerald-200 text-emerald-900 font-bold px-2 py-0.5 rounded">Solution 1</span>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+                            <div class="md:col-span-8 text-sm text-slate-700 space-y-1.5">
+                                <p>Now start branch Row 1 = <strong>Col 2</strong>:</p>
+                                <ul class="list-disc pl-5 space-y-0.5">
+                                    <li>Row 2: Queen at <strong>Col 4</strong> $(2, 4)$ is valid ✅</li>
+                                    <li>Row 3: Queen at <strong>Col 1</strong> $(3, 1)$ is valid ✅</li>
+                                    <li>Row 4: Queen at <strong>Col 3</strong> $(4, 3)$ is valid ✅</li>
+                                </ul>
+                                <p class="text-emerald-950 font-bold text-sm bg-emerald-100 p-2 rounded">
+                                    🎉 Depth 4 reached with all constraints satisfied: Solution 1 = [2, 4, 1, 3] recorded!
+                                </p>
+                            </div>
+                            <div class="md:col-span-4 flex justify-center">
+                                <canvas id="canvas-step-5" width="140" height="140" class="rounded border border-slate-300 shadow-sm"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- STEP 6: PLACE Q1 AT (1, 3) -> DISCOVERY OF SOLUTION 2 -->
+                    <div class="sketch-card p-4 border-l-4 border-emerald-600 space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="text-base font-bold text-emerald-950 font-['Kalam']">Step 6: Queen 1 at (1, 3) ➜ Solution 2 Found! [3, 1, 4, 2] 🏆</span>
+                            <span class="text-xs bg-emerald-200 text-emerald-900 font-bold px-2 py-0.5 rounded">Solution 2 (Mirror)</span>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+                            <div class="md:col-span-8 text-sm text-slate-700 space-y-1.5">
+                                <p>Following the same backtracking sequence for Row 1 = <strong>Col 3</strong>:</p>
+                                <ul class="list-disc pl-5 space-y-0.5">
+                                    <li>Row 2: Queen at <strong>Col 1</strong> $(2, 1)$ is valid ✅</li>
+                                    <li>Row 3: Queen at <strong>Col 4</strong> $(3, 4)$ is valid ✅</li>
+                                    <li>Row 4: Queen at <strong>Col 2</strong> $(4, 2)$ is valid ✅</li>
+                                </ul>
+                                <p class="text-emerald-950 font-bold text-sm bg-emerald-100 p-2 rounded">
+                                    🎉 Solution 2 = [3, 1, 4, 2] recorded! Search terminates after exploring Col 4.
+                                </p>
+                            </div>
+                            <div class="md:col-span-4 flex justify-center">
+                                <canvas id="canvas-step-6" width="140" height="140" class="rounded border border-slate-300 shadow-sm"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                </section>
+
+            </div>
+
+            <!-- ==================================================================== -->
+            <!-- TAB 4: BOUNDING FUNCTION, ALGORITHM & COMPLEXITY                     -->
+            <!-- ==================================================================== -->
+            <div id="tab-bounding-algorithm" class="tab-pane hidden space-y-8">
+
+                <!-- Section Header -->
+                <div class="border-b-2 border-inkRed pb-2 flex justify-between items-baseline">
+                    <div>
+                        <h1 class="text-3xl sm:text-4xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                            4. Bounding Function, Recursive Algorithm &amp; Complexity
+                        </h1>
+                        <p class="text-sm font-sans text-pencilGray mt-1">Formal Place(k, i) bounding predicate, canonical recursive backtracking implementation, and asymptotic bounds</p>
+                    </div>
+                    <span class="text-xs sm:text-sm font-bold font-sans bg-amber-100 text-inkRed px-2.5 py-1 rounded border border-amber-300">
+                        Tab 4 • Code &amp; Analysis
+                    </span>
+                </div>
+
+                <!-- Bounding Function Place(k, i) -->
+                <section class="space-y-4 text-lg leading-relaxed font-sans">
+                    <h2 class="text-2xl font-bold text-inkRed flex items-center gap-2">
+                        <span>🛡️</span> 1. The Bounding Function: Place(k, i)
+                    </h2>
+
+                    <p class="text-base text-slate-800">
+                        Before placing Queen $k$ at Column $i$, we test whether any already-placed queen in rows $j = 1 \dots k-1$ attacks it:
+                    </p>
+
+                    <div class="bg-slate-900 text-slate-100 p-4 rounded-xl font-mono text-xs sm:text-sm shadow-md">
+                        <pre class="text-emerald-300">
+<span class="text-purple-400">function</span> <span class="text-yellow-300">Place</span>(k, i):
+    <span class="text-slate-400">// Returns true if queen can be placed in row k, column i</span>
+    <span class="text-purple-400">for</span> j = 1 <span class="text-purple-400">to</span> k - 1:
+        <span class="text-slate-400">// Check 1: Same column clash</span>
+        <span class="text-purple-400">if</span> x[j] == i:
+            <span class="text-purple-400">return false</span>
+
+        <span class="text-slate-400">// Check 2: Same diagonal clash</span>
+        <span class="text-purple-400">if</span> <span class="text-yellow-300">abs</span>(x[j] - i) == <span class="text-yellow-300">abs</span>(j - k):
+            <span class="text-purple-400">return false</span>
+
+    <span class="text-purple-400">return true</span>  <span class="text-slate-400">// Safe square!</span></pre>
+                    </div>
+
+                    <div class="teacher-quote text-xl">
+                        💡 <strong>Time Complexity of Place(k, i):</strong>
+                        <div class="text-2xl font-bold text-amber-900 mt-1 not-italic">
+                            $O(k)$ time — scans only the preceding $k-1$ rows, taking at most $O(N)$ operations per check.
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Full Recursive NQueens Algorithm -->
+                <section class="space-y-4 text-lg leading-relaxed pt-4 border-t border-amber-200 font-sans">
+                    <h2 class="text-2xl font-bold text-inkRed flex items-center gap-2">
+                        <span>🧩</span> 2. Recursive Backtracking N-Queens Algorithm
+                    </h2>
+
+                    <p class="text-base text-slate-800">
+                        The complete algorithm starts with <code class="font-mono text-indigo-900 bg-indigo-50 px-1 rounded">NQueens(1, n)</code>:
+                    </p>
+
+                    <div class="bg-slate-900 text-slate-100 p-4 rounded-xl font-mono text-xs sm:text-sm shadow-md">
+                        <pre class="text-emerald-300">
+<span class="text-purple-400">function</span> <span class="text-yellow-300">NQueens</span>(k, n):
+    <span class="text-slate-400">// k = current row to place queen on</span>
+    <span class="text-slate-400">// n = board dimension (e.g. 4)</span>
+
+    <span class="text-purple-400">for</span> i = 1 <span class="text-purple-400">to</span> n:
+        <span class="text-purple-400">if</span> <span class="text-yellow-300">Place</span>(k, i):
+            x[k] = i  <span class="text-slate-400">// Choose column i for queen in row k</span>
+
+            <span class="text-purple-400">if</span> k == n:
+                <span class="text-slate-400">// Base Case: All n queens placed successfully!</span>
+                <span class="text-yellow-300">PrintSolution</span>(x, n)
+            <span class="text-purple-400">else</span>:
+                <span class="text-slate-400">// Explore next row deeper in state-space tree</span>
+                <span class="text-yellow-300">NQueens</span>(k + 1, n)
+
+            <span class="text-slate-400">// Backtrack implicitly happens upon loop iteration or return</span></pre>
+                    </div>
+                </section>
+
+                <!-- Complexity Analysis -->
+                <section class="space-y-4 text-lg leading-relaxed pt-4 border-t border-amber-200 font-sans">
+                    <h2 class="text-2xl font-bold text-inkRed flex items-center gap-2">
+                        <span>📊</span> 3. Asymptotic Complexity Analysis
+                    </h2>
+
+                    <div class="overflow-x-auto bg-white p-3 rounded-xl border border-slate-300 shadow-sm text-sm sm:text-base">
+                        <table class="w-full text-left border-collapse border border-slate-300">
+                            <thead>
+                                <tr class="bg-indigo-950 text-white font-bold">
+                                    <th class="py-2 px-3 border border-indigo-900">Approach</th>
+                                    <th class="py-2 px-3 border border-indigo-900">Leaf States Generated</th>
+                                    <th class="py-2 px-3 border border-indigo-900">Time Complexity</th>
+                                    <th class="py-2 px-3 border border-indigo-900">Space Complexity</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-slate-800">
+                                <tr class="hover:bg-slate-50 border-b border-slate-200">
+                                    <td class="py-2 px-3 font-bold bg-slate-50">Pure Brute Force</td>
+                                    <td class="py-2 px-3 font-mono">$N^N$ ($4^4 = 256$)</td>
+                                    <td class="py-2 px-3 font-mono text-rose-700 font-bold">$O(N^N)$</td>
+                                    <td class="py-2 px-3 font-mono">$O(N)$</td>
+                                </tr>
+                                <tr class="hover:bg-slate-50 border-b border-slate-200">
+                                    <td class="py-2 px-3 font-bold bg-slate-50">Permutation Search</td>
+                                    <td class="py-2 px-3 font-mono">$N!$ ($4! = 24$)</td>
+                                    <td class="py-2 px-3 font-mono text-amber-700 font-bold">$O(N!)$</td>
+                                    <td class="py-2 px-3 font-mono">$O(N)$</td>
+                                </tr>
+                                <tr class="hover:bg-emerald-50">
+                                    <td class="py-2 px-3 font-bold bg-emerald-100 text-emerald-950">Backtracking with Pruning</td>
+                                    <td class="py-2 px-3 font-mono font-bold text-emerald-800">Only 2 solutions reached</td>
+                                    <td class="py-2 px-3 font-mono text-emerald-800 font-bold">Upper bound $O(N!)$, far less in practice</td>
+                                    <td class="py-2 px-3 font-mono font-bold text-emerald-800">$O(N)$</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="pen-box space-y-2 text-sm text-slate-800">
+                        <h4 class="text-lg font-bold text-inkBlue font-['Kalam']">Key Observations:</h4>
+                        <ul class="list-disc pl-5 space-y-1">
+                            <li><strong>Space Efficiency:</strong> Only needs a 1D array of size $N$ (`x[1..n]`) and recursion stack depth $N$. Thus Space Complexity is strictly <strong>$O(N)$</strong>.</li>
+                            <li><strong>Pruning Power:</strong> For $N=4$, instead of generating 256 leaves, backtracking visits only a handful of nodes and cuts off entire swathes of dead branches on row 2 and row 3.</li>
+                        </ul>
+                    </div>
+                </section>
+
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-center text-xs text-slate-600 py-8 font-sans">
+        <p>Personal Digital Lecture Notebook &copy; 2026. Handcrafted with Tailwind CSS, Google Fonts, and Vanilla HTML5 Canvas Engines.</p>
+    </footer>
+
+    <!-- Interactive Script: Typography, Tab Switcher, Pan & Zoom Engine, and Canvas Renderers -->
+    <script>
+        // Tab Switcher
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('hidden'));
+            const activeSection = document.getElementById(tabId);
+            if (activeSection) activeSection.classList.remove('hidden');
+
+            document.querySelectorAll('.nav-tab').forEach(btn => {
+                btn.classList.remove('bg-amber-200', 'text-inkBlue', 'border-b-2', 'border-inkBlue');
+                btn.classList.add('text-slate-600');
+            });
+            const activeBtn = document.getElementById('nav-' + tabId);
+            if (activeBtn) {
+                activeBtn.classList.add('bg-amber-200', 'text-inkBlue', 'border-b-2', 'border-inkBlue');
+                activeBtn.classList.remove('text-slate-600');
+            }
+
+            // Redraw active canvases
+            setTimeout(() => {
+                if (tabId === 'tab-problem-formulation') drawSolutionBoards();
+                if (tabId === 'tab-state-space-tree') renderInteractiveTree();
+                if (tabId === 'tab-step-by-step') drawStepByStepCanvases();
+            }, 30);
+        }
+
+        // Font Mode Switcher
+        function toggleFontMode() {
+            const body = document.body;
+            const btnText = document.getElementById('fontBtnText');
+            body.classList.toggle('font-clean');
+            
+            if (body.classList.contains('font-clean')) {
+                btnText.textContent = "Notes Font";
+            } else {
+                btnText.textContent = "Clean Font";
+            }
+        }
+
+        // Canvas HiDPI Helper
+        function setupCanvas(canvasId, width, height) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return null;
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            ctx.scale(dpr, dpr);
+            return { canvas, ctx, width, height };
+        }
+
+        // Helper: Draw a miniature 4x4 chessboard with queens placed
+        function drawChessboardNode(ctx, x, y, size, queensArray, status = 'valid', label = '') {
+            const sq = size / 4;
+            
+            ctx.save();
+            ctx.translate(x - size / 2, y - size / 2);
+
+            // Board Outline & Glow based on status
+            ctx.lineWidth = status === 'solution' ? 3 : (status === 'pruned' ? 2 : 1.5);
+            ctx.strokeStyle = status === 'solution' ? '#f59e0b' : (status === 'pruned' ? '#ef4444' : '#10b981');
+            
+            if (status === 'pruned') {
+                ctx.setLineDash([3, 3]);
+            }
+
+            // Draw 4x4 squares
+            for (let r = 0; r < 4; r++) {
+                for (let c = 0; c < 4; c++) {
+                    const isDark = (r + c) % 2 === 1;
+                    ctx.fillStyle = isDark ? '#d4b886' : '#faf0dc';
+                    ctx.fillRect(c * sq, r * sq, sq, sq);
+                }
+            }
+
+            ctx.strokeRect(0, 0, size, size);
+            ctx.setLineDash([]);
+
+            // Draw Queens placed in queensArray (1-indexed: index = row, value = col)
+            queensArray.forEach((col, rowIdx) => {
+                if (col && col >= 1 && col <= 4) {
+                    const qX = (col - 1) * sq + sq / 2;
+                    const qY = rowIdx * sq + sq / 2;
+
+                    // Crown background circle
+                    ctx.fillStyle = status === 'pruned' && rowIdx === queensArray.length - 1 ? '#fee2e2' : '#fef3c7';
+                    ctx.beginPath();
+                    ctx.arc(qX, qY, sq * 0.4, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // Queen Crown
+                    ctx.fillStyle = status === 'pruned' && rowIdx === queensArray.length - 1 ? '#b91c1c' : '#b45309';
+                    ctx.font = `bold ${Math.round(sq * 0.58)}px sans-serif`;
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText('👑', qX, qY);
+                }
+            });
+
+            // If pruned, draw a prominent red clash slash across the board
+            if (status === 'pruned') {
+                ctx.strokeStyle = 'rgba(239, 68, 68, 0.85)';
+                ctx.lineWidth = 2.5;
+                ctx.beginPath();
+                ctx.moveTo(4, 4);
+                ctx.lineTo(size - 4, size - 4);
+                ctx.moveTo(size - 4, 4);
+                ctx.lineTo(4, size - 4);
+                ctx.stroke();
+            }
+
+            // Label at bottom
+            if (label) {
+                ctx.fillStyle = status === 'solution' ? '#b45309' : (status === 'pruned' ? '#dc2626' : '#1e293b');
+                ctx.font = `bold ${Math.max(9, Math.round(size * 0.15))}px Inter, sans-serif`;
+                ctx.textAlign = 'center';
+                ctx.fillText(label, size / 2, size + 14);
+            }
+
+            ctx.restore();
+        }
+
+        // -------------------------------------------------------------
+        // CANVAS 1: THE TWO SOLUTIONS SIDE-BY-SIDE (Tab 1)
+        // -------------------------------------------------------------
+        function drawSolutionBoards() {
+            const setup = setupCanvas('canvas-solutions-boards', 680, 280);
+            if (!setup) return;
+            const { ctx } = setup;
+            ctx.clearRect(0, 0, 680, 280);
+
+            // Left: Solution 1 [2, 4, 1, 3]
+            drawFullChessboard(ctx, 40, 25, 220, [2, 4, 1, 3], 'Solution 1: [2, 4, 1, 3]');
+
+            // Right: Solution 2 [3, 1, 4, 2]
+            drawFullChessboard(ctx, 380, 25, 220, [3, 1, 4, 2], 'Solution 2: [3, 1, 4, 2]');
+        }
+
+        function drawFullChessboard(ctx, x, y, size, queens, title) {
+            const sq = size / 4;
+
+            // Title Banner
+            ctx.fillStyle = '#065f46';
+            ctx.font = 'bold 15px Kalam, cursive';
+            ctx.textAlign = 'center';
+            ctx.fillText(title, x + size / 2, y + 16);
+
+            const boardY = y + 26;
+
+            // Wood Border
+            ctx.fillStyle = '#78350f';
+            ctx.fillRect(x - 6, boardY - 6, size + 12, size + 12);
+
+            // Chess Squares
+            for (let r = 0; r < 4; r++) {
+                for (let c = 0; c < 4; c++) {
+                    const isDark = (r + c) % 2 === 1;
+                    ctx.fillStyle = isDark ? '#b58863' : '#f0d9b5';
+                    ctx.fillRect(x + c * sq, boardY + r * sq, sq, sq);
+
+                    // Row & Col Labels on edges
+                    if (c === 0) {
+                        ctx.fillStyle = isDark ? '#f0d9b5' : '#b58863';
+                        ctx.font = 'bold 10px Inter, sans-serif';
+                        ctx.textAlign = 'left';
+                        ctx.fillText(`R${r + 1}`, x + 3, boardY + r * sq + 12);
+                    }
+                    if (r === 3) {
+                        ctx.fillStyle = isDark ? '#f0d9b5' : '#b58863';
+                        ctx.font = 'bold 10px Inter, sans-serif';
+                        ctx.textAlign = 'right';
+                        ctx.fillText(`C${c + 1}`, x + (c + 1) * sq - 3, boardY + (r + 1) * sq - 3);
+                    }
+                }
+            }
+
+            // Draw Queens
+            queens.forEach((col, rowIdx) => {
+                const qX = x + (col - 1) * sq + sq / 2;
+                const qY = boardY + rowIdx * sq + sq / 2;
+
+                ctx.fillStyle = '#fef08a';
+                ctx.beginPath();
+                ctx.arc(qX, qY, sq * 0.38, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = '#d97706';
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+
+                ctx.fillStyle = '#92400e';
+                ctx.font = 'bold 22px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('👑', qX, qY);
+            });
+        }
+
+        // -------------------------------------------------------------
+        // CANVAS 2: PAN & ZOOM INTERACTIVE STATE-SPACE TREE (Tab 2)
+        // -------------------------------------------------------------
+        let treeScale = 0.85;
+        let treePanX = 70;
+        let treePanY = 40;
+        let isDragging = false;
+        let startX, startY;
+        let showPruned = true;
+
+        // Tree Node Definitions for 4-Queens
+        // Level 0: Root []
+        // Level 1: [1], [2], [3], [4]
+        // Level 2, 3, 4 branches
+        const treeNodes = [
+            // Level 0: Root
+            { id: 'root', x: 880, y: 70, q: [], status: 'valid', label: 'Start []' },
+
+            // Level 1: Under Root
+            { id: '1', parent: 'root', x: 300, y: 220, q: [1], status: 'valid', label: '[1]' },
+            { id: '2', parent: 'root', x: 740, y: 220, q: [2], status: 'valid', label: '[2]' },
+            { id: '3', parent: 'root', x: 1180, y: 220, q: [3], status: 'valid', label: '[3]' },
+            { id: '4', parent: 'root', x: 1540, y: 220, q: [4], status: 'valid', label: '[4]' },
+
+            // Level 2: Under [1]
+            { id: '1-1', parent: '1', x: 120, y: 400, q: [1, 1], status: 'pruned', label: '[1,1] ✕' },
+            { id: '1-2', parent: '1', x: 230, y: 400, q: [1, 2], status: 'pruned', label: '[1,2] ✕' },
+            { id: '1-3', parent: '1', x: 360, y: 400, q: [1, 3], status: 'valid', label: '[1,3]' },
+            { id: '1-4', parent: '1', x: 480, y: 400, q: [1, 4], status: 'valid', label: '[1,4]' },
+
+            // Level 3: Under [1-3]
+            { id: '1-3-1', parent: '1-3', x: 260, y: 600, q: [1, 3, 1], status: 'pruned', label: '[1,3,1] ✕' },
+            { id: '1-3-2', parent: '1-3', x: 330, y: 600, q: [1, 3, 2], status: 'pruned', label: '[1,3,2] ✕' },
+            { id: '1-3-3', parent: '1-3', x: 400, y: 600, q: [1, 3, 3], status: 'pruned', label: '[1,3,3] ✕' },
+            { id: '1-3-4', parent: '1-3', x: 470, y: 600, q: [1, 3, 4], status: 'pruned', label: '[1,3,4] ✕' },
+
+            // Level 3: Under [1-4]
+            { id: '1-4-2', parent: '1-4', x: 540, y: 600, q: [1, 4, 2], status: 'valid', label: '[1,4,2]' },
+
+            // Level 4: Under [1-4-2] -> all pruned
+            { id: '1-4-2-all', parent: '1-4-2', x: 540, y: 780, q: [1, 4, 2], status: 'pruned', label: 'Row 4 Blocked ✕' },
+
+            // Level 2: Under [2]
+            { id: '2-1', parent: '2', x: 620, y: 400, q: [2, 1], status: 'pruned', label: '[2,1] ✕' },
+            { id: '2-2', parent: '2', x: 700, y: 400, q: [2, 2], status: 'pruned', label: '[2,2] ✕' },
+            { id: '2-3', parent: '2', x: 780, y: 400, q: [2, 3], status: 'pruned', label: '[2,3] ✕' },
+            { id: '2-4', parent: '2', x: 880, y: 400, q: [2, 4], status: 'valid', label: '[2,4]' },
+
+            // Level 3: Under [2-4]
+            { id: '2-4-1', parent: '2-4', x: 880, y: 600, q: [2, 4, 1], status: 'valid', label: '[2,4,1]' },
+
+            // Level 4: Under [2-4-1] ➜ SOLUTION 1!
+            { id: 'sol-1', parent: '2-4-1', x: 880, y: 800, q: [2, 4, 1, 3], status: 'solution', label: '🏆 SOL 1: [2,4,1,3]' },
+
+            // Level 2: Under [3]
+            { id: '3-1', parent: '3', x: 1080, y: 400, q: [3, 1], status: 'valid', label: '[3,1]' },
+            { id: '3-2', parent: '3', x: 1180, y: 400, q: [3, 2], status: 'pruned', label: '[3,2] ✕' },
+            { id: '3-3', parent: '3', x: 1250, y: 400, q: [3, 3], status: 'pruned', label: '[3,3] ✕' },
+            { id: '3-4', parent: '3', x: 1320, y: 400, q: [3, 4], status: 'pruned', label: '[3,4] ✕' },
+
+            // Level 3: Under [3-1]
+            { id: '3-1-4', parent: '3-1', x: 1080, y: 600, q: [3, 1, 4], status: 'valid', label: '[3,1,4]' },
+
+            // Level 4: Under [3-1-4] ➜ SOLUTION 2!
+            { id: 'sol-2', parent: '3-1-4', x: 1080, y: 800, q: [3, 1, 4, 2], status: 'solution', label: '🏆 SOL 2: [3,1,4,2]' },
+
+            // Level 2: Under [4] (Symmetric mirror of branch 1)
+            { id: '4-1', parent: '4', x: 1440, y: 400, q: [4, 1], status: 'valid', label: '[4,1]' },
+            { id: '4-2', parent: '4', x: 1550, y: 400, q: [4, 2], status: 'valid', label: '[4,2]' },
+            { id: '4-3', parent: '4', x: 1640, y: 400, q: [4, 3], status: 'pruned', label: '[4,3] ✕' },
+            { id: '4-4', parent: '4', x: 1720, y: 400, q: [4, 4], status: 'pruned', label: '[4,4] ✕' },
+
+            // Level 3 & 4: Under [4-1]
+            { id: '4-1-3', parent: '4-1', x: 1440, y: 600, q: [4, 1, 3], status: 'valid', label: '[4,1,3]' },
+            { id: '4-1-3-all', parent: '4-1-3', x: 1440, y: 780, q: [4, 1, 3], status: 'pruned', label: 'Row 4 Blocked ✕' },
+
+            // Level 3: Under [4-2] (All columns fail)
+            { id: '4-2-all', parent: '4-2', x: 1550, y: 600, q: [4, 2], status: 'pruned', label: 'Row 3 Blocked ✕' },
+        ];
+
+        function renderInteractiveTree() {
+            const canvas = document.getElementById('canvas-state-space-tree');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+
+            ctx.save();
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Apply DPR, Pan & Zoom
+            ctx.scale(dpr, dpr);
+            ctx.translate(treePanX, treePanY);
+            ctx.scale(treeScale, treeScale);
+
+            // Draw Level Guidelines in background
+            const levels = [
+                { y: 70, label: 'Level 0: Root (Empty Board)' },
+                { y: 220, label: 'Level 1: Row 1 Placed' },
+                { y: 400, label: 'Level 2: Row 2 Placed' },
+                { y: 600, label: 'Level 3: Row 3 Placed' },
+                { y: 800, label: 'Level 4: Row 4 Placed (Leaves / Solutions)' }
+            ];
+
+            ctx.font = 'bold 13px Inter, sans-serif';
+            ctx.fillStyle = '#94a3b8';
+            ctx.textAlign = 'left';
+            levels.forEach(lvl => {
+                ctx.fillText(lvl.label, 20, lvl.y);
+                ctx.strokeStyle = '#e2e8f0';
+                ctx.lineWidth = 1;
+                ctx.setLineDash([4, 4]);
+                ctx.beginPath();
+                ctx.moveTo(20, lvl.y + 12);
+                ctx.lineTo(1780, lvl.y + 12);
+                ctx.stroke();
+            });
+            ctx.setLineDash([]);
+
+            // Draw Connecting Edges first
+            treeNodes.forEach(node => {
+                if (node.parent) {
+                    if (!showPruned && node.status === 'pruned') return;
+                    const pNode = treeNodes.find(n => n.id === node.parent);
+                    if (pNode) {
+                        ctx.beginPath();
+                        ctx.moveTo(pNode.x, pNode.y + 36);
+                        ctx.lineTo(node.x, node.y - 36);
+
+                        if (node.status === 'solution') {
+                            ctx.strokeStyle = '#d97706';
+                            ctx.lineWidth = 3;
+                            ctx.setLineDash([]);
+                        } else if (node.status === 'pruned') {
+                            ctx.strokeStyle = '#f87171';
+                            ctx.lineWidth = 1.5;
+                            ctx.setLineDash([3, 3]);
+                        } else {
+                            ctx.strokeStyle = '#10b981';
+                            ctx.lineWidth = 2;
+                            ctx.setLineDash([]);
+                        }
+                        ctx.stroke();
+                    }
+                }
+            });
+
+            // Draw Nodes with miniature chessboards
+            treeNodes.forEach(node => {
+                if (!showPruned && node.status === 'pruned') return;
+                const nodeSize = node.status === 'solution' ? 76 : (node.id === 'root' ? 52 : 62);
+                drawChessboardNode(ctx, node.x, node.y, nodeSize, node.q, node.status, node.label);
+            });
+
+            ctx.restore();
+
+            // Update Zoom percentage display
+            const zoomDisplay = document.getElementById('zoomLevelDisplay');
+            if (zoomDisplay) zoomDisplay.textContent = Math.round(treeScale * 100) + '%';
+        }
+
+        // Pan & Zoom Event Handlers
+        const wrapper = document.getElementById('treeCanvasWrapper');
+        if (wrapper) {
+            wrapper.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                startX = e.clientX - treePanX;
+                startY = e.clientY - treePanY;
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                treePanX = e.clientX - startX;
+                treePanY = e.clientY - startY;
+                renderInteractiveTree();
+            });
+
+            window.addEventListener('mouseup', () => {
+                isDragging = false;
+            });
+
+            wrapper.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                const zoomFactor = e.deltaY < 0 ? 1.1 : 0.9;
+                const newScale = Math.min(Math.max(treeScale * zoomFactor, 0.35), 2.2);
+                treeScale = newScale;
+                renderInteractiveTree();
+            }, { passive: false });
+        }
+
+        function zoomIn() {
+            treeScale = Math.min(treeScale * 1.2, 2.2);
+            renderInteractiveTree();
+        }
+
+        function zoomOut() {
+            treeScale = Math.max(treeScale * 0.8, 0.35);
+            renderInteractiveTree();
+        }
+
+        function resetZoom() {
+            treeScale = 0.85;
+            treePanX = 70;
+            treePanY = 40;
+            renderInteractiveTree();
+        }
+
+        function fitTreeToScreen() {
+            treeScale = 0.52;
+            treePanX = 10;
+            treePanY = 20;
+            renderInteractiveTree();
+        }
+
+        function toggleFullscreen() {
+            const wrapper = document.getElementById('treeCanvasWrapper');
+            const btn = document.getElementById('btnFullscreenToggle');
+            if (!wrapper) return;
+
+            const isFull = wrapper.classList.toggle('is-fullscreen');
+
+            if (isFull) {
+                if (btn) {
+                    btn.innerHTML = '🗗';
+                    btn.title = 'Exit Fullscreen (Esc)';
+                }
+                // Try HTML5 Fullscreen API
+                if (wrapper.requestFullscreen) {
+                    wrapper.requestFullscreen().catch(() => {});
+                } else if (wrapper.webkitRequestFullscreen) {
+                    wrapper.webkitRequestFullscreen();
+                }
+                // Adapt scale and pan for wide view
+                treeScale = Math.min(window.innerWidth / 1900, 1.15);
+                treePanX = Math.max((window.innerWidth - 1800 * treeScale) / 2, 20);
+                treePanY = 40;
+            } else {
+                if (btn) {
+                    btn.innerHTML = '⛶';
+                    btn.title = 'Maximize to Fullscreen (⛶)';
+                }
+                if (document.fullscreenElement) {
+                    document.exitFullscreen().catch(() => {});
+                }
+                resetZoom();
+            }
+
+            renderInteractiveTree();
+        }
+
+        // Listen for Esc or native fullscreen exit
+        document.addEventListener('fullscreenchange', () => {
+            const wrapper = document.getElementById('treeCanvasWrapper');
+            const btn = document.getElementById('btnFullscreenToggle');
+            if (!document.fullscreenElement && wrapper && wrapper.classList.contains('is-fullscreen')) {
+                wrapper.classList.remove('is-fullscreen');
+                if (btn) {
+                    btn.innerHTML = '⛶';
+                    btn.title = 'Maximize to Fullscreen (⛶)';
+                }
+                resetZoom();
+            }
+        });
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const wrapper = document.getElementById('treeCanvasWrapper');
+                const btn = document.getElementById('btnFullscreenToggle');
+                if (wrapper && wrapper.classList.contains('is-fullscreen')) {
+                    wrapper.classList.remove('is-fullscreen');
+                    if (btn) {
+                        btn.innerHTML = '⛶';
+                        btn.title = 'Maximize to Fullscreen (⛶)';
+                    }
+                    if (document.fullscreenElement) {
+                        document.exitFullscreen().catch(() => {});
+                    }
+                    resetZoom();
+                }
+            } else if ((e.key === 'f' || e.key === 'F') && !e.target.matches('input, textarea')) {
+                const tabTree = document.getElementById('tab-state-space-tree');
+                if (tabTree && !tabTree.classList.contains('hidden')) {
+                    toggleFullscreen();
+                }
+            }
+        });
+
+        function togglePrunedFilter(isChecked) {
+            showPruned = isChecked;
+            renderInteractiveTree();
+        }
+
+        // -------------------------------------------------------------
+        // CANVAS 3: STEP-BY-STEP MINI CHESSBOARDS (Tab 3)
+        // -------------------------------------------------------------
+        function drawStepByStepCanvases() {
+            const steps = [
+                { id: 'canvas-step-1', q: [1], status: 'valid' },
+                { id: 'canvas-step-2', q: [1, 3], status: 'valid' },
+                { id: 'canvas-step-3', q: [1, 3], status: 'pruned' },
+                { id: 'canvas-step-4', q: [1, 4, 2], status: 'pruned' },
+                { id: 'canvas-step-5', q: [2, 4, 1, 3], status: 'solution' },
+                { id: 'canvas-step-6', q: [3, 1, 4, 2], status: 'solution' },
+            ];
+
+            steps.forEach(s => {
+                const setup = setupCanvas(s.id, 140, 140);
+                if (!setup) return;
+                const { ctx } = setup;
+                ctx.clearRect(0, 0, 140, 140);
+                drawChessboardNode(ctx, 70, 70, 116, s.q, s.status, '');
+            });
+        }
+
+        // Initialize all canvases on window load & resize
+        window.addEventListener('load', () => {
+            drawSolutionBoards();
+            renderInteractiveTree();
+            drawStepByStepCanvases();
+        });
+
+        window.addEventListener('resize', () => {
+            drawSolutionBoards();
+            renderInteractiveTree();
+            drawStepByStepCanvases();
+        });
+    </script>
+</body>
+
+</html>

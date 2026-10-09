@@ -169,7 +169,7 @@
             <div class="flex flex-wrap gap-1">
                 <button onclick="showCategory('all')" id="btn-cat-all"
                     class="cat-nav-btn px-2.5 py-1 rounded-md font-bold bg-amber-300 text-inkBlue border border-amber-400 transition">
-                    All (28)
+                    All (29)
                 </button>
                 <button onclick="showCategory('stl')" id="btn-cat-stl"
                     class="cat-nav-btn px-2.5 py-1 rounded-md font-bold text-slate-700 hover:bg-amber-100 transition">
@@ -198,6 +198,10 @@
                 <button onclick="showCategory('backtracking')" id="btn-cat-backtracking"
                     class="cat-nav-btn px-2.5 py-1 rounded-md font-bold text-slate-700 hover:bg-amber-100 transition">
                     7. Backtracking (3)
+                </button>
+                <button onclick="showCategory('branch_and_bound')" id="btn-cat-branch_and_bound"
+                    class="cat-nav-btn px-2.5 py-1 rounded-md font-bold text-slate-700 hover:bg-amber-100 transition">
+                    8. Branch &amp; Bound (1)
                 </button>
             </div>
 
@@ -238,7 +242,7 @@
                     <h2 class="text-3xl sm:text-4xl font-bold text-inkBlue font-['Kalam'] mt-1">Pedagogical Topic Directory & Study Guide</h2>
                 </div>
                 <div class="text-right font-sans">
-                    <span class="text-xs sm:text-sm font-bold text-inkRed block">7 Study Units • 28 Interactive HTML Notebooks</span>
+                    <span class="text-xs sm:text-sm font-bold text-inkRed block">8 Study Units • 29 Interactive HTML Notebooks</span>
                     <span class="text-xs text-slate-500">Click any notebook card to launch</span>
                 </div>
             </div>
@@ -719,16 +723,16 @@
             </section>
 
             <!-- ======================================================================
-                 UNIT 7: BACKTRACKING & BRANCH AND BOUND
+                 UNIT 7: BACKTRACKING
                  ====================================================================== -->
             <section id="sec-backtracking" class="note-section space-y-4">
                 <div class="flex items-baseline justify-between border-b-2 border-inkBlue/30 pb-1">
                     <h3 class="text-2xl sm:text-3xl font-bold text-indigo-900 font-['Kalam'] flex items-center gap-2">
-                        <span>🌱</span> Unit 7 – Backtracking &amp; Branch and Bound
+                        <span>🌱</span> Unit 7 – Backtracking
                     </h3>
                     <span
                         class="font-sans text-xs font-bold text-indigo-900 bg-indigo-100 px-2.5 py-0.5 rounded-full border border-indigo-300">
-                        3 Notebooks
+                        5 Notebooks
                     </span>
                 </div>
                 <p class="text-base sm:text-lg text-pencilGray font-sans leading-relaxed">
@@ -741,7 +745,7 @@
                     <div class="personal-card border-indigo-600 note-item" data-search="backtracking state space tree pruning bounding function brute force greedy dynamic programming coin change branch and bound n queens sudoku dfs bfs permutations arrangements">
                         <div class="flex justify-between items-start gap-2">
                             <div>
-                                <span class="text-[11px] font-sans font-bold uppercase text-indigo-800 bg-indigo-100 px-1.5 py-0.5 rounded border border-indigo-300">State-Space Search</span>
+                                <span class="text-[11px] font-sans font-bold uppercase text-indigo-800 bg-indigo-100 px-1.5 py-0.5 rounded border border-indigo-300">Backtracking</span>
                                 <h4 class="text-xl font-bold text-inkBlue font-['Kalam'] mt-0.5">Chapter: Backtracking</h4>
                             </div>
                             <a href="backtracking.html" class="note-badge bg-indigo-700 hover:bg-indigo-800 text-white">Open ↗</a>
@@ -754,7 +758,7 @@
                     <div class="personal-card border-rose-600 note-item" data-search="n queens 4 queens problem backtracking state space tree mini chessboards pan zoom bounding function diagonal collision place formula">
                         <div class="flex justify-between items-start gap-2">
                             <div>
-                                <span class="text-[11px] font-sans font-bold uppercase text-rose-800 bg-rose-100 px-1.5 py-0.5 rounded border border-rose-300">N-Queens Problem</span>
+                                <span class="text-[11px] font-sans font-bold uppercase text-rose-800 bg-rose-100 px-1.5 py-0.5 rounded border border-rose-300">Backtracking • N-Queens</span>
                                 <h4 class="text-xl font-bold text-inkBlue font-['Kalam'] mt-0.5">4-Queens Problem</h4>
                             </div>
                             <a href="n_queens.html" class="note-badge bg-rose-700 hover:bg-rose-800 text-white">Open ↗</a>
@@ -767,13 +771,74 @@
                     <div class="personal-card border-emerald-600 note-item" data-search="sum of subsets subset sum problem backtracking abdul bari weights target state space tree dual bounding functions overweight underweight pan zoom">
                         <div class="flex justify-between items-start gap-2">
                             <div>
-                                <span class="text-[11px] font-sans font-bold uppercase text-emerald-800 bg-emerald-100 px-1.5 py-0.5 rounded border border-emerald-300">Subset Sum</span>
+                                <span class="text-[11px] font-sans font-bold uppercase text-emerald-800 bg-emerald-100 px-1.5 py-0.5 rounded border border-emerald-300">Backtracking • Subset Sum</span>
                                 <h4 class="text-xl font-bold text-inkBlue font-['Kalam'] mt-0.5">Sum of Subsets</h4>
                             </div>
                             <a href="subset_sum.html" class="note-badge bg-emerald-700 hover:bg-emerald-800 text-white">Open ↗</a>
                         </div>
                         <p class="text-sm font-sans text-slate-600 mt-1">Abdul Bari method: n=6 weights, Target M=30, (s, r) state-space tree nodes, dual bounding functions, pan/zoom &amp; fullscreen mode.</p>
                         <span class="text-xs font-sans font-bold text-slate-500 mt-2 block">4 Tabs • Pan, Zoom &amp; Maximize</span>
+                    </div>
+
+                    <!-- 0/1 Knapsack Backtracking -->
+                    <div class="personal-card border-rose-600 note-item" data-search="0/1 knapsack problem backtracking state space tree abdul bari horowitz sahni weights profits capacity bounding function pruning live canvas">
+                        <div class="flex justify-between items-start gap-2">
+                            <div>
+                                <span class="text-[11px] font-sans font-bold uppercase text-rose-800 bg-rose-100 px-1.5 py-0.5 rounded border border-rose-300">Backtracking • 0/1 Knapsack</span>
+                                <h4 class="text-xl font-bold text-inkBlue font-['Kalam'] mt-0.5">0/1 Knapsack (Backtracking)</h4>
+                            </div>
+                            <a href="knapsack_backtracking.html" class="note-badge bg-rose-700 hover:bg-rose-800 text-white">Open ↗</a>
+                        </div>
+                        <p class="text-sm font-sans text-slate-600 mt-1">Given W=8kg, n=4 items. Decision tuple X=(x₁,x₂,x₃,x₄), live pan/zoom state-space tree &amp; bounding functions.</p>
+                        <span class="text-xs font-sans font-bold text-slate-500 mt-2 block">3 Tabs • Pan &amp; Zoom Live Tree</span>
+                    </div>
+
+                    <!-- Graph Coloring -->
+                    <div class="personal-card border-fuchsia-600 note-item" data-search="graph coloring m coloring problem chromatic number planar map coloring four color theorem state space tree brute force bounded pruning live canvas 4-cycle red green blue">
+                        <div class="flex justify-between items-start gap-2">
+                            <div>
+                                <span class="text-[11px] font-sans font-bold uppercase text-fuchsia-800 bg-fuchsia-100 px-1.5 py-0.5 rounded border border-fuchsia-300">Backtracking • Graph Coloring</span>
+                                <h4 class="text-xl font-bold text-inkBlue font-['Kalam'] mt-0.5">Graph Coloring &amp; Map Coloring</h4>
+                            </div>
+                            <a href="graph_coloring.html" class="note-badge bg-fuchsia-700 hover:bg-fuchsia-800 text-white">Open ↗</a>
+                        </div>
+                        <p class="text-sm font-sans text-slate-600 mt-1">4-vertex cycle graph $C_4$, $m=3$ colors (R, G, B), 18 valid solutions, Brute Force $O(m^n)$ vs Bounded Tree, &amp; Map Coloring.</p>
+                        <span class="text-xs font-sans font-bold text-slate-500 mt-2 block">4 Tabs • Interactive Graphs &amp; Tree</span>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- ======================================================================
+                 UNIT 8: BRANCH AND BOUND
+                 ====================================================================== -->
+            <section id="sec-branch_and_bound" class="note-section space-y-4">
+                <div class="flex items-baseline justify-between border-b-2 border-inkBlue/30 pb-1">
+                    <h3 class="text-2xl sm:text-3xl font-bold text-amber-900 font-['Kalam'] flex items-center gap-2">
+                        <span>⚖️</span> Unit 8 – Branch and Bound (Concept &amp; Strategies)
+                    </h3>
+                    <span
+                        class="font-sans text-xs font-bold text-amber-900 bg-amber-100 px-2.5 py-0.5 rounded-full border border-amber-300">
+                        1 Notebook (New Concept)
+                    </span>
+                </div>
+                <p class="text-base sm:text-lg text-pencilGray font-sans leading-relaxed">
+                    State-space tree exploration for optimization problems, cost and bounding functions, variable vs. fixed-size representations, Job Sequencing with deadlines, and FIFO, LIFO &amp; Least Cost B&amp;B.
+                </p>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pl-1 sm:pl-2">
+                    
+                    <!-- Chapter: Branch and Bound -->
+                    <div class="personal-card border-amber-600 note-item" data-search="branch and bound optimization problem state space tree cost function minimization maximization job sequencing with deadlines variable size fixed size fifo queue lifo stack least cost priority best first search bounds">
+                        <div class="flex justify-between items-start gap-2">
+                            <div>
+                                <span class="text-[11px] font-sans font-bold uppercase text-amber-800 bg-amber-100 px-1.5 py-0.5 rounded border border-amber-300">Optimization • Foundations</span>
+                                <h4 class="text-xl font-bold text-inkBlue font-['Kalam'] mt-0.5">Branch and Bound (Core Concept)</h4>
+                            </div>
+                            <a href="branch_and_bound.html" class="note-badge bg-amber-700 hover:bg-amber-800 text-white">Open ↗</a>
+                        </div>
+                        <p class="text-sm font-sans text-slate-600 mt-1">Foundational concepts, minimization vs maximization, variable vs fixed representations, and step-by-step FIFO, LIFO &amp; Least Cost exploration.</p>
+                        <span class="text-xs font-sans font-bold text-slate-500 mt-2 block">4 Tabs • Interactive Visual Canvases</span>
                     </div>
 
                 </div>
@@ -836,9 +901,10 @@
                 'greedy': document.getElementById('sec-greedy'),
                 'dp': document.getElementById('sec-dp'),
                 'backtracking': document.getElementById('sec-backtracking'),
+                'branch_and_bound': document.getElementById('sec-branch_and_bound'),
             };
 
-            const buttons = ['all', 'stl', 'searching', 'sorting', 'trees', 'greedy', 'dp', 'backtracking'];
+            const buttons = ['all', 'stl', 'searching', 'sorting', 'trees', 'greedy', 'dp', 'backtracking', 'branch_and_bound'];
             buttons.forEach(b => {
                 const el = document.getElementById('btn-cat-' + b);
                 if (b === cat) {

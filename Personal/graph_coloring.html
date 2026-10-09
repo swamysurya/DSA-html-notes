@@ -1,0 +1,1881 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Graph Coloring Problem: Backtracking & State-Space Tree - Digital Lecture Notes</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Kalam:wght@300;400;700&family=Patrick+Hand&family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap"
+        rel="stylesheet">
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        notebookBg: '#cbd5e1',
+                        notebookPaper: '#FAF6EE',
+                        inkBlue: '#1A365D',
+                        inkRed: '#9B2C2C',
+                        pencilGray: '#4A5568',
+                    },
+                    fontFamily: {
+                        notes: ['Patrick Hand', 'Kalam', 'cursive'],
+                        heading: ['Kalam', 'cursive'],
+                        clean: ['Inter', 'sans-serif'],
+                        code: ['Fira Code', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Physical Notebook Stylesheet -->
+    <style>
+        body {
+            background-color: #cbd5e1;
+            font-family: 'Patrick Hand', 'Kalam', cursive;
+            color: #1e293b;
+        }
+
+        .lined-paper {
+            background-color: #FAF6EE !important;
+            background-image: repeating-linear-gradient(#FAF6EE 0px,
+                    #FAF6EE 31px,
+                    #e2ebf3 32px) !important;
+            line-height: 32px;
+            position: relative;
+        }
+
+        .notebook-margin {
+            border-left: 2.5px solid #FC8181 !important;
+            padding-left: 1.25rem;
+        }
+
+        @media (min-width: 640px) {
+            .notebook-margin {
+                padding-left: 2.5rem;
+            }
+        }
+
+        .spiral-ring {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #cbd5e1 0%, #64748b 50%, #334155 100%);
+            box-shadow: inset 1px 1px 2px rgba(255, 255, 255, 0.6), 2px 2px 4px rgba(0, 0, 0, 0.25);
+            margin: 11px 0;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Kalam', cursive;
+        }
+
+        /* Clean Mode Font Switcher */
+        body.font-clean,
+        body.font-clean * {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+        }
+
+        body.font-clean pre,
+        body.font-clean code {
+            font-family: 'Fira Code', monospace !important;
+        }
+
+        /* Highlights & Badges */
+        .highlighter-yellow {
+            background: linear-gradient(104deg, rgba(254, 240, 138, 0.95) 0.9%, rgba(253, 224, 71, 0.85) 98%);
+            padding: 2px 8px;
+            border-radius: 4px;
+            box-decoration-break: clone;
+            -webkit-box-decoration-break: clone;
+            display: inline-block;
+        }
+
+        .highlighter-green {
+            background: linear-gradient(104deg, rgba(187, 247, 208, 0.95) 0.9%, rgba(134, 239, 172, 0.85) 98%);
+            padding: 2px 8px;
+            border-radius: 4px;
+            box-decoration-break: clone;
+            -webkit-box-decoration-break: clone;
+            display: inline-block;
+        }
+
+        .highlighter-red {
+            background: linear-gradient(104deg, rgba(254, 205, 211, 0.95) 0.9%, rgba(253, 164, 175, 0.85) 98%);
+            padding: 2px 8px;
+            border-radius: 4px;
+            box-decoration-break: clone;
+            -webkit-box-decoration-break: clone;
+            display: inline-block;
+        }
+
+        .highlighter-blue {
+            background: linear-gradient(104deg, rgba(191, 219, 254, 0.95) 0.9%, rgba(147, 197, 253, 0.85) 98%);
+            padding: 2px 8px;
+            border-radius: 4px;
+            box-decoration-break: clone;
+            -webkit-box-decoration-break: clone;
+            display: inline-block;
+        }
+
+        .pen-box {
+            background: rgba(255, 255, 255, 0.92);
+            border: 2px dashed #3b82f6;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .pen-box-red {
+            background: rgba(255, 255, 255, 0.92);
+            border: 2px dashed #ef4444;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .teacher-quote {
+            background: rgba(254, 243, 199, 0.92);
+            border-left: 5px solid #d97706;
+            border-radius: 6px;
+            padding: 0.85rem 1.2rem;
+            font-style: italic;
+        }
+
+        .sketch-card {
+            background: #ffffff;
+            border: 1.5px solid #cbd5e1;
+            box-shadow: 2px 3px 6px rgba(0, 0, 0, 0.06);
+            border-radius: 10px;
+        }
+
+        /* Pan & Zoom Canvas Container */
+        .zoom-canvas-wrapper {
+            position: relative;
+            overflow: hidden;
+            border: 2px solid #cbd5e1;
+            border-radius: 12px;
+            background-color: #FAF6EE;
+            background-image: 
+                radial-gradient(#cbd5e1 1.2px, transparent 1.2px), 
+                radial-gradient(#cbd5e1 1.2px, #FAF6EE 1.2px);
+            background-size: 24px 24px;
+            background-position: 0 0, 12px 12px;
+            cursor: grab;
+            user-select: none;
+        }
+
+        .zoom-canvas-wrapper:active {
+            cursor: grabbing;
+        }
+
+        .zoom-toolbar {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(4px);
+            padding: 4px 8px;
+            border-radius: 10px;
+            border: 1px solid #cbd5e1;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Fullscreen Maximize Mode */
+        body.has-fullscreen-canvas #notebookBinderColumn,
+        body.has-fullscreen-canvas .binder-column {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+        }
+
+        .zoom-canvas-wrapper.is-fullscreen {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            z-index: 2147483647 !important;
+            background-color: #FAF6EE !important;
+            border-radius: 0 !important;
+            border: none !important;
+            margin: 0 !important;
+            box-shadow: none !important;
+        }
+
+        .zoom-canvas-wrapper.is-fullscreen .zoom-toolbar {
+            top: 18px;
+            right: 24px;
+            padding: 6px 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+        }
+
+        .zoom-btn {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: #1e293b;
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            transition: all 0.15s ease;
+        }
+
+        .zoom-btn:hover {
+            background: #e2e8f0;
+            color: #0f172a;
+            transform: scale(1.05);
+        }
+
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            body {
+                background: white !important;
+            }
+            .lined-paper {
+                background-image: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body class="text-xl text-slate-800 antialiased transition-all duration-300">
+
+    <!-- Sticky Header Navigation Bar -->
+    <header class="sticky top-0 z-50 bg-[#FAF6EE] shadow-md border-b-2 border-amber-200 px-4 py-3 no-print">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-3">
+            <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+                <a href="../index.html"
+                    class="px-3 py-1.5 rounded-lg bg-amber-100 hover:bg-amber-200 border border-amber-300 text-inkBlue text-xs sm:text-sm font-bold flex items-center gap-1.5 transition shadow-sm font-sans"
+                    title="Back to Digital Bookshelf">
+                    <span>📚</span> <span>Bookshelf</span>
+                </a>
+                <a href="index.html"
+                    class="px-3 py-1.5 rounded-lg bg-emerald-100 hover:bg-emerald-200 border border-emerald-300 text-emerald-900 text-xs sm:text-sm font-bold flex items-center gap-1.5 transition shadow-sm font-sans"
+                    title="Back to Personal Notes Directory">
+                    <span>📋</span> <span>Notes Directory</span>
+                </a>
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl sm:text-3xl font-bold text-inkBlue tracking-wide font-['Kalam']">🎨 Graph Coloring</span>
+                    <span
+                        class="bg-purple-100 text-purple-900 text-xs sm:text-sm font-bold px-3 py-1 rounded-full border border-purple-300 font-sans">
+                        m-Coloring Problem • Backtracking
+                    </span>
+                </div>
+            </div>
+
+            <!-- Right: Font Toggle Button -->
+            <div class="flex items-center gap-2">
+                <button id="fontToggleBtn" onclick="toggleFontMode()"
+                    class="shrink-0 px-3.5 py-1.5 rounded-lg bg-inkBlue text-white hover:bg-slate-800 transition text-xs sm:text-sm font-bold shadow flex items-center gap-1.5 font-sans"
+                    title="Toggle between Handwritten and Clean typography">
+                    <span>✍️</span> <span id="fontBtnText">Clean Font</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <nav class="max-w-6xl mx-auto mt-2.5 flex flex-wrap gap-1 border-t border-amber-200 pt-2 text-sm sm:text-base font-sans">
+            <button onclick="switchTab('tab-problem-multiple-solutions')" id="nav-tab-problem-multiple-solutions"
+                class="nav-tab px-4 py-1.5 rounded-t-lg font-bold bg-amber-200 text-inkBlue border-b-2 border-inkBlue transition">
+                1. Problem &amp; Multiple Solutions
+            </button>
+            <button onclick="switchTab('tab-state-space-comparison')" id="nav-tab-state-space-comparison"
+                class="nav-tab px-4 py-1.5 rounded-t-lg font-bold text-slate-600 hover:text-inkBlue transition">
+                2. State-Space Trees: Brute Force vs Pruned
+            </button>
+            <button onclick="switchTab('tab-map-coloring')" id="nav-tab-map-coloring"
+                class="nav-tab px-4 py-1.5 rounded-t-lg font-bold text-slate-600 hover:text-inkBlue transition">
+                3. Map Coloring &amp; 4-Color Theorem
+            </button>
+            <button onclick="switchTab('tab-algorithm-complexity')" id="nav-tab-algorithm-complexity"
+                class="nav-tab px-4 py-1.5 rounded-t-lg font-bold text-slate-600 hover:text-inkBlue transition">
+                4. Algorithm &amp; Complexity
+            </button>
+        </nav>
+    </header>
+
+    <!-- Main Notebook Container -->
+    <main
+        class="max-w-6xl mx-auto flex relative bg-notebookPaper rounded-xl shadow-2xl overflow-hidden min-h-[950px] border border-amber-200 my-8">
+
+        <!-- Left Binder Column (50 Physical Spiral Rings) -->
+        <div id="notebookBinderColumn"
+            class="binder-column w-10 sm:w-16 bg-amber-50 border-r-2 border-amber-200 flex flex-col items-center py-8 select-none shrink-0 no-print space-y-6 shadow-[inset_-5px_0_10px_rgba(0,0,0,0.05)]">
+            <script>
+                for (let i = 0; i < 50; i++) document.write('<div class="spiral-ring"></div>');
+            </script>
+        </div>
+
+        <!-- Notebook Content Area -->
+        <div class="flex-1 lined-paper p-4 sm:p-8 notebook-margin sm:pl-8 overflow-hidden">
+
+            <!-- ==================================================================== -->
+            <!-- TAB 1: PROBLEM STATEMENT & MULTIPLE SOLUTIONS CONCEPT                -->
+            <!-- ==================================================================== -->
+            <div id="tab-problem-multiple-solutions" class="tab-pane space-y-8">
+
+                <!-- Section Header -->
+                <div class="border-b-2 border-inkRed pb-2 flex justify-between items-baseline">
+                    <div>
+                        <h1 class="text-3xl sm:text-4xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                            1. Graph Coloring (m-Coloring Problem)
+                        </h1>
+                        <p class="text-sm font-sans text-pencilGray mt-1">
+                            Sample 4-cycle graph $C_4$, colors {Red, Green, Blue}, discovering valid configurations, and why Backtracking is chosen
+                        </p>
+                    </div>
+                    <span class="text-xs sm:text-sm font-bold font-sans bg-purple-100 text-purple-900 px-2.5 py-1 rounded border border-purple-300">
+                        Exam Standard • Unit 7
+                    </span>
+                </div>
+
+                <!-- Teacher's Handwritten Opening Note -->
+                <div class="teacher-quote text-slate-800 text-lg sm:text-xl">
+                    <span class="font-bold text-amber-900 not-italic">📝 Core Observation:</span>
+                    "Unlike Greedy algorithms which only output a <em>single</em> approximate answer, or Dynamic Programming which is meant for <em>optimization</em> problems, <strong>Backtracking is designed to systematically find ALL valid configurations (multiple solutions)</strong>! When an assignment violates the adjacency rule, we immediately prune the branch and backtrack to find alternative valid colorings!"
+                </div>
+
+                <!-- Problem Statement Card -->
+                <div class="sketch-card p-5 font-sans space-y-4">
+                    <div class="flex items-center gap-2 border-b border-slate-200 pb-2">
+                        <span class="text-2xl">📋</span>
+                        <h2 class="text-2xl font-bold text-inkBlue font-['Kalam']">1.1 Problem Statement</h2>
+                    </div>
+
+                    <p class="text-slate-700 leading-relaxed text-base sm:text-lg">
+                        Given an undirected graph <strong class="text-inkBlue font-mono">G = (V, E)</strong> with 
+                        <strong class="text-inkBlue font-mono">n = 4</strong> vertices and a set of 
+                        <strong class="text-inkBlue font-mono">m = 3</strong> available colors: 
+                        <span class="px-2 py-0.5 bg-rose-100 border border-rose-300 rounded font-bold text-rose-800">Red (1)</span>, 
+                        <span class="px-2 py-0.5 bg-emerald-100 border border-emerald-300 rounded font-bold text-emerald-800">Green (2)</span>, and 
+                        <span class="px-2 py-0.5 bg-blue-100 border border-blue-300 rounded font-bold text-blue-800">Blue (3)</span>.
+                    </p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm font-sans pt-1">
+                        <div class="p-4 bg-purple-50/80 border border-purple-300 rounded-lg space-y-1">
+                            <h4 class="font-bold text-purple-950 flex items-center gap-1.5">
+                                <span>🎯</span> The Goal (m-Coloring Problem):
+                            </h4>
+                            <p class="text-slate-700">
+                                Assign one color <code class="bg-white px-1.5 py-0.5 rounded border border-purple-200 font-mono font-bold">x[i] ∈ {1, 2, ..., m}</code> to each vertex $i \in V$.
+                            </p>
+                        </div>
+                        <div class="p-4 bg-rose-50/80 border border-rose-300 rounded-lg space-y-1">
+                            <h4 class="font-bold text-rose-950 flex items-center gap-1.5">
+                                <span>⚖️</span> Fundamental Adjacency Constraint:
+                            </h4>
+                            <p class="text-rose-900 font-mono font-bold">
+                                ∀ (u, v) ∈ E &nbsp;⟹&nbsp; x[u] ≠ x[v]
+                            </p>
+                            <p class="text-xs text-slate-600">
+                                No two adjacent (connected) vertices may be assigned the exact same color!
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sample Graph & Live Interactive Coloring Board -->
+                <div class="sketch-card p-5 font-sans space-y-4 border-2 border-indigo-200">
+                    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-3">
+                        <div class="flex items-center gap-2">
+                            <span class="text-2xl">📐</span>
+                            <h2 class="text-2xl font-bold text-inkBlue font-['Kalam']">1.2 Given Sample Graph (4-Cycle C₄) &amp; Valid Answers</h2>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="px-3 py-1 bg-amber-100 border border-amber-300 rounded-lg font-mono font-bold text-amber-950 text-xs sm:text-sm">
+                                Vertices: n = 4
+                            </span>
+                            <span class="px-3 py-1 bg-purple-100 border border-purple-300 rounded-lg font-mono font-bold text-purple-950 text-xs sm:text-sm">
+                                Colors: m = 3
+                            </span>
+                            <span class="px-3 py-1 bg-emerald-100 border border-emerald-300 rounded-lg font-mono font-bold text-emerald-950 text-xs sm:text-sm">
+                                Total Solutions = 18
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                        <!-- Left Canvas: Interactive Colored Graph -->
+                        <div class="md:col-span-6 flex flex-col items-center">
+                            <div class="bg-amber-50/60 p-3 rounded-xl border border-amber-300 shadow-inner w-full flex flex-col items-center">
+                                <canvas id="canvas-sample-graph" width="340" height="280" class="bg-white rounded-lg border border-slate-300 shadow-sm"></canvas>
+                                
+                                <!-- Solution Selector Buttons -->
+                                <div class="mt-3 flex flex-wrap gap-1.5 justify-center text-xs">
+                                    <button onclick="applySampleColoring([1, 2, 3, 2], 'Solution 1 (Uses 3 Colors): v₁=Red, v₂=Green, v₃=Blue, v₄=Green')" class="px-2.5 py-1 bg-indigo-50 border border-indigo-300 hover:bg-indigo-100 rounded font-bold text-indigo-900 shadow-sm">
+                                        Ans 1 (3 Colors): R-G-B-G
+                                    </button>
+                                    <button onclick="applySampleColoring([1, 2, 1, 3], 'Solution 2 (Uses 3 Colors): v₁=Red, v₂=Green, v₃=Red, v₄=Blue')" class="px-2.5 py-1 bg-indigo-50 border border-indigo-300 hover:bg-indigo-100 rounded font-bold text-indigo-900 shadow-sm">
+                                        Ans 2 (3 Colors): R-G-R-B
+                                    </button>
+                                    <button onclick="applySampleColoring([1, 3, 2, 3], 'Solution 3 (Uses 3 Colors): v₁=Red, v₂=Blue, v₃=Green, v₄=Blue')" class="px-2.5 py-1 bg-indigo-50 border border-indigo-300 hover:bg-indigo-100 rounded font-bold text-indigo-900 shadow-sm">
+                                        Ans 3 (3 Colors): R-B-G-B
+                                    </button>
+                                    <button onclick="applySampleColoring([2, 1, 2, 3], 'Solution 4 (Uses 3 Colors): v₁=Green, v₂=Red, v₃=Green, v₄=Blue')" class="px-2.5 py-1 bg-indigo-50 border border-indigo-300 hover:bg-indigo-100 rounded font-bold text-indigo-900 shadow-sm">
+                                        Ans 4 (3 Colors): G-R-G-B
+                                    </button>
+                                    <button onclick="applySampleColoring([1, 2, 1, 2], 'Solution 5 (Uses 2 Colors): v₁=Red, v₂=Green, v₃=Red, v₄=Green')" class="px-2.5 py-1 bg-amber-50 border border-amber-300 hover:bg-amber-100 rounded font-bold text-amber-900 shadow-sm">
+                                        Ans 5 (2 Colors): R-G-R-G
+                                    </button>
+                                </div>
+                                <span id="currentSampleLabel" class="mt-2 text-xs font-mono font-bold text-indigo-900 bg-indigo-50 px-3 py-1 rounded border border-indigo-200 text-center">
+                                    Solution 1 (Uses 3 Colors): v₁=Red, v₂=Green, v₃=Blue, v₄=Green
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Right Description: Why Backtracking is Essential -->
+                        <div class="md:col-span-6 space-y-3 text-slate-700 text-sm">
+                            <h3 class="text-xl font-bold text-inkBlue font-['Kalam']">
+                                💡 Why We Use Backtracking: Multiple Solutions Discovery
+                            </h3>
+                            <p class="leading-relaxed">
+                                Notice that <span class="highlighter-green font-bold">X = (Red, Green, Blue, Green)</span> is <strong>one valid answer that utilizes all 3 given colors</strong>! 
+                                In graph coloring, our goal is not just to find a single arbitrary answer, but to systematically discover <strong>all possible ways</strong> we can color the network.
+                            </p>
+
+                            <!-- Important Note: 3 Colors vs 2 Colors -->
+                            <div class="p-3 bg-amber-50 border-l-4 border-amber-500 rounded-r-lg space-y-1.5 text-xs">
+                                <span class="font-bold text-amber-950 flex items-center gap-1.5 text-sm">
+                                    <span>⚠️</span> 3 Colors Given vs 2 Colors Minimum:
+                                </span>
+                                <p class="text-slate-800 leading-relaxed">
+                                    The problem gave us <strong class="text-inkBlue">3 available colors: {Red, Green, Blue}</strong>.
+                                </p>
+                                <ul class="list-disc list-inside space-y-1 text-slate-700">
+                                    <li><strong>Solutions using all 3 colors (12 solutions):</strong> e.g., <code class="bg-white px-1 py-0.5 rounded font-mono font-bold">(R, G, B, G)</code>, <code class="bg-white px-1 py-0.5 rounded font-mono font-bold">(R, G, R, B)</code>, <code class="bg-white px-1 py-0.5 rounded font-mono font-bold">(R, B, G, B)</code>.</li>
+                                    <li><strong>Solutions using only 2 colors (6 solutions):</strong> e.g., <code class="bg-white px-1 py-0.5 rounded font-mono font-bold">(R, G, R, G)</code>, <code class="bg-white px-1 py-0.5 rounded font-mono font-bold">(R, B, R, B)</code>, <code class="bg-white px-1 py-0.5 rounded font-mono font-bold">(G, B, G, B)</code>. These are also valid because the minimum chromatic number is $\chi(C_4) = 2$.</li>
+                                </ul>
+                            </div>
+
+                            <div class="p-3 bg-indigo-50 border border-indigo-200 rounded-lg space-y-1 text-xs">
+                                <span class="font-bold text-indigo-950 block">✨ Chromatic Polynomial Formula:</span>
+                                <p class="font-mono text-slate-800">
+                                    P(C₄, m) = (m - 1)⁴ + (m - 1) = (3 - 1)⁴ + (3 - 1) = 2⁴ + 2 = <strong>18 Total Valid Solutions!</strong>
+                                </p>
+                                <p class="text-indigo-900 font-bold mt-1">
+                                    👉 Concluding Key Idea: Backtracking is nothing but systematic tree traversal to find MULTIPLE SOLUTIONS. We prune invalid paths and backtrack to explore every valid color configuration!
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ==================================================================== -->
+            <!-- TAB 2: STATE-SPACE TREES (BRUTE FORCE vs PRUNED)                     -->
+            <!-- ==================================================================== -->
+            <div id="tab-state-space-comparison" class="tab-pane hidden space-y-8">
+
+                <!-- Section Header -->
+                <div class="border-b-2 border-inkRed pb-2 flex justify-between items-baseline">
+                    <div>
+                        <h1 class="text-3xl sm:text-4xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                            2. State-Space Trees: Brute Force vs Bounding Condition
+                        </h1>
+                        <p class="text-sm font-sans text-pencilGray mt-1">
+                            Comparing the unconstrained ternary tree (Time Complexity: $O(m^n)$) against the pruned state-space tree
+                        </p>
+                    </div>
+                    <span class="text-xs sm:text-sm font-bold font-sans bg-amber-100 text-inkRed px-2.5 py-1 rounded border border-amber-300">
+                        Tree Analysis
+                    </span>
+                </div>
+
+                <!-- PART 1: BRUTE FORCE TREE (WITHOUT ADJACENCY RULE) -->
+                <div class="sketch-card p-5 font-sans space-y-4 border-2 border-rose-200">
+                    <div class="flex items-center justify-between border-b border-slate-200 pb-2">
+                        <div class="flex items-center gap-2">
+                            <span class="text-2xl">🌲</span>
+                            <h2 class="text-xl font-bold text-inkBlue font-['Kalam']">
+                                2.1 State-Space Tree WITHOUT Bounding Condition (Brute Force)
+                            </h2>
+                        </div>
+                        <span class="px-2.5 py-1 bg-rose-100 text-rose-900 font-mono font-bold text-xs rounded border border-rose-300">
+                            Time Complexity: O(mⁿ) = 3⁴ = 81 Leaves
+                        </span>
+                    </div>
+
+                    <p class="text-slate-700 text-sm leading-relaxed">
+                        If we ignore the adjacency constraint during generation, every vertex $i \in \{1, 2, 3, 4\}$ can independently take any of the <strong>m = 3 colors</strong> (Red, Green, Blue). This generates a complete ternary tree:
+                    </p>
+
+                    <!-- Mathematical Breakdown of Brute Force States -->
+                    <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 text-center text-xs font-mono">
+                        <div class="p-2.5 bg-slate-50 border border-slate-200 rounded-lg">
+                            <span class="text-slate-500 block text-[11px]">Level 0 (Root)</span>
+                            <span class="text-lg font-bold text-slate-800">1 node</span>
+                            <span class="text-[10px] text-slate-400 block">3⁰</span>
+                        </div>
+                        <div class="p-2.5 bg-slate-50 border border-slate-200 rounded-lg">
+                            <span class="text-slate-500 block text-[11px]">Level 1 (Vertex 1)</span>
+                            <span class="text-lg font-bold text-slate-800">3 nodes</span>
+                            <span class="text-[10px] text-slate-400 block">3¹</span>
+                        </div>
+                        <div class="p-2.5 bg-slate-50 border border-slate-200 rounded-lg">
+                            <span class="text-slate-500 block text-[11px]">Level 2 (Vertex 2)</span>
+                            <span class="text-lg font-bold text-slate-800">9 nodes</span>
+                            <span class="text-[10px] text-slate-400 block">3²</span>
+                        </div>
+                        <div class="p-2.5 bg-slate-50 border border-slate-200 rounded-lg">
+                            <span class="text-slate-500 block text-[11px]">Level 3 (Vertex 3)</span>
+                            <span class="text-lg font-bold text-slate-800">27 nodes</span>
+                            <span class="text-[10px] text-slate-400 block">3³</span>
+                        </div>
+                        <div class="p-2.5 bg-rose-50 border border-rose-200 rounded-lg col-span-2 sm:col-span-1">
+                            <span class="text-rose-600 block text-[11px]">Level 4 (Leaves)</span>
+                            <span class="text-lg font-bold text-rose-900">81 leaves</span>
+                            <span class="text-[10px] text-rose-500 block">3⁴ = 81</span>
+                        </div>
+                    </div>
+
+                    <div class="p-3 bg-rose-50 border border-rose-300 rounded-lg text-xs space-y-1">
+                        <span class="font-bold text-rose-900 block text-sm">⚠️ Total Nodes Generated in Brute Force:</span>
+                        <div class="font-mono text-slate-800 font-bold">
+                            Total Nodes = 1 + 3 + 9 + 27 + 81 = 121 Nodes!
+                        </div>
+                        <p class="text-slate-700">
+                            <strong>Time Complexity:</strong> <code class="font-bold text-rose-800">O(mⁿ)</code>. 
+                            Out of the 81 total leaf configurations generated by Brute Force, only <strong>18 are valid</strong>, and <strong>63 are completely invalid</strong>! Generating and testing every state is wildly wasteful.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- PART 2: PRUNED STATE-SPACE TREE (WITH ADJACENCY RULE) -->
+                <div class="sketch-card p-5 font-sans space-y-4 border-2 border-emerald-200">
+                    <div class="flex items-center justify-between border-b border-slate-200 pb-2">
+                        <div class="flex items-center gap-2">
+                            <span class="text-2xl">✂️</span>
+                            <h2 class="text-xl font-bold text-inkBlue font-['Kalam']">
+                                2.2 State-Space Tree WITH Bounding Condition (Backtracking)
+                            </h2>
+                        </div>
+                        <span class="px-2.5 py-1 bg-emerald-100 text-emerald-900 font-mono font-bold text-xs rounded border border-emerald-300">
+                            Adjacency Rule Imposed
+                        </span>
+                    </div>
+
+                    <p class="text-slate-700 text-sm leading-relaxed">
+                        Now impose the <strong>Bounding Function `isSafe(k, c)`</strong>. At Level $k$, before assigning color $c$ to vertex $k$, we check if any adjacent vertex already assigned has color $c$. If yes, the node is <strong>KILLED (Pruned ❌)</strong>, and we never explore its children!
+                    </p>
+
+                    <!-- Interactive Tree Canvas Container -->
+                    <div class="zoom-canvas-wrapper" id="colorTreeWrapper" style="height: 580px;">
+                        <!-- Floating Toolbar -->
+                        <div class="zoom-toolbar select-none">
+                            <span id="colorZoomDisplay" class="text-xs font-mono font-bold text-slate-700 px-2">100%</span>
+                            <button onclick="colorZoomIn()" class="zoom-btn" title="Zoom In (+)">➕</button>
+                            <button onclick="colorZoomOut()" class="zoom-btn" title="Zoom Out (-)">➖</button>
+                            <button onclick="colorResetZoom()" class="zoom-btn" title="Reset View (⟲)">⟲</button>
+                            <button onclick="colorFitTree()" class="zoom-btn" title="Fit Entire Tree (⊡)">⊡</button>
+                            <button id="btnColorFullscreen" onclick="toggleColorFullscreen()" class="zoom-btn text-base" title="Maximize Fullscreen (⛶)">⛶</button>
+                        </div>
+
+                        <!-- Canvas for Pruned Tree -->
+                        <canvas id="canvas-color-tree" width="1800" height="740"></canvas>
+                    </div>
+
+                    <div class="flex flex-wrap justify-between items-center text-xs text-slate-600 px-1 pt-1">
+                        <span>💡 Drag to pan • Scroll wheel to zoom • Click <strong>⛶</strong> for Fullscreen mode (press <kbd class="px-1 bg-slate-200 rounded">Esc</kbd> to exit)</span>
+                        <span class="text-emerald-800 font-bold">Showing complete subtree under Vertex 1 = Red (yielding 6 solutions, ×3 = 18 total)</span>
+                    </div>
+
+                    <!-- Step-by-Step Pruning Logic Walkthrough -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 pt-2 text-xs">
+                        <div class="p-3 bg-white border border-slate-300 rounded-lg space-y-1">
+                            <span class="font-bold text-inkBlue block">Level 1 ➜ Level 2 (Vertex 2):</span>
+                            <p class="text-slate-600">
+                                Vertex 2 is adjacent to Vertex 1 (which is Red).<br>
+                                • Try $x_2 = R$: <strong>KILLED ❌</strong> ($1-2$ conflict).<br>
+                                • Try $x_2 = G$: Valid ✅.<br>
+                                • Try $x_2 = B$: Valid ✅.
+                            </p>
+                        </div>
+                        <div class="p-3 bg-white border border-slate-300 rounded-lg space-y-1">
+                            <span class="font-bold text-inkBlue block">Level 2 ➜ Level 3 (Vertex 3):</span>
+                            <p class="text-slate-600">
+                                Vertex 3 is adjacent to Vertex 2 (which is Green).<br>
+                                • Try $x_3 = G$: <strong>KILLED ❌</strong> ($2-3$ conflict).<br>
+                                • Try $x_3 = R$: Valid ✅.<br>
+                                • Try $x_3 = B$: Valid ✅.
+                            </p>
+                        </div>
+                        <div class="p-3 bg-white border border-slate-300 rounded-lg space-y-1">
+                            <span class="font-bold text-inkBlue block">Level 3 ➜ Level 4 (Vertex 4):</span>
+                            <p class="text-slate-600">
+                                Vertex 4 is adjacent to <strong>both 3 and 1</strong>!<br>
+                                If 3 is Red and 1 is Red:<br>
+                                • $x_4 = R$: <strong>KILLED ❌</strong>.<br>
+                                • $x_4 = G$ or $B$: <strong>VALID SOLUTIONS! 🏆</strong>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ==================================================================== -->
+            <!-- TAB 3: MAP COLORING PROBLEM & 4-COLOR THEOREM                        -->
+            <!-- ==================================================================== -->
+            <div id="tab-map-coloring" class="tab-pane hidden space-y-8">
+
+                <!-- Section Header -->
+                <div class="border-b-2 border-inkRed pb-2 flex justify-between items-baseline">
+                    <div>
+                        <h1 class="text-3xl sm:text-4xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                            3. Map Coloring &amp; The Four-Color Theorem
+                        </h1>
+                        <p class="text-sm font-sans text-pencilGray mt-1">
+                            Real-world cartography, conversion to planar dual graphs, and how Backtracking solves map coloring
+                        </p>
+                    </div>
+                    <span class="text-xs sm:text-sm font-bold font-sans bg-amber-100 text-amber-900 px-2.5 py-1 rounded border border-amber-300">
+                        Applications
+                    </span>
+                </div>
+
+                <!-- Map Coloring Problem Setup -->
+                <div class="sketch-card p-5 font-sans space-y-4">
+                    <div class="flex items-center gap-2 border-b border-slate-200 pb-2">
+                        <span class="text-2xl">🗺️</span>
+                        <h2 class="text-2xl font-bold text-inkBlue font-['Kalam']">3.1 What is the Map Coloring Problem?</h2>
+                    </div>
+
+                    <p class="text-slate-700 text-base sm:text-lg leading-relaxed">
+                        In cartography (map making), cartographers need to color geopolitical maps (countries, states, provinces) such that 
+                        <span class="highlighter-yellow font-bold">no two adjacent countries sharing a common boundary border receive the same color</span>. 
+                        (Sharing only a single corner point does not count as adjacent).
+                    </p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm pt-2">
+                        <div class="pen-box space-y-2">
+                            <h3 class="font-bold text-inkBlue text-base flex items-center gap-2">
+                                <span>🔄</span> How a Map is Converted into a Graph (Planar Dual)
+                            </h3>
+                            <ul class="list-disc pl-5 text-slate-700 space-y-1.5 text-xs sm:text-sm">
+                                <li>
+                                    <strong>Regions ➜ Vertices:</strong> Place a vertex inside each country / region.
+                                </li>
+                                <li>
+                                    <strong>Shared Borders ➜ Edges:</strong> Draw an edge between two vertices if their corresponding regions share a common land border line.
+                                </li>
+                                <li>
+                                    The resulting graph is a <strong>Planar Graph</strong> (can be drawn on a 2D plane without any edges crossing over each other).
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="pen-box space-y-2">
+                            <h3 class="font-bold text-inkBlue text-base flex items-center gap-2">
+                                <span>🌍</span> The Famous Four-Color Theorem (1976)
+                            </h3>
+                            <p class="text-slate-700 text-xs sm:text-sm leading-relaxed">
+                                Formulated in 1852 by Francis Guthrie and famously proven in 1976 by Kenneth Appel and Wolfgang Haken (the first major computer-assisted mathematical proof):
+                            </p>
+                            <div class="p-2.5 bg-emerald-50 border border-emerald-300 rounded font-bold text-emerald-950 text-center font-mono text-sm">
+                                Every planar map can be colored using AT MOST 4 COLORS!
+                            </div>
+                            <p class="text-xs text-slate-600 italic">
+                                Chromatic number $\chi(G) \le 4$ for any planar graph without edge crossings.
+                            </p>
+                        </div>
+                    </div>
+                <!-- Section 3.2: Interactive Canvas: From Map to Dual Graph -->
+                <div class="sketch-card p-5 font-sans space-y-4 border-2 border-amber-300">
+                    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-3">
+                        <div class="flex items-center gap-2">
+                            <span class="text-2xl">🗺️ ➔ 🕸️</span>
+                            <h2 class="text-2xl font-bold text-inkBlue font-['Kalam']">
+                                3.2 Visual Construction: How a Map Becomes a Planar Dual Graph
+                            </h2>
+                        </div>
+                        
+                        <!-- Interactive Mode Buttons -->
+                        <div class="flex flex-wrap gap-1.5 text-xs">
+                            <button onclick="setMapMode('sideBySide')" id="btn-map-sideBySide" class="map-view-btn px-2.5 py-1 bg-amber-200 text-inkBlue font-bold rounded shadow-sm border border-amber-400">
+                                ↔️ Side-by-Side (Map ➜ Graph)
+                            </button>
+                            <button onclick="setMapMode('overlay')" id="btn-map-overlay" class="map-view-btn px-2.5 py-1 bg-white hover:bg-slate-100 text-slate-700 font-bold rounded shadow-sm border border-slate-300">
+                                🔄 Dual Graph Overlay on Map
+                            </button>
+                            <button onclick="setMapMode('mapOnly')" id="btn-map-mapOnly" class="map-view-btn px-2.5 py-1 bg-white hover:bg-slate-100 text-slate-700 font-bold rounded shadow-sm border border-slate-300">
+                                🗺️ Political Map Only
+                            </button>
+                            <button onclick="setMapMode('graphOnly')" id="btn-map-graphOnly" class="map-view-btn px-2.5 py-1 bg-white hover:bg-slate-100 text-slate-700 font-bold rounded shadow-sm border border-slate-300">
+                                🕸️ Planar Graph Only
+                            </button>
+                            <button onclick="setMapMode('colored')" id="btn-map-colored" class="map-view-btn px-2.5 py-1 bg-emerald-100 hover:bg-emerald-200 text-emerald-900 font-bold rounded shadow-sm border border-emerald-300">
+                                🎨 Solved 4-Coloring
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Canvas Container -->
+                    <div class="bg-amber-50/50 p-3 rounded-xl border border-amber-300 shadow-inner flex flex-col items-center">
+                        <canvas id="canvas-map-dual" width="820" height="360" class="bg-white rounded-lg border border-slate-300 shadow-sm max-w-full"></canvas>
+                        <div id="mapModeDescription" class="mt-2 text-xs font-mono font-bold text-slate-700 bg-white px-3 py-1 rounded border border-slate-300 text-center">
+                            ↔️ Side-by-Side: Left is the realistic map with curly irregular borders &amp; alphabet regions (A, B, C, D, E); Right is the extracted Planar Dual Graph.
+                        </div>
+                    </div>
+
+                    <!-- Key Rules Breakdown Below Canvas -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs pt-1">
+                        <div class="p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                            <strong class="text-amber-950 block">1. Territory ➔ Vertex:</strong>
+                            <p class="text-slate-700 mt-1">Each bounded territory/country ($A, B, C, D, E$) becomes an independent vertex. Place a node inside the center of each territory.</p>
+                        </div>
+                        <div class="p-3 bg-indigo-50 border border-indigo-200 rounded-lg">
+                            <strong class="text-indigo-950 block">2. Shared Border ➔ Dual Edge:</strong>
+                            <p class="text-slate-700 mt-1">Whenever two countries share a border line of non-zero length, draw an edge across that border connecting their vertices. (Points touching at corners do NOT form edges).</p>
+                        </div>
+                        <div class="p-3 bg-emerald-50 border border-emerald-200 rounded-lg">
+                            <strong class="text-emerald-950 block">3. Four-Color Theorem in Action:</strong>
+                            <p class="text-slate-700 mt-1">Since the resulting dual graph is strictly planar (drawn without overlapping edges), Kenneth Appel &amp; Wolfgang Haken's theorem guarantees it can always be colored using $\le 4$ colors!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- How Backtracking Solves Map Coloring -->
+                <div class="sketch-card p-5 font-sans space-y-4 border-2 border-indigo-200">
+                    <div class="flex items-center gap-2 border-b border-slate-200 pb-2">
+                        <span class="text-2xl">⚙️</span>
+                        <h2 class="text-2xl font-bold text-inkBlue font-['Kalam']">3.3 How Backtracking Solves Map Coloring Step-by-Step</h2>
+                    </div>
+
+                    <div class="space-y-3 text-sm text-slate-700">
+                        <div class="p-3 bg-white border border-slate-300 rounded-lg flex items-start gap-3">
+                            <span class="w-6 h-6 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center shrink-0 text-xs">1</span>
+                            <div>
+                                <strong class="text-indigo-950">Graph Representation:</strong>
+                                <p class="text-xs text-slate-600 mt-0.5">
+                                    Represent the map's $n$ countries as an $n \times n$ binary adjacency matrix <code>graph[i][j] = 1</code> if country $i$ borders country $j$.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="p-3 bg-white border border-slate-300 rounded-lg flex items-start gap-3">
+                            <span class="w-6 h-6 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center shrink-0 text-xs">2</span>
+                            <div>
+                                <strong class="text-indigo-950">Sequential Assignment (DFS):</strong>
+                                <p class="text-xs text-slate-600 mt-0.5">
+                                    Start with Country 1. Try assigning Color 1 (e.g. Red). Move to Country 2, try Color 1, if it borders Country 1, reject and try Color 2 (Green).
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="p-3 bg-white border border-slate-300 rounded-lg flex items-start gap-3">
+                            <span class="w-6 h-6 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center shrink-0 text-xs">3</span>
+                            <div>
+                                <strong class="text-indigo-950">Adjacency Bounding Check:</strong>
+                                <p class="text-xs text-slate-600 mt-0.5">
+                                    Before officially setting country $k$'s color, iterate over all already-colored neighbors: <code>for (j = 1 to k-1) if (graph[k][j] && color[j] == c) return false;</code>.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="p-3 bg-white border border-slate-300 rounded-lg flex items-start gap-3">
+                            <span class="w-6 h-6 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center shrink-0 text-xs">4</span>
+                            <div>
+                                <strong class="text-indigo-950">Backtracking on Conflict:</strong>
+                                <p class="text-xs text-slate-600 mt-0.5">
+                                    If all $m = 4$ colors conflict with existing neighbors of country $k$, we <strong>backtrack</strong> to country $(k - 1)$, change its color to the next untried color, and resume forward progress!
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Other Real World Applications Grid -->
+                    <div class="pt-2">
+                        <h3 class="font-bold text-inkBlue text-base font-['Kalam'] mb-2">
+                            🚀 Other Real-World Engineering Uses of Graph Coloring
+                        </h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                            <div class="p-3 bg-slate-50 border border-slate-300 rounded-lg space-y-1">
+                                <strong class="text-indigo-900 block">📱 Mobile Cell Tower Frequencies:</strong>
+                                <p class="text-slate-600">Adjacent cell towers cannot transmit on the same electromagnetic frequency channel to avoid signal interference.</p>
+                            </div>
+                            <div class="p-3 bg-slate-50 border border-slate-300 rounded-lg space-y-1">
+                                <strong class="text-emerald-900 block">📅 Exam &amp; Flight Scheduling:</strong>
+                                <p class="text-slate-600">Courses with common enrolled students share an edge. Colors represent exam time slots so no student has overlapping exams.</p>
+                            </div>
+                            <div class="p-3 bg-slate-50 border border-slate-300 rounded-lg space-y-1">
+                                <strong class="text-rose-900 block">⚙️ Compiler Register Allocation:</strong>
+                                <p class="text-slate-600">Variables with overlapping lifespans cannot occupy the same CPU hardware register (Chaitin's graph coloring algorithm).</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ==================================================================== -->
+            <!-- TAB 4: RECURSIVE ALGORITHM & COMPLEXITY                              -->
+            <!-- ==================================================================== -->
+            <div id="tab-algorithm-complexity" class="tab-pane hidden space-y-8">
+
+                <!-- Section Header -->
+                <div class="border-b-2 border-inkRed pb-2 flex justify-between items-baseline">
+                    <div>
+                        <h1 class="text-3xl sm:text-4xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                            4. Recursive Algorithm &amp; Complexity Analysis
+                        </h1>
+                        <p class="text-sm font-sans text-pencilGray mt-1">
+                            Canonical Horowitz &amp; Sahni m-Coloring Backtracking procedure and asymptotic analysis
+                        </p>
+                    </div>
+                    <span class="text-xs sm:text-sm font-bold font-sans bg-amber-100 text-inkRed px-2.5 py-1 rounded border border-amber-300">
+                        Code &amp; Proof
+                    </span>
+                </div>
+
+                <!-- C++ Implementation -->
+                <div class="sketch-card p-5 font-sans space-y-4">
+                    <div class="flex items-center justify-between border-b border-slate-200 pb-2">
+                        <div class="flex items-center gap-2">
+                            <span class="text-2xl">💻</span>
+                            <h2 class="text-xl font-bold text-inkBlue font-['Kalam']">4.1 Canonical Backtracking m-Coloring Algorithm</h2>
+                        </div>
+                        <span class="text-xs font-mono bg-slate-100 px-2.5 py-1 rounded border text-slate-700">
+                            C++ Implementation
+                        </span>
+                    </div>
+
+                    <pre class="bg-slate-900 text-slate-100 p-4 rounded-xl text-xs sm:text-sm font-mono overflow-x-auto leading-relaxed">
+<code><span class="text-indigo-300">#include</span> <span class="text-emerald-400">&lt;iostream&gt;</span>
+<span class="text-indigo-300">using namespace</span> std;
+
+<span class="text-indigo-300">const int</span> MAX_V = 10;
+<span class="text-indigo-300">int</span> n = 4;                          <span class="text-slate-400">// Number of vertices</span>
+<span class="text-indigo-300">int</span> m = 3;                          <span class="text-slate-400">// Number of colors</span>
+<span class="text-indigo-300">int</span> graph[MAX_V][MAX_V];            <span class="text-slate-400">// Adjacency matrix</span>
+<span class="text-indigo-300">int</span> x[MAX_V];                       <span class="text-slate-400">// Solution vector: x[k] is color of vertex k</span>
+
+<span class="text-slate-400">// Bounding Function: Check if assigning color c to vertex k is safe</span>
+<span class="text-indigo-300">bool</span> <span class="text-yellow-300">isSafe</span>(<span class="text-indigo-300">int</span> k, <span class="text-indigo-300">int</span> c) {
+    <span class="text-indigo-300">for</span> (<span class="text-indigo-300">int</span> i = 1; i &lt;= n; i++) {
+        <span class="text-slate-400">// If there is an edge and adjacent vertex already has color c</span>
+        <span class="text-indigo-300">if</span> (graph[k][i] == 1 &amp;&amp; x[i] == c) {
+            <span class="text-indigo-300">return false</span>;  <span class="text-slate-400">// Conflict: PRUNE!</span>
+        }
+    }
+    <span class="text-indigo-300">return true</span>;           <span class="text-slate-400">// Safe to color</span>
+}
+
+<span class="text-slate-400">// Backtracking procedure to find ALL valid colorings</span>
+<span class="text-indigo-300">void</span> <span class="text-yellow-300">mColoring</span>(<span class="text-indigo-300">int</span> k) {
+    <span class="text-slate-400">// Try all colors from 1 to m for vertex k</span>
+    <span class="text-indigo-300">for</span> (<span class="text-indigo-300">int</span> c = 1; c &lt;= m; c++) {
+        <span class="text-slate-400">// Check bounding condition</span>
+        <span class="text-indigo-300">if</span> (<span class="text-yellow-300">isSafe</span>(k, c)) {
+            x[k] = c;  <span class="text-slate-400">// Assign color</span>
+
+            <span class="text-slate-400">// If all vertices colored, we found a valid solution!</span>
+            <span class="text-indigo-300">if</span> (k == n) {
+                cout &lt;&lt; <span class="text-emerald-400">"Solution: "</span>;
+                <span class="text-indigo-300">for</span> (<span class="text-indigo-300">int</span> i = 1; i &lt;= n; i++) cout &lt;&lt; x[i] &lt;&lt; <span class="text-emerald-400">" "</span>;
+                cout &lt;&lt; <span class="text-emerald-400">"\n"</span>;
+            } <span class="text-indigo-300">else</span> {
+                <span class="text-yellow-300">mColoring</span>(k + 1);  <span class="text-slate-400">// Explore next vertex</span>
+            }
+
+            <span class="text-slate-400">// Backtrack: Reset assignment</span>
+            x[k] = 0;
+        }
+    }
+}</code></pre>
+                </div>
+
+                <!-- Complexity Analysis -->
+                <div class="sketch-card p-5 font-sans space-y-4">
+                    <div class="flex items-center gap-2 border-b border-slate-200 pb-2">
+                        <span class="text-2xl">⏱️</span>
+                        <h2 class="text-xl font-bold text-inkBlue font-['Kalam']">4.2 Asymptotic Complexity Analysis</h2>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                        <div class="p-4 bg-slate-50 border border-slate-300 rounded-xl space-y-2">
+                            <h4 class="font-bold text-inkBlue text-base">⏳ Time Complexity</h4>
+                            <p class="text-slate-700">
+                                • <strong>Worst-case Time:</strong> <code class="font-bold text-rose-800">O(mⁿ)</code>.<br>
+                                In the worst case (e.g. an empty graph with no edges), all $m^n$ configurations are explored. At each node, `isSafe()` takes $O(n)$ time to check adjacent vertices, leading to $O(n \cdot m^n)$.
+                            </p>
+                            <p class="text-slate-700">
+                                • <strong>Average-case Time:</strong> Drastically reduced! The bounding function prunes large sub-trees as soon as a color collision occurs at an early depth.
+                            </p>
+                        </div>
+
+                        <div class="p-4 bg-slate-50 border border-slate-300 rounded-xl space-y-2">
+                            <h4 class="font-bold text-inkBlue text-base">💾 Space Complexity</h4>
+                            <p class="text-slate-700">
+                                • <strong>Auxiliary Space:</strong> <code class="font-bold text-emerald-800">O(n)</code>.<br>
+                                The DFS recursion stack only grows to depth $n$ (one frame per vertex). The solution array `x[]` requires $O(n)$ space.
+                            </p>
+                            <p class="text-slate-700">
+                                • The graph adjacency matrix takes $O(n^2)$ space (or $O(V + E)$ using adjacency lists).
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Physical Notebook Scripts & Canvas Rendering Engines -->
+    <script>
+        // Tab Switching Engine
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.nav-tab').forEach(el => {
+                el.classList.remove('bg-amber-200', 'text-inkBlue', 'border-b-2', 'border-inkBlue');
+                el.classList.add('text-slate-600');
+            });
+
+            const activeTab = document.getElementById(tabId);
+            if (activeTab) activeTab.classList.remove('hidden');
+
+            const activeNav = document.getElementById('nav-' + tabId);
+            if (activeNav) {
+                activeNav.classList.remove('text-slate-600');
+                activeNav.classList.add('bg-amber-200', 'text-inkBlue', 'border-b-2', 'border-inkBlue');
+            }
+
+            // Trigger canvas renders if newly visible
+            if (tabId === 'tab-state-space-comparison') {
+                setTimeout(colorFitTree, 50);
+            }
+            if (tabId === 'tab-map-coloring') {
+                setTimeout(renderMapDualCanvas, 50);
+            }
+        }
+
+        // Font Toggle (Handwritten vs Clean Sans-serif)
+        function toggleFontMode() {
+            const body = document.body;
+            const btnText = document.getElementById('fontBtnText');
+            body.classList.toggle('font-clean');
+            if (body.classList.contains('font-clean')) {
+                btnText.textContent = "Handwritten Font";
+            } else {
+                btnText.textContent = "Clean Font";
+            }
+        }
+
+        // ====================================================================
+        // TAB 1: SAMPLE GRAPH INTERACTIVE RENDERER (C4 CYCLE)
+        // ====================================================================
+        const COLOR_MAP = {
+            1: { name: 'Red', fill: '#f87171', border: '#b91c1c', text: '#7f1d1d' },
+            2: { name: 'Green', fill: '#86efac', border: '#15803d', text: '#14532d' },
+            3: { name: 'Blue', fill: '#93c5fd', border: '#1d4ed8', text: '#1e3a8a' },
+            0: { name: 'White', fill: '#ffffff', border: '#64748b', text: '#1e293b' }
+        };
+
+        let currentColors = [1, 2, 3, 2]; // v1=Red, v2=Green, v3=Blue, v4=Green (uses all 3 colors)
+
+        function drawSampleGraph() {
+            const canvas = document.getElementById('canvas-sample-graph');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Vertices coordinates in square cycle
+            const coords = {
+                1: { x: 100, y: 70 },
+                2: { x: 240, y: 70 },
+                3: { x: 240, y: 210 },
+                4: { x: 100, y: 210 }
+            };
+
+            const edges = [[1, 2], [2, 3], [3, 4], [4, 1]];
+
+            // Draw Edges
+            ctx.strokeStyle = '#334155';
+            ctx.lineWidth = 4;
+            edges.forEach(([u, v]) => {
+                ctx.beginPath();
+                ctx.moveTo(coords[u].x, coords[u].y);
+                ctx.lineTo(coords[v].x, coords[v].y);
+                ctx.stroke();
+            });
+
+            // Draw Vertices
+            for (let v = 1; v <= 4; v++) {
+                const cIndex = currentColors[v - 1] || 0;
+                const cInfo = COLOR_MAP[cIndex];
+                const pt = coords[v];
+
+                // Outer Circle
+                ctx.beginPath();
+                ctx.arc(pt.x, pt.y, 28, 0, Math.PI * 2);
+                ctx.fillStyle = cInfo.fill;
+                ctx.fill();
+                ctx.lineWidth = 3.5;
+                ctx.strokeStyle = cInfo.border;
+                ctx.stroke();
+
+                // Vertex Number & Color Text
+                ctx.fillStyle = cInfo.text;
+                ctx.font = 'bold 18px Inter, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(v, pt.x, pt.y + 6);
+            }
+        }
+
+        function applySampleColoring(colArr, label) {
+            currentColors = colArr;
+            drawSampleGraph();
+            const lbl = document.getElementById('currentSampleLabel');
+            if (lbl) lbl.textContent = label;
+        }
+
+        // ====================================================================
+        // TAB 2: PRUNED STATE-SPACE TREE INTERACTIVE CANVAS ENGINE
+        // Showing complete subtree under Vertex 1 = Red
+        // ====================================================================
+        // Node Structure: { id, parent, x, y, vertex, color, status, edge, reason }
+        // status: 'normal', 'pruned', 'solution'
+        const colorTreeNodes = [
+            // Level 0: Root
+            { id: 1, x: 900, y: 60, vertex: 0, color: 0, status: 'normal', label: 'Root (v=0)' },
+
+            // Level 1: Vertex 1 = Red (Subtree illustrated)
+            { id: 2, parent: 1, x: 900, y: 180, vertex: 1, color: 1, edge: 'v₁ = Red', status: 'normal', label: 'v₁: Red' },
+
+            // Level 2: Vertex 2 choices (adjacent to v1)
+            // v2 = Red -> PRUNED (conflict with v1)
+            { id: 3, parent: 2, x: 350, y: 320, vertex: 2, color: 1, edge: 'v₂ = R', status: 'pruned', reason: 'Conflict v₁ (R=R)' },
+            // v2 = Green -> Valid
+            { id: 4, parent: 2, x: 750, y: 320, vertex: 2, color: 2, edge: 'v₂ = G', status: 'normal', label: 'v₂: Green' },
+            // v2 = Blue -> Valid
+            { id: 5, parent: 2, x: 1400, y: 320, vertex: 2, color: 3, edge: 'v₂ = B', status: 'normal', label: 'v₂: Blue' },
+
+            // Level 3 under Node 4 (v2 = Green):
+            // v3 = Green -> PRUNED (conflict with v2)
+            { id: 6, parent: 4, x: 500, y: 460, vertex: 3, color: 2, edge: 'v₃ = G', status: 'pruned', reason: 'Conflict v₂ (G=G)' },
+            // v3 = Red -> Valid (v3 adjacent to v2, not v1)
+            { id: 7, parent: 4, x: 700, y: 460, vertex: 3, color: 1, edge: 'v₃ = R', status: 'normal', label: 'v₃: Red' },
+            // v3 = Blue -> Valid
+            { id: 8, parent: 4, x: 950, y: 460, vertex: 3, color: 3, edge: 'v₃ = B', status: 'normal', label: 'v₃: Blue' },
+
+            // Level 4 under Node 7 (v1=R, v2=G, v3=R): v4 adjacent to v3 & v1 (both R!)
+            // v4 = Red -> PRUNED
+            { id: 9, parent: 7, x: 600, y: 610, vertex: 4, color: 1, edge: 'v₄ = R', status: 'pruned', reason: 'Conflict v₁/v₃' },
+            // v4 = Green -> SOLUTION 1 (2 colors)
+            { id: 10, parent: 7, x: 700, y: 610, vertex: 4, color: 2, edge: 'v₄ = G', status: 'solution', label: '🏆 SOL 1 (2-col): (R,G,R,G)' },
+            // v4 = Blue -> SOLUTION 2 (3 colors)
+            { id: 11, parent: 7, x: 800, y: 610, vertex: 4, color: 3, edge: 'v₄ = B', status: 'solution', label: '🏆 SOL 2 (3-col): (R,G,R,B)' },
+
+            // Level 4 under Node 8 (v1=R, v2=G, v3=B): v4 adjacent to v3(B) & v1(R)
+            // v4 = Red -> PRUNED (conflict v1)
+            { id: 12, parent: 8, x: 890, y: 610, vertex: 4, color: 1, edge: 'v₄ = R', status: 'pruned', reason: 'Conflict v₁' },
+            // v4 = Green -> SOLUTION 3 (3 colors)
+            { id: 13, parent: 8, x: 980, y: 610, vertex: 4, color: 2, edge: 'v₄ = G', status: 'solution', label: '🏆 SOL 3 (3-col): (R,G,B,G)' },
+            // v4 = Blue -> PRUNED (conflict v3)
+            { id: 14, parent: 8, x: 1070, y: 610, vertex: 4, color: 3, edge: 'v₄ = B', status: 'pruned', reason: 'Conflict v₃' },
+
+            // Level 3 under Node 5 (v2 = Blue):
+            // v3 = Blue -> PRUNED
+            { id: 15, parent: 5, x: 1200, y: 460, vertex: 3, color: 3, edge: 'v₃ = B', status: 'pruned', reason: 'Conflict v₂ (B=B)' },
+            // v3 = Red -> Valid
+            { id: 16, parent: 5, x: 1370, y: 460, vertex: 3, color: 1, edge: 'v₃ = R', status: 'normal', label: 'v₃: Red' },
+            // v3 = Green -> Valid
+            { id: 17, parent: 5, x: 1570, y: 460, vertex: 3, color: 2, edge: 'v₃ = G', status: 'normal', label: 'v₃: Green' },
+
+            // Level 4 under Node 16 (v1=R, v2=B, v3=R): v4 adjacent to v3(R) & v1(R)
+            { id: 18, parent: 16, x: 1280, y: 610, vertex: 4, color: 1, edge: 'v₄ = R', status: 'pruned', reason: 'Conflict v₁/v₃' },
+            { id: 19, parent: 16, x: 1370, y: 610, vertex: 4, color: 2, edge: 'v₄ = G', status: 'solution', label: '🏆 SOL 4 (3-col): (R,B,R,G)' },
+            { id: 20, parent: 16, x: 1460, y: 610, vertex: 4, color: 3, edge: 'v₄ = B', status: 'solution', label: '🏆 SOL 5 (2-col): (R,B,R,B)' },
+
+            // Level 4 under Node 17 (v1=R, v2=B, v3=G): v4 adjacent to v3(G) & v1(R)
+            { id: 21, parent: 17, x: 1540, y: 610, vertex: 4, color: 1, edge: 'v₄ = R', status: 'pruned', reason: 'Conflict v₁' },
+            { id: 22, parent: 17, x: 1620, y: 610, vertex: 4, color: 2, edge: 'v₄ = G', status: 'pruned', reason: 'Conflict v₃' },
+            { id: 23, parent: 17, x: 1710, y: 610, vertex: 4, color: 3, edge: 'v₄ = B', status: 'solution', label: '🏆 SOL 6 (3-col): (R,B,G,B)' }
+        ];
+
+        // Pan & Zoom Engine for Tree
+        let colorScale = 0.85;
+        let colorPanX = 20;
+        let colorPanY = 20;
+        let isColorDragging = false;
+        let colorStartX = 0;
+        let colorStartY = 0;
+
+        function renderColorTree() {
+            const canvas = document.getElementById('canvas-color-tree');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            ctx.save();
+            ctx.translate(colorPanX, colorPanY);
+            ctx.scale(colorScale, colorScale);
+
+            // Draw Level Guides
+            const levels = [
+                { y: 60, text: 'Level 0: Uncolored Root' },
+                { y: 180, text: 'Level 1: Vertex 1 (Choose Color)' },
+                { y: 320, text: 'Level 2: Vertex 2 (Adjacency Check v₁)' },
+                { y: 460, text: 'Level 3: Vertex 3 (Adjacency Check v₂)' },
+                { y: 610, text: 'Level 4: Vertex 4 (Adjacency Check v₃ & v₁)' }
+            ];
+
+            ctx.strokeStyle = '#e2e8f0';
+            ctx.lineWidth = 1.5;
+            ctx.setLineDash([4, 4]);
+            levels.forEach(lvl => {
+                ctx.beginPath();
+                ctx.moveTo(40, lvl.y);
+                ctx.lineTo(1760, lvl.y);
+                ctx.stroke();
+
+                ctx.fillStyle = '#64748b';
+                ctx.font = 'bold 15px Inter, sans-serif';
+                ctx.textAlign = 'left';
+                ctx.fillText(lvl.text, 50, lvl.y - 25);
+            });
+            ctx.setLineDash([]);
+
+            // Draw Edges First
+            colorTreeNodes.forEach(node => {
+                if (node.parent) {
+                    const p = colorTreeNodes.find(n => n.id === node.parent);
+                    if (p) {
+                        ctx.beginPath();
+                        ctx.moveTo(p.x, p.y + 24);
+                        ctx.lineTo(node.x, node.y - 24);
+
+                        if (node.status === 'solution') {
+                            ctx.strokeStyle = '#10b981';
+                            ctx.lineWidth = 3;
+                            ctx.setLineDash([]);
+                        } else if (node.status === 'pruned') {
+                            ctx.strokeStyle = '#f87171';
+                            ctx.lineWidth = 2;
+                            ctx.setLineDash([4, 4]);
+                        } else {
+                            ctx.strokeStyle = '#6366f1';
+                            ctx.lineWidth = 2.2;
+                            ctx.setLineDash([]);
+                        }
+                        ctx.stroke();
+                        ctx.setLineDash([]);
+
+                        // Edge label
+                        if (node.edge) {
+                            const midX = (p.x + node.x) / 2;
+                            const midY = (p.y + node.y) / 2;
+                            ctx.fillStyle = node.edge.includes('R') ? '#dc2626' : (node.edge.includes('G') ? '#15803d' : '#2563eb');
+                            ctx.font = 'bold 13px Inter, sans-serif';
+                            ctx.textAlign = 'center';
+                            ctx.fillText(node.edge, midX - 10, midY);
+                        }
+                    }
+                }
+            });
+
+            // Draw Nodes
+            colorTreeNodes.forEach(node => {
+                drawColorNode(ctx, node);
+            });
+
+            ctx.restore();
+
+            const disp = document.getElementById('colorZoomDisplay');
+            if (disp) disp.textContent = Math.round(colorScale * 100) + '%';
+        }
+
+        function drawColorNode(ctx, node) {
+            const { x, y, color, status, label, reason, vertex } = node;
+            const isSolution = status === 'solution';
+            const isPruned = status === 'pruned';
+
+            const w = isSolution ? 124 : 96;
+            const h = 48;
+
+            ctx.save();
+            ctx.translate(x - w / 2, y - h / 2);
+
+            ctx.beginPath();
+            ctx.roundRect(0, 0, w, h, 10);
+
+            // Fill color according to assigned color
+            if (isPruned) {
+                ctx.fillStyle = '#fee2e2';
+                ctx.strokeStyle = '#ef4444';
+                ctx.lineWidth = 2.2;
+                ctx.setLineDash([4, 4]);
+            } else if (isSolution) {
+                ctx.fillStyle = '#dcfce7';
+                ctx.strokeStyle = '#10b981';
+                ctx.lineWidth = 3.2;
+            } else if (color === 1) {
+                ctx.fillStyle = '#fee2e2';
+                ctx.strokeStyle = '#ef4444';
+                ctx.lineWidth = 2.2;
+            } else if (color === 2) {
+                ctx.fillStyle = '#dcfce7';
+                ctx.strokeStyle = '#22c55e';
+                ctx.lineWidth = 2.2;
+            } else if (color === 3) {
+                ctx.fillStyle = '#dbeafe';
+                ctx.strokeStyle = '#3b82f6';
+                ctx.lineWidth = 2.2;
+            } else {
+                ctx.fillStyle = '#ffffff';
+                ctx.strokeStyle = '#64748b';
+                ctx.lineWidth = 2;
+            }
+
+            ctx.fill();
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Label text inside node
+            ctx.fillStyle = isPruned ? '#991b1b' : (isSolution ? '#065f46' : '#1e293b');
+            ctx.font = 'bold 15px monospace';
+            ctx.textAlign = 'center';
+
+            const colorText = color === 1 ? 'Red' : (color === 2 ? 'Green' : (color === 3 ? 'Blue' : 'Root'));
+            ctx.fillText(vertex === 0 ? 'Root' : `v${vertex}=${colorText}`, w / 2, h / 2 + 5);
+
+            // Sub-badges
+            if (isPruned) {
+                ctx.fillStyle = '#dc2626';
+                ctx.font = 'bold 12px Inter, sans-serif';
+                ctx.fillText('❌ KILLED', w / 2, h + 16);
+                if (reason) {
+                    ctx.font = '10px Inter, sans-serif';
+                    ctx.fillText(reason, w / 2, h + 29);
+                }
+            } else if (isSolution) {
+                ctx.fillStyle = '#047857';
+                ctx.font = 'bold 11px Inter, sans-serif';
+                ctx.fillText(label || '🏆 VALID', w / 2, h + 16);
+            }
+
+            ctx.restore();
+        }
+
+        // Pan & Zoom Event Handlers for Tree
+        const colorWrapper = document.getElementById('colorTreeWrapper');
+        if (colorWrapper) {
+            colorWrapper.addEventListener('mousedown', (e) => {
+                isColorDragging = true;
+                colorStartX = e.clientX - colorPanX;
+                colorStartY = e.clientY - colorPanY;
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (!isColorDragging) return;
+                colorPanX = e.clientX - colorStartX;
+                colorPanY = e.clientY - colorStartY;
+                renderColorTree();
+            });
+
+            window.addEventListener('mouseup', () => {
+                isColorDragging = false;
+            });
+
+            colorWrapper.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                const factor = e.deltaY < 0 ? 1.1 : 0.9;
+                colorScale = Math.min(Math.max(colorScale * factor, 0.35), 2.5);
+                renderColorTree();
+            }, { passive: false });
+        }
+
+        function colorZoomIn() {
+            colorScale = Math.min(colorScale * 1.2, 2.5);
+            renderColorTree();
+        }
+
+        function colorZoomOut() {
+            colorScale = Math.max(colorScale * 0.8, 0.35);
+            renderColorTree();
+        }
+
+        function colorFitTree() {
+            const containerW = colorWrapper ? colorWrapper.clientWidth : 1000;
+            const containerH = colorWrapper ? colorWrapper.clientHeight : 580;
+            const scaleX = (containerW - 30) / 1800;
+            const scaleY = (containerH - 30) / 740;
+            colorScale = Math.min(Math.max(Math.min(scaleX, scaleY), 0.45), 1.5);
+            colorPanX = Math.max((containerW - 1800 * colorScale) / 2, 15);
+            colorPanY = Math.max((containerH - 740 * colorScale) / 2, 15);
+            renderColorTree();
+        }
+
+        function colorResetZoom() {
+            colorFitTree();
+        }
+
+        function toggleColorFullscreen() {
+            const wrapper = document.getElementById('colorTreeWrapper');
+            const btn = document.getElementById('btnColorFullscreen');
+            const binder = document.getElementById('notebookBinderColumn');
+            if (!wrapper) return;
+
+            const isEntering = !wrapper.classList.contains('is-fullscreen');
+            wrapper.classList.toggle('is-fullscreen');
+
+            if (isEntering) {
+                document.body.classList.add('has-fullscreen-canvas');
+                if (binder) binder.style.display = 'none';
+                btn.textContent = '✕';
+                btn.title = 'Exit Fullscreen (Esc)';
+                document.body.style.overflow = 'hidden';
+            } else {
+                document.body.classList.remove('has-fullscreen-canvas');
+                if (binder) binder.style.display = '';
+                btn.textContent = '⛶';
+                btn.title = 'Maximize Fullscreen (⛶)';
+                document.body.style.overflow = '';
+            }
+            setTimeout(colorFitTree, 60);
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' || e.key === 'f' || e.key === 'F') {
+                const wrapper = document.getElementById('colorTreeWrapper');
+                if (wrapper && wrapper.classList.contains('is-fullscreen')) {
+                    toggleColorFullscreen();
+                }
+            }
+        });
+
+        // ====================================================================
+        // TAB 3: MAP COLORING & PLANAR DUAL GRAPH RENDERER
+        // ====================================================================
+        let currentMapMode = 'sideBySide';
+
+        function setMapMode(mode) {
+            currentMapMode = mode;
+            document.querySelectorAll('.map-view-btn').forEach(btn => {
+                btn.classList.remove('bg-amber-200', 'text-inkBlue', 'border-amber-400');
+                btn.classList.add('bg-white', 'text-slate-700', 'border-slate-300');
+            });
+            const activeBtn = document.getElementById('btn-map-' + mode);
+            if (activeBtn) {
+                activeBtn.classList.remove('bg-white', 'text-slate-700', 'border-slate-300');
+                activeBtn.classList.add('bg-amber-200', 'text-inkBlue', 'border-amber-400');
+            }
+            const desc = document.getElementById('mapModeDescription');
+            if (desc) {
+                if (mode === 'sideBySide') {
+                    desc.textContent = "↔️ Side-by-Side: Left is the realistic map with curly irregular borders & alphabet regions (A, B, C, D, E); Right is the extracted Planar Dual Graph.";
+                } else if (mode === 'overlay') {
+                    desc.textContent = "🔄 Dual Graph Overlay: Vertices placed inside regions (A..E), dual edges crossing curvy irregular border lines.";
+                } else if (mode === 'mapOnly') {
+                    desc.textContent = "🗺️ Political Map Only: Shows the 5 geographic territories with realistic curvy coastlines, water ripples & alphabet labels.";
+                } else if (mode === 'graphOnly') {
+                    desc.textContent = "🕸️ Pure Planar Graph: Shows the mathematical graph G=(V,E) with nodes A, B, C, D, E and zero crossing edges.";
+                } else if (mode === 'colored') {
+                    desc.textContent = "🎨 4-Coloring Solved: Adjacent territories and connected alphabet vertices have distinct colors (m ≤ 4).";
+                }
+            }
+            renderMapDualCanvas();
+        }
+
+        function renderMapDualCanvas() {
+            const canvas = document.getElementById('canvas-map-dual');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = 820 * dpr;
+            canvas.height = 360 * dpr;
+            ctx.scale(dpr, dpr);
+            ctx.clearRect(0, 0, 820, 360);
+
+            // Warm paper canvas background
+            ctx.fillStyle = '#faf8f5';
+            ctx.fillRect(0, 0, 820, 360);
+
+            const isColored = currentMapMode === 'colored';
+
+            if (currentMapMode === 'sideBySide' || currentMapMode === 'colored') {
+                // Left Map Center: (200, 185)
+                drawGeopoliticalMap(ctx, 200, 185, 0.98, isColored, false);
+                
+                // Titles and Conversion Arrow in Center
+                ctx.save();
+                ctx.fillStyle = '#1e3a8a';
+                ctx.font = 'bold 15px Kalam, cursive';
+                ctx.textAlign = 'center';
+                ctx.fillText('🗺️ Sample Geopolitical Map (5 Territories)', 200, 28);
+
+                ctx.fillStyle = '#701a75';
+                ctx.fillText('🕸️ Planar Dual Graph G=(V, E)', 620, 28);
+
+                // Middle Divider & Transition Arrow
+                ctx.strokeStyle = '#cbd5e1';
+                ctx.lineWidth = 1.5;
+                ctx.setLineDash([4, 4]);
+                ctx.beginPath();
+                ctx.moveTo(410, 20);
+                ctx.lineTo(410, 340);
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                // Transformation Badge
+                ctx.fillStyle = '#f8fafc';
+                ctx.strokeStyle = '#94a3b8';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.roundRect(355, 125, 110, 105, 8);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.fillStyle = '#1e293b';
+                ctx.font = 'bold 12px Inter, sans-serif';
+                ctx.fillText('DUAL CONV.', 410, 146);
+                ctx.font = '10px Inter, sans-serif';
+                ctx.fillStyle = '#475569';
+                ctx.fillText('Region ➜ Vertex', 410, 168);
+                ctx.fillText('Border ➜ Edge', 410, 186);
+
+                ctx.fillStyle = '#0f172a';
+                ctx.font = 'bold 16px Inter, sans-serif';
+                ctx.fillText('➔', 410, 212);
+                ctx.restore();
+
+                // Right Dual Graph Center: (620, 185)
+                drawPlanarDualGraph(ctx, 620, 185, 0.98, isColored);
+
+            } else if (currentMapMode === 'overlay') {
+                // Large Centered Map with Dual Overlay: Center (410, 185)
+                drawGeopoliticalMap(ctx, 410, 185, 1.25, false, true);
+
+                ctx.fillStyle = '#1e3a8a';
+                ctx.font = 'bold 16px Kalam, cursive';
+                ctx.textAlign = 'center';
+                ctx.fillText('🔄 Planar Dual Graph Superimposed Directly Over Territories', 410, 28);
+
+            } else if (currentMapMode === 'mapOnly') {
+                // Centered Map Only
+                drawGeopoliticalMap(ctx, 410, 185, 1.25, false, false);
+
+                ctx.fillStyle = '#1e3a8a';
+                ctx.font = 'bold 16px Kalam, cursive';
+                ctx.textAlign = 'center';
+                ctx.fillText('🗺️ Geopolitical Map with 5 Countries & Shared Land Borders', 410, 28);
+
+            } else if (currentMapMode === 'graphOnly') {
+                // Centered Graph Only
+                drawPlanarDualGraph(ctx, 410, 185, 1.35, false);
+
+                ctx.fillStyle = '#701a75';
+                ctx.font = 'bold 16px Kalam, cursive';
+                ctx.textAlign = 'center';
+                ctx.fillText('🕸️ Extracted Planar Dual Graph (5 Vertices, 8 Edges, 0 Crossings)', 410, 28);
+            }
+        }
+
+        function drawGeopoliticalMap(ctx, cx, cy, s, colored, overlay) {
+            ctx.save();
+            ctx.translate(cx, cy);
+            ctx.scale(s, s);
+
+            // Water ocean background wash around the continent
+            ctx.save();
+            ctx.fillStyle = '#f0f9ff';
+            ctx.beginPath();
+            ctx.roundRect(-195, -165, 390, 330, 16);
+            ctx.fill();
+
+            // Ocean water ripples (curly waves)
+            ctx.strokeStyle = '#bae6fd';
+            ctx.lineWidth = 1.2;
+            const waveLines = [
+                [-175, -140], [-120, -145], [80, -150], [140, -135],
+                [-180, 110], [-140, 140], [40, 150], [130, 135],
+                [-180, -30], [-182, 30], [178, -30], [178, 30]
+            ];
+            waveLines.forEach(([wx, wy]) => {
+                ctx.beginPath();
+                ctx.moveTo(wx, wy);
+                ctx.quadraticCurveTo(wx + 8, wy - 4, wx + 16, wy);
+                ctx.quadraticCurveTo(wx + 24, wy + 4, wx + 32, wy);
+                ctx.stroke();
+            });
+            ctx.restore();
+
+            // Authentic vintage cartography pastel colors
+            const colors = {
+                A: colored ? { fill: '#bbf7d0', stroke: '#15803d', text: '#14532d', colName: 'Green' } : { fill: '#fef3c7', stroke: '#b45309', text: '#78350f', colName: '' },
+                B: colored ? { fill: '#fca5a5', stroke: '#b91c1c', text: '#7f1d1d', colName: 'Red' } : { fill: '#e0e7ff', stroke: '#4338ca', text: '#312e81', colName: '' },
+                C: colored ? { fill: '#bfdbfe', stroke: '#1d4ed8', text: '#1e3a8a', colName: 'Blue' } : { fill: '#fed7aa', stroke: '#c2410c', text: '#7c2d12', colName: '' },
+                D: colored ? { fill: '#bbf7d0', stroke: '#15803d', text: '#14532d', colName: 'Green' } : { fill: '#fef9c3', stroke: '#a16207', text: '#713f12', colName: '' },
+                E: colored ? { fill: '#bfdbfe', stroke: '#1d4ed8', text: '#1e3a8a', colName: 'Blue' } : { fill: '#f1f5f9', stroke: '#475569', text: '#1e293b', colName: '' }
+            };
+
+            // Shared Junction Coordinates
+            const J_NW = { x: -50, y: -42 };
+            const J_NE = { x: 50, y: -42 };
+            const J_SE = { x: 50, y: 46 };
+            const J_SW = { x: -50, y: 46 };
+
+            const K_WN = { x: -145, y: -55 };
+            const K_EN = { x: 145, y: -55 };
+            const K_ES = { x: 145, y: 55 };
+            const K_WS = { x: -145, y: 55 };
+
+            // 1. TERRITORY B (Central Kingdom - Inland)
+            ctx.beginPath();
+            ctx.moveTo(J_NW.x, J_NW.y);
+            ctx.bezierCurveTo(-15, -60, 18, -25, J_NE.x, J_NE.y); // North border with A
+            ctx.bezierCurveTo(72, -10, 32, 20, J_SE.x, J_SE.y);   // East border with C
+            ctx.bezierCurveTo(18, 62, -18, 28, J_SW.x, J_SW.y);   // South border with D
+            ctx.bezierCurveTo(-32, 20, -72, -10, J_NW.x, J_NW.y); // West border with E
+            ctx.closePath();
+            ctx.fillStyle = colors.B.fill;
+            ctx.fill();
+            ctx.lineWidth = 2.2;
+            ctx.strokeStyle = colors.B.stroke;
+            ctx.stroke();
+
+            // 2. TERRITORY A (North Coast)
+            ctx.beginPath();
+            ctx.moveTo(K_WN.x, K_WN.y);
+            ctx.bezierCurveTo(-115, -70, -80, -28, J_NW.x, J_NW.y); // Border with E
+            ctx.bezierCurveTo(-15, -60, 18, -25, J_NE.x, J_NE.y);   // Border with B
+            ctx.bezierCurveTo(80, -28, 115, -70, K_EN.x, K_EN.y);   // Border with C
+            // Curly wavy northern coastline with bays and capes
+            ctx.bezierCurveTo(155, -85, 130, -110, 95, -125);
+            ctx.bezierCurveTo(60, -140, 20, -130, 0, -142); // North Cape
+            ctx.bezierCurveTo(-25, -150, -70, -135, -105, -120); // Bay
+            ctx.bezierCurveTo(-135, -105, -155, -80, K_WN.x, K_WN.y);
+            ctx.closePath();
+            ctx.fillStyle = colors.A.fill;
+            ctx.fill();
+            ctx.lineWidth = 2.2;
+            ctx.strokeStyle = colors.A.stroke;
+            ctx.stroke();
+
+            // 3. TERRITORY C (East Coast & Peninsula)
+            ctx.beginPath();
+            ctx.moveTo(J_NE.x, J_NE.y);
+            ctx.bezierCurveTo(72, -10, 32, 20, J_SE.x, J_SE.y);   // Border with B
+            ctx.bezierCurveTo(80, 28, 115, 70, K_ES.x, K_ES.y);   // Border with D
+            // Curly eastern coastline
+            ctx.bezierCurveTo(160, 35, 175, 15, 172, -5);         // Eastern Headland
+            ctx.bezierCurveTo(170, -25, 158, -42, K_EN.x, K_EN.y); // Bay
+            ctx.bezierCurveTo(115, -70, 80, -28, J_NE.x, J_NE.y); // Border with A
+            ctx.closePath();
+            ctx.fillStyle = colors.C.fill;
+            ctx.fill();
+            ctx.lineWidth = 2.2;
+            ctx.strokeStyle = colors.C.stroke;
+            ctx.stroke();
+
+            // 4. TERRITORY D (South Coast & Peninsula)
+            ctx.beginPath();
+            ctx.moveTo(J_SE.x, J_SE.y);
+            ctx.bezierCurveTo(18, 62, -18, 28, J_SW.x, J_SW.y);   // Border with B
+            ctx.bezierCurveTo(-80, 28, -115, 70, K_WS.x, K_WS.y); // Border with E
+            // Curly southern coastline
+            ctx.bezierCurveTo(-155, 80, -130, 110, -95, 125);
+            ctx.bezierCurveTo(-60, 140, -20, 130, 0, 142);        // South Peninsula
+            ctx.bezierCurveTo(25, 150, 70, 135, 105, 120);        // Bay
+            ctx.bezierCurveTo(135, 105, 155, 80, K_ES.x, K_ES.y);
+            ctx.bezierCurveTo(115, 70, 80, 28, J_SE.x, J_SE.y);   // Border with C
+            ctx.closePath();
+            ctx.fillStyle = colors.D.fill;
+            ctx.fill();
+            ctx.lineWidth = 2.2;
+            ctx.strokeStyle = colors.D.stroke;
+            ctx.stroke();
+
+            // 5. TERRITORY E (West Coast & Gulf)
+            ctx.beginPath();
+            ctx.moveTo(J_SW.x, J_SW.y);
+            ctx.bezierCurveTo(-32, 20, -72, -10, J_NW.x, J_NW.y); // Border with B
+            ctx.bezierCurveTo(-80, -28, -115, -70, K_WN.x, K_WN.y); // Border with A
+            // Curly western coastline
+            ctx.bezierCurveTo(-158, -42, -170, -25, -172, -5);    // Western Gulf
+            ctx.bezierCurveTo(-175, 15, -160, 35, K_WS.x, K_WS.y); // Western Headland
+            ctx.bezierCurveTo(-115, 70, -80, 28, J_SW.x, J_SW.y); // Border with D
+            ctx.closePath();
+            ctx.fillStyle = colors.E.fill;
+            ctx.fill();
+            ctx.lineWidth = 2.2;
+            ctx.strokeStyle = colors.E.stroke;
+            ctx.stroke();
+
+            // Draw Shared Border Inked Lines Prominently
+            ctx.lineWidth = 2.4;
+            ctx.strokeStyle = '#334155';
+            ctx.setLineDash([]);
+
+            // Internal Border A-B
+            ctx.beginPath();
+            ctx.moveTo(J_NW.x, J_NW.y);
+            ctx.bezierCurveTo(-15, -60, 18, -25, J_NE.x, J_NE.y);
+            ctx.stroke();
+
+            // Internal Border B-C
+            ctx.beginPath();
+            ctx.moveTo(J_NE.x, J_NE.y);
+            ctx.bezierCurveTo(72, -10, 32, 20, J_SE.x, J_SE.y);
+            ctx.stroke();
+
+            // Internal Border B-D
+            ctx.beginPath();
+            ctx.moveTo(J_SE.x, J_SE.y);
+            ctx.bezierCurveTo(18, 62, -18, 28, J_SW.x, J_SW.y);
+            ctx.stroke();
+
+            // Internal Border B-E
+            ctx.beginPath();
+            ctx.moveTo(J_SW.x, J_SW.y);
+            ctx.bezierCurveTo(-32, 20, -72, -10, J_NW.x, J_NW.y);
+            ctx.stroke();
+
+            // Radial Borders A-E, A-C, C-D, D-E
+            ctx.beginPath();
+            ctx.moveTo(J_NW.x, J_NW.y);
+            ctx.bezierCurveTo(-80, -28, -115, -70, K_WN.x, K_WN.y);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(J_NE.x, J_NE.y);
+            ctx.bezierCurveTo(80, -28, 115, -70, K_EN.x, K_EN.y);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(J_SE.x, J_SE.y);
+            ctx.bezierCurveTo(80, 28, 115, 70, K_ES.x, K_ES.y);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(J_SW.x, J_SW.y);
+            ctx.bezierCurveTo(-80, 28, -115, 70, K_WS.x, K_WS.y);
+            ctx.stroke();
+
+            // Cartography Compass Rose in Upper Corner
+            ctx.save();
+            ctx.translate(155, -135);
+            ctx.font = 'bold 12px Inter, sans-serif';
+            ctx.fillStyle = '#0f172a';
+            ctx.textAlign = 'center';
+            ctx.fillText('N', 0, -8);
+            ctx.beginPath();
+            ctx.moveTo(0, -6);
+            ctx.lineTo(4, 8);
+            ctx.lineTo(0, 4);
+            ctx.lineTo(-4, 8);
+            ctx.closePath();
+            ctx.fillStyle = '#b91c1c';
+            ctx.fill();
+            ctx.restore();
+
+            // Territory Capital Centroids & Names
+            const regions = [
+                { id: 'A', name: 'Country A', x: 0, y: -90, c: colors.A },
+                { id: 'B', name: 'Country B', x: 0, y: 0, c: colors.B },
+                { id: 'C', name: 'Country C', x: 105, y: 5, c: colors.C },
+                { id: 'D', name: 'Country D', x: 0, y: 92, c: colors.D },
+                { id: 'E', name: 'Country E', x: -105, y: 5, c: colors.E }
+            ];
+
+            // Render Alphabet Names on the map
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            regions.forEach(r => {
+                if (!overlay) {
+                    // Large Bold Alphabet Letter
+                    ctx.fillStyle = r.c.text;
+                    ctx.font = 'bold 24px Kalam, cursive';
+                    ctx.fillText(r.id, r.x, r.y - 8);
+
+                    // Subtitle "Country X"
+                    ctx.font = 'bold 11px Inter, sans-serif';
+                    ctx.fillText(r.name, r.x, r.y + 12);
+
+                    if (colored && r.c.colName) {
+                        ctx.font = 'bold 10px Inter, sans-serif';
+                        ctx.fillStyle = '#0f172a';
+                        ctx.fillText(`[${r.c.colName}]`, r.x, r.y + 24);
+                    }
+                }
+            });
+
+            // If Overlay Mode: Draw Capital Nodes and Dual Edges directly across curvy borders
+            if (overlay) {
+                const nodeCoords = {
+                    A: { x: 0, y: -90 },
+                    B: { x: 0, y: 0 },
+                    C: { x: 105, y: 5 },
+                    D: { x: 0, y: 92 },
+                    E: { x: -105, y: 5 }
+                };
+
+                const dualEdges = [
+                    ['B', 'A'], ['B', 'C'], ['B', 'D'], ['B', 'E'],
+                    ['A', 'C'], ['C', 'D'], ['D', 'E'], ['E', 'A']
+                ];
+
+                // Glowing Dual Edges crossing wavy borders
+                ctx.lineWidth = 3.2;
+                ctx.strokeStyle = '#9333ea';
+                ctx.setLineDash([6, 4]);
+
+                dualEdges.forEach(([u, v]) => {
+                    ctx.beginPath();
+                    ctx.moveTo(nodeCoords[u].x, nodeCoords[u].y);
+                    ctx.lineTo(nodeCoords[v].x, nodeCoords[v].y);
+                    ctx.stroke();
+                });
+                ctx.setLineDash([]);
+
+                // Prominent Alphabet Nodes (Capital Vertices)
+                regions.forEach(r => {
+                    const pt = nodeCoords[r.id];
+
+                    // Outer Halo
+                    ctx.beginPath();
+                    ctx.arc(pt.x, pt.y, 18, 0, Math.PI * 2);
+                    ctx.fillStyle = '#6b21a8';
+                    ctx.fill();
+                    ctx.lineWidth = 3;
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.stroke();
+
+                    // Alphabet Node Letter
+                    ctx.fillStyle = '#ffffff';
+                    ctx.font = 'bold 14px Inter, sans-serif';
+                    ctx.fillText(r.id, pt.x, pt.y);
+                });
+
+                ctx.fillStyle = '#6b21a8';
+                ctx.font = 'bold 11px Inter, sans-serif';
+                ctx.fillText('🟣 Purple Nodes = Country Vertices (A, B, C, D, E)', 0, -145);
+                ctx.fillText('⚡ Dashed Lines = Dual Edges crossing irregular borders', 0, 148);
+            }
+
+            ctx.restore();
+        }
+
+        function drawPlanarDualGraph(ctx, cx, cy, s, colored) {
+            ctx.save();
+            ctx.translate(cx, cy);
+            ctx.scale(s, s);
+
+            const nodeCoords = {
+                A: { x: 0, y: -90, name: 'v_A', deg: 4 },
+                B: { x: 0, y: 0, name: 'v_B (Center)', deg: 4 },
+                C: { x: 105, y: 5, name: 'v_C', deg: 4 },
+                D: { x: 0, y: 92, name: 'v_D', deg: 4 },
+                E: { x: -105, y: 5, name: 'v_E', deg: 4 }
+            };
+
+            const dualEdges = [
+                ['B', 'A'], ['B', 'C'], ['B', 'D'], ['B', 'E'],
+                ['A', 'C'], ['C', 'D'], ['D', 'E'], ['E', 'A']
+            ];
+
+            // Outer Planar Background Frame
+            ctx.fillStyle = '#ffffff';
+            ctx.strokeStyle = '#e2e8f0';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.roundRect(-160, -145, 320, 290, 12);
+            ctx.fill();
+            ctx.stroke();
+
+            // Draw Edges
+            ctx.lineWidth = 3.5;
+            ctx.strokeStyle = '#475569';
+            dualEdges.forEach(([u, v]) => {
+                ctx.beginPath();
+                ctx.moveTo(nodeCoords[u].x, nodeCoords[u].y);
+                ctx.lineTo(nodeCoords[v].x, nodeCoords[v].y);
+                ctx.stroke();
+            });
+
+            // Node colors
+            const nodeColors = {
+                A: colored ? { fill: '#86efac', border: '#15803d', text: '#14532d', label: 'Green' } : { fill: '#ffffff', border: '#1e3a8a', text: '#1e3a8a', label: '' },
+                B: colored ? { fill: '#f87171', border: '#b91c1c', text: '#7f1d1d', label: 'Red' } : { fill: '#ffffff', border: '#1e3a8a', text: '#1e3a8a', label: '' },
+                C: colored ? { fill: '#93c5fd', border: '#1d4ed8', text: '#1e3a8a', label: 'Blue' } : { fill: '#ffffff', border: '#1e3a8a', text: '#1e3a8a', label: '' },
+                D: colored ? { fill: '#86efac', border: '#15803d', text: '#14532d', label: 'Green' } : { fill: '#ffffff', border: '#1e3a8a', text: '#1e3a8a', label: '' },
+                E: colored ? { fill: '#93c5fd', border: '#1d4ed8', text: '#1e3a8a', label: 'Blue' } : { fill: '#ffffff', border: '#1e3a8a', text: '#1e3a8a', label: '' }
+            };
+
+            // Draw Nodes with Alphabet Letters
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            Object.keys(nodeCoords).forEach(key => {
+                const node = nodeCoords[key];
+                const col = nodeColors[key];
+
+                ctx.beginPath();
+                ctx.arc(node.x, node.y, 22, 0, Math.PI * 2);
+                ctx.fillStyle = col.fill;
+                ctx.fill();
+                ctx.lineWidth = 3;
+                ctx.strokeStyle = col.border;
+                ctx.stroke();
+
+                // Prominent Alphabet Letter inside Node
+                ctx.fillStyle = col.text;
+                ctx.font = 'bold 16px Inter, sans-serif';
+                ctx.fillText(key, node.x, node.y);
+
+                if (colored && col.label) {
+                    ctx.font = 'bold 10px Inter, sans-serif';
+                    ctx.fillStyle = '#0f172a';
+                    const offY = node.y < 0 ? -30 : (node.y > 0 ? 30 : (node.x > 0 ? 30 : -30));
+                    ctx.fillText(col.label, node.x, node.y + offY);
+                }
+            });
+
+            ctx.restore();
+        }
+
+        // Window resize and initial load
+        window.addEventListener('load', () => {
+            drawSampleGraph();
+            colorFitTree();
+            renderMapDualCanvas();
+        });
+
+        window.addEventListener('resize', () => {
+            if (!document.getElementById('tab-state-space-comparison').classList.contains('hidden')) {
+                colorFitTree();
+            }
+            if (!document.getElementById('tab-map-coloring').classList.contains('hidden')) {
+                renderMapDualCanvas();
+            }
+        });
+    </script>
+</body>
+
+</html>

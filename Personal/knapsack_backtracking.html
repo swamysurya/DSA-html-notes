@@ -1,0 +1,1297 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>0/1 Knapsack Problem: Backtracking & State-Space Tree - Digital Lecture Notes</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Kalam:wght@300;400;700&family=Patrick+Hand&family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap"
+        rel="stylesheet">
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        notebookBg: '#cbd5e1',
+                        notebookPaper: '#FAF6EE',
+                        inkBlue: '#1A365D',
+                        inkRed: '#9B2C2C',
+                        pencilGray: '#4A5568',
+                    },
+                    fontFamily: {
+                        notes: ['Patrick Hand', 'Kalam', 'cursive'],
+                        heading: ['Kalam', 'cursive'],
+                        clean: ['Inter', 'sans-serif'],
+                        code: ['Fira Code', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Physical Notebook Stylesheet -->
+    <style>
+        body {
+            background-color: #cbd5e1;
+            font-family: 'Patrick Hand', 'Kalam', cursive;
+            color: #1e293b;
+        }
+
+        .lined-paper {
+            background-color: #FAF6EE !important;
+            background-image: repeating-linear-gradient(#FAF6EE 0px,
+                    #FAF6EE 31px,
+                    #e2ebf3 32px) !important;
+            line-height: 32px;
+            position: relative;
+        }
+
+        .notebook-margin {
+            border-left: 2.5px solid #FC8181 !important;
+            padding-left: 1.25rem;
+        }
+
+        @media (min-width: 640px) {
+            .notebook-margin {
+                padding-left: 2.5rem;
+            }
+        }
+
+        .spiral-ring {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #cbd5e1 0%, #64748b 50%, #334155 100%);
+            box-shadow: inset 1px 1px 2px rgba(255, 255, 255, 0.6), 2px 2px 4px rgba(0, 0, 0, 0.25);
+            margin: 11px 0;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Kalam', cursive;
+        }
+
+        /* Clean Mode Font Switcher */
+        body.font-clean,
+        body.font-clean * {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+        }
+
+        body.font-clean pre,
+        body.font-clean code {
+            font-family: 'Fira Code', monospace !important;
+        }
+
+        /* Highlights & Badges */
+        .highlighter-yellow {
+            background: linear-gradient(104deg, rgba(254, 240, 138, 0.95) 0.9%, rgba(253, 224, 71, 0.85) 98%);
+            padding: 2px 8px;
+            border-radius: 4px;
+            box-decoration-break: clone;
+            -webkit-box-decoration-break: clone;
+            display: inline-block;
+        }
+
+        .highlighter-green {
+            background: linear-gradient(104deg, rgba(187, 247, 208, 0.95) 0.9%, rgba(134, 239, 172, 0.85) 98%);
+            padding: 2px 8px;
+            border-radius: 4px;
+            box-decoration-break: clone;
+            -webkit-box-decoration-break: clone;
+            display: inline-block;
+        }
+
+        .highlighter-red {
+            background: linear-gradient(104deg, rgba(254, 205, 211, 0.95) 0.9%, rgba(253, 164, 175, 0.85) 98%);
+            padding: 2px 8px;
+            border-radius: 4px;
+            box-decoration-break: clone;
+            -webkit-box-decoration-break: clone;
+            display: inline-block;
+        }
+
+        .highlighter-blue {
+            background: linear-gradient(104deg, rgba(191, 219, 254, 0.95) 0.9%, rgba(147, 197, 253, 0.85) 98%);
+            padding: 2px 8px;
+            border-radius: 4px;
+            box-decoration-break: clone;
+            -webkit-box-decoration-break: clone;
+            display: inline-block;
+        }
+
+        .pen-box {
+            background: rgba(255, 255, 255, 0.92);
+            border: 2px dashed #3b82f6;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .pen-box-red {
+            background: rgba(255, 255, 255, 0.92);
+            border: 2px dashed #ef4444;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .teacher-quote {
+            background: rgba(254, 243, 199, 0.92);
+            border-left: 5px solid #d97706;
+            border-radius: 6px;
+            padding: 0.85rem 1.2rem;
+            font-style: italic;
+        }
+
+        .sketch-card {
+            background: #ffffff;
+            border: 1.5px solid #cbd5e1;
+            box-shadow: 2px 3px 6px rgba(0, 0, 0, 0.06);
+            border-radius: 10px;
+        }
+
+        /* Pan & Zoom Canvas Container */
+        .zoom-canvas-wrapper {
+            position: relative;
+            overflow: hidden;
+            border: 2px solid #cbd5e1;
+            border-radius: 12px;
+            background-color: #FAF6EE;
+            background-image: 
+                radial-gradient(#cbd5e1 1.2px, transparent 1.2px), 
+                radial-gradient(#cbd5e1 1.2px, #FAF6EE 1.2px);
+            background-size: 24px 24px;
+            background-position: 0 0, 12px 12px;
+            cursor: grab;
+            user-select: none;
+        }
+
+        .zoom-canvas-wrapper:active {
+            cursor: grabbing;
+        }
+
+        .zoom-toolbar {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(4px);
+            padding: 4px 8px;
+            border-radius: 10px;
+            border: 1px solid #cbd5e1;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Fullscreen Maximize Mode */
+        body.has-fullscreen-canvas #notebookBinderColumn,
+        body.has-fullscreen-canvas .binder-column {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+        }
+
+        .zoom-canvas-wrapper.is-fullscreen {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            z-index: 2147483647 !important;
+            background-color: #FAF6EE !important;
+            border-radius: 0 !important;
+            border: none !important;
+            margin: 0 !important;
+            box-shadow: none !important;
+        }
+
+        .zoom-canvas-wrapper.is-fullscreen .zoom-toolbar {
+            top: 18px;
+            right: 24px;
+            padding: 6px 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+        }
+
+        .zoom-btn {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: #1e293b;
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            transition: all 0.15s ease;
+        }
+
+        .zoom-btn:hover {
+            background: #e2e8f0;
+            color: #0f172a;
+            transform: scale(1.05);
+        }
+
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            body {
+                background: white !important;
+            }
+            .lined-paper {
+                background-image: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body class="text-xl text-slate-800 antialiased transition-all duration-300">
+
+    <!-- Sticky Header Navigation Bar -->
+    <header class="sticky top-0 z-50 bg-[#FAF6EE] shadow-md border-b-2 border-amber-200 px-4 py-3 no-print">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-3">
+            <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+                <a href="../index.html"
+                    class="px-3 py-1.5 rounded-lg bg-amber-100 hover:bg-amber-200 border border-amber-300 text-inkBlue text-xs sm:text-sm font-bold flex items-center gap-1.5 transition shadow-sm font-sans"
+                    title="Back to Digital Bookshelf">
+                    <span>📚</span> <span>Bookshelf</span>
+                </a>
+                <a href="index.html"
+                    class="px-3 py-1.5 rounded-lg bg-emerald-100 hover:bg-emerald-200 border border-emerald-300 text-emerald-900 text-xs sm:text-sm font-bold flex items-center gap-1.5 transition shadow-sm font-sans"
+                    title="Back to Personal Notes Directory">
+                    <span>📋</span> <span>Notes Directory</span>
+                </a>
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl sm:text-3xl font-bold text-inkBlue tracking-wide font-['Kalam']">🎒 0/1 Knapsack Problem</span>
+                    <span
+                        class="bg-rose-100 text-rose-900 text-xs sm:text-sm font-bold px-3 py-1 rounded-full border border-rose-300 font-sans">
+                        Backtracking • State-Space Tree
+                    </span>
+                </div>
+            </div>
+
+            <!-- Right: Font Toggle Button -->
+            <div class="flex items-center gap-2">
+                <button id="fontToggleBtn" onclick="toggleFontMode()"
+                    class="shrink-0 px-3.5 py-1.5 rounded-lg bg-inkBlue text-white hover:bg-slate-800 transition text-xs sm:text-sm font-bold shadow flex items-center gap-1.5 font-sans"
+                    title="Toggle between Handwritten and Clean typography">
+                    <span>✍️</span> <span id="fontBtnText">Clean Font</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <nav class="max-w-6xl mx-auto mt-2.5 flex flex-wrap gap-1 border-t border-amber-200 pt-2 text-sm sm:text-base font-sans">
+            <button onclick="switchTab('tab-problem-approach')" id="nav-tab-problem-approach"
+                class="nav-tab px-4 py-1.5 rounded-t-lg font-bold bg-amber-200 text-inkBlue border-b-2 border-inkBlue transition">
+                1. Problem Statement &amp; Approach
+            </button>
+            <button onclick="switchTab('tab-state-space-tree')" id="nav-tab-state-space-tree"
+                class="nav-tab px-4 py-1.5 rounded-t-lg font-bold text-slate-600 hover:text-inkBlue transition">
+                2. Live State-Space Tree (Pan/Zoom)
+            </button>
+            <button onclick="switchTab('tab-algorithm-complexity')" id="nav-tab-algorithm-complexity"
+                class="nav-tab px-4 py-1.5 rounded-t-lg font-bold text-slate-600 hover:text-inkBlue transition">
+                3. Algorithm, Bounding &amp; Complexity
+            </button>
+        </nav>
+    </header>
+
+    <!-- Main Notebook Container -->
+    <main
+        class="max-w-6xl mx-auto flex relative bg-notebookPaper rounded-xl shadow-2xl overflow-hidden min-h-[950px] border border-amber-200 my-8">
+
+        <!-- Left Binder Column (50 Physical Spiral Rings) -->
+        <div id="notebookBinderColumn"
+            class="binder-column w-10 sm:w-16 bg-amber-50 border-r-2 border-amber-200 flex flex-col items-center py-8 select-none shrink-0 no-print space-y-6 shadow-[inset_-5px_0_10px_rgba(0,0,0,0.05)]">
+            <script>
+                for (let i = 0; i < 50; i++) document.write('<div class="spiral-ring"></div>');
+            </script>
+        </div>
+
+        <!-- Notebook Content Area -->
+        <div class="flex-1 lined-paper p-4 sm:p-8 notebook-margin sm:pl-8 overflow-hidden">
+
+            <!-- ==================================================================== -->
+            <!-- TAB 1: PROBLEM STATEMENT, APPROACH & EXAMPLE TABLE                   -->
+            <!-- ==================================================================== -->
+            <div id="tab-problem-approach" class="tab-pane space-y-8">
+
+                <!-- Section Header -->
+                <div class="border-b-2 border-inkRed pb-2 flex justify-between items-baseline">
+                    <div>
+                        <h1 class="text-3xl sm:text-4xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                            1. 0/1 Knapsack Problem using Backtracking
+                        </h1>
+                        <p class="text-sm font-sans text-pencilGray mt-1">
+                            Formal problem definition, example dataset table, decision-tuple model, and bounding functions
+                        </p>
+                    </div>
+                    <span class="text-xs sm:text-sm font-bold font-sans bg-rose-100 text-inkRed px-2.5 py-1 rounded border border-rose-300">
+                        Exam Standard • Unit 7
+                    </span>
+                </div>
+
+                <!-- Teacher's Handwritten Opening Note -->
+                <div class="teacher-quote text-slate-800 text-lg sm:text-xl">
+                    <span class="font-bold text-amber-900 not-italic">📝 Professor's Note:</span>
+                    "In Dynamic Programming, we compute tabular subproblems systematically. But in <strong>Backtracking</strong>, we explore the solution space as a <strong>Depth-First State-Space Tree</strong>. At each stage, we either include ($x_i = 1$) or exclude ($x_i = 0$) an object. If a choice causes the cumulative weight to exceed the bag capacity $W$, we prune (kill) the node and immediately <em>backtrack</em> to the parent to explore the alternate branch!"
+                </div>
+
+                <!-- Problem Statement Card -->
+                <div class="sketch-card p-5 font-sans space-y-4">
+                    <div class="flex items-center gap-2 border-b border-slate-200 pb-2">
+                        <span class="text-2xl">📋</span>
+                        <h2 class="text-2xl font-bold text-inkBlue font-['Kalam']">1.1 Problem Statement</h2>
+                    </div>
+
+                    <p class="text-slate-700 leading-relaxed text-base sm:text-lg font-['Patrick_Hand'] sm:text-xl">
+                        Given <strong class="text-inkBlue font-mono">n = 4</strong> discrete objects, each having an indivisible weight 
+                        <strong class="text-inkBlue font-mono">w<sub>i</sub></strong> and an associated profit 
+                        <strong class="text-inkBlue font-mono">p<sub>i</sub></strong>, and a knapsack of maximum weight capacity 
+                        <span class="highlighter-yellow font-bold font-mono">W = 8 kg</span>.
+                    </p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm font-sans pt-2">
+                        <div class="p-4 bg-amber-50/70 border border-amber-300 rounded-lg">
+                            <h4 class="font-bold text-amber-950 mb-1 flex items-center gap-1.5">
+                                <span>🎯</span> Objective Function (Maximize Profit):
+                            </h4>
+                            <div class="p-2.5 bg-white rounded border border-amber-200 font-mono text-center text-base text-inkBlue font-bold">
+                                Maximize &nbsp; P = ∑<sub>i=1</sub><sup>n</sup> (p<sub>i</sub> · x<sub>i</sub>)
+                            </div>
+                        </div>
+                        <div class="p-4 bg-rose-50/70 border border-rose-300 rounded-lg">
+                            <h4 class="font-bold text-rose-950 mb-1 flex items-center gap-1.5">
+                                <span>⚖️</span> Capacity Constraint (Feasibility):
+                            </h4>
+                            <div class="p-2.5 bg-white rounded border border-rose-200 font-mono text-center text-base text-inkRed font-bold">
+                                Subject to: &nbsp; ∑<sub>i=1</sub><sup>n</sup> (w<sub>i</sub> · x<sub>i</sub>) ≤ W = 8 kg
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-slate-700">
+                        <span class="font-bold text-inkBlue">0/1 Binary Decision Property:</span> Each variable 
+                        <code class="px-2 py-0.5 bg-white border border-blue-300 rounded font-bold text-blue-900">x<sub>i</sub> ∈ {0, 1}</code>. 
+                        You cannot take fractions of an item, and you cannot take an item more than once. Either you take it whole (<code class="text-emerald-700 font-bold">x<sub>i</sub> = 1</code>) or you leave it (<code class="text-slate-600 font-bold">x<sub>i</sub> = 0</code>).
+                    </div>
+                </div>
+
+                <!-- Example Problem Given in Prompt -->
+                <div class="sketch-card p-5 font-sans space-y-4 border-2 border-indigo-200">
+                    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-3">
+                        <div class="flex items-center gap-2">
+                            <span class="text-2xl">📊</span>
+                            <h2 class="text-2xl font-bold text-inkBlue font-['Kalam']">1.2 Given Numerical Example Table</h2>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="px-3 py-1 bg-amber-100 border border-amber-300 rounded-lg font-mono font-bold text-amber-950 text-sm">
+                                Objects: n = 4
+                            </span>
+                            <span class="px-3 py-1 bg-emerald-100 border border-emerald-300 rounded-lg font-mono font-bold text-emerald-950 text-sm">
+                                Knapsack Capacity: W = 8 kg
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Authentic Handwritten Notebook Data Table -->
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-center border-collapse border-2 border-slate-700 bg-white shadow-sm font-sans text-base">
+                            <thead>
+                                <tr class="bg-amber-100/80 border-b-2 border-slate-700">
+                                    <th class="p-3 border-r-2 border-slate-700 text-inkBlue font-bold font-['Kalam'] text-lg">Item Index ( i )</th>
+                                    <th class="p-3 border-r-2 border-slate-700 font-mono font-bold text-indigo-900 text-lg">1</th>
+                                    <th class="p-3 border-r-2 border-slate-700 font-mono font-bold text-indigo-900 text-lg">2</th>
+                                    <th class="p-3 border-r-2 border-slate-700 font-mono font-bold text-indigo-900 text-lg">3</th>
+                                    <th class="p-3 font-mono font-bold text-indigo-900 text-lg">4</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-b border-slate-400">
+                                    <td class="p-3 border-r-2 border-slate-700 font-bold text-slate-800 bg-amber-50/50">
+                                        Weight ( W<sub>i</sub> in kg )
+                                    </td>
+                                    <td class="p-3 border-r-2 border-slate-700 font-mono font-bold text-rose-800 text-xl">2</td>
+                                    <td class="p-3 border-r-2 border-slate-700 font-mono font-bold text-rose-800 text-xl">3</td>
+                                    <td class="p-3 border-r-2 border-slate-700 font-mono font-bold text-rose-800 text-xl">4</td>
+                                    <td class="p-3 font-mono font-bold text-rose-800 text-xl">5</td>
+                                </tr>
+                                <tr class="border-b-2 border-slate-700">
+                                    <td class="p-3 border-r-2 border-slate-700 font-bold text-slate-800 bg-amber-50/50">
+                                        Profit ( P<sub>i</sub> in $ )
+                                    </td>
+                                    <td class="p-3 border-r-2 border-slate-700 font-mono font-bold text-emerald-800 text-xl">3</td>
+                                    <td class="p-3 border-r-2 border-slate-700 font-mono font-bold text-emerald-800 text-xl">5</td>
+                                    <td class="p-3 border-r-2 border-slate-700 font-mono font-bold text-emerald-800 text-xl">6</td>
+                                    <td class="p-3 font-mono font-bold text-emerald-800 text-xl">10</td>
+                                </tr>
+                                <tr class="bg-slate-50 text-sm">
+                                    <td class="p-2.5 border-r-2 border-slate-700 font-semibold text-slate-600">
+                                        Profit / Weight Ratio ( p<sub>i</sub> / w<sub>i</sub> )
+                                    </td>
+                                    <td class="p-2.5 border-r-2 border-slate-700 font-mono text-slate-700">1.50</td>
+                                    <td class="p-2.5 border-r-2 border-slate-700 font-mono text-slate-700">1.67</td>
+                                    <td class="p-2.5 border-r-2 border-slate-700 font-mono text-slate-700">1.50</td>
+                                    <td class="p-2.5 font-mono font-bold text-indigo-700">2.00</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Visual Item Tiles -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
+                        <div class="p-3 bg-white border-2 border-indigo-200 rounded-xl shadow-sm text-center">
+                            <span class="text-xs uppercase font-bold text-slate-500 block">Object 1</span>
+                            <div class="text-2xl font-bold text-inkBlue my-1">📦 #1</div>
+                            <div class="text-sm font-mono text-slate-700">w₁ = <strong>2 kg</strong></div>
+                            <div class="text-sm font-mono text-emerald-700 font-bold">p₁ = <strong>3</strong></div>
+                        </div>
+                        <div class="p-3 bg-white border-2 border-indigo-200 rounded-xl shadow-sm text-center">
+                            <span class="text-xs uppercase font-bold text-slate-500 block">Object 2</span>
+                            <div class="text-2xl font-bold text-inkBlue my-1">📦 #2</div>
+                            <div class="text-sm font-mono text-slate-700">w₂ = <strong>3 kg</strong></div>
+                            <div class="text-sm font-mono text-emerald-700 font-bold">p₂ = <strong>5</strong></div>
+                        </div>
+                        <div class="p-3 bg-white border-2 border-indigo-200 rounded-xl shadow-sm text-center">
+                            <span class="text-xs uppercase font-bold text-slate-500 block">Object 3</span>
+                            <div class="text-2xl font-bold text-inkBlue my-1">📦 #3</div>
+                            <div class="text-sm font-mono text-slate-700">w₃ = <strong>4 kg</strong></div>
+                            <div class="text-sm font-mono text-emerald-700 font-bold">p₃ = <strong>6</strong></div>
+                        </div>
+                        <div class="p-3 bg-white border-2 border-indigo-200 rounded-xl shadow-sm text-center">
+                            <span class="text-xs uppercase font-bold text-slate-500 block">Object 4</span>
+                            <div class="text-2xl font-bold text-inkBlue my-1">📦 #4</div>
+                            <div class="text-sm font-mono text-slate-700">w₄ = <strong>5 kg</strong></div>
+                            <div class="text-sm font-mono text-emerald-700 font-bold">p₄ = <strong>10</strong></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Backtracking Approach & Bounding Functions Explanation -->
+                <div class="sketch-card p-5 font-sans space-y-4">
+                    <div class="flex items-center gap-2 border-b border-slate-200 pb-2">
+                        <span class="text-2xl">🧠</span>
+                        <h2 class="text-2xl font-bold text-inkBlue font-['Kalam']">1.3 Backtracking Approach &amp; Bounding Mechanism</h2>
+                    </div>
+
+                    <p class="text-slate-700 leading-relaxed text-base sm:text-lg">
+                        In Backtracking, we formulate the solution vector as a 4-tuple 
+                        <code class="px-2 py-0.5 bg-slate-100 border border-slate-300 rounded font-mono font-bold text-indigo-900">X = (x₁, x₂, x₃, x₄)</code>. 
+                        The state-space tree is organized with <strong>4 levels</strong> corresponding to the sequential decisions for objects 1 through 4:
+                    </p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                        <!-- Node Representation -->
+                        <div class="pen-box space-y-2">
+                            <h3 class="font-bold text-inkBlue text-base flex items-center gap-2">
+                                <span>🏷️</span> Node State Representation
+                            </h3>
+                            <p class="text-slate-700">
+                                Each node in our state-space tree records a state pair:
+                            </p>
+                            <div class="p-2.5 bg-white border border-blue-300 rounded-lg text-center font-mono text-lg font-bold text-inkBlue">
+                                ( cp , cw )
+                            </div>
+                            <ul class="list-disc pl-5 text-slate-700 space-y-1 text-xs sm:text-sm">
+                                <li><strong class="font-mono text-emerald-800">cp</strong> = <em>Current Profit</em> accumulated so far.</li>
+                                <li><strong class="font-mono text-rose-800">cw</strong> = <em>Current Weight</em> loaded into the knapsack.</li>
+                                <li><strong>Depth / Level</strong> = Indicates which item $i$ we are deciding on.</li>
+                            </ul>
+                        </div>
+
+                        <!-- Branching Rule -->
+                        <div class="pen-box space-y-2">
+                            <h3 class="font-bold text-inkBlue text-base flex items-center gap-2">
+                                <span>🌿</span> Branching Logic at Level i
+                            </h3>
+                            <p class="text-slate-700">
+                                From every viable node at level $(i - 1)$, we branch two ways:
+                            </p>
+                            <div class="space-y-1.5 text-xs sm:text-sm">
+                                <div class="p-2 bg-emerald-50 border border-emerald-300 rounded flex items-center justify-between">
+                                    <span class="font-bold text-emerald-900">Left Branch (x<sub>i</sub> = 1):</span>
+                                    <span class="font-mono text-emerald-800">cw += w<sub>i</sub>, &nbsp; cp += p<sub>i</sub></span>
+                                </div>
+                                <div class="p-2 bg-slate-100 border border-slate-300 rounded flex items-center justify-between">
+                                    <span class="font-bold text-slate-800">Right Branch (x<sub>i</sub> = 0):</span>
+                                    <span class="font-mono text-slate-700">cw unchanged, &nbsp; cp unchanged</span>
+                                </div>
+                            </div>
+                            <p class="text-xs text-slate-600 italic">
+                                We always explore the inclusion branch first (standard Depth-First Search order).
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Dual Bounding Conditions -->
+                    <div class="mt-4 p-4 bg-amber-50/80 border-2 border-amber-300 rounded-xl space-y-3 text-sm">
+                        <h3 class="text-lg font-bold text-amber-950 font-['Kalam'] flex items-center gap-2">
+                            <span>✂️</span> Dual Pruning / Bounding Conditions (How Nodes are Killed)
+                        </h3>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <!-- Bounding Rule 1: Capacity -->
+                            <div class="p-3 bg-white border-2 border-rose-300 rounded-lg space-y-1.5">
+                                <div class="flex items-center gap-1.5 text-rose-900 font-bold">
+                                    <span class="text-lg">🛑</span> Condition 1: Capacity Feasibility Pruning
+                                </div>
+                                <div class="p-1.5 bg-rose-50 rounded font-mono text-xs text-rose-800 font-bold">
+                                    if (cw &gt; W = 8 kg) ➜ PRUNE &amp; BACKTRACK
+                                </div>
+                                <p class="text-xs text-slate-700">
+                                    If adding object $i$ pushes the cumulative weight beyond the maximum allowable bag limit of <strong>8 kg</strong>, this node is declared <strong>infeasible</strong> (killed). We never generate children under this node!
+                                </p>
+                            </div>
+
+                            <!-- Bounding Rule 2: Optimality Upper Bound -->
+                            <div class="p-3 bg-white border-2 border-indigo-300 rounded-lg space-y-1.5">
+                                <div class="flex items-center gap-1.5 text-indigo-900 font-bold">
+                                    <span class="text-lg">📉</span> Condition 2: Upper Bound Optimality Pruning
+                                </div>
+                                <div class="p-1.5 bg-indigo-50 rounded font-mono text-xs text-indigo-800 font-bold">
+                                    if (Upper_Bound ≤ Max_Profit_So_Far) ➜ PRUNE
+                                </div>
+                                <p class="text-xs text-slate-700">
+                                    If the maximum potential profit reachable from this sub-tree (current profit plus upper bound on remaining items) cannot beat our best solution found so far, the entire branch is discarded!
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- ==================================================================== -->
+            <!-- TAB 2: COMPLETE STATE-SPACE TREE (PAN / ZOOM LIVE CANVAS)             -->
+            <!-- ==================================================================== -->
+            <div id="tab-state-space-tree" class="tab-pane hidden space-y-6">
+
+                <!-- Section Header -->
+                <div class="border-b-2 border-inkRed pb-2 flex justify-between items-baseline">
+                    <div>
+                        <h1 class="text-3xl sm:text-4xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                            2. Complete State-Space Tree for 0/1 Knapsack
+                        </h1>
+                        <p class="text-sm font-sans text-pencilGray mt-1">
+                            Interactive high-DPI canvas showing all 31 potential nodes, pruned overweight branches, feasible leaves, and optimal solution
+                        </p>
+                    </div>
+                    <span class="text-xs sm:text-sm font-bold font-sans bg-indigo-100 text-indigo-900 px-2.5 py-1 rounded border border-indigo-300">
+                        Interactive Engine
+                    </span>
+                </div>
+
+                <!-- Tree Legend -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs font-sans">
+                    <div class="p-2.5 bg-white border border-blue-300 rounded-lg flex items-center gap-2">
+                        <span class="w-4 h-4 rounded-full bg-blue-500 shrink-0"></span>
+                        <span><strong>Node (cp, cw):</strong> Profit &amp; Weight</span>
+                    </div>
+                    <div class="p-2.5 bg-emerald-50 border border-emerald-300 rounded-lg flex items-center gap-2">
+                        <span class="w-4 h-4 rounded-full bg-emerald-500 shrink-0"></span>
+                        <span><strong>Left Edge:</strong> Include (x<sub>i</sub> = 1)</span>
+                    </div>
+                    <div class="p-2.5 bg-slate-50 border border-slate-300 rounded-lg flex items-center gap-2">
+                        <span class="w-4 h-4 rounded-full bg-slate-400 shrink-0"></span>
+                        <span><strong>Right Edge:</strong> Exclude (x<sub>i</sub> = 0)</span>
+                    </div>
+                    <div class="p-2.5 bg-rose-50 border border-rose-300 rounded-lg flex items-center gap-2">
+                        <span class="w-4 h-4 rounded-full bg-rose-500 shrink-0"></span>
+                        <span><strong>❌ Red Cut:</strong> Pruned (Weight &gt; 8 kg)</span>
+                    </div>
+                </div>
+
+                <!-- Pan & Zoom Tree Canvas Card -->
+                <div class="sketch-card p-3 font-sans">
+                    <div class="zoom-canvas-wrapper" id="knapsackTreeWrapper" style="height: 640px;">
+                        
+                        <!-- Floating Zoom & Maximize Toolbar -->
+                        <div class="zoom-toolbar select-none">
+                            <span id="knapsackZoomDisplay" class="text-xs font-mono font-bold text-slate-700 px-2">100%</span>
+                            <button onclick="knapsackZoomIn()" class="zoom-btn" title="Zoom In (+)">➕</button>
+                            <button onclick="knapsackZoomOut()" class="zoom-btn" title="Zoom Out (-)">➖</button>
+                            <button onclick="knapsackResetZoom()" class="zoom-btn" title="Reset View (⟲)">⟲</button>
+                            <button onclick="knapsackFitTree()" class="zoom-btn" title="Fit Entire Tree (⊡)">⊡</button>
+                            <button id="btnKnapsackFullscreen" onclick="toggleKnapsackFullscreen()" class="zoom-btn text-base" title="Maximize Fullscreen (⛶)">⛶</button>
+                        </div>
+
+                        <!-- Canvas: Compact 1850x760px for tight state-space tree with large fonts -->
+                        <canvas id="canvas-knapsack-tree" width="1850" height="760"></canvas>
+                    </div>
+
+                    <div class="mt-2.5 flex flex-wrap justify-between items-center text-xs text-slate-600 px-1">
+                        <span>💡 <strong>Controls:</strong> Drag to pan • Scroll wheel to zoom • Click <strong>⛶</strong> for Fullscreen mode (press <kbd class="px-1 bg-slate-200 rounded">Esc</kbd> to exit)</span>
+                        <span class="text-emerald-800 font-bold">🏆 Global Optimum: X = (0, 1, 0, 1) with Weight = 8 kg, Profit = 15</span>
+                    </div>
+                </div>
+
+                <!-- Analysis Summary Table of Leaves -->
+                <div class="sketch-card p-4 font-sans space-y-3">
+                    <h3 class="text-lg font-bold text-inkBlue font-['Kalam'] flex items-center gap-2">
+                        <span>📊</span> Summary of All Feasible Combinations Generated by Backtracking
+                    </h3>
+                    <div class="overflow-x-auto text-xs sm:text-sm">
+                        <table class="w-full text-center border-collapse border border-slate-300">
+                            <thead>
+                                <tr class="bg-slate-100 text-slate-700 border-b border-slate-300">
+                                    <th class="p-2 border-r border-slate-300">Subset Vector (x₁, x₂, x₃, x₄)</th>
+                                    <th class="p-2 border-r border-slate-300">Included Items</th>
+                                    <th class="p-2 border-r border-slate-300">Total Weight (cw)</th>
+                                    <th class="p-2 border-r border-slate-300">Total Profit (cp)</th>
+                                    <th class="p-2 border-r border-slate-300">Feasible? (cw ≤ 8)</th>
+                                    <th class="p-2">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-200">
+                                <tr class="bg-white">
+                                    <td class="p-2 font-mono border-r">(1, 1, 0, 0)</td>
+                                    <td class="p-2 border-r">{ 1, 2 }</td>
+                                    <td class="p-2 font-mono font-bold text-rose-800 border-r">2 + 3 = 5 kg</td>
+                                    <td class="p-2 font-mono font-bold text-indigo-900 border-r">3 + 5 = 8</td>
+                                    <td class="p-2 font-bold text-emerald-700 border-r">✅ Yes (5 ≤ 8)</td>
+                                    <td class="p-2 text-slate-600">First Feasible Leaf Found</td>
+                                </tr>
+                                <tr class="bg-slate-50/50">
+                                    <td class="p-2 font-mono border-r">(1, 0, 1, 0)</td>
+                                    <td class="p-2 border-r">{ 1, 3 }</td>
+                                    <td class="p-2 font-mono font-bold text-rose-800 border-r">2 + 4 = 6 kg</td>
+                                    <td class="p-2 font-mono font-bold text-indigo-900 border-r">3 + 6 = 9</td>
+                                    <td class="p-2 font-bold text-emerald-700 border-r">✅ Yes (6 ≤ 8)</td>
+                                    <td class="p-2 text-blue-700 font-semibold">Improved Profit to 9</td>
+                                </tr>
+                                <tr class="bg-white">
+                                    <td class="p-2 font-mono border-r">(1, 0, 0, 1)</td>
+                                    <td class="p-2 border-r">{ 1, 4 }</td>
+                                    <td class="p-2 font-mono font-bold text-rose-800 border-r">2 + 5 = 7 kg</td>
+                                    <td class="p-2 font-mono font-bold text-indigo-900 border-r">3 + 10 = 13</td>
+                                    <td class="p-2 font-bold text-emerald-700 border-r">✅ Yes (7 ≤ 8)</td>
+                                    <td class="p-2 text-indigo-700 font-bold">Improved Profit to 13</td>
+                                </tr>
+                                <tr class="bg-slate-50/50">
+                                    <td class="p-2 font-mono border-r">(0, 1, 1, 0)</td>
+                                    <td class="p-2 border-r">{ 2, 3 }</td>
+                                    <td class="p-2 font-mono font-bold text-rose-800 border-r">3 + 4 = 7 kg</td>
+                                    <td class="p-2 font-mono font-bold text-indigo-900 border-r">5 + 6 = 11</td>
+                                    <td class="p-2 font-bold text-emerald-700 border-r">✅ Yes (7 ≤ 8)</td>
+                                    <td class="p-2 text-slate-500">11 &lt; 13 (Suboptimal)</td>
+                                </tr>
+                                <tr class="bg-amber-100 font-bold border-2 border-amber-400">
+                                    <td class="p-2.5 font-mono text-indigo-950 border-r">(0, 1, 0, 1)</td>
+                                    <td class="p-2.5 text-indigo-950 border-r">{ 2, 4 }</td>
+                                    <td class="p-2.5 font-mono text-emerald-900 border-r">3 + 5 = 8 kg</td>
+                                    <td class="p-2.5 font-mono text-2xl text-emerald-900 border-r">5 + 10 = 15</td>
+                                    <td class="p-2.5 text-emerald-800 border-r">✅ Exact Fit (8 = 8)</td>
+                                    <td class="p-2.5 text-amber-900 bg-amber-200 font-bold">🏆 GLOBAL OPTIMAL SOLUTION</td>
+                                </tr>
+                                <tr class="bg-white">
+                                    <td class="p-2 font-mono border-r">(0, 0, 1, 0)</td>
+                                    <td class="p-2 border-r">{ 3 }</td>
+                                    <td class="p-2 font-mono font-bold text-rose-800 border-r">4 kg</td>
+                                    <td class="p-2 font-mono font-bold text-indigo-900 border-r">6</td>
+                                    <td class="p-2 font-bold text-emerald-700 border-r">✅ Yes (4 ≤ 8)</td>
+                                    <td class="p-2 text-slate-500">6 &lt; 15 (Suboptimal)</td>
+                                </tr>
+                                <tr class="bg-slate-50/50">
+                                    <td class="p-2 font-mono border-r">(0, 0, 0, 1)</td>
+                                    <td class="p-2 border-r">{ 4 }</td>
+                                    <td class="p-2 font-mono font-bold text-rose-800 border-r">5 kg</td>
+                                    <td class="p-2 font-mono font-bold text-indigo-900 border-r">10</td>
+                                    <td class="p-2 font-bold text-emerald-700 border-r">✅ Yes (5 ≤ 8)</td>
+                                    <td class="p-2 text-slate-500">10 &lt; 15 (Suboptimal)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ==================================================================== -->
+            <!-- TAB 3: RECURSIVE ALGORITHM, BOUNDING FUNCTIONS & COMPLEXITY          -->
+            <!-- ==================================================================== -->
+            <div id="tab-algorithm-complexity" class="tab-pane hidden space-y-6">
+
+                <!-- Section Header -->
+                <div class="border-b-2 border-inkRed pb-2 flex justify-between items-baseline">
+                    <div>
+                        <h1 class="text-3xl sm:text-4xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                            3. Recursive Algorithm, Bounding Functions &amp; Complexity
+                        </h1>
+                        <p class="text-sm font-sans text-pencilGray mt-1">
+                            Formal backtracking procedure, greedy upper bound computation, and comparative analysis
+                        </p>
+                    </div>
+                    <span class="text-xs sm:text-sm font-bold font-sans bg-amber-100 text-inkRed px-2.5 py-1 rounded border border-amber-300">
+                        Code &amp; Analysis
+                    </span>
+                </div>
+
+                <!-- C++ / Pseudocode Implementation -->
+                <div class="sketch-card p-5 font-sans space-y-4">
+                    <div class="flex items-center justify-between border-b border-slate-200 pb-2">
+                        <div class="flex items-center gap-2">
+                            <span class="text-2xl">💻</span>
+                            <h2 class="text-xl font-bold text-inkBlue font-['Kalam']">4.1 Canonical Backtracking Algorithm</h2>
+                        </div>
+                        <span class="text-xs font-mono bg-slate-100 px-2.5 py-1 rounded border text-slate-700">
+                            C++ / Pseudocode
+                        </span>
+                    </div>
+
+                    <pre class="bg-slate-900 text-slate-100 p-4 rounded-xl text-xs sm:text-sm font-mono overflow-x-auto leading-relaxed">
+<code><span class="text-emerald-400">// Global Problem Variables</span>
+<span class="text-indigo-300">const int</span> n = 4;
+<span class="text-indigo-300">const int</span> W = 8;
+<span class="text-indigo-300">int</span> w[] = {2, 3, 4, 5};
+<span class="text-indigo-300">int</span> p[] = {3, 5, 6, 10};
+
+<span class="text-indigo-300">int</span> x[4];              <span class="text-slate-400">// Current decision vector</span>
+<span class="text-indigo-300">int</span> best_x[4];         <span class="text-slate-400">// Best solution vector found</span>
+<span class="text-indigo-300">int</span> max_profit = 0;    <span class="text-slate-400">// Track best profit so far</span>
+
+<span class="text-slate-400">// Backtracking function to explore state-space tree</span>
+<span class="text-indigo-300">void</span> <span class="text-yellow-300">knapsackBacktrack</span>(<span class="text-indigo-300">int</span> i, <span class="text-indigo-300">int</span> cp, <span class="text-indigo-300">int</span> cw) {
+    <span class="text-slate-400">// Base Case: All n items have been decided</span>
+    <span class="text-indigo-300">if</span> (i == n) {
+        <span class="text-indigo-300">if</span> (cp &gt; max_profit) {
+            max_profit = cp;
+            <span class="text-indigo-300">for</span> (<span class="text-indigo-300">int</span> k = 0; k &lt; n; k++) best_x[k] = x[k];
+        }
+        <span class="text-indigo-300">return</span>;
+    }
+
+    <span class="text-slate-400">// CHOICE 1: Include item i (x[i] = 1)</span>
+    <span class="text-slate-400">// Bounding Condition 1: Check capacity feasibility</span>
+    <span class="text-indigo-300">if</span> (cw + w[i] &lt;= W) {
+        x[i] = 1;
+        knapsackBacktrack(i + 1, cp + p[i], cw + w[i]);
+    } <span class="text-indigo-300">else</span> {
+        <span class="text-slate-400">// KILLED: Exceeds capacity W = 8 kg (Pruned!)</span>
+    }
+
+    <span class="text-slate-400">// CHOICE 2: Exclude item i (x[i] = 0)</span>
+    <span class="text-slate-400">// Optional Bounding Condition 2: Check upper bound</span>
+    <span class="text-indigo-300">if</span> (computeUpperBound(i + 1, cp, cw) &gt; max_profit) {
+        x[i] = 0;
+        knapsackBacktrack(i + 1, cp, cw);
+    } <span class="text-indigo-300">else</span> {
+        <span class="text-slate-400">// PRUNED: Cannot beat current best solution!</span>
+    }
+}</code></pre>
+                </div>
+
+                <!-- Upper Bound Computation Deep Dive -->
+                <div class="sketch-card p-5 font-sans space-y-4">
+                    <div class="flex items-center gap-2 border-b border-slate-200 pb-2">
+                        <span class="text-2xl">📐</span>
+                        <h2 class="text-xl font-bold text-inkBlue font-['Kalam']">4.2 Greedy Upper Bound (Fractional Knapsack Relaxation)</h2>
+                    </div>
+
+                    <p class="text-slate-700 leading-relaxed text-sm sm:text-base">
+                        To aggressively prune suboptimal right branches, textbooks (Horowitz &amp; Sahni / Neapolitan) define a <strong>Bounding Function</strong> that computes the maximum conceivable profit reachable from the current state using the <em>Fractional Knapsack greedy relaxation</em>:
+                    </p>
+
+                    <div class="p-3 bg-amber-50 border border-amber-300 rounded-lg font-mono text-center text-sm sm:text-base text-amber-950 font-bold">
+                        Bound(cp, cw, k) = cp + ∑<sub>j &gt; k, fitting</sub> p<sub>j</sub> + (Remaining Capacity) × (p<sub>next</sub> / w<sub>next</sub>)
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs sm:text-sm">
+                        <div class="p-3 bg-white border border-slate-300 rounded-lg space-y-1">
+                            <span class="font-bold text-indigo-900 block">Why Greedy Bound Works:</span>
+                            <p class="text-slate-600">
+                                Since Fractional Knapsack is an upper bound on 0/1 Knapsack, if even the fractional relaxation cannot beat $\text{max\_profit}$, then no integer solution in that sub-tree ever can!
+                            </p>
+                        </div>
+                        <div class="p-3 bg-white border border-slate-300 rounded-lg space-y-1">
+                            <span class="font-bold text-rose-900 block">Condition for Early Pruning:</span>
+                            <p class="text-slate-600">
+                                If $\text{Bound}(cp, cw, k) \le \text{max\_profit}$, we do not even branch into the right child. The entire sub-tree of $2^{n-k}$ nodes is eliminated at once!
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Complexity Analysis & Comparison Table -->
+                <div class="sketch-card p-5 font-sans space-y-4">
+                    <div class="flex items-center gap-2 border-b border-slate-200 pb-2">
+                        <span class="text-2xl">⏱️</span>
+                        <h2 class="text-xl font-bold text-inkBlue font-['Kalam']">4.3 Asymptotic Complexity &amp; Paradigm Comparison</h2>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                        <div class="p-4 bg-slate-50 border border-slate-300 rounded-xl space-y-2">
+                            <h4 class="font-bold text-inkBlue text-base">⏳ Time Complexity</h4>
+                            <p class="text-slate-700">
+                                • <strong>Worst Case:</strong> <code class="font-bold text-rose-800">O(2ⁿ)</code>.<br>
+                                In the worst case (e.g., when knapsack capacity is very large and no node violates capacity), every binary choice is explored, yielding $2^n$ leaf nodes.
+                            </p>
+                            <p class="text-slate-700">
+                                • <strong>Average Case:</strong> Substantially less than $2^n$. Bounding functions prune huge swaths of infeasible and suboptimal branches early.
+                            </p>
+                        </div>
+                        <div class="p-4 bg-slate-50 border border-slate-300 rounded-xl space-y-2">
+                            <h4 class="font-bold text-inkBlue text-base">💾 Space Complexity</h4>
+                            <p class="text-slate-700">
+                                • <strong>Auxiliary Space:</strong> <code class="font-bold text-emerald-800">O(n)</code>.<br>
+                                The DFS recursion stack only ever holds $n$ stack frames along any active path from root to leaf, and the decision vector requires an array of size $n$.
+                            </p>
+                            <p class="text-slate-700">
+                                • <em>Crucial advantage over Dynamic Programming</em> when $W$ is enormous ($W = 10^9$), because DP takes $O(n \cdot W)$ memory!
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Comparison Table -->
+                    <div class="overflow-x-auto pt-2">
+                        <table class="w-full text-center border-collapse border border-slate-300 text-xs sm:text-sm">
+                            <thead>
+                                <tr class="bg-indigo-50 text-inkBlue border-b border-slate-300 font-bold">
+                                    <th class="p-2.5 border-r border-slate-300">Paradigm</th>
+                                    <th class="p-2.5 border-r border-slate-300">Time Complexity</th>
+                                    <th class="p-2.5 border-r border-slate-300">Space Complexity</th>
+                                    <th class="p-2.5 border-r border-slate-300">When Best Suited?</th>
+                                    <th class="p-2.5">Exploration Order</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-200">
+                                <tr class="bg-white">
+                                    <td class="p-2.5 font-bold text-indigo-900 border-r">Dynamic Programming</td>
+                                    <td class="p-2.5 font-mono border-r">O(n · W)</td>
+                                    <td class="p-2.5 font-mono border-r">O(n · W) or O(W)</td>
+                                    <td class="p-2.5 text-left border-r">Small to moderate integer capacities $W$.</td>
+                                    <td class="p-2.5">Bottom-Up Tabulation</td>
+                                </tr>
+                                <tr class="bg-amber-50/60 font-semibold">
+                                    <td class="p-2.5 font-bold text-amber-950 border-r">Backtracking (This Chapter)</td>
+                                    <td class="p-2.5 font-mono text-rose-800 border-r">O(2ⁿ) worst</td>
+                                    <td class="p-2.5 font-mono text-emerald-800 font-bold border-r">O(n) minimal</td>
+                                    <td class="p-2.5 text-left border-r">Very large $W$, moderate $n \le 30$.</td>
+                                    <td class="p-2.5">Depth-First Search (DFS)</td>
+                                </tr>
+                                <tr class="bg-white">
+                                    <td class="p-2.5 font-bold text-purple-900 border-r">Branch and Bound</td>
+                                    <td class="p-2.5 font-mono text-rose-800 border-r">O(2ⁿ) worst</td>
+                                    <td class="p-2.5 font-mono text-amber-800 border-r">Exponential queue</td>
+                                    <td class="p-2.5 text-left border-r">Optimization with Best-First bounds.</td>
+                                    <td class="p-2.5">Breadth-First / Priority Queue (LCBB)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Physical Notebook Scripts & Canvas Rendering Engines -->
+    <script>
+        // Tab Switching Engine
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.nav-tab').forEach(el => {
+                el.classList.remove('bg-amber-200', 'text-inkBlue', 'border-b-2', 'border-inkBlue');
+                el.classList.add('text-slate-600');
+            });
+
+            const activeTab = document.getElementById(tabId);
+            if (activeTab) activeTab.classList.remove('hidden');
+
+            const activeNav = document.getElementById('nav-' + tabId);
+            if (activeNav) {
+                activeNav.classList.remove('text-slate-600');
+                activeNav.classList.add('bg-amber-200', 'text-inkBlue', 'border-b-2', 'border-inkBlue');
+            }
+
+            // Trigger canvas renders if newly visible
+            if (tabId === 'tab-state-space-tree') {
+                setTimeout(knapsackFitTree, 50);
+            }
+        }
+
+        // Font Toggle (Handwritten vs Clean Sans-serif)
+        function toggleFontMode() {
+            const body = document.body;
+            const btnText = document.getElementById('fontBtnText');
+            body.classList.toggle('font-clean');
+            if (body.classList.contains('font-clean')) {
+                btnText.textContent = "Handwritten Font";
+            } else {
+                btnText.textContent = "Clean Font";
+            }
+        }
+
+        // ====================================================================
+        // COMPLETE STATE-SPACE TREE DATA & PAN/ZOOM CANVAS ENGINE
+        // ====================================================================
+        // Problem Data:
+        // W = 8
+        // Item 1: w=2, p=3
+        // Item 2: w=3, p=5
+        // Item 3: w=4, p=6
+        // Item 4: w=5, p=10
+        //
+        // Node structure: { id, x, y, cp, cw, level, parent, edge, status, label }
+        // status: 'normal', 'pruned', 'leaf', 'optimal'
+        const knapsackTreeNodes = [
+            // Level 0: Root
+            { id: 1, x: 815, y: 70, cp: 0, cw: 0, level: 0, status: 'normal', label: 'Root (0, 0)' },
+
+            // Level 1: Item 1 (w=2, p=3)
+            { id: 2, parent: 1, x: 368, y: 190, cp: 3, cw: 2, level: 1, edge: 'x₁ = 1', status: 'normal' },
+            { id: 3, parent: 1, x: 1262, y: 190, cp: 0, cw: 0, level: 1, edge: 'x₁ = 0', status: 'normal' },
+
+            // Level 2 under Node 2 (cp=3, cw=2): Item 2 (w=3, p=5)
+            { id: 4, parent: 2, x: 170, y: 320, cp: 8, cw: 5, level: 2, edge: 'x₂ = 1', status: 'normal' },
+            { id: 5, parent: 2, x: 565, y: 320, cp: 3, cw: 2, level: 2, edge: 'x₂ = 0', status: 'normal' },
+
+            // Level 2 under Node 3 (cp=0, cw=0): Item 2 (w=3, p=5)
+            { id: 6, parent: 3, x: 1028, y: 320, cp: 5, cw: 3, level: 2, edge: 'x₂ = 1', status: 'normal' },
+            { id: 7, parent: 3, x: 1495, y: 320, cp: 0, cw: 0, level: 2, edge: 'x₂ = 0', status: 'normal' },
+
+            // Level 3 under Node 4 (cp=8, cw=5): Item 3 (w=4, p=6)
+            // Left: cw = 5+4 = 9 > 8 -> PRUNED!
+            { id: 8, parent: 4, x: 100, y: 460, cp: 14, cw: 9, level: 3, edge: 'x₃ = 1', status: 'pruned', reason: 'cw = 9 > 8' },
+            // Right: cw = 5, cp = 8
+            { id: 9, parent: 4, x: 235, y: 460, cp: 8, cw: 5, level: 3, edge: 'x₃ = 0', status: 'normal' },
+
+            // Level 3 under Node 5 (cp=3, cw=2): Item 3 (w=4, p=6)
+            // Left: cw = 2+4 = 6 <= 8
+            { id: 10, parent: 5, x: 455, y: 460, cp: 9, cw: 6, level: 3, edge: 'x₃ = 1', status: 'normal' },
+            // Right: cw = 2, cp = 3
+            { id: 11, parent: 5, x: 675, y: 460, cp: 3, cw: 2, level: 3, edge: 'x₃ = 0', status: 'normal' },
+
+            // Level 3 under Node 6 (cp=5, cw=3): Item 3 (w=4, p=6)
+            // Left: cw = 3+4 = 7 <= 8
+            { id: 12, parent: 6, x: 915, y: 460, cp: 11, cw: 7, level: 3, edge: 'x₃ = 1', status: 'normal' },
+            // Right: cw = 3, cp = 5
+            { id: 13, parent: 6, x: 1140, y: 460, cp: 5, cw: 3, level: 3, edge: 'x₃ = 0', status: 'normal' },
+
+            // Level 3 under Node 7 (cp=0, cw=0): Item 3 (w=4, p=6)
+            // Left: cw = 4 <= 8
+            { id: 14, parent: 7, x: 1385, y: 460, cp: 6, cw: 4, level: 3, edge: 'x₃ = 1', status: 'normal' },
+            // Right: cw = 0, cp = 0
+            { id: 15, parent: 7, x: 1605, y: 460, cp: 0, cw: 0, level: 3, edge: 'x₃ = 0', status: 'normal' },
+
+            // Level 4 under Node 9 (cp=8, cw=5): Item 4 (w=5, p=10)
+            // Left: cw = 5+5 = 10 > 8 -> PRUNED!
+            { id: 16, parent: 9, x: 180, y: 610, cp: 18, cw: 10, level: 4, edge: 'x₄ = 1', status: 'pruned', reason: 'cw = 10 > 8' },
+            // Right: cw = 5, cp = 8 -> LEAF 1
+            { id: 17, parent: 9, x: 290, y: 610, cp: 8, cw: 5, level: 4, edge: 'x₄ = 0', status: 'leaf', label: 'Leaf: cp=8' },
+
+            // Level 4 under Node 10 (cp=9, cw=6): Item 4 (w=5, p=10)
+            // Left: cw = 6+5 = 11 > 8 -> PRUNED!
+            { id: 18, parent: 10, x: 400, y: 610, cp: 19, cw: 11, level: 4, edge: 'x₄ = 1', status: 'pruned', reason: 'cw = 11 > 8' },
+            // Right: cw = 6, cp = 9 -> LEAF 2
+            { id: 19, parent: 10, x: 510, y: 610, cp: 9, cw: 6, level: 4, edge: 'x₄ = 0', status: 'leaf', label: 'Leaf: cp=9' },
+
+            // Level 4 under Node 11 (cp=3, cw=2): Item 4 (w=5, p=10)
+            // Left: cw = 2+5 = 7 <= 8 -> LEAF 3 (cp=13)
+            { id: 20, parent: 11, x: 620, y: 610, cp: 13, cw: 7, level: 4, edge: 'x₄ = 1', status: 'leaf', label: 'Leaf: cp=13' },
+            // Right: cw = 2, cp = 3 -> LEAF 4
+            { id: 21, parent: 11, x: 730, y: 610, cp: 3, cw: 2, level: 4, edge: 'x₄ = 0', status: 'leaf', label: 'Leaf: cp=3' },
+
+            // Level 4 under Node 12 (cp=11, cw=7): Item 4 (w=5, p=10)
+            // Left: cw = 7+5 = 12 > 8 -> PRUNED!
+            { id: 22, parent: 12, x: 860, y: 610, cp: 21, cw: 12, level: 4, edge: 'x₄ = 1', status: 'pruned', reason: 'cw = 12 > 8' },
+            // Right: cw = 7, cp = 11 -> LEAF 5
+            { id: 23, parent: 12, x: 970, y: 610, cp: 11, cw: 7, level: 4, edge: 'x₄ = 0', status: 'leaf', label: 'Leaf: cp=11' },
+
+            // Level 4 under Node 13 (cp=5, cw=3): Item 4 (w=5, p=10)
+            // Left: cw = 3+5 = 8 <= 8, cp = 5+10 = 15 -> GLOBAL OPTIMUM!
+            { id: 24, parent: 13, x: 1080, y: 610, cp: 15, cw: 8, level: 4, edge: 'x₄ = 1', status: 'optimal', label: '🏆 OPTIMAL cp=15' },
+            // Right: cw = 3, cp = 5 -> LEAF 6
+            { id: 25, parent: 13, x: 1200, y: 610, cp: 5, cw: 3, level: 4, edge: 'x₄ = 0', status: 'leaf', label: 'Leaf: cp=5' },
+
+            // Level 4 under Node 14 (cp=6, cw=4): Item 4 (w=5, p=10)
+            // Left: cw = 4+5 = 9 > 8 -> PRUNED!
+            { id: 26, parent: 14, x: 1330, y: 610, cp: 16, cw: 9, level: 4, edge: 'x₄ = 1', status: 'pruned', reason: 'cw = 9 > 8' },
+            // Right: cw = 4, cp = 6 -> LEAF 7
+            { id: 27, parent: 14, x: 1440, y: 610, cp: 6, cw: 4, level: 4, edge: 'x₄ = 0', status: 'leaf', label: 'Leaf: cp=6' },
+
+            // Level 4 under Node 15 (cp=0, cw=0): Item 4 (w=5, p=10)
+            // Left: cw = 5 <= 8 -> LEAF 8 (cp=10)
+            { id: 28, parent: 15, x: 1550, y: 610, cp: 10, cw: 5, level: 4, edge: 'x₄ = 1', status: 'leaf', label: 'Leaf: cp=10' },
+            // Right: cw = 0, cp = 0 -> LEAF 9
+            { id: 29, parent: 15, x: 1660, y: 610, cp: 0, cw: 0, level: 4, edge: 'x₄ = 0', status: 'leaf', label: 'Empty (0, 0)' }
+        ];
+
+        // Pan and Zoom Variables for State Space Tree
+        let knapsackScale = 0.82;
+        let knapsackPanX = 30;
+        let knapsackPanY = 20;
+        let isKnapDragging = false;
+        let knapStartX = 0;
+        let knapStartY = 0;
+
+        function renderKnapsackTree() {
+            const canvas = document.getElementById('canvas-knapsack-tree');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            ctx.save();
+            ctx.translate(knapsackPanX, knapsackPanY);
+            ctx.scale(knapsackScale, knapsackScale);
+
+            // Draw Level Guides / Headers on the left
+            const levels = [
+                { y: 70, text: 'Level 0: Start (Empty Knapsack)' },
+                { y: 190, text: 'Level 1: Object 1 (w₁=2, p₁=3)' },
+                { y: 320, text: 'Level 2: Object 2 (w₂=3, p₂=5)' },
+                { y: 460, text: 'Level 3: Object 3 (w₃=4, p₃=6)' },
+                { y: 610, text: 'Level 4: Object 4 (w₄=5, p₄=10)' }
+            ];
+
+            ctx.strokeStyle = '#e2e8f0';
+            ctx.lineWidth = 1.5;
+            ctx.setLineDash([4, 4]);
+            levels.forEach(lvl => {
+                ctx.beginPath();
+                ctx.moveTo(40, lvl.y);
+                ctx.lineTo(1760, lvl.y);
+                ctx.stroke();
+
+                ctx.fillStyle = '#64748b';
+                ctx.font = 'bold 15px Inter, sans-serif';
+                ctx.textAlign = 'left';
+                ctx.fillText(lvl.text, 50, lvl.y - 25);
+            });
+            ctx.setLineDash([]);
+
+            // Draw Edges First
+            knapsackTreeNodes.forEach(node => {
+                if (node.parent) {
+                    const p = knapsackTreeNodes.find(n => n.id === node.parent);
+                    if (p) {
+                        ctx.beginPath();
+                        ctx.moveTo(p.x, p.y + 23);
+                        ctx.lineTo(node.x, node.y - 23);
+
+                        if (node.status === 'optimal') {
+                            ctx.strokeStyle = '#d97706';
+                            ctx.lineWidth = 3.5;
+                            ctx.setLineDash([]);
+                        } else if (node.status === 'pruned') {
+                            ctx.strokeStyle = '#f87171';
+                            ctx.lineWidth = 2;
+                            ctx.setLineDash([4, 4]);
+                        } else {
+                            ctx.strokeStyle = '#3b82f6';
+                            ctx.lineWidth = 2.2;
+                            ctx.setLineDash([]);
+                        }
+                        ctx.stroke();
+                        ctx.setLineDash([]);
+
+                        // Edge label (x_i = 1 or 0)
+                        if (node.edge) {
+                            const midX = (p.x + node.x) / 2;
+                            const midY = (p.y + node.y) / 2;
+                            ctx.fillStyle = node.edge.includes('1') ? '#047857' : '#475569';
+                            ctx.font = 'bold 14px Inter, sans-serif';
+                            ctx.textAlign = 'center';
+                            const offset = node.edge.includes('1') ? -14 : 14;
+                            ctx.fillText(node.edge, midX + offset, midY);
+                        }
+                    }
+                }
+            });
+
+            // Draw Nodes
+            knapsackTreeNodes.forEach(node => {
+                drawKnapsackNode(ctx, node);
+            });
+
+            ctx.restore();
+
+            const disp = document.getElementById('knapsackZoomDisplay');
+            if (disp) disp.textContent = Math.round(knapsackScale * 100) + '%';
+        }
+
+        function drawKnapsackNode(ctx, node) {
+            const { x, y, cp, cw, status, label, reason } = node;
+            const isOptimal = status === 'optimal';
+            const isPruned = status === 'pruned';
+            const isLeaf = status === 'leaf';
+
+            const w = isOptimal ? 118 : 92;
+            const h = 46;
+
+            ctx.save();
+            ctx.translate(x - w / 2, y - h / 2);
+
+            // Node Shape
+            ctx.beginPath();
+            ctx.roundRect(0, 0, w, h, 10);
+
+            if (isOptimal) {
+                ctx.fillStyle = '#fef3c7';
+                ctx.strokeStyle = '#d97706';
+                ctx.lineWidth = 3.5;
+            } else if (isPruned) {
+                ctx.fillStyle = '#fee2e2';
+                ctx.strokeStyle = '#ef4444';
+                ctx.lineWidth = 2.2;
+                ctx.setLineDash([4, 4]);
+            } else if (isLeaf) {
+                ctx.fillStyle = '#f0fdf4';
+                ctx.strokeStyle = '#10b981';
+                ctx.lineWidth = 2.4;
+            } else {
+                ctx.fillStyle = '#ffffff';
+                ctx.strokeStyle = '#3b82f6';
+                ctx.lineWidth = 2.2;
+            }
+
+            ctx.fill();
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Text Inside: (cp, cw) - PROMINENT LARGE BOLD NUMBERS
+            ctx.fillStyle = isPruned ? '#991b1b' : (isOptimal ? '#92400e' : (isLeaf ? '#065f46' : '#1e293b'));
+            ctx.font = 'bold 20px monospace';
+            ctx.textAlign = 'center';
+            ctx.fillText(`(${cp}, ${cw})`, w / 2, h / 2 + 7);
+
+            // Sub-badge / Pruned cross / Leaf label
+            if (isPruned) {
+                ctx.fillStyle = '#dc2626';
+                ctx.font = 'bold 13px Inter, sans-serif';
+                ctx.fillText('❌ KILLED', w / 2, h + 16);
+                if (reason) {
+                    ctx.font = '11px Inter, sans-serif';
+                    ctx.fillText(reason, w / 2, h + 30);
+                }
+            } else if (isOptimal) {
+                ctx.fillStyle = '#b45309';
+                ctx.font = 'bold 13px Inter, sans-serif';
+                ctx.fillText(label || '🏆 OPTIMAL', w / 2, h + 17);
+            } else if (isLeaf && label) {
+                ctx.fillStyle = '#059669';
+                ctx.font = 'bold 12px Inter, sans-serif';
+                ctx.fillText(label, w / 2, h + 16);
+            }
+
+            ctx.restore();
+        }
+
+        // Pan & Zoom Event Handlers
+        const knapWrapper = document.getElementById('knapsackTreeWrapper');
+        if (knapWrapper) {
+            knapWrapper.addEventListener('mousedown', (e) => {
+                isKnapDragging = true;
+                knapStartX = e.clientX - knapsackPanX;
+                knapStartY = e.clientY - knapsackPanY;
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (!isKnapDragging) return;
+                knapsackPanX = e.clientX - knapStartX;
+                knapsackPanY = e.clientY - knapStartY;
+                renderKnapsackTree();
+            });
+
+            window.addEventListener('mouseup', () => {
+                isKnapDragging = false;
+            });
+
+            knapWrapper.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                const factor = e.deltaY < 0 ? 1.1 : 0.9;
+                knapsackScale = Math.min(Math.max(knapsackScale * factor, 0.35), 2.5);
+                renderKnapsackTree();
+            }, { passive: false });
+        }
+
+        function knapsackZoomIn() {
+            knapsackScale = Math.min(knapsackScale * 1.2, 2.5);
+            renderKnapsackTree();
+        }
+
+        function knapsackZoomOut() {
+            knapsackScale = Math.max(knapsackScale * 0.8, 0.35);
+            renderKnapsackTree();
+        }
+
+        function knapsackFitTree() {
+            const containerW = knapWrapper ? knapWrapper.clientWidth : 1000;
+            const containerH = knapWrapper ? knapWrapper.clientHeight : 640;
+            const scaleX = (containerW - 30) / 1850;
+            const scaleY = (containerH - 30) / 760;
+            knapsackScale = Math.min(Math.max(Math.min(scaleX, scaleY), 0.45), 1.5);
+            knapsackPanX = Math.max((containerW - 1850 * knapsackScale) / 2, 15);
+            knapsackPanY = Math.max((containerH - 760 * knapsackScale) / 2, 15);
+            renderKnapsackTree();
+        }
+
+        function knapsackResetZoom() {
+            knapsackFitTree();
+        }
+
+        function toggleKnapsackFullscreen() {
+            const wrapper = document.getElementById('knapsackTreeWrapper');
+            const btn = document.getElementById('btnKnapsackFullscreen');
+            const binder = document.getElementById('notebookBinderColumn');
+            if (!wrapper) return;
+
+            const isEntering = !wrapper.classList.contains('is-fullscreen');
+            wrapper.classList.toggle('is-fullscreen');
+
+            if (isEntering) {
+                document.body.classList.add('has-fullscreen-canvas');
+                if (binder) binder.style.display = 'none';
+                btn.textContent = '✕';
+                btn.title = 'Exit Fullscreen (Esc)';
+                document.body.style.overflow = 'hidden';
+            } else {
+                document.body.classList.remove('has-fullscreen-canvas');
+                if (binder) binder.style.display = '';
+                btn.textContent = '⛶';
+                btn.title = 'Maximize Fullscreen (⛶)';
+                document.body.style.overflow = '';
+            }
+            setTimeout(knapsackFitTree, 60);
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' || e.key === 'f' || e.key === 'F') {
+                const wrapper = document.getElementById('knapsackTreeWrapper');
+                if (wrapper && wrapper.classList.contains('is-fullscreen')) {
+                    toggleKnapsackFullscreen();
+                }
+            }
+        });
+
+        // Window resize and initial load
+        window.addEventListener('load', () => {
+            knapsackFitTree();
+        });
+
+        window.addEventListener('resize', () => {
+            if (!document.getElementById('tab-state-space-tree').classList.contains('hidden')) {
+                knapsackFitTree();
+            }
+        });
+    </script>
+</body>
+
+</html>

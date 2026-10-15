@@ -1,0 +1,2109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>String Pattern Matching: Naive Approach & KMP Algorithm - Digital Lecture Notes</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Kalam:wght@300;400;700&family=Patrick+Hand&family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap"
+        rel="stylesheet">
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        notebookBg: '#cbd5e1',
+                        notebookPaper: '#FAF6EE',
+                        inkBlue: '#1A365D',
+                        inkRed: '#9B2C2C',
+                        pencilGray: '#4A5568',
+                    },
+                    fontFamily: {
+                        notes: ['Patrick Hand', 'Kalam', 'cursive'],
+                        heading: ['Kalam', 'cursive'],
+                        clean: ['Inter', 'sans-serif'],
+                        code: ['Fira Code', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Physical Notebook Stylesheet -->
+    <style>
+        body {
+            background-color: #cbd5e1;
+            font-family: 'Patrick Hand', 'Kalam', cursive;
+            color: #1e293b;
+        }
+
+        .lined-paper {
+            background-color: #FAF6EE !important;
+            background-image: repeating-linear-gradient(#FAF6EE 0px,
+                    #FAF6EE 31px,
+                    #e2ebf3 32px) !important;
+            line-height: 32px;
+            position: relative;
+        }
+
+        .notebook-margin {
+            border-left: 2.5px solid #FC8181 !important;
+            padding-left: 1.25rem;
+        }
+
+        @media (min-width: 640px) {
+            .notebook-margin {
+                padding-left: 2.5rem;
+            }
+        }
+
+        .spiral-ring {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #cbd5e1 0%, #64748b 50%, #334155 100%);
+            box-shadow: inset 1px 1px 2px rgba(255, 255, 255, 0.6), 2px 2px 4px rgba(0, 0, 0, 0.25);
+            margin: 11px 0;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Kalam', cursive;
+        }
+
+        /* Clean Mode Font Switcher */
+        body.font-clean,
+        body.font-clean * {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+        }
+
+        body.font-clean pre,
+        body.font-clean code {
+            font-family: 'Fira Code', monospace !important;
+        }
+
+        /* Highlights & Badges */
+        .highlighter-yellow {
+            background: linear-gradient(104deg, rgba(254, 240, 138, 0.95) 0.9%, rgba(253, 224, 71, 0.85) 98%);
+            padding: 2px 8px;
+            border-radius: 4px;
+            box-decoration-break: clone;
+            -webkit-box-decoration-break: clone;
+            display: inline-block;
+        }
+
+        .highlighter-green {
+            background: linear-gradient(104deg, rgba(187, 247, 208, 0.95) 0.9%, rgba(134, 239, 172, 0.85) 98%);
+            padding: 2px 8px;
+            border-radius: 4px;
+            box-decoration-break: clone;
+            -webkit-box-decoration-break: clone;
+            display: inline-block;
+        }
+
+        .highlighter-red {
+            background: linear-gradient(104deg, rgba(254, 205, 211, 0.95) 0.9%, rgba(253, 164, 175, 0.85) 98%);
+            padding: 2px 8px;
+            border-radius: 4px;
+            box-decoration-break: clone;
+            -webkit-box-decoration-break: clone;
+            display: inline-block;
+        }
+
+        .highlighter-blue {
+            background: linear-gradient(104deg, rgba(191, 219, 254, 0.95) 0.9%, rgba(147, 197, 253, 0.85) 98%);
+            padding: 2px 8px;
+            border-radius: 4px;
+            box-decoration-break: clone;
+            -webkit-box-decoration-break: clone;
+            display: inline-block;
+        }
+
+        .pen-box {
+            background: rgba(255, 255, 255, 0.94);
+            border: 2px dashed #3b82f6;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .pen-box-red {
+            background: rgba(255, 255, 255, 0.94);
+            border: 2px dashed #ef4444;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .pen-box-amber {
+            background: rgba(255, 255, 255, 0.94);
+            border: 2px dashed #f59e0b;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        /* VS Code High-Fidelity Editor Mockup Styles */
+        .vscode-window {
+            background-color: #1e1e1e !important;
+            border-radius: 10px;
+            box-shadow: 0 14px 28px rgba(0, 0, 0, 0.35), 0 10px 10px rgba(0, 0, 0, 0.22);
+            border: 1px solid #3c3c3c !important;
+            overflow: hidden;
+            color: #d4d4d4 !important;
+        }
+
+        .vscode-window pre,
+        .vscode-window code,
+        .vscode-window .vscode-gutter,
+        .vscode-window .vscode-bar {
+            font-family: 'Consolas', 'Fira Code', 'Cascadia Code', 'Source Code Pro', monospace !important;
+        }
+
+        .vscode-gutter {
+            user-select: none;
+            -webkit-user-select: none;
+            color: #858585 !important;
+            background-color: #1e1e1e !important;
+            border-right: 1px solid #333333 !important;
+            line-height: 1.5rem !important;
+            font-size: 0.8125rem !important;
+        }
+
+        .vscode-code-pre {
+            background-color: transparent !important;
+            color: #d4d4d4 !important;
+            line-height: 1.5rem !important;
+            font-size: 0.8125rem !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        .vscode-code-pre code {
+            background-color: transparent !important;
+            line-height: 1.5rem !important;
+        }
+
+        .teacher-quote {
+            background: rgba(254, 243, 199, 0.92);
+            border-left: 5px solid #d97706;
+            border-radius: 6px;
+            padding: 0.85rem 1.2rem;
+            font-style: italic;
+        }
+
+        .sketch-card {
+            background: #ffffff;
+            border: 1.5px solid #cbd5e1;
+            box-shadow: 2px 3px 6px rgba(0, 0, 0, 0.06);
+            border-radius: 10px;
+        }
+
+        .tab-pane {
+            display: none;
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        pre {
+            line-height: 1.45rem;
+        }
+
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            body {
+                background: white !important;
+            }
+            .lined-paper {
+                background-image: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body class="text-xl text-slate-800 antialiased transition-all duration-300">
+
+    <!-- Sticky Header Navigation Bar -->
+    <header class="sticky top-0 z-50 bg-[#FAF6EE] shadow-md border-b-2 border-amber-200 px-4 py-3 no-print">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-3">
+            <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+                <a href="../index.html"
+                    class="px-3 py-1.5 rounded-lg bg-amber-100 hover:bg-amber-200 border border-amber-300 text-inkBlue text-xs sm:text-sm font-bold flex items-center gap-1.5 transition shadow-sm font-sans"
+                    title="Back to Digital Bookshelf">
+                    <span>📚</span> <span>Bookshelf</span>
+                </a>
+                <a href="index.html"
+                    class="px-3 py-1.5 rounded-lg bg-emerald-100 hover:bg-emerald-200 border border-emerald-300 text-emerald-900 text-xs sm:text-sm font-bold flex items-center gap-1.5 transition shadow-sm font-sans"
+                    title="Back to Personal Notes Directory">
+                    <span>📋</span> <span>Notes Directory</span>
+                </a>
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl sm:text-3xl font-bold text-inkBlue tracking-wide font-['Kalam']">🔍 String Pattern Matching</span>
+                    <span
+                        class="bg-blue-100 text-blue-900 text-xs sm:text-sm font-bold px-3 py-1 rounded-full border border-blue-300 font-sans">
+                        Naive Approach • Knuth-Morris-Pratt (KMP)
+                    </span>
+                </div>
+            </div>
+
+            <!-- Right: Font Toggle Button -->
+            <div class="flex items-center gap-2">
+                <button id="fontToggleBtn" onclick="toggleFontMode()"
+                    class="shrink-0 px-3.5 py-1.5 rounded-lg bg-inkBlue text-white hover:bg-slate-800 transition text-xs sm:text-sm font-bold shadow flex items-center gap-1.5 font-sans"
+                    title="Toggle between Handwritten and Clean typography">
+                    <span>✍️</span> <span id="fontBtnText">Clean Font</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <nav class="max-w-6xl mx-auto mt-2.5 flex flex-wrap gap-1 border-t border-amber-200 pt-2 text-sm sm:text-base font-sans">
+            <button onclick="switchTab('definitions')" id="nav-tab-definitions"
+                class="nav-tab px-4 py-1.5 rounded-t-lg font-bold bg-amber-200 text-inkBlue border-b-2 border-inkBlue transition">
+                1. Definitions &amp; Core Intuition
+            </button>
+            <button onclick="switchTab('step-by-step')" id="nav-tab-step-by-step"
+                class="nav-tab px-4 py-1.5 rounded-t-lg font-bold text-slate-600 hover:text-inkBlue transition">
+                2. Step-by-Step Traces (Naive &amp; KMP)
+            </button>
+            <button onclick="switchTab('algorithms')" id="nav-tab-algorithms"
+                class="nav-tab px-4 py-1.5 rounded-t-lg font-bold text-slate-600 hover:text-inkBlue transition">
+                3. C++ Code &amp; Complexity
+            </button>
+            <button onclick="switchTab('simulator')" id="nav-tab-simulator"
+                class="nav-tab px-4 py-1.5 rounded-t-lg font-bold text-slate-600 hover:text-inkBlue transition">
+                4. Interactive Pattern Visualizer
+            </button>
+        </nav>
+    </header>
+
+    <!-- Main Notebook Container -->
+    <main
+        class="max-w-6xl mx-auto flex relative bg-notebookPaper rounded-xl shadow-2xl overflow-hidden min-h-[950px] border border-amber-200 my-8">
+
+        <!-- Left Binder Column (Metallic Spiral Rings) -->
+        <div id="notebookBinderColumn"
+            class="binder-column w-10 sm:w-16 bg-amber-50 border-r-2 border-amber-200 flex flex-col items-center py-8 select-none shrink-0 no-print space-y-6 shadow-[inset_-5px_0_10px_rgba(0,0,0,0.05)]">
+            <script>
+                for (let i = 0; i < 50; i++) document.write('<div class="spiral-ring"></div>');
+            </script>
+        </div>
+
+        <!-- Notebook Content Area -->
+        <div class="flex-1 lined-paper p-4 sm:p-8 notebook-margin sm:pl-8 overflow-hidden">
+
+            <!-- ==================================================================== -->
+            <!-- TAB 1: DEFINITIONS & CORE INTUITION                                  -->
+            <!-- ==================================================================== -->
+            <div id="tab-definitions" class="tab-pane active space-y-8">
+
+                <!-- Section Header -->
+                <div class="border-b-2 border-inkRed pb-2 flex flex-col sm:flex-row justify-between items-start sm:items-baseline gap-2">
+                    <div>
+                        <h1 class="text-3xl sm:text-4xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                            1. The Exact String Pattern Matching Problem
+                        </h1>
+                        <p class="text-sm font-sans text-pencilGray mt-1">
+                            Formal definition, sliding window paradigm, why Naive backtracks, and the revolutionary KMP LPS observation
+                        </p>
+                    </div>
+                    <span class="text-xs sm:text-sm font-bold font-sans bg-amber-100 text-amber-900 px-2.5 py-1 rounded border border-amber-300">
+                        String Algorithms • Unit 8
+                    </span>
+                </div>
+
+                <!-- Teacher's Handwritten Note -->
+                <div class="teacher-quote text-slate-800">
+                    <p class="font-bold text-inkRed text-xl sm:text-2xl mb-1">💡 Teacher's Desk Memo:</p>
+                    <p>
+                        "Whenever you press <kbd class="px-2 py-0.5 bg-white border border-slate-300 rounded font-mono text-sm">Ctrl + F</kbd> in a browser, search a DNA nucleotide sequence in bioinformatics, or grep a keyword in a 10 GB log file, pattern matching algorithms run behind the scenes. 
+                        The <strong>Naive method</strong> slides the pattern one step at a time and forgets everything it learned whenever a mismatch occurs. 
+                        The <strong>Knuth-Morris-Pratt (KMP)</strong> algorithm recognizes that the pattern itself holds clues about where to resume matching, so the text pointer <em>never moves backwards!</em>"
+                    </p>
+                </div>
+
+                <!-- Formal Problem Formulation -->
+                <div class="sketch-card p-6 space-y-4">
+                    <h2 class="text-2xl font-bold text-inkBlue border-b border-slate-200 pb-2">
+                        Formal Problem Statement
+                    </h2>
+                    <p>
+                        Given two character arrays (strings):
+                    </p>
+                    <ul class="list-disc list-inside space-y-2 ml-4">
+                        <li>
+                            <strong>Text string <span class="font-mono text-inkRed font-bold">T[0 .. n-1]</span></strong> of length <span class="font-mono font-bold">n</span>.
+                        </li>
+                        <li>
+                            <strong>Pattern string <span class="font-mono text-inkBlue font-bold">P[0 .. m-1]</span></strong> of length <span class="font-mono font-bold">m</span>, where typically <span class="font-mono font-bold">m &le; n</span>.
+                        </li>
+                    </ul>
+                    <div class="pen-box bg-blue-50/70 border-blue-300">
+                        <p class="font-bold text-inkBlue">Objective:</p>
+                        <p class="text-slate-800">
+                            Find all starting indices (shifts) <span class="font-mono font-bold text-inkRed">s</span> where <span class="font-mono font-bold">0 &le; s &le; n - m</span> such that the substring in <span class="font-mono font-bold">T</span> starting at <span class="font-mono font-bold">s</span> matches <span class="font-mono font-bold">P</span> character-by-character:
+                        </p>
+                        <div class="mt-2 text-center font-mono font-bold text-lg text-inkBlue bg-white py-1.5 rounded border border-blue-200">
+                            T[s + j] == P[j] &nbsp; &forall; j &isin; {0, 1, ..., m - 1}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Concept Diagram Canvas: High-DPI -->
+                <div class="sketch-card p-4 space-y-3">
+                    <div class="flex justify-between items-center border-b pb-2">
+                        <h3 class="text-xl font-bold text-inkBlue">Visual Comparison: Naive vs KMP Pointer Behavior</h3>
+                        <span class="text-xs font-sans text-pencilGray">HTML5 Canvas • Vector Rendered</span>
+                    </div>
+                    <canvas id="canvasConceptOverview" class="w-full bg-[#FAF6EE] rounded border border-slate-200" height="260"></canvas>
+                    <p class="text-sm font-sans text-pencilGray italic text-center">
+                        Naive shifts pattern by 1 and resets the text pointer <span class="font-mono font-bold">i</span> backwards. KMP maintains <span class="font-mono font-bold">i</span> monotonically advancing forward ($O(n)$ search).
+                    </p>
+                </div>
+
+                <!-- Fundamental Concepts for KMP -->
+                <div class="space-y-4">
+                    <h2 class="text-2xl font-bold text-inkRed border-b-2 border-inkRed/30 pb-1">
+                        Core Foundations for KMP: Prefixes, Suffixes &amp; The LPS Array
+                    </h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="sketch-card p-5 space-y-3">
+                            <h3 class="text-xl font-bold text-inkBlue">What is a Proper Prefix &amp; Suffix?</h3>
+                            <p class="text-base text-slate-700">
+                                Consider string <span class="font-mono font-bold text-inkRed">"ABCAB"</span>:
+                            </p>
+                            <ul class="text-base space-y-1.5 list-disc list-inside">
+                                <li><strong>Prefixes:</strong> <span class="font-mono text-sm">&epsilon;, "A", "AB", "ABC", "ABCA", "ABCAB"</span></li>
+                                <li><strong>Proper Prefixes:</strong> All prefixes <em>excluding</em> the whole string: <span class="font-mono text-sm text-inkBlue font-bold">"A", "AB", "ABC", "ABCA"</span></li>
+                                <li><strong>Proper Suffixes:</strong> All suffixes <em>excluding</em> the whole string: <span class="font-mono text-sm text-inkBlue font-bold">"B", "AB", "CAB", "BCAB"</span></li>
+                            </ul>
+                            <div class="p-2.5 bg-emerald-50 rounded border border-emerald-300 text-sm">
+                                Notice that <span class="font-mono font-bold text-emerald-800">"AB"</span> is both a <strong>proper prefix</strong> and a <strong>proper suffix</strong>! Its length is <span class="font-bold">2</span>.
+                            </div>
+                        </div>
+
+                        <div class="sketch-card p-5 space-y-3">
+                            <h3 class="text-xl font-bold text-inkBlue">The LPS Table (<span class="font-mono">&pi;</span> table)</h3>
+                            <p class="text-base text-slate-700">
+                                <span class="font-mono font-bold text-inkBlue">lps[i]</span> stores the length of the <strong>Longest Proper Prefix</strong> of <span class="font-mono font-bold text-inkBlue">P[0..i]</span> that is also a <strong>Suffix</strong> of <span class="font-mono font-bold text-inkBlue">P[0..i]</span>.
+                            </p>
+                            <div class="p-2.5 bg-amber-50 rounded border border-amber-300 text-sm font-sans space-y-1">
+                                <p class="font-bold text-amber-900">Why does this avoid backtracking?</p>
+                                <p class="text-slate-700">
+                                    If a mismatch happens after matching <span class="font-mono font-bold text-inkBlue">j</span> characters, we already know the first <span class="font-mono font-bold text-inkBlue">lps[j-1]</span> characters of the pattern match the end of what we just matched in the text! We slide the pattern directly to <span class="font-mono font-bold text-inkRed">j = lps[j-1]</span>!
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Worked Example of LPS Table -->
+                    <div class="sketch-card p-5 space-y-3">
+                        <h3 class="text-xl font-bold text-inkBlue">LPS Array Walkthrough for Pattern: <span class="font-mono text-inkRed">"ABABCABAB"</span></h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-center border-collapse font-sans text-sm">
+                                <thead>
+                                    <tr class="bg-slate-100 text-slate-700 border-b border-slate-300">
+                                        <th class="p-2 border">Index <span class="font-mono">i</span></th>
+                                        <th class="p-2 border">0</th>
+                                        <th class="p-2 border">1</th>
+                                        <th class="p-2 border">2</th>
+                                        <th class="p-2 border">3</th>
+                                        <th class="p-2 border">4</th>
+                                        <th class="p-2 border">5</th>
+                                        <th class="p-2 border">6</th>
+                                        <th class="p-2 border">7</th>
+                                        <th class="p-2 border">8</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="font-mono text-base font-bold bg-white text-inkBlue">
+                                        <td class="p-2 border font-sans font-bold bg-slate-50">Char <span class="font-mono">P[i]</span></td>
+                                        <td class="p-2 border">A</td>
+                                        <td class="p-2 border">B</td>
+                                        <td class="p-2 border">A</td>
+                                        <td class="p-2 border">B</td>
+                                        <td class="p-2 border text-red-600">C</td>
+                                        <td class="p-2 border">A</td>
+                                        <td class="p-2 border">B</td>
+                                        <td class="p-2 border">A</td>
+                                        <td class="p-2 border">B</td>
+                                    </tr>
+                                    <tr class="font-mono text-base font-bold bg-amber-50 text-amber-900">
+                                        <td class="p-2 border font-sans font-bold bg-slate-50">LPS Value</td>
+                                        <td class="p-2 border">0</td>
+                                        <td class="p-2 border">0</td>
+                                        <td class="p-2 border text-emerald-700">1</td>
+                                        <td class="p-2 border text-emerald-700">2</td>
+                                        <td class="p-2 border text-red-700">0</td>
+                                        <td class="p-2 border text-emerald-700">1</td>
+                                        <td class="p-2 border text-emerald-700">2</td>
+                                        <td class="p-2 border text-emerald-700">3</td>
+                                        <td class="p-2 border text-emerald-700">4</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <p class="text-xs font-sans text-pencilGray mt-1">
+                            Explanation: At index 8, the substring is <span class="font-mono font-bold">"ABABCABAB"</span>. The longest proper prefix that is also a suffix is <span class="font-mono font-bold text-emerald-700">"ABAB"</span> (length = 4). Hence, <span class="font-mono font-bold">lps[8] = 4</span>.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Summary Table of Paradigm Differences -->
+                <div class="sketch-card p-5 space-y-3">
+                    <h2 class="text-2xl font-bold text-inkBlue border-b pb-2">At a Glance: Naive vs KMP</h2>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse font-sans text-sm">
+                            <thead>
+                                <tr class="bg-amber-100/70 text-amber-900 border-b-2 border-amber-300">
+                                    <th class="p-2.5 font-bold">Feature</th>
+                                    <th class="p-2.5 font-bold">1. Naive (Brute Force)</th>
+                                    <th class="p-2.5 font-bold">2. Knuth-Morris-Pratt (KMP)</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-200">
+                                <tr>
+                                    <td class="p-2.5 font-bold text-slate-800">Preprocessing Phase</td>
+                                    <td class="p-2.5 text-slate-600">None ($O(1)$)</td>
+                                    <td class="p-2.5 text-emerald-800 font-semibold">$O(m)$ to construct LPS array</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2.5 font-bold text-slate-800">Text Pointer Behavior</td>
+                                    <td class="p-2.5 text-red-700 font-semibold">Backtracks to <span class="font-mono">s + 1</span> on mismatch</td>
+                                    <td class="p-2.5 text-emerald-800 font-semibold"><strong>Never backtracks!</strong> Strictly monotone non-decreasing</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2.5 font-bold text-slate-800">Worst-Case Time</td>
+                                    <td class="p-2.5 text-red-700 font-bold">$O((n - m + 1) \cdot m) \approx O(n \cdot m)$</td>
+                                    <td class="p-2.5 text-emerald-800 font-bold">$O(n + m)$ strictly linear!</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2.5 font-bold text-slate-800">Auxiliary Space</td>
+                                    <td class="p-2.5 text-slate-700">$O(1)$</td>
+                                    <td class="p-2.5 text-slate-700">$O(m)$ for LPS table</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2.5 font-bold text-slate-800">Best Practical Fit</td>
+                                    <td class="p-2.5 text-slate-600">Short text, natural language with low character repetitions</td>
+                                    <td class="p-2.5 text-emerald-800 font-semibold">Bioinformatics (DNA/RNA sequences), streaming text, repetitive strings</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ==================================================================== -->
+            <!-- TAB 2: STEP-BY-STEP TRACES (NAIVE & KMP)                             -->
+            <!-- ==================================================================== -->
+            <div id="tab-step-by-step" class="tab-pane space-y-12">
+
+                <!-- Section Header -->
+                <div class="border-b-2 border-inkRed pb-2 flex flex-col sm:flex-row justify-between items-start sm:items-baseline gap-2">
+                    <div>
+                        <h1 class="text-3xl sm:text-4xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                            2. Deep Sequential Step-by-Step Traces
+                        </h1>
+                        <p class="text-sm font-sans text-pencilGray mt-1">
+                            Step-by-step visual dissection for both algorithms on a shared test instance with dedicated snapshot canvases
+                        </p>
+                    </div>
+                    <span class="text-xs sm:text-sm font-bold font-sans bg-rose-100 text-inkRed px-2.5 py-1 rounded border border-rose-300">
+                        Exam Walkthrough • Full Traces
+                    </span>
+                </div>
+
+                <!-- Test Case Banner -->
+                <div class="sketch-card p-5 bg-amber-50/80 border-amber-300 space-y-2">
+                    <h2 class="text-2xl font-bold text-amber-900 font-['Kalam']">Shared Examination Test Strings</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 font-mono text-base">
+                        <div class="bg-white p-3 rounded border border-amber-200">
+                            <span class="font-sans font-bold text-inkBlue block text-xs uppercase">Text (n = 19):</span>
+                            <span class="text-inkBlue font-bold text-lg tracking-wider">"ABABDABACDABABCABAB"</span>
+                        </div>
+                        <div class="bg-white p-3 rounded border border-amber-200">
+                            <span class="font-sans font-bold text-inkRed block text-xs uppercase">Pattern (m = 9):</span>
+                            <span class="text-inkRed font-bold text-lg tracking-wider">"ABABCABAB"</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ================================================================= -->
+                <!-- PART A: NAIVE PATTERN MATCHING STEP-BY-STEP TRACE                -->
+                <!-- ================================================================= -->
+                <div class="space-y-6">
+                    <div class="border-b-2 border-slate-300 pb-2">
+                        <h2 class="text-2xl sm:text-3xl font-bold text-inkRed flex items-center gap-2">
+                            <span>🐢 Part A:</span> Naive Pattern Matching Sequential Trace
+                        </h2>
+                        <p class="text-sm font-sans text-pencilGray">
+                            Slides shift by shift ($s = 0, 1, 2, \dots$), checks characters from left to right, and resets on failure.
+                        </p>
+                    </div>
+
+                    <!-- Step 1: Shift s = 0 -->
+                    <div class="sketch-card p-5 space-y-3">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-xl font-bold text-inkBlue">
+                                Action 1: Shift <span class="font-mono text-inkRed">s = 0</span> (Align at <span class="font-mono">T[0]</span>)
+                            </h3>
+                            <span class="text-xs font-sans font-bold bg-rose-100 text-rose-800 px-2 py-0.5 rounded border border-rose-300">
+                                Mismatch at j = 4
+                            </span>
+                        </div>
+                        <p class="text-base text-slate-700">
+                            Compare <span class="font-mono font-bold">P[0..3]</span> with <span class="font-mono font-bold">T[0..3]</span>: <span class="font-mono text-emerald-700">"ABAB"</span> matches! Next, compare <span class="font-mono font-bold">T[4] = 'D'</span> with <span class="font-mono font-bold">P[4] = 'C'</span>. <strong>Mismatch!</strong>
+                        </p>
+                        <!-- Canvas 1: Naive Shift 0 -->
+                        <canvas id="canvasNaiveStep1" class="w-full bg-[#FAF6EE] rounded border border-slate-200" height="110"></canvas>
+                        <div class="text-sm font-sans text-pencilGray bg-slate-50 p-2.5 rounded border">
+                            <strong class="text-red-700">Naive Wasteful Consequence:</strong> We matched <span class="font-mono">"ABAB"</span>, but the algorithm completely forgets this! It increments shift to <span class="font-mono">s = 1</span> and starts matching from scratch.
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Shift s = 1 -->
+                    <div class="sketch-card p-5 space-y-3">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-xl font-bold text-inkBlue">
+                                Action 2: Shift <span class="font-mono text-inkRed">s = 1</span> (Align at <span class="font-mono">T[1]</span>)
+                            </h3>
+                            <span class="text-xs font-sans font-bold bg-rose-100 text-rose-800 px-2 py-0.5 rounded border border-rose-300">
+                                Mismatch at j = 0
+                            </span>
+                        </div>
+                        <p class="text-base text-slate-700">
+                            Compare <span class="font-mono font-bold">T[1] = 'B'</span> with <span class="font-mono font-bold">P[0] = 'A'</span>. Immediate mismatch!
+                        </p>
+                        <canvas id="canvasNaiveStep2" class="w-full bg-[#FAF6EE] rounded border border-slate-200" height="110"></canvas>
+                    </div>
+
+                    <!-- Step 3: Shift s = 2 -->
+                    <div class="sketch-card p-5 space-y-3">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-xl font-bold text-inkBlue">
+                                Action 3: Shift <span class="font-mono text-inkRed">s = 2</span> (Align at <span class="font-mono">T[2]</span>)
+                            </h3>
+                            <span class="text-xs font-sans font-bold bg-rose-100 text-rose-800 px-2 py-0.5 rounded border border-rose-300">
+                                Mismatch at j = 2
+                            </span>
+                        </div>
+                        <p class="text-base text-slate-700">
+                            Compare <span class="font-mono font-bold">T[2..3]</span> with <span class="font-mono font-bold">P[0..1]</span>: <span class="font-mono text-emerald-700">"AB"</span> matches. Then <span class="font-mono font-bold">T[4] = 'D'</span> vs <span class="font-mono font-bold">P[2] = 'A'</span> mismatches! Notice character <span class="font-mono font-bold text-inkRed">'D'</span> at <span class="font-mono">T[4]</span> was examined <em>three separate times!</em>
+                        </p>
+                        <canvas id="canvasNaiveStep3" class="w-full bg-[#FAF6EE] rounded border border-slate-200" height="110"></canvas>
+                    </div>
+
+                    <!-- Step 4: Shifts s = 3 to 9 (Fast forward to match) -->
+                    <div class="sketch-card p-5 space-y-3">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-xl font-bold text-inkBlue">
+                                Action 4: Shifts <span class="font-mono text-inkRed">s = 3 .. 9</span>, then Shift <span class="font-mono text-emerald-700 font-bold">s = 10</span>
+                            </h3>
+                            <span class="text-xs font-sans font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded border border-emerald-300">
+                                Pattern Found at Index 10!
+                            </span>
+                        </div>
+                        <p class="text-base text-slate-700">
+                            Shifts <span class="font-mono">s = 3, 4, 5, 6, 7, 8, 9</span> all fail after 1 to 4 comparisons. Finally, at shift <span class="font-mono font-bold text-emerald-700">s = 10</span>, all <span class="font-mono">m = 9</span> characters match identically!
+                        </p>
+                        <canvas id="canvasNaiveStep4" class="w-full bg-[#FAF6EE] rounded border border-slate-200" height="110"></canvas>
+                        <div class="pen-box-amber p-3 text-sm">
+                            <p class="font-bold text-amber-900">Total Comparisons Done by Naive Algorithm:</p>
+                            <p class="text-slate-700 font-sans">
+                                Across all shifts, Naive performed <strong>27 character comparisons</strong> to locate the single match at index 10.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ================================================================= -->
+                <!-- PART B: KMP ALGORITHM STEP-BY-STEP TRACE                         -->
+                <!-- ================================================================= -->
+                <div class="space-y-6 pt-6 border-t-2 border-inkBlue/30">
+                    <div class="border-b-2 border-slate-300 pb-2">
+                        <h2 class="text-2xl sm:text-3xl font-bold text-inkBlue flex items-center gap-2">
+                            <span>⚡ Part B:</span> Knuth-Morris-Pratt (KMP) Sequential Trace
+                        </h2>
+                        <p class="text-sm font-sans text-pencilGray">
+                            Phase 1 computes the LPS table in $O(m)$ time. Phase 2 searches the text in $O(n)$ time with zero backtracks in text pointer <span class="font-mono font-bold">i</span>.
+                        </p>
+                    </div>
+
+                    <!-- KMP Phase 1: LPS Construction Canvas -->
+                    <div class="sketch-card p-5 space-y-4">
+                        <h3 class="text-xl font-bold text-inkBlue">
+                            Phase 1: Construction of the LPS Table for <span class="font-mono text-inkRed">"ABABCABAB"</span>
+                        </h3>
+                        <p class="text-base text-slate-700">
+                            We use two pointers: <span class="font-mono font-bold text-blue-700">len</span> (length of previous longest prefix suffix, starts at 0) and <span class="font-mono font-bold text-red-700">i</span> (current pattern index, starts at 1).
+                        </p>
+                        
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-center border-collapse font-sans text-xs sm:text-sm">
+                                <thead>
+                                    <tr class="bg-blue-100 text-blue-900 border">
+                                        <th class="p-1.5 border">Step</th>
+                                        <th class="p-1.5 border"><span class="font-mono">i</span></th>
+                                        <th class="p-1.5 border"><span class="font-mono">P[i]</span></th>
+                                        <th class="p-1.5 border"><span class="font-mono">len</span></th>
+                                        <th class="p-1.5 border"><span class="font-mono">P[len]</span></th>
+                                        <th class="p-1.5 border">Comparison &amp; Rule</th>
+                                        <th class="p-1.5 border"><span class="font-mono">lps[i]</span> Assigned</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-200">
+                                    <tr class="bg-slate-50">
+                                        <td class="p-1.5 border font-bold">Base</td>
+                                        <td class="p-1.5 border">0</td>
+                                        <td class="p-1.5 border font-mono">A</td>
+                                        <td class="p-1.5 border">-</td>
+                                        <td class="p-1.5 border">-</td>
+                                        <td class="p-1.5 border text-slate-500">Always 0 for first char</td>
+                                        <td class="p-1.5 border font-bold text-inkBlue">0</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="p-1.5 border font-bold">1</td>
+                                        <td class="p-1.5 border">1</td>
+                                        <td class="p-1.5 border font-mono">B</td>
+                                        <td class="p-1.5 border">0</td>
+                                        <td class="p-1.5 border font-mono">A</td>
+                                        <td class="p-1.5 border text-red-600 font-bold">'B' &ne; 'A', len == 0 &rarr; lps[1]=0, i++</td>
+                                        <td class="p-1.5 border font-bold text-inkBlue">0</td>
+                                    </tr>
+                                    <tr class="bg-emerald-50/50">
+                                        <td class="p-1.5 border font-bold">2</td>
+                                        <td class="p-1.5 border">2</td>
+                                        <td class="p-1.5 border font-mono">A</td>
+                                        <td class="p-1.5 border">0</td>
+                                        <td class="p-1.5 border font-mono">A</td>
+                                        <td class="p-1.5 border text-emerald-700 font-bold">'A' == 'A' &rarr; len++, lps[2]=len, i++</td>
+                                        <td class="p-1.5 border font-bold text-emerald-700">1</td>
+                                    </tr>
+                                    <tr class="bg-emerald-50/50">
+                                        <td class="p-1.5 border font-bold">3</td>
+                                        <td class="p-1.5 border">3</td>
+                                        <td class="p-1.5 border font-mono">B</td>
+                                        <td class="p-1.5 border">1</td>
+                                        <td class="p-1.5 border font-mono">B</td>
+                                        <td class="p-1.5 border text-emerald-700 font-bold">'B' == 'B' &rarr; len++, lps[3]=len, i++</td>
+                                        <td class="p-1.5 border font-bold text-emerald-700">2</td>
+                                    </tr>
+                                    <tr class="bg-rose-50/60">
+                                        <td class="p-1.5 border font-bold">4</td>
+                                        <td class="p-1.5 border">4</td>
+                                        <td class="p-1.5 border font-mono">C</td>
+                                        <td class="p-1.5 border">2</td>
+                                        <td class="p-1.5 border font-mono">A</td>
+                                        <td class="p-1.5 border text-red-600 font-bold">'C' &ne; 'A' &rarr; len=lps[len-1]=lps[1]=0. Then 'C' &ne; P[0] &rarr; lps[4]=0</td>
+                                        <td class="p-1.5 border font-bold text-red-700">0</td>
+                                    </tr>
+                                    <tr class="bg-emerald-50/50">
+                                        <td class="p-1.5 border font-bold">5</td>
+                                        <td class="p-1.5 border">5</td>
+                                        <td class="p-1.5 border font-mono">A</td>
+                                        <td class="p-1.5 border">0</td>
+                                        <td class="p-1.5 border font-mono">A</td>
+                                        <td class="p-1.5 border text-emerald-700 font-bold">'A' == 'A' &rarr; len++, lps[5]=1, i++</td>
+                                        <td class="p-1.5 border font-bold text-emerald-700">1</td>
+                                    </tr>
+                                    <tr class="bg-emerald-50/50">
+                                        <td class="p-1.5 border font-bold">6</td>
+                                        <td class="p-1.5 border">6</td>
+                                        <td class="p-1.5 border font-mono">B</td>
+                                        <td class="p-1.5 border">1</td>
+                                        <td class="p-1.5 border font-mono">B</td>
+                                        <td class="p-1.5 border text-emerald-700 font-bold">'B' == 'B' &rarr; len++, lps[6]=2, i++</td>
+                                        <td class="p-1.5 border font-bold text-emerald-700">2</td>
+                                    </tr>
+                                    <tr class="bg-emerald-50/50">
+                                        <td class="p-1.5 border font-bold">7</td>
+                                        <td class="p-1.5 border">7</td>
+                                        <td class="p-1.5 border font-mono">A</td>
+                                        <td class="p-1.5 border">2</td>
+                                        <td class="p-1.5 border font-mono">A</td>
+                                        <td class="p-1.5 border text-emerald-700 font-bold">'A' == 'A' &rarr; len++, lps[7]=3, i++</td>
+                                        <td class="p-1.5 border font-bold text-emerald-700">3</td>
+                                    </tr>
+                                    <tr class="bg-emerald-50/50">
+                                        <td class="p-1.5 border font-bold">8</td>
+                                        <td class="p-1.5 border">8</td>
+                                        <td class="p-1.5 border font-mono">B</td>
+                                        <td class="p-1.5 border">3</td>
+                                        <td class="p-1.5 border font-mono">B</td>
+                                        <td class="p-1.5 border text-emerald-700 font-bold">'B' == 'B' &rarr; len++, lps[8]=4, i++</td>
+                                        <td class="p-1.5 border font-bold text-emerald-700">4</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Dedicated LPS Table Canvas -->
+                        <canvas id="canvasLpsConstruction" class="w-full bg-[#FAF6EE] rounded border border-slate-200" height="110"></canvas>
+                    </div>
+
+                    <!-- KMP Phase 2: Search Trace Snapshots -->
+                    <div class="space-y-4">
+                        <h3 class="text-xl font-bold text-inkBlue">
+                            Phase 2: Text Search Execution ($i$ never goes backward)
+                        </h3>
+
+                        <!-- KMP Action 1 -->
+                        <div class="sketch-card p-5 space-y-3">
+                            <div class="flex justify-between items-center">
+                                <h4 class="text-lg font-bold text-inkBlue">
+                                    KMP Event 1: Matching at Start &rarr; Mismatch at <span class="font-mono text-red-600">T[4] ('D') vs P[4] ('C')</span>
+                                </h4>
+                                <span class="text-xs font-sans font-bold bg-amber-100 text-amber-900 px-2 py-0.5 rounded border border-amber-300">
+                                    j = lps[4 - 1] = lps[3] = 2
+                                </span>
+                            </div>
+                            <p class="text-base text-slate-700">
+                                We matched <span class="font-mono text-emerald-700 font-bold">"ABAB"</span> ($j = 4$). Then $T[4] = \text{'D'}$ mismatches $P[4] = \text{'C'}$.<br>
+                                Instead of setting $i = 1$, KMP knows the suffix <span class="font-mono font-bold text-inkBlue">"AB"</span> matches the prefix <span class="font-mono font-bold text-inkBlue">"AB"</span>! We set <span class="font-mono font-bold text-inkRed">j = lps[3] = 2</span>, keeping <span class="font-mono font-bold text-inkBlue">i = 4</span>!
+                            </p>
+                            <canvas id="canvasKmpStep1" class="w-full bg-[#FAF6EE] rounded border border-slate-200" height="110"></canvas>
+                        </div>
+
+                        <!-- KMP Action 2 -->
+                        <div class="sketch-card p-5 space-y-3">
+                            <div class="flex justify-between items-center">
+                                <h4 class="text-lg font-bold text-inkBlue">
+                                    KMP Event 2: Immediate Fallback to <span class="font-mono">j = 0</span>, then <span class="font-mono">i++</span> past 'D'
+                                </h4>
+                                <span class="text-xs font-sans font-bold bg-blue-100 text-blue-900 px-2 py-0.5 rounded border border-blue-300">
+                                    i advances to 5
+                                </span>
+                            </div>
+                            <p class="text-base text-slate-700">
+                                At $j = 2$, $P[2] = \text{'A'}$ still does not match $T[4] = \text{'D'}$. KMP sets $j = lps[1] = 0$. Since $j = 0$ and still no match, $i$ increments to 5! The character <span class="font-mono font-bold text-inkRed">'D'</span> is bypassed forever.
+                            </p>
+                            <canvas id="canvasKmpStep2" class="w-full bg-[#FAF6EE] rounded border border-slate-200" height="110"></canvas>
+                        </div>
+
+                        <!-- KMP Action 3 -->
+                        <div class="sketch-card p-5 space-y-3">
+                            <div class="flex justify-between items-center">
+                                <h4 class="text-lg font-bold text-inkBlue">
+                                    KMP Event 3: Full Alignment &amp; Match Detected at Index 10!
+                                </h4>
+                                <span class="text-xs font-sans font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded border border-emerald-300">
+                                    j == m (9 matches) &rarr; Output index (19 - 9 = 10)
+                                </span>
+                            </div>
+                            <p class="text-base text-slate-700">
+                                From $i = 10$ to $i = 18$, all 9 characters match with $j = 0$ to $8$ consecutively! When $j = 9 = m$, we record match at index <span class="font-mono font-bold text-emerald-700">i - j = 19 - 9 = 10</span>. KMP then resets $j = lps[8] = 4$ to search for overlapping occurrences.
+                            </p>
+                            <canvas id="canvasKmpStep3" class="w-full bg-[#FAF6EE] rounded border border-slate-200" height="110"></canvas>
+                            <div class="pen-box bg-emerald-50/70 border-emerald-300 text-sm">
+                                <p class="font-bold text-emerald-900">Total Comparisons Done by KMP Algorithm:</p>
+                                <p class="text-slate-700 font-sans">
+                                    KMP solved the exact same problem with only <strong>21 character comparisons</strong> (and strictly 0 backward movements of pointer <span class="font-mono font-bold">i</span>). On large or repetitive texts, this difference becomes astronomical!
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ==================================================================== -->
+            <!-- TAB 3: C++ CODE & COMPLEXITY ANALYSIS                                -->
+            <!-- ==================================================================== -->
+            <div id="tab-algorithms" class="tab-pane space-y-8">
+
+                <!-- Section Header -->
+                <div class="border-b-2 border-inkRed pb-2 flex flex-col sm:flex-row justify-between items-start sm:items-baseline gap-2">
+                    <div>
+                        <h1 class="text-3xl sm:text-4xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                            3. Production C++ Implementations &amp; Complexity
+                        </h1>
+                        <p class="text-sm font-sans text-pencilGray mt-1">
+                            Complete, robust, fully-commented C++ implementations for both algorithms alongside rigorous asymptotic analysis
+                        </p>
+                    </div>
+                    <span class="text-xs sm:text-sm font-bold font-sans bg-indigo-100 text-indigo-900 px-2.5 py-1 rounded border border-indigo-300">
+                        C++17 / C++20 Ready • Standard STL
+                    </span>
+                </div>
+
+                <!-- C++ Code Block 1: Naive Pattern Search -->
+                <div class="sketch-card p-5 space-y-4">
+                    <div class="flex justify-between items-center border-b pb-2">
+                        <div>
+                            <h2 class="text-xl font-bold text-inkBlue">1. Naive (Brute Force) Pattern Matching in C++</h2>
+                            <p class="text-xs font-sans text-pencilGray">Sliding window character-by-character comparison</p>
+                        </div>
+                        <span class="text-xs font-mono font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-800 border border-amber-300">
+                            Time: O((n-m+1)·m) • Space: O(1)
+                        </span>
+                    </div>
+
+                    <!-- VS Code Editor Window -->
+                    <div class="vscode-window shadow-2xl">
+                        <!-- Window Titlebar -->
+                        <div class="bg-[#252526] border-b border-[#181818] px-3.5 py-2 flex items-center justify-between select-none">
+                            <div class="flex items-center gap-3">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="w-3 h-3 rounded-full bg-[#ff5f56] inline-block shadow-sm"></span>
+                                    <span class="w-3 h-3 rounded-full bg-[#ffbd2e] inline-block shadow-sm"></span>
+                                    <span class="w-3 h-3 rounded-full bg-[#27c93f] inline-block shadow-sm"></span>
+                                </div>
+                                <div class="flex items-center bg-[#1e1e1e] border-t-2 border-[#007acc] px-3.5 py-1 rounded-t text-xs font-mono text-[#e5e5e5] gap-2 shadow">
+                                    <span class="px-1.5 py-0.5 bg-[#00599c] text-white rounded text-[10px] font-bold">C++</span>
+                                    <span class="font-semibold text-slate-200">naive_pattern_search.cpp</span>
+                                    <span class="text-[#858585] text-xs hover:text-white cursor-pointer ml-1">✕</span>
+                                </div>
+                            </div>
+                            <button onclick="copyCode('codeNaiveCpp', this)" class="px-2.5 py-1 rounded bg-[#2d2d2d] hover:bg-[#3e3e3e] active:scale-95 text-[#cccccc] hover:text-white border border-[#454545] text-xs font-mono flex items-center gap-1.5 transition-all shadow-sm">
+                                📋 <span>Copy Code</span>
+                            </button>
+                        </div>
+
+                        <!-- VS Code Breadcrumb Bar -->
+                        <div class="bg-[#1e1e1e] border-b border-[#2d2d2d] px-4 py-1 text-[11px] font-mono text-[#858585] flex items-center gap-1.5 select-none">
+                            <span>src</span>
+                            <span>›</span>
+                            <span>pattern_matching</span>
+                            <span>›</span>
+                            <span class="text-[#cccccc] font-semibold">naive_pattern_search.cpp</span>
+                        </div>
+
+                        <!-- Editor Body with Gutter & Code -->
+                        <div class="flex text-xs sm:text-sm bg-[#1e1e1e] overflow-hidden">
+                            <!-- Line Numbers Gutter -->
+                            <div class="vscode-gutter py-3.5 px-3 select-none text-right font-mono leading-6">
+1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>41<br>42<br>43<br>44
+                            </div>
+
+                            <!-- Highlighted Code Area -->
+                            <pre id="codeNaiveCpp" class="vscode-code-pre flex-1 py-3.5 px-4 overflow-x-auto whitespace-pre"><code><span class="text-[#C586C0]">#include</span> <span class="text-[#CE9178]">&lt;iostream&gt;</span>
+<span class="text-[#C586C0]">#include</span> <span class="text-[#CE9178]">&lt;string&gt;</span>
+<span class="text-[#C586C0]">#include</span> <span class="text-[#CE9178]">&lt;vector&gt;</span>
+
+<span class="text-[#6A9955] italic">// Function: naivePatternSearch</span>
+<span class="text-[#6A9955] italic">// Returns: A vector of all starting indices in 'text' where 'pattern' occurs</span>
+<span class="text-[#4EC9B0]">std::vector</span>&lt;<span class="text-[#569CD6]">int</span>&gt; <span class="text-[#DCDCAA]">naivePatternSearch</span>(<span class="text-[#569CD6]">const</span> <span class="text-[#4EC9B0]">std::string</span>&amp; <span class="text-[#9CDCFE]">text</span>, <span class="text-[#569CD6]">const</span> <span class="text-[#4EC9B0]">std::string</span>&amp; <span class="text-[#9CDCFE]">pattern</span>) {
+    <span class="text-[#569CD6]">int</span> <span class="text-[#9CDCFE]">n</span> = <span class="text-[#9CDCFE]">text</span>.<span class="text-[#DCDCAA]">length</span>();
+    <span class="text-[#569CD6]">int</span> <span class="text-[#9CDCFE]">m</span> = <span class="text-[#9CDCFE]">pattern</span>.<span class="text-[#DCDCAA]">length</span>();
+    <span class="text-[#4EC9B0]">std::vector</span>&lt;<span class="text-[#569CD6]">int</span>&gt; <span class="text-[#9CDCFE]">matchIndices</span>;
+
+    <span class="text-[#6A9955] italic">// Loop through all valid shift positions s from 0 up to n - m</span>
+    <span class="text-[#C586C0]">for</span> (<span class="text-[#569CD6]">int</span> <span class="text-[#9CDCFE]"><span class="text-[#9CDCFE]">s</span></span> = <span class="text-[#B5CEA8]">0</span>; <span class="text-[#9CDCFE]">s</span> &lt;= <span class="text-[#9CDCFE]">n</span> - <span class="text-[#9CDCFE]">m</span>; ++<span class="text-[#9CDCFE]">s</span>) {
+        <span class="text-[#569CD6]">int</span> <span class="text-[#9CDCFE]">j</span> = <span class="text-[#B5CEA8]">0</span>;
+
+        <span class="text-[#6A9955] italic">// Check if all m characters match starting at text[s + j]</span>
+        <span class="text-[#C586C0]">while</span> (<span class="text-[#9CDCFE]">j</span> &lt; <span class="text-[#9CDCFE]">m</span> &amp;&amp; <span class="text-[#9CDCFE]">text</span>[<span class="text-[#9CDCFE]">s</span> + <span class="text-[#9CDCFE]">j</span>] == <span class="text-[#9CDCFE]">pattern</span>[<span class="text-[#9CDCFE]">j</span>]) {
+            <span class="text-[#9CDCFE]">j</span>++;
+        }
+
+        <span class="text-[#6A9955] italic">// If the pattern pointer completed its sweep (j == m), a match is found!</span>
+        <span class="text-[#C586C0]">if</span> (<span class="text-[#9CDCFE]">j</span> == <span class="text-[#9CDCFE]">m</span>) {
+            <span class="text-[#9CDCFE]">matchIndices</span>.<span class="text-[#DCDCAA]">push_back</span>(<span class="text-[#9CDCFE]">s</span>);
+        }
+    }
+
+    <span class="text-[#C586C0]">return</span> <span class="text-[#9CDCFE]">matchIndices</span>;
+}
+
+<span class="text-[#569CD6]">int</span> <span class="text-[#DCDCAA]">main</span>() {
+    <span class="text-[#4EC9B0]">std::string</span> <span class="text-[#9CDCFE]">text</span> = <span class="text-[#CE9178]">"ABABDABACDABABCABAB"</span>;
+    <span class="text-[#4EC9B0]">std::string</span> <span class="text-[#9CDCFE]">pattern</span> = <span class="text-[#CE9178]">"ABABCABAB"</span>;
+
+    <span class="text-[#4EC9B0]">std::vector</span>&lt;<span class="text-[#569CD6]">int</span>&gt; <span class="text-[#9CDCFE]"><span class="text-[#9CDCFE]">results</span></span> = <span class="text-[#DCDCAA]">naivePatternSearch</span>(<span class="text-[#9CDCFE]">text</span>, <span class="text-[#9CDCFE]">pattern</span>);
+
+    <span class="text-[#4EC9B0]">std::cout</span> &lt;&lt; <span class="text-[#CE9178]">"--- Naive Pattern Search ---\n"</span>;
+    <span class="text-[#4EC9B0]">std::cout</span> &lt;&lt; <span class="text-[#CE9178]">"Found at index: "</span>;
+    <span class="text-[#C586C0]">for</span> (<span class="text-[#569CD6]">int</span> <span class="text-[#9CDCFE]">idx</span> : <span class="text-[#9CDCFE]">results</span>) {
+        <span class="text-[#4EC9B0]">std::cout</span> &lt;&lt; <span class="text-[#9CDCFE]">idx</span> &lt;&lt; <span class="text-[#CE9178]">" "</span>;
+    }
+    <span class="text-[#4EC9B0]">std::cout</span> &lt;&lt; <span class="text-[#CE9178]">"\n"</span>;
+
+    <span class="text-[#C586C0]">return</span> <span class="text-[#B5CEA8]">0</span>;
+}</code></pre>
+                        </div>
+
+                        <!-- VS Code Status Bar -->
+                        <div class="bg-[#007acc] text-white px-3.5 py-1 text-[11px] font-mono flex items-center justify-between select-none">
+                            <div class="flex items-center gap-3">
+                                <span>⎇ main*</span>
+                                <span>✓ 0 Errors</span>
+                                <span>⚠ 0 Warnings</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <span>Spaces: 4</span>
+                                <span>UTF-8</span>
+                                <span>C++20</span>
+                                <span>GCC 13.2</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- C++ Code Block 2: KMP Algorithm (LPS + Search) -->
+                <div class="sketch-card p-5 space-y-4">
+                    <div class="flex justify-between items-center border-b pb-2">
+                        <div>
+                            <h2 class="text-xl font-bold text-inkBlue">2. Knuth-Morris-Pratt (KMP) Algorithm in C++</h2>
+                            <p class="text-xs font-sans text-pencilGray">Includes computeLPSArray() and linear KMPSearch()</p>
+                        </div>
+                        <span class="text-xs font-mono font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-300">
+                            Time: O(n + m) • Space: O(m)
+                        </span>
+                    </div>
+
+                    <!-- VS Code Editor Window -->
+                    <div class="vscode-window shadow-2xl">
+                        <!-- Window Titlebar -->
+                        <div class="bg-[#252526] border-b border-[#181818] px-3.5 py-2 flex items-center justify-between select-none">
+                            <div class="flex items-center gap-3">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="w-3 h-3 rounded-full bg-[#ff5f56] inline-block shadow-sm"></span>
+                                    <span class="w-3 h-3 rounded-full bg-[#ffbd2e] inline-block shadow-sm"></span>
+                                    <span class="w-3 h-3 rounded-full bg-[#27c93f] inline-block shadow-sm"></span>
+                                </div>
+                                <div class="flex items-center bg-[#1e1e1e] border-t-2 border-[#007acc] px-3.5 py-1 rounded-t text-xs font-mono text-[#e5e5e5] gap-2 shadow">
+                                    <span class="px-1.5 py-0.5 bg-[#00599c] text-white rounded text-[10px] font-bold">C++</span>
+                                    <span class="font-semibold text-slate-200">kmp_pattern_search.cpp</span>
+                                    <span class="text-[#858585] text-xs hover:text-white cursor-pointer ml-1">✕</span>
+                                </div>
+                            </div>
+                            <button onclick="copyCode('codeKmpCpp', this)" class="px-2.5 py-1 rounded bg-[#2d2d2d] hover:bg-[#3e3e3e] active:scale-95 text-[#cccccc] hover:text-white border border-[#454545] text-xs font-mono flex items-center gap-1.5 transition-all shadow-sm">
+                                📋 <span>Copy Code</span>
+                            </button>
+                        </div>
+
+                        <!-- VS Code Breadcrumb Bar -->
+                        <div class="bg-[#1e1e1e] border-b border-[#2d2d2d] px-4 py-1 text-[11px] font-mono text-[#858585] flex items-center gap-1.5 select-none">
+                            <span>src</span>
+                            <span>›</span>
+                            <span>pattern_matching</span>
+                            <span>›</span>
+                            <span class="text-[#cccccc] font-semibold">kmp_pattern_search.cpp</span>
+                        </div>
+
+                        <!-- Editor Body with Gutter & Code -->
+                        <div class="flex text-xs sm:text-sm bg-[#1e1e1e] overflow-hidden">
+                            <!-- Line Numbers Gutter -->
+                            <div class="vscode-gutter py-3.5 px-3 select-none text-right font-mono leading-6">
+1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>41<br>42<br>43<br>44<br>45<br>46<br>47<br>48<br>49<br>50<br>51<br>52<br>53<br>54<br>55<br>56<br>57<br>58<br>59<br>60<br>61<br>62<br>63<br>64<br>65<br>66<br>67<br>68<br>69<br>70<br>71<br>72<br>73<br>74<br>75<br>76<br>77<br>78<br>79<br>80<br>81<br>82<br>83<br>84<br>85<br>86<br>87<br>88<br>89
+                            </div>
+
+                            <!-- Highlighted Code Area -->
+                            <pre id="codeKmpCpp" class="vscode-code-pre flex-1 py-3.5 px-4 overflow-x-auto whitespace-pre"><code><span class="text-[#C586C0]">#include</span> <span class="text-[#CE9178]">&lt;iostream&gt;</span>
+<span class="text-[#C586C0]">#include</span> <span class="text-[#CE9178]">&lt;string&gt;</span>
+<span class="text-[#C586C0]">#include</span> <span class="text-[#CE9178]">&lt;vector&gt;</span>
+
+<span class="text-[#6A9955] italic">// Step 1: Preprocess pattern to compute the LPS array</span>
+<span class="text-[#6A9955] italic">// Time Complexity: O(m) | Space: O(m)</span>
+<span class="text-[#4EC9B0]">std::vector</span>&lt;<span class="text-[#569CD6]">int</span>&gt; <span class="text-[#DCDCAA]">computeLPSArray</span>(<span class="text-[#569CD6]">const</span> <span class="text-[#4EC9B0]">std::string</span>&amp; <span class="text-[#9CDCFE]">pattern</span>) {
+    <span class="text-[#569CD6]">int</span> <span class="text-[#9CDCFE]">m</span> = <span class="text-[#9CDCFE]">pattern</span>.<span class="text-[#DCDCAA]">length</span>();
+    <span class="text-[#4EC9B0]">std::vector</span>&lt;<span class="text-[#569CD6]">int</span>&gt; <span class="text-[#9CDCFE]">lps</span>(<span class="text-[#9CDCFE]">m</span>, <span class="text-[#B5CEA8]">0</span>);
+
+    <span class="text-[#569CD6]">int</span> <span class="text-[#9CDCFE]">len</span> = <span class="text-[#B5CEA8]">0</span>; <span class="text-[#6A9955] italic">// Length of previous longest prefix suffix</span>
+    <span class="text-[#569CD6]">int</span> <span class="text-[#9CDCFE]">i</span> = <span class="text-[#B5CEA8]">1</span>;   <span class="text-[#6A9955] italic">// Pointer starts at second character</span>
+
+    <span class="text-[#6A9955] italic">// Loop calculates lps[i] for i = 1 to m - 1</span>
+    <span class="text-[#C586C0]">while</span> (<span class="text-[#9CDCFE]">i</span> &lt; <span class="text-[#9CDCFE]">m</span>) {
+        <span class="text-[#C586C0]">if</span> (<span class="text-[#9CDCFE]">pattern</span>[<span class="text-[#9CDCFE]">i</span>] == <span class="text-[#9CDCFE]">pattern</span>[<span class="text-[#9CDCFE]">len</span>]) {
+            <span class="text-[#9CDCFE]">len</span>++;
+            <span class="text-[#9CDCFE]">lps</span>[<span class="text-[#9CDCFE]">i</span>] = <span class="text-[#9CDCFE]">len</span>;
+            <span class="text-[#9CDCFE]">i</span>++;
+        } <span class="text-[#C586C0]">else</span> {
+            <span class="text-[#6A9955] italic">// Mismatch: len != 0, fall back to previous longest prefix length</span>
+            <span class="text-[#C586C0]">if</span> (<span class="text-[#9CDCFE]">len</span> != <span class="text-[#B5CEA8]">0</span>) {
+                <span class="text-[#9CDCFE]">len</span> = <span class="text-[#9CDCFE]">lps</span>[<span class="text-[#9CDCFE]">len</span> - <span class="text-[#B5CEA8]">1</span>]; <span class="text-[#6A9955] italic">// Crucial: do not increment i here</span>
+            } <span class="text-[#C586C0]">else</span> {
+                <span class="text-[#6A9955] italic">// len is 0, no prefix suffix found</span>
+                <span class="text-[#9CDCFE]">lps</span>[<span class="text-[#9CDCFE]">i</span>] = <span class="text-[#B5CEA8]">0</span>;
+                <span class="text-[#9CDCFE]">i</span>++;
+            }
+        }
+    }
+    <span class="text-[#C586C0]">return</span> <span class="text-[#9CDCFE]">lps</span>;
+}
+
+<span class="text-[#6A9955] italic">// Step 2: KMP Search function</span>
+<span class="text-[#6A9955] italic">// Time Complexity: O(n) | Space: O(m)</span>
+<span class="text-[#4EC9B0]">std::vector</span>&lt;<span class="text-[#569CD6]">int</span>&gt; <span class="text-[#DCDCAA]">KMPSearch</span>(<span class="text-[#569CD6]">const</span> <span class="text-[#4EC9B0]">std::string</span>&amp; <span class="text-[#9CDCFE]">text</span>, <span class="text-[#569CD6]">const</span> <span class="text-[#4EC9B0]">std::string</span>&amp; <span class="text-[#9CDCFE]">pattern</span>) {
+    <span class="text-[#569CD6]">int</span> <span class="text-[#9CDCFE]">n</span> = <span class="text-[#9CDCFE]">text</span>.<span class="text-[#DCDCAA]">length</span>();
+    <span class="text-[#569CD6]">int</span> <span class="text-[#9CDCFE]">m</span> = <span class="text-[#9CDCFE]">pattern</span>.<span class="text-[#DCDCAA]">length</span>();
+    <span class="text-[#4EC9B0]">std::vector</span>&lt;<span class="text-[#569CD6]">int</span>&gt; <span class="text-[#9CDCFE]">matchIndices</span>;
+
+    <span class="text-[#C586C0]">if</span> (<span class="text-[#9CDCFE]">m</span> == <span class="text-[#B5CEA8]">0</span> || <span class="text-[#9CDCFE]">n</span> &lt; <span class="text-[#9CDCFE]">m</span>) <span class="text-[#C586C0]">return</span> <span class="text-[#9CDCFE]">matchIndices</span>;
+
+    <span class="text-[#6A9955] italic">// Precompute the LPS array</span>
+    <span class="text-[#4EC9B0]">std::vector</span>&lt;<span class="text-[#569CD6]">int</span>&gt; <span class="text-[#9CDCFE]">lps</span> = <span class="text-[#DCDCAA]">computeLPSArray</span>(<span class="text-[#9CDCFE]">pattern</span>);
+
+    <span class="text-[#569CD6]">int</span> <span class="text-[#9CDCFE]">i</span> = <span class="text-[#B5CEA8]">0</span>; <span class="text-[#6A9955] italic">// Pointer for text (NEVER decreases!)</span>
+    <span class="text-[#569CD6]">int</span> <span class="text-[#9CDCFE]">j</span> = <span class="text-[#B5CEA8]">0</span>; <span class="text-[#6A9955] italic">// Pointer for pattern</span>
+
+    <span class="text-[#C586C0]">while</span> (<span class="text-[#9CDCFE]">i</span> &lt; <span class="text-[#9CDCFE]">n</span>) {
+        <span class="text-[#C586C0]">if</span> (<span class="text-[#9CDCFE]">text</span>[<span class="text-[#9CDCFE]">i</span>] == <span class="text-[#9CDCFE]">pattern</span>[<span class="text-[#9CDCFE]">j</span>]) {
+            <span class="text-[#9CDCFE]">i</span>++;
+            <span class="text-[#9CDCFE]">j</span>++;
+        }
+
+        <span class="text-[#6A9955] italic">// Entire pattern matched!</span>
+        <span class="text-[#C586C0]">if</span> (<span class="text-[#9CDCFE]">j</span> == <span class="text-[#9CDCFE]">m</span>) {
+            <span class="text-[#9CDCFE]">matchIndices</span>.<span class="text-[#DCDCAA]">push_back</span>(<span class="text-[#9CDCFE]">i</span> - <span class="text-[#9CDCFE]">j</span>); <span class="text-[#6A9955] italic">// Match starts at (i - j)</span>
+            <span class="text-[#9CDCFE]">j</span> = <span class="text-[#9CDCFE]">lps</span>[<span class="text-[#9CDCFE]">j</span> - <span class="text-[#B5CEA8]">1</span>];                <span class="text-[#6A9955] italic">// Reset j for overlapping matches</span>
+        } 
+        <span class="text-[#6A9955] italic">// Mismatch after j matches</span>
+        <span class="text-[#C586C0]">else</span> <span class="text-[#C586C0]">if</span> (<span class="text-[#9CDCFE]">i</span> &lt; <span class="text-[#9CDCFE]">n</span> &amp;&amp; <span class="text-[#9CDCFE]">text</span>[<span class="text-[#9CDCFE]">i</span>] != <span class="text-[#9CDCFE]">pattern</span>[<span class="text-[#9CDCFE]">j</span>]) {
+            <span class="text-[#C586C0]">if</span> (<span class="text-[#9CDCFE]">j</span> != <span class="text-[#B5CEA8]">0</span>) {
+                <span class="text-[#9CDCFE]">j</span> = <span class="text-[#9CDCFE]">lps</span>[<span class="text-[#9CDCFE]">j</span> - <span class="text-[#B5CEA8]">1</span>]; <span class="text-[#6A9955] italic">// Smart shift using LPS table!</span>
+            } <span class="text-[#C586C0]">else</span> {
+                <span class="text-[#9CDCFE]">i</span>++;            <span class="text-[#6A9955] italic">// Advance text pointer</span>
+            }
+        }
+    }
+
+    <span class="text-[#C586C0]">return</span> <span class="text-[#9CDCFE]">matchIndices</span>;
+}
+
+<span class="text-[#569CD6]">int</span> <span class="text-[#DCDCAA]">main</span>() {
+    <span class="text-[#4EC9B0]">std::string</span> <span class="text-[#9CDCFE]">text</span> = <span class="text-[#CE9178]">"ABABDABACDABABCABAB"</span>;
+    <span class="text-[#4EC9B0]">std::string</span> <span class="text-[#9CDCFE]">pattern</span> = <span class="text-[#CE9178]">"ABABCABAB"</span>;
+
+    <span class="text-[#4EC9B0]">std::vector</span>&lt;<span class="text-[#569CD6]">int</span>&gt; <span class="text-[#9CDCFE]">matches</span> = <span class="text-[#DCDCAA]">KMPSearch</span>(<span class="text-[#9CDCFE]">text</span>, <span class="text-[#9CDCFE]">pattern</span>);
+
+    <span class="text-[#4EC9B0]">std::cout</span> &lt;&lt; <span class="text-[#CE9178]">"--- KMP Pattern Search ---\n"</span>;
+    <span class="text-[#4EC9B0]">std::cout</span> &lt;&lt; <span class="text-[#CE9178]">"Pattern found at index: "</span>;
+    <span class="text-[#C586C0]">for</span> (<span class="text-[#569CD6]">int</span> <span class="text-[#9CDCFE]">idx</span> : <span class="text-[#9CDCFE]">matches</span>) {
+        <span class="text-[#4EC9B0]">std::cout</span> &lt;&lt; <span class="text-[#9CDCFE]">idx</span> &lt;&lt; <span class="text-[#CE9178]">" "</span>;
+    }
+    <span class="text-[#4EC9B0]">std::cout</span> &lt;&lt; <span class="text-[#CE9178]">"\n"</span>;
+
+    <span class="text-[#C586C0]">return</span> <span class="text-[#B5CEA8]">0</span>;
+}</code></pre>
+                        </div>
+
+                        <!-- VS Code Status Bar -->
+                        <div class="bg-[#007acc] text-white px-3.5 py-1 text-[11px] font-mono flex items-center justify-between select-none">
+                            <div class="flex items-center gap-3">
+                                <span>⎇ main*</span>
+                                <span>✓ 0 Errors</span>
+                                <span>⚠ 0 Warnings</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <span>Spaces: 4</span>
+                                <span>UTF-8</span>
+                                <span>C++20</span>
+                                <span>GCC 13.2</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Comprehensive Complexity Analysis -->
+                <div class="sketch-card p-6 space-y-6">
+                    <h2 class="text-2xl font-bold text-inkBlue border-b pb-2">
+                        Rigorous Complexity Comparison &amp; Worst-Case Proofs
+                    </h2>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        
+                        <!-- Naive Analysis -->
+                        <div class="space-y-3">
+                            <h3 class="text-xl font-bold text-inkRed flex items-center gap-1.5">
+                                <span>🐢</span> Naive Algorithm Complexity
+                            </h3>
+                            <ul class="text-base space-y-2 list-disc list-inside">
+                                <li>
+                                    <strong>Best Case:</strong> <span class="font-mono font-bold text-emerald-700">O(n)</span>. Occurs when mismatch happens on the very first character (<span class="font-mono">P[0]</span>) for every shift. Outer loop runs $(n - m + 1)$ times with 1 comparison each.
+                                </li>
+                                <li>
+                                    <strong>Worst Case:</strong> <span class="font-mono font-bold text-red-700">O((n - m + 1) &times; m) &approx; O(n &times; m)</span>.
+                                    <div class="mt-1.5 p-2 bg-red-50 rounded border border-red-200 text-xs font-sans">
+                                        <strong>Degenerate Input Example:</strong><br>
+                                        <span class="font-mono">Text: "AAAAAAAAAAAA" (n = 12)</span><br>
+                                        <span class="font-mono">Pattern: "AAAAB" (m = 5)</span><br>
+                                        Every shift matches 4 <span class="font-mono">'A'</span>s before failing on <span class="font-mono">'B'</span>, repeating $(12 - 5 + 1) \times 5 = 40$ operations!
+                                    </div>
+                                </li>
+                                <li>
+                                    <strong>Space Complexity:</strong> <span class="font-mono font-bold text-emerald-700">O(1)</span> auxiliary memory (only integer pointers <span class="font-mono">s</span> and <span class="font-mono">j</span>).
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- KMP Analysis -->
+                        <div class="space-y-3">
+                            <h3 class="text-xl font-bold text-inkBlue flex items-center gap-1.5">
+                                <span>⚡</span> KMP Algorithm Complexity
+                            </h3>
+                            <ul class="text-base space-y-2 list-disc list-inside">
+                                <li>
+                                    <strong>LPS Preprocessing Time:</strong> <span class="font-mono font-bold text-emerald-700">O(m)</span>. Although the inner condition <span class="font-mono">len = lps[len-1]</span> can execute repeatedly, amortized analysis proves the value of <span class="font-mono">len</span> increases at most $m$ times, so it can decrease at most $m$ times.
+                                </li>
+                                <li>
+                                    <strong>Matching Search Time:</strong> <span class="font-mono font-bold text-emerald-700">O(n)</span>. In the search loop, <span class="font-mono">i</span> strictly increases up to $n$. Pointer <span class="font-mono">j</span> only falls back via LPS at most as many times as it was incremented.
+                                </li>
+                                <li>
+                                    <strong>Total Time Complexity:</strong> <span class="font-mono font-bold text-emerald-700">O(n + m)</span> across ALL cases (Best, Average, and Worst)!
+                                </li>
+                                <li>
+                                    <strong>Space Complexity:</strong> <span class="font-mono font-bold text-amber-700">O(m)</span> auxiliary memory for the <span class="font-mono">lps</span> table.
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Comparison Table -->
+                    <div class="overflow-x-auto mt-4">
+                        <table class="w-full text-center border-collapse font-sans text-sm">
+                            <thead>
+                                <tr class="bg-slate-800 text-white">
+                                    <th class="p-2 border border-slate-700">Algorithm</th>
+                                    <th class="p-2 border border-slate-700">Best Case Time</th>
+                                    <th class="p-2 border border-slate-700">Average Case Time</th>
+                                    <th class="p-2 border border-slate-700">Worst Case Time</th>
+                                    <th class="p-2 border border-slate-700">Auxiliary Space</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-200">
+                                <tr class="bg-white">
+                                    <td class="p-2 border font-bold text-slate-800">Naive Search</td>
+                                    <td class="p-2 border font-mono font-bold text-emerald-700">O(n)</td>
+                                    <td class="p-2 border font-mono text-amber-700">O(n) (natural text)</td>
+                                    <td class="p-2 border font-mono font-bold text-red-700">O(n &times; m)</td>
+                                    <td class="p-2 border font-mono font-bold text-emerald-700">O(1)</td>
+                                </tr>
+                                <tr class="bg-emerald-50/40">
+                                    <td class="p-2 border font-bold text-inkBlue">Knuth-Morris-Pratt (KMP)</td>
+                                    <td class="p-2 border font-mono font-bold text-emerald-700">O(n)</td>
+                                    <td class="p-2 border font-mono font-bold text-emerald-700">O(n + m)</td>
+                                    <td class="p-2 border font-mono font-bold text-emerald-700">O(n + m)</td>
+                                    <td class="p-2 border font-mono text-amber-800">O(m)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ==================================================================== -->
+            <!-- TAB 4: INTERACTIVE VISUALIZER & SIMULATOR                            -->
+            <!-- ==================================================================== -->
+            <div id="tab-simulator" class="tab-pane space-y-8">
+
+                <!-- Section Header -->
+                <div class="border-b-2 border-inkRed pb-2 flex flex-col sm:flex-row justify-between items-start sm:items-baseline gap-2">
+                    <div>
+                        <h1 class="text-3xl sm:text-4xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                            4. Interactive Pattern Visualizer &amp; Simulator
+                        </h1>
+                        <p class="text-sm font-sans text-pencilGray mt-1">
+                            Live step simulator: Test custom texts and patterns, step through comparisons, and witness the LPS shifts live!
+                        </p>
+                    </div>
+                    <span class="text-xs sm:text-sm font-bold font-sans bg-emerald-100 text-emerald-900 px-2.5 py-1 rounded border border-emerald-300">
+                        Interactive Engine • Canvas 2D
+                    </span>
+                </div>
+
+                <!-- Simulation Control Panel -->
+                <div class="sketch-card p-5 space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 font-sans mb-1">
+                                Text String (<span class="font-mono">T</span>):
+                            </label>
+                            <input type="text" id="simTextInput" value="ABABDABACDABABCABAB"
+                                class="w-full font-mono text-base font-bold px-3 py-1.5 rounded border border-slate-300 bg-white focus:border-inkBlue focus:outline-none tracking-wider text-inkBlue">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 font-sans mb-1">
+                                Pattern String (<span class="font-mono">P</span>):
+                            </label>
+                            <input type="text" id="simPatternInput" value="ABABCABAB"
+                                class="w-full font-mono text-base font-bold px-3 py-1.5 rounded border border-slate-300 bg-white focus:border-inkBlue focus:outline-none tracking-wider text-inkRed">
+                        </div>
+                    </div>
+
+                    <!-- Presets & Algorithm Mode Selection -->
+                    <div class="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-slate-200">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-bold text-slate-600 font-sans">Presets:</span>
+                            <button onclick="loadPreset('general')" class="px-2.5 py-1 text-xs rounded font-sans font-bold bg-slate-100 hover:bg-slate-200 border">
+                                General Example
+                            </button>
+                            <button onclick="loadPreset('repeated')" class="px-2.5 py-1 text-xs rounded font-sans font-bold bg-slate-100 hover:bg-slate-200 border">
+                                Repetitive Prefix
+                            </button>
+                            <button onclick="loadPreset('worstcase')" class="px-2.5 py-1 text-xs rounded font-sans font-bold bg-slate-100 hover:bg-slate-200 border">
+                                Degenerate Naive
+                            </button>
+                            <button onclick="loadPreset('dna')" class="px-2.5 py-1 text-xs rounded font-sans font-bold bg-slate-100 hover:bg-slate-200 border">
+                                DNA Sequence
+                            </button>
+                        </div>
+
+                        <!-- Mode Toggle -->
+                        <div class="flex items-center gap-2 bg-slate-100 p-1 rounded-lg border border-slate-300 text-xs font-sans font-bold">
+                            <button id="btnModeKmp" onclick="setSimMode('kmp')" class="px-3 py-1 rounded bg-inkBlue text-white shadow transition">
+                                ⚡ KMP Mode
+                            </button>
+                            <button id="btnModeNaive" onclick="setSimMode('naive')" class="px-3 py-1 rounded text-slate-700 hover:text-inkBlue transition">
+                                🐢 Naive Mode
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Step Controllers & Status Badges -->
+                    <div class="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-200">
+                        <div class="flex items-center gap-2">
+                            <button onclick="simStepPrev()" class="px-3 py-1.5 rounded bg-slate-200 hover:bg-slate-300 text-slate-800 text-xs sm:text-sm font-bold font-sans transition">
+                                ◀ Previous Step
+                            </button>
+                            <button onclick="simStepNext()" class="px-4 py-1.5 rounded bg-inkBlue hover:bg-slate-800 text-white text-xs sm:text-sm font-bold font-sans shadow transition">
+                                Next Step ▶
+                            </button>
+                            <button id="btnSimPlay" onclick="simTogglePlay()" class="px-3 py-1.5 rounded bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold font-sans shadow transition">
+                                ▶ Play Auto
+                            </button>
+                            <button onclick="simReset()" class="px-3 py-1.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs sm:text-sm font-bold font-sans border transition">
+                                ↺ Reset
+                            </button>
+                        </div>
+
+                        <div class="flex items-center gap-3 font-sans text-xs sm:text-sm">
+                            <span class="bg-blue-50 text-blue-900 border border-blue-200 px-3 py-1 rounded-full font-bold">
+                                Comparisons: <span id="simComparisonsBadge" class="font-mono text-inkRed text-base">0</span>
+                            </span>
+                            <span class="bg-emerald-50 text-emerald-900 border border-emerald-200 px-3 py-1 rounded-full font-bold">
+                                Matches Found: <span id="simMatchesBadge" class="font-mono text-emerald-700 text-base">0</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Live Canvas Display -->
+                <div class="sketch-card p-4 space-y-3">
+                    <div class="flex justify-between items-center border-b pb-2">
+                        <span id="simStatusBanner" class="font-sans font-bold text-sm text-inkBlue">
+                            Ready. Click "Next Step ▶" or "Play Auto" to start tracing.
+                        </span>
+                        <span class="text-xs font-sans text-pencilGray">HTML5 Interactive Canvas</span>
+                    </div>
+
+                    <!-- Interactive Canvas Element -->
+                    <div class="overflow-x-auto bg-[#FAF6EE] p-2 rounded border border-slate-200">
+                        <canvas id="canvasSimulator" class="w-full min-w-[700px]" height="230"></canvas>
+                    </div>
+
+                    <!-- LPS Inspector Sub-card (when in KMP mode) -->
+                    <div id="simLpsInspector" class="p-3 bg-amber-50/60 rounded border border-amber-200 text-xs font-sans space-y-1">
+                        <span class="font-bold text-amber-900 uppercase block">Active LPS Table Table:</span>
+                        <div id="simLpsCellsContainer" class="flex flex-wrap gap-1 font-mono text-sm pt-1">
+                            <!-- Populated dynamically via JS -->
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Notebook Scripts -->
+    <script>
+        // =========================================================================
+        // 1. TYPOGRAPHY & TAB SWITCHING
+        // =========================================================================
+        function toggleFontMode() {
+            document.body.classList.toggle('font-clean');
+            const btnText = document.getElementById('fontBtnText');
+            if (document.body.classList.contains('font-clean')) {
+                btnText.textContent = 'Handwritten Font';
+            } else {
+                btnText.textContent = 'Clean Font';
+            }
+        }
+
+        let currentActiveTab = 'definitions';
+
+        function switchTab(tabId) {
+            currentActiveTab = tabId;
+
+            // Hide all panes
+            document.querySelectorAll('.tab-pane').forEach(pane => {
+                pane.classList.remove('active');
+            });
+
+            // Deactivate all nav buttons
+            document.querySelectorAll('.nav-tab').forEach(btn => {
+                btn.classList.remove('bg-amber-200', 'text-inkBlue', 'border-b-2', 'border-inkBlue');
+                btn.classList.add('text-slate-600', 'hover:text-inkBlue');
+            });
+
+            // Activate chosen pane & button
+            const targetPane = document.getElementById('tab-' + tabId);
+            const targetBtn = document.getElementById('nav-tab-' + tabId);
+            if (targetPane) targetPane.classList.add('active');
+            if (targetBtn) {
+                targetBtn.classList.remove('text-slate-600', 'hover:text-inkBlue');
+                targetBtn.classList.add('bg-amber-200', 'text-inkBlue', 'border-b-2', 'border-inkBlue');
+            }
+
+            // Trigger canvas redraws when switching tabs
+            setTimeout(() => {
+                if (tabId === 'definitions') {
+                    renderConceptOverviewCanvas();
+                } else if (tabId === 'step-by-step') {
+                    renderStepByStepCanvases();
+                } else if (tabId === 'simulator') {
+                    initSimulator();
+                    renderSimulatorCanvas();
+                }
+            }, 50);
+        }
+
+        function copyCode(elementId, btn) {
+            const codeEl = document.getElementById(elementId);
+            if (!codeEl) return;
+            navigator.clipboard.writeText(codeEl.innerText).then(() => {
+                if (btn) {
+                    const origHtml = btn.innerHTML;
+                    btn.innerHTML = `✓ <span class="text-emerald-400 font-bold">Copied!</span>`;
+                    btn.classList.add('border-emerald-500/70', 'bg-emerald-950/60');
+                    setTimeout(() => {
+                        btn.innerHTML = origHtml;
+                        btn.classList.remove('border-emerald-500/70', 'bg-emerald-950/60');
+                    }, 2000);
+                }
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+            });
+        }
+
+        // High-DPI Canvas Setup Helper
+        function setupHighDpiCanvas(canvas, logicalHeight) {
+            const dpr = window.devicePixelRatio || 1;
+            const rect = canvas.getBoundingClientRect();
+            const logicalWidth = rect.width > 0 ? rect.width : (canvas.parentElement ? canvas.parentElement.clientWidth - 20 : 800);
+            
+            canvas.width = logicalWidth * dpr;
+            canvas.height = logicalHeight * dpr;
+            canvas.style.height = `${logicalHeight}px`;
+
+            const ctx = canvas.getContext('2d');
+            ctx.scale(dpr, dpr);
+            return { ctx, width: logicalWidth, height: logicalHeight };
+        }
+
+        // =========================================================================
+        // 2. CANVAS DRAWING ROUTINES: TAB 1 (CONCEPT OVERVIEW)
+        // =========================================================================
+        function renderConceptOverviewCanvas() {
+            const canvas = document.getElementById('canvasConceptOverview');
+            if (!canvas) return;
+            const { ctx, width, height } = setupHighDpiCanvas(canvas, 240);
+
+            ctx.clearRect(0, 0, width, height);
+
+            // Background card style
+            ctx.fillStyle = '#FAF6EE';
+            ctx.fillRect(0, 0, width, height);
+
+            // Left Section: Naive Backtracking
+            const midX = width / 2;
+
+            // Divider line
+            ctx.strokeStyle = '#cbd5e1';
+            ctx.lineWidth = 1.5;
+            ctx.setLineDash([4, 4]);
+            ctx.beginPath();
+            ctx.moveTo(midX, 15);
+            ctx.lineTo(midX, height - 15);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Naive Section
+            ctx.fillStyle = '#991b1b';
+            ctx.font = 'bold 15px Inter, sans-serif';
+            ctx.textAlign = 'left';
+            ctx.fillText('🐢 Naive Approach (Backtracks i)', 25, 30);
+
+            ctx.font = '12px Inter, sans-serif';
+            ctx.fillStyle = '#475569';
+            ctx.fillText('Text: "A B A B D ..."', 25, 52);
+            ctx.fillText('Shift 0 fails at index 4 &rarr; Pointer i retreats back to 1!', 25, 70);
+
+            // Diagram for Naive
+            drawPointerTrack(ctx, 35, 110, ['A', 'B', 'A', 'B', 'D', 'A', 'B', 'A'], 0, 4, true, 'Naive: resets i to 1');
+
+            // Right Section: KMP Never Backtracks
+            ctx.fillStyle = '#1A365D';
+            ctx.font = 'bold 15px Inter, sans-serif';
+            ctx.fillText('⚡ KMP Approach (i strictly monotonic)', midX + 25, 30);
+
+            ctx.font = '12px Inter, sans-serif';
+            ctx.fillStyle = '#475569';
+            ctx.fillText('Text: "A B A B D ..."', midX + 25, 52);
+            ctx.fillText('Shift intelligent: i stays at 4! Pattern slides via LPS.', midX + 25, 70);
+
+            // Diagram for KMP
+            drawPointerTrack(ctx, midX + 35, 110, ['A', 'B', 'A', 'B', 'D', 'A', 'B', 'A'], 0, 4, false, 'KMP: i never moves back!');
+        }
+
+        function drawPointerTrack(ctx, startX, startY, chars, activeStart, activeEnd, isBacktracking, label) {
+            const cellW = 28;
+            const cellH = 28;
+
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            for (let idx = 0; idx < chars.length; idx++) {
+                const x = startX + idx * (cellW + 3);
+                const isChecked = idx >= activeStart && idx <= activeEnd;
+                const isMismatch = idx === activeEnd;
+
+                ctx.lineWidth = 1.5;
+                if (isMismatch) {
+                    ctx.fillStyle = '#fee2e2';
+                    ctx.strokeStyle = '#ef4444';
+                } else if (isChecked) {
+                    ctx.fillStyle = '#dcfce7';
+                    ctx.strokeStyle = '#22c55e';
+                } else {
+                    ctx.fillStyle = '#ffffff';
+                    ctx.strokeStyle = '#cbd5e1';
+                }
+
+                ctx.beginPath();
+                ctx.roundRect(x, startY, cellW, cellH, 4);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.fillStyle = isMismatch ? '#b91c1c' : (isChecked ? '#15803d' : '#334155');
+                ctx.font = 'bold 13px monospace';
+                ctx.fillText(chars[idx], x + cellW / 2, startY + cellH / 2);
+            }
+
+            // Arrow beneath
+            ctx.font = 'bold 11px Inter, sans-serif';
+            if (isBacktracking) {
+                ctx.fillStyle = '#dc2626';
+                ctx.fillText('⤺ i drops back to index 1', startX + 110, startY + cellH + 24);
+            } else {
+                ctx.fillStyle = '#16a34a';
+                ctx.fillText('➜ i holds at 4 (j = lps[3] = 2)', startX + 110, startY + cellH + 24);
+            }
+        }
+
+        // =========================================================================
+        // 3. CANVAS DRAWING ROUTINES: TAB 2 (STEP-BY-STEP TRACES)
+        // =========================================================================
+        function drawPatternMatchCanvas(canvasId, textStr, patStr, shift, matchLen, mismatchAtJ, bannerText) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            const { ctx, width, height } = setupHighDpiCanvas(canvas, 110);
+
+            ctx.clearRect(0, 0, width, height);
+
+            const startX = 25;
+            const cellW = 26;
+            const cellH = 26;
+            const spacing = 3;
+
+            // Draw Text Cells
+            ctx.font = 'bold 10px Inter, sans-serif';
+            ctx.fillStyle = '#64748b';
+            ctx.textAlign = 'left';
+            ctx.fillText('Text (T):', startX, 18);
+
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            for (let i = 0; i < textStr.length; i++) {
+                const x = startX + 60 + i * (cellW + spacing);
+                const y = 8;
+
+                ctx.lineWidth = 1.2;
+                ctx.fillStyle = '#ffffff';
+                ctx.strokeStyle = '#94a3b8';
+
+                // Highlight if involved in current shift
+                const isWithinShift = i >= shift && i < shift + patStr.length;
+                const offsetInPat = i - shift;
+
+                if (isWithinShift && offsetInPat < matchLen) {
+                    ctx.fillStyle = '#dcfce7'; // green match
+                    ctx.strokeStyle = '#16a34a';
+                } else if (isWithinShift && offsetInPat === mismatchAtJ) {
+                    ctx.fillStyle = '#fee2e2'; // red mismatch
+                    ctx.strokeStyle = '#dc2626';
+                }
+
+                ctx.beginPath();
+                ctx.roundRect(x, y, cellW, cellH, 4);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.fillStyle = '#1e293b';
+                ctx.font = 'bold 12px monospace';
+                ctx.fillText(textStr[i], x + cellW / 2, y + cellH / 2);
+
+                // Index numbers on top
+                ctx.fillStyle = '#94a3b8';
+                ctx.font = '9px monospace';
+                ctx.fillText(i.toString(), x + cellW / 2, y + cellH + 9);
+            }
+
+            // Draw Pattern Cells aligned at shift
+            const patY = 56;
+            ctx.font = 'bold 10px Inter, sans-serif';
+            ctx.fillStyle = '#64748b';
+            ctx.textAlign = 'left';
+            ctx.fillText('Pattern (P):', startX, patY + 16);
+
+            ctx.textAlign = 'center';
+            for (let j = 0; j < patStr.length; j++) {
+                const x = startX + 60 + (shift + j) * (cellW + spacing);
+
+                ctx.lineWidth = 1.5;
+                if (j < matchLen) {
+                    ctx.fillStyle = '#bbf7d0'; // match
+                    ctx.strokeStyle = '#15803d';
+                } else if (j === mismatchAtJ) {
+                    ctx.fillStyle = '#fca5a5'; // mismatch
+                    ctx.strokeStyle = '#b91c1c';
+                } else {
+                    ctx.fillStyle = '#f8fafc';
+                    ctx.strokeStyle = '#cbd5e1';
+                }
+
+                ctx.beginPath();
+                ctx.roundRect(x, patY, cellW, cellH, 4);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.fillStyle = j === mismatchAtJ ? '#7f1d1d' : (j < matchLen ? '#14532d' : '#334155');
+                ctx.font = 'bold 12px monospace';
+                ctx.fillText(patStr[j], x + cellW / 2, patY + cellH / 2);
+            }
+
+            // Status message
+            if (bannerText) {
+                ctx.font = 'bold 11px Inter, sans-serif';
+                ctx.textAlign = 'right';
+                ctx.fillStyle = mismatchAtJ >= 0 ? '#b91c1c' : '#15803d';
+                ctx.fillText(bannerText, width - 25, patY + cellH + 18);
+            }
+        }
+
+        function drawLpsConstructionCanvas() {
+            const canvas = document.getElementById('canvasLpsConstruction');
+            if (!canvas) return;
+            const { ctx, width, height } = setupHighDpiCanvas(canvas, 100);
+
+            ctx.clearRect(0, 0, width, height);
+
+            const pattern = "ABABCABAB";
+            const lps = [0, 0, 1, 2, 0, 1, 2, 3, 4];
+            const startX = 40;
+            const cellW = 34;
+            const cellH = 28;
+
+            ctx.textAlign = 'left';
+            ctx.font = 'bold 11px Inter, sans-serif';
+            ctx.fillStyle = '#1e3a8a';
+            ctx.fillText('Pattern (P):', startX, 28);
+            ctx.fillText('LPS Table:', startX, 62);
+
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            for (let i = 0; i < pattern.length; i++) {
+                const x = startX + 90 + i * (cellW + 6);
+
+                // Char box
+                ctx.lineWidth = 1.2;
+                ctx.fillStyle = '#ffffff';
+                ctx.strokeStyle = '#3b82f6';
+                ctx.beginPath();
+                ctx.roundRect(x, 14, cellW, cellH, 4);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.fillStyle = '#1e3a8a';
+                ctx.font = 'bold 14px monospace';
+                ctx.fillText(pattern[i], x + cellW / 2, 14 + cellH / 2);
+
+                // LPS box
+                const val = lps[i];
+                ctx.fillStyle = val > 0 ? '#dcfce7' : '#f8fafc';
+                ctx.strokeStyle = val > 0 ? '#16a34a' : '#cbd5e1';
+                ctx.beginPath();
+                ctx.roundRect(x, 48, cellW, cellH, 4);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.fillStyle = val > 0 ? '#15803d' : '#64748b';
+                ctx.font = 'bold 14px monospace';
+                ctx.fillText(val.toString(), x + cellW / 2, 48 + cellH / 2);
+
+                // Index underneath
+                ctx.fillStyle = '#94a3b8';
+                ctx.font = '9px monospace';
+                ctx.fillText(`i=${i}`, x + cellW / 2, 90);
+            }
+        }
+
+        function renderStepByStepCanvases() {
+            const textStr = "ABABDABACDABABCABAB";
+            const patStr = "ABABCABAB";
+
+            // Naive step 1: shift=0, match 4 chars ("ABAB"), mismatch at j=4 ('C' vs 'D')
+            drawPatternMatchCanvas('canvasNaiveStep1', textStr, patStr, 0, 4, 4, 'Shift 0: 4 matches, mismatch at j=4');
+            // Naive step 2: shift=1, mismatch at j=0
+            drawPatternMatchCanvas('canvasNaiveStep2', textStr, patStr, 1, 0, 0, 'Shift 1: immediate mismatch at j=0');
+            // Naive step 3: shift=2, match 2 chars ("AB"), mismatch at j=2
+            drawPatternMatchCanvas('canvasNaiveStep3', textStr, patStr, 2, 2, 2, 'Shift 2: 2 matches, mismatch at j=2');
+            // Naive step 4: shift=10, all 9 matched!
+            drawPatternMatchCanvas('canvasNaiveStep4', textStr, patStr, 10, 9, -1, 'Shift 10: Complete Match Found!');
+
+            // KMP LPS Canvas
+            drawLpsConstructionCanvas();
+
+            // KMP step 1: mismatch at j=4, intelligent fall to j=lps[3]=2
+            drawPatternMatchCanvas('canvasKmpStep1', textStr, patStr, 0, 4, 4, 'KMP: Mismatch at j=4 -> slide pattern to j=lps[3]=2 (i remains 4)');
+            // KMP step 2: j falls to 0, i advances to 5
+            drawPatternMatchCanvas('canvasKmpStep2', textStr, patStr, 4, 0, 0, 'KMP: j falls to 0 -> advance i to 5');
+            // KMP step 3: match at index 10
+            drawPatternMatchCanvas('canvasKmpStep3', textStr, patStr, 10, 9, -1, 'KMP: Match detected at index 10! j resets to lps[8]=4');
+        }
+
+        // =========================================================================
+        // 4. INTERACTIVE SIMULATOR ENGINE (TAB 4)
+        // =========================================================================
+        let simMode = 'kmp'; // 'kmp' or 'naive'
+        let simText = "ABABDABACDABABCABAB";
+        let simPattern = "ABABCABAB";
+        let simLps = [];
+
+        // State machine history for step back/forward
+        let simHistory = [];
+        let simStepIdx = 0;
+        let simTimer = null;
+
+        function setSimMode(mode) {
+            simMode = mode;
+            document.getElementById('btnModeKmp').className = mode === 'kmp' 
+                ? 'px-3 py-1 rounded bg-inkBlue text-white shadow transition'
+                : 'px-3 py-1 rounded text-slate-700 hover:text-inkBlue transition';
+            document.getElementById('btnModeNaive').className = mode === 'naive'
+                ? 'px-3 py-1 rounded bg-inkBlue text-white shadow transition'
+                : 'px-3 py-1 rounded text-slate-700 hover:text-inkBlue transition';
+
+            document.getElementById('simLpsInspector').style.display = mode === 'kmp' ? 'block' : 'none';
+            initSimulator();
+        }
+
+        function loadPreset(type) {
+            if (type === 'general') {
+                document.getElementById('simTextInput').value = "ABABDABACDABABCABAB";
+                document.getElementById('simPatternInput').value = "ABABCABAB";
+            } else if (type === 'repeated') {
+                document.getElementById('simTextInput').value = "AABAACAADAABAABA";
+                document.getElementById('simPatternInput').value = "AABA";
+            } else if (type === 'worstcase') {
+                document.getElementById('simTextInput').value = "AAAAAAAAAAAAAAAA";
+                document.getElementById('simPatternInput').value = "AAAAB";
+            } else if (type === 'dna') {
+                document.getElementById('simTextInput').value = "ACGTACGTGACGTACGT";
+                document.getElementById('simPatternInput').value = "ACGTG";
+            }
+            initSimulator();
+        }
+
+        function computeLpsHelper(pat) {
+            const m = pat.length;
+            const lps = new Array(m).fill(0);
+            let len = 0;
+            let i = 1;
+            while (i < m) {
+                if (pat[i] === pat[len]) {
+                    len++;
+                    lps[i] = len;
+                    i++;
+                } else {
+                    if (len !== 0) {
+                        len = lps[len - 1];
+                    } else {
+                        lps[i] = 0;
+                        i++;
+                    }
+                }
+            }
+            return lps;
+        }
+
+        function buildSimHistory() {
+            simHistory = [];
+            let comparisons = 0;
+            let matchesCount = 0;
+
+            if (simMode === 'naive') {
+                const n = simText.length;
+                const m = simPattern.length;
+
+                for (let s = 0; s <= n - m; s++) {
+                    let j = 0;
+                    while (j < m) {
+                        comparisons++;
+                        const isMatch = simText[s + j] === simPattern[j];
+                        simHistory.push({
+                            shift: s,
+                            i: s + j,
+                            j: j,
+                            status: isMatch ? 'match-char' : 'mismatch',
+                            comparisons: comparisons,
+                            matchesCount: matchesCount,
+                            banner: isMatch 
+                                ? `Checking s=${s}, j=${j}: T[${s+j}] ('${simText[s+j]}') == P[${j}] ('${simPattern[j]}') ✓`
+                                : `Mismatch at s=${s}, j=${j}: T[${s+j}] ('${simText[s+j]}') != P[${j}] ('${simPattern[j]}') ✗. Shift increments.`
+                        });
+
+                        if (!isMatch) break;
+                        j++;
+                    }
+
+                    if (j === m) {
+                        matchesCount++;
+                        simHistory.push({
+                            shift: s,
+                            i: s + m - 1,
+                            j: m,
+                            status: 'pattern-found',
+                            comparisons: comparisons,
+                            matchesCount: matchesCount,
+                            banner: `🎉 PATTERN FOUND at index ${s}!`
+                        });
+                    }
+                }
+            } else {
+                // KMP Simulation
+                const n = simText.length;
+                const m = simPattern.length;
+                let i = 0;
+                let j = 0;
+
+                while (i < n) {
+                    comparisons++;
+                    const isMatch = simText[i] === simPattern[j];
+
+                    if (isMatch) {
+                        simHistory.push({
+                            shift: i - j,
+                            i: i,
+                            j: j,
+                            status: 'match-char',
+                            comparisons: comparisons,
+                            matchesCount: matchesCount,
+                            banner: `T[${i}] ('${simText[i]}') == P[${j}] ('${simPattern[j]}') ✓ (Both i and j advance)`
+                        });
+                        i++;
+                        j++;
+                    }
+
+                    if (j === m) {
+                        matchesCount++;
+                        simHistory.push({
+                            shift: i - j,
+                            i: i - 1,
+                            j: m,
+                            status: 'pattern-found',
+                            comparisons: comparisons,
+                            matchesCount: matchesCount,
+                            banner: `🎉 PATTERN FOUND at index ${i - j}! Resetting j = lps[${j-1}] = ${simLps[j - 1]}`
+                        });
+                        j = simLps[j - 1];
+                    } else if (i < n && simText[i] !== simPattern[j]) {
+                        if (j !== 0) {
+                            simHistory.push({
+                                shift: i - j,
+                                i: i,
+                                j: j,
+                                status: 'mismatch',
+                                comparisons: comparisons,
+                                matchesCount: matchesCount,
+                                banner: `Mismatch at T[${i}] ('${simText[i]}') != P[${j}] ('${simPattern[j]}'). Intelligent Shift: j = lps[${j-1}] = ${simLps[j - 1]} (i stays at ${i})`
+                            });
+                            j = simLps[j - 1];
+                        } else {
+                            simHistory.push({
+                                shift: i,
+                                i: i,
+                                j: 0,
+                                status: 'mismatch',
+                                comparisons: comparisons,
+                                matchesCount: matchesCount,
+                                banner: `Mismatch at j=0. Advance text pointer i to ${i + 1}.`
+                            });
+                            i++;
+                        }
+                    }
+                }
+            }
+
+            // End state
+            simHistory.push({
+                shift: 0,
+                i: -1,
+                j: -1,
+                status: 'done',
+                comparisons: comparisons,
+                matchesCount: matchesCount,
+                banner: `Search Complete! Total Comparisons: ${comparisons}, Total Matches: ${matchesCount}`
+            });
+        }
+
+        function initSimulator() {
+            simText = document.getElementById('simTextInput').value.trim() || "ABABDABACDABABCABAB";
+            simPattern = document.getElementById('simPatternInput').value.trim() || "ABABCABAB";
+
+            simLps = computeLpsHelper(simPattern);
+
+            // Render LPS inspector table
+            const lpsContainer = document.getElementById('simLpsCellsContainer');
+            if (lpsContainer) {
+                lpsContainer.innerHTML = '';
+                for (let k = 0; k < simPattern.length; k++) {
+                    const pill = document.createElement('div');
+                    pill.className = 'px-2 py-0.5 rounded border border-amber-300 bg-white shadow-sm flex flex-col items-center';
+                    pill.innerHTML = `<span class="text-xs text-slate-500">i=${k}</span><span class="font-bold text-inkBlue">${simPattern[k]}</span><span class="font-bold text-emerald-700">${simLps[k]}</span>`;
+                    lpsContainer.appendChild(pill);
+                }
+            }
+
+            buildSimHistory();
+            simStepIdx = 0;
+            if (simTimer) {
+                clearInterval(simTimer);
+                simTimer = null;
+                document.getElementById('btnSimPlay').textContent = '▶ Play Auto';
+            }
+            renderSimulatorCanvas();
+        }
+
+        function simStepNext() {
+            if (simStepIdx < simHistory.length - 1) {
+                simStepIdx++;
+                renderSimulatorCanvas();
+            } else {
+                if (simTimer) {
+                    clearInterval(simTimer);
+                    simTimer = null;
+                    document.getElementById('btnSimPlay').textContent = '▶ Play Auto';
+                }
+            }
+        }
+
+        function simStepPrev() {
+            if (simStepIdx > 0) {
+                simStepIdx--;
+                renderSimulatorCanvas();
+            }
+        }
+
+        function simReset() {
+            if (simTimer) {
+                clearInterval(simTimer);
+                simTimer = null;
+                document.getElementById('btnSimPlay').textContent = '▶ Play Auto';
+            }
+            simStepIdx = 0;
+            renderSimulatorCanvas();
+        }
+
+        function simTogglePlay() {
+            const btn = document.getElementById('btnSimPlay');
+            if (simTimer) {
+                clearInterval(simTimer);
+                simTimer = null;
+                btn.textContent = '▶ Play Auto';
+            } else {
+                if (simStepIdx >= simHistory.length - 1) {
+                    simStepIdx = 0;
+                }
+                btn.textContent = '⏸ Pause';
+                simTimer = setInterval(() => {
+                    if (simStepIdx < simHistory.length - 1) {
+                        simStepIdx++;
+                        renderSimulatorCanvas();
+                    } else {
+                        clearInterval(simTimer);
+                        simTimer = null;
+                        btn.textContent = '▶ Play Auto';
+                    }
+                }, 600);
+            }
+        }
+
+        function renderSimulatorCanvas() {
+            const canvas = document.getElementById('canvasSimulator');
+            if (!canvas) return;
+            const { ctx, width, height } = setupHighDpiCanvas(canvas, 230);
+
+            ctx.clearRect(0, 0, width, height);
+
+            const curr = simHistory[simStepIdx] || {
+                shift: 0, i: -1, j: -1, status: 'init', comparisons: 0, matchesCount: 0, banner: 'Ready'
+            };
+
+            // Update Badges
+            document.getElementById('simComparisonsBadge').textContent = curr.comparisons;
+            document.getElementById('simMatchesBadge').textContent = curr.matchesCount;
+            document.getElementById('simStatusBanner').textContent = curr.banner;
+
+            const startX = 30;
+            const cellW = 28;
+            const cellH = 28;
+            const spacing = 3;
+
+            // 1. Draw Text Row
+            const textY = 40;
+            ctx.font = 'bold 11px Inter, sans-serif';
+            ctx.fillStyle = '#1e3a8a';
+            ctx.textAlign = 'left';
+            ctx.fillText('Text (T):', startX, textY - 8);
+
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            for (let idx = 0; idx < simText.length; idx++) {
+                const x = startX + 70 + idx * (cellW + spacing);
+
+                const isCurrentI = idx === curr.i;
+                ctx.lineWidth = isCurrentI ? 2.5 : 1.2;
+
+                if (isCurrentI) {
+                    if (curr.status === 'match-char' || curr.status === 'pattern-found') {
+                        ctx.fillStyle = '#dcfce7';
+                        ctx.strokeStyle = '#16a34a';
+                    } else if (curr.status === 'mismatch') {
+                        ctx.fillStyle = '#fee2e2';
+                        ctx.strokeStyle = '#dc2626';
+                    } else {
+                        ctx.fillStyle = '#fef3c7';
+                        ctx.strokeStyle = '#d97706';
+                    }
+                } else {
+                    ctx.fillStyle = '#ffffff';
+                    ctx.strokeStyle = '#cbd5e1';
+                }
+
+                ctx.beginPath();
+                ctx.roundRect(x, textY, cellW, cellH, 4);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.fillStyle = '#1e293b';
+                ctx.font = 'bold 13px monospace';
+                ctx.fillText(simText[idx], x + cellW / 2, textY + cellH / 2);
+
+                // Index above
+                ctx.fillStyle = isCurrentI ? '#1e3a8a' : '#94a3b8';
+                ctx.font = isCurrentI ? 'bold 10px monospace' : '9px monospace';
+                ctx.fillText(idx.toString(), x + cellW / 2, textY - 7);
+
+                // Pointer marker "i"
+                if (isCurrentI) {
+                    ctx.fillStyle = '#dc2626';
+                    ctx.font = 'bold 11px Inter, sans-serif';
+                    ctx.fillText('▼ i', x + cellW / 2, textY + cellH + 12);
+                }
+            }
+
+            // 2. Draw Pattern Row aligned at shift
+            const patY = 125;
+            ctx.font = 'bold 11px Inter, sans-serif';
+            ctx.fillStyle = '#991b1b';
+            ctx.textAlign = 'left';
+            ctx.fillText('Pattern (P):', startX, patY - 8);
+
+            ctx.textAlign = 'center';
+            for (let pIdx = 0; pIdx < simPattern.length; pIdx++) {
+                const x = startX + 70 + (curr.shift + pIdx) * (cellW + spacing);
+
+                const isCurrentJ = pIdx === curr.j;
+                ctx.lineWidth = isCurrentJ ? 2.5 : 1.2;
+
+                if (curr.status === 'pattern-found') {
+                    ctx.fillStyle = '#86efac';
+                    ctx.strokeStyle = '#15803d';
+                } else if (isCurrentJ) {
+                    if (curr.status === 'match-char') {
+                        ctx.fillStyle = '#dcfce7';
+                        ctx.strokeStyle = '#16a34a';
+                    } else if (curr.status === 'mismatch') {
+                        ctx.fillStyle = '#fee2e2';
+                        ctx.strokeStyle = '#dc2626';
+                    } else {
+                        ctx.fillStyle = '#fef3c7';
+                        ctx.strokeStyle = '#d97706';
+                    }
+                } else {
+                    ctx.fillStyle = '#ffffff';
+                    ctx.strokeStyle = '#cbd5e1';
+                }
+
+                ctx.beginPath();
+                ctx.roundRect(x, patY, cellW, cellH, 4);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.fillStyle = '#1e293b';
+                ctx.font = 'bold 13px monospace';
+                ctx.fillText(simPattern[pIdx], x + cellW / 2, patY + cellH / 2);
+
+                // Pointer marker "j"
+                if (isCurrentJ) {
+                    ctx.fillStyle = '#2563eb';
+                    ctx.font = 'bold 11px Inter, sans-serif';
+                    ctx.fillText('▲ j', x + cellW / 2, patY + cellH + 13);
+                }
+            }
+
+            // Current Shift Label
+            ctx.font = 'bold 12px Inter, sans-serif';
+            ctx.fillStyle = '#475569';
+            ctx.textAlign = 'left';
+            ctx.fillText(`Current Alignment Shift: s = ${curr.shift}`, startX + 70, patY + cellH + 34);
+        }
+
+        // =========================================================================
+        // 5. WINDOW EVENTS & INITIAL LOADER
+        // =========================================================================
+        window.addEventListener('load', () => {
+            renderConceptOverviewCanvas();
+        });
+
+        window.addEventListener('resize', () => {
+            if (currentActiveTab === 'definitions') {
+                renderConceptOverviewCanvas();
+            } else if (currentActiveTab === 'step-by-step') {
+                renderStepByStepCanvases();
+            } else if (currentActiveTab === 'simulator') {
+                renderSimulatorCanvas();
+            }
+        });
+    </script>
+</body>
+
+</html>

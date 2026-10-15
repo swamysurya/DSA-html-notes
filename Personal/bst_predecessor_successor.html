@@ -1,0 +1,2505 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inorder Predecessor & Successor in BST - Digital Lecture Notes</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Kalam:wght@300;400;700&family=Patrick+Hand&family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap"
+        rel="stylesheet">
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        notebookBg: '#cbd5e1',
+                        notebookPaper: '#FAF6EE',
+                        inkBlue: '#1A365D',
+                        inkRed: '#9B2C2C',
+                        pencilGray: '#4A5568',
+                    },
+                    fontFamily: {
+                        notes: ['Patrick Hand', 'Kalam', 'cursive'],
+                        heading: ['Kalam', 'cursive'],
+                        clean: ['Inter', 'sans-serif'],
+                        code: ['Fira Code', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Physical Notebook Stylesheet -->
+    <style>
+        body {
+            background-color: #cbd5e1;
+            font-family: 'Patrick Hand', 'Kalam', cursive;
+            color: #1e293b;
+        }
+
+        .lined-paper {
+            background-color: #FAF6EE !important;
+            background-image: repeating-linear-gradient(#FAF6EE 0px,
+                    #FAF6EE 31px,
+                    #e2ebf3 32px) !important;
+            line-height: 32px;
+            position: relative;
+        }
+
+        .notebook-margin {
+            border-left: 2.5px solid #FC8181 !important;
+            padding-left: 1.25rem;
+        }
+
+        @media (min-width: 640px) {
+            .notebook-margin {
+                padding-left: 2.5rem;
+            }
+        }
+
+        .spiral-ring {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #cbd5e1 0%, #64748b 50%, #334155 100%);
+            box-shadow: inset 1px 1px 2px rgba(255, 255, 255, 0.6), 2px 2px 4px rgba(0, 0, 0, 0.25);
+            margin: 11px 0;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Kalam', cursive;
+        }
+
+        /* Clean Mode Font Switcher */
+        body.font-clean,
+        body.font-clean * {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+        }
+
+        body.font-clean pre,
+        body.font-clean code {
+            font-family: 'Fira Code', monospace !important;
+        }
+
+        /* Highlights & Badges */
+        .highlighter-yellow {
+            background: linear-gradient(104deg, rgba(254, 240, 138, 0.95) 0.9%, rgba(253, 224, 71, 0.85) 98%);
+            padding: 2px 8px;
+            border-radius: 4px;
+            box-decoration-break: clone;
+            -webkit-box-decoration-break: clone;
+            display: inline-block;
+        }
+
+        .highlighter-green {
+            background: linear-gradient(104deg, rgba(187, 247, 208, 0.95) 0.9%, rgba(134, 239, 172, 0.85) 98%);
+            padding: 2px 8px;
+            border-radius: 4px;
+            box-decoration-break: clone;
+            -webkit-box-decoration-break: clone;
+            display: inline-block;
+        }
+
+        .highlighter-red {
+            background: linear-gradient(104deg, rgba(254, 205, 211, 0.95) 0.9%, rgba(253, 164, 175, 0.85) 98%);
+            padding: 2px 8px;
+            border-radius: 4px;
+            box-decoration-break: clone;
+            -webkit-box-decoration-break: clone;
+            display: inline-block;
+        }
+
+        .highlighter-blue {
+            background: linear-gradient(104deg, rgba(191, 219, 254, 0.95) 0.9%, rgba(147, 197, 253, 0.85) 98%);
+            padding: 2px 8px;
+            border-radius: 4px;
+            box-decoration-break: clone;
+            -webkit-box-decoration-break: clone;
+            display: inline-block;
+        }
+
+        .pen-box {
+            background: rgba(255, 255, 255, 0.94);
+            border: 2px dashed #3b82f6;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .pen-box-amber {
+            background: rgba(255, 255, 255, 0.94);
+            border: 2px dashed #f59e0b;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        /* VS Code High-Fidelity Editor Mockup Styles */
+        .vscode-window {
+            background-color: #1e1e1e !important;
+            border-radius: 10px;
+            box-shadow: 0 14px 28px rgba(0, 0, 0, 0.35), 0 10px 10px rgba(0, 0, 0, 0.22);
+            border: 1px solid #3c3c3c !important;
+            overflow: hidden;
+            color: #d4d4d4 !important;
+        }
+
+        .vscode-window pre,
+        .vscode-window code,
+        .vscode-window .vscode-gutter,
+        .vscode-window .vscode-bar {
+            font-family: 'Consolas', 'Fira Code', 'Cascadia Code', 'Source Code Pro', monospace !important;
+        }
+
+        .vscode-gutter {
+            user-select: none;
+            -webkit-user-select: none;
+            color: #858585 !important;
+            background-color: #1e1e1e !important;
+            border-right: 1px solid #333333 !important;
+            line-height: 1.5rem !important;
+            font-size: 0.8125rem !important;
+        }
+
+        .vscode-code-pre {
+            background-color: transparent !important;
+            color: #d4d4d4 !important;
+            line-height: 1.5rem !important;
+            font-size: 0.8125rem !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        .vscode-code-pre code {
+            background-color: transparent !important;
+            line-height: 1.5rem !important;
+        }
+
+        .teacher-quote {
+            background: rgba(254, 243, 199, 0.92);
+            border-left: 5px solid #d97706;
+            border-radius: 6px;
+            padding: 0.85rem 1.2rem;
+            font-style: italic;
+        }
+
+        .sketch-card {
+            background: #ffffff;
+            border: 1.5px solid #cbd5e1;
+            box-shadow: 2px 3px 6px rgba(0, 0, 0, 0.06);
+            border-radius: 10px;
+        }
+
+        .tab-pane {
+            display: none;
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        pre {
+            line-height: 1.45rem;
+        }
+
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            body {
+                background: white !important;
+            }
+            .lined-paper {
+                background-image: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body class="text-xl text-slate-800 antialiased transition-all duration-300">
+
+    <!-- Sticky Header Navigation Bar -->
+    <header class="sticky top-0 z-50 bg-[#FAF6EE] shadow-md border-b-2 border-amber-200 px-4 py-3 no-print">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-3">
+            <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+                <a href="../index.html"
+                    class="px-3 py-1.5 rounded-lg bg-amber-100 hover:bg-amber-200 border border-amber-300 text-inkBlue text-xs sm:text-sm font-bold flex items-center gap-1.5 transition shadow-sm font-sans"
+                    title="Back to Digital Bookshelf">
+                    <span>📚</span> <span>Bookshelf</span>
+                </a>
+                <a href="index.html"
+                    class="px-3 py-1.5 rounded-lg bg-emerald-100 hover:bg-emerald-200 border border-emerald-300 text-emerald-900 text-xs sm:text-sm font-bold flex items-center gap-1.5 transition shadow-sm font-sans"
+                    title="Back to Personal Notes Directory">
+                    <span>📋</span> <span>Notes Directory</span>
+                </a>
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl sm:text-3xl font-bold text-inkBlue tracking-wide font-['Kalam']">🌳 BST Predecessor &amp; Successor</span>
+                    <span
+                        class="bg-emerald-100 text-emerald-900 text-xs sm:text-sm font-bold px-3 py-1 rounded-full border border-emerald-300 font-sans">
+                        Brute Force O(N) vs Optimal O(H)
+                    </span>
+                </div>
+            </div>
+
+            <!-- Right: Font Toggle Button -->
+            <div class="flex items-center gap-2">
+                <button id="fontToggleBtn" onclick="toggleFontMode()"
+                    class="shrink-0 px-3.5 py-1.5 rounded-lg bg-inkBlue text-white hover:bg-slate-800 transition text-xs sm:text-sm font-bold shadow flex items-center gap-1.5 font-sans"
+                    title="Toggle between Handwritten and Clean typography">
+                    <span>✍️</span> <span id="fontBtnText">Clean Font</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <nav class="max-w-6xl mx-auto mt-2.5 flex flex-wrap gap-1 border-t border-amber-200 pt-2 text-sm sm:text-base font-sans">
+            <button onclick="switchTab('definitions')" id="nav-tab-definitions"
+                class="nav-tab px-4 py-1.5 rounded-t-lg font-bold bg-amber-200 text-inkBlue border-b-2 border-inkBlue transition">
+                1. Definitions &amp; Core Intuition
+            </button>
+            <button onclick="switchTab('step-by-step')" id="nav-tab-step-by-step"
+                class="nav-tab px-4 py-1.5 rounded-t-lg font-bold text-slate-600 hover:text-inkBlue transition">
+                2. Step-by-Step Traces (All 3 Cases)
+            </button>
+            <button onclick="switchTab('algorithms')" id="nav-tab-algorithms"
+                class="nav-tab px-4 py-1.5 rounded-t-lg font-bold text-slate-600 hover:text-inkBlue transition">
+                3. C++ Code &amp; Complexity Analysis
+            </button>
+            <button onclick="switchTab('simulator')" id="nav-tab-simulator"
+                class="nav-tab px-4 py-1.5 rounded-t-lg font-bold text-slate-600 hover:text-inkBlue transition">
+                4. Interactive BST Simulator
+            </button>
+        </nav>
+    </header>
+
+    <!-- Main Notebook Container -->
+    <main
+        class="max-w-6xl mx-auto flex relative bg-notebookPaper rounded-xl shadow-2xl overflow-hidden min-h-[950px] border border-amber-200 my-8">
+
+        <!-- Left Binder Column (Metallic Spiral Rings) -->
+        <div id="notebookBinderColumn"
+            class="binder-column w-10 sm:w-16 bg-amber-50 border-r-2 border-amber-200 flex flex-col items-center py-8 select-none shrink-0 no-print space-y-6 shadow-[inset_-5px_0_10px_rgba(0,0,0,0.05)]">
+            <script>
+                for (let i = 0; i < 50; i++) document.write('<div class="spiral-ring"></div>');
+            </script>
+        </div>
+
+        <!-- Notebook Content Area -->
+        <div class="flex-1 lined-paper p-4 sm:p-8 notebook-margin sm:pl-8 overflow-hidden">
+
+            <!-- ==================================================================== -->
+            <!-- TAB 1: DEFINITIONS & PROBLEM STATEMENT                               -->
+            <!-- ==================================================================== -->
+            <div id="tab-definitions" class="tab-pane active space-y-8">
+
+                <!-- Section Header -->
+                <div class="border-b-2 border-inkRed pb-2 flex flex-col sm:flex-row justify-between items-start sm:items-baseline gap-2">
+                    <div>
+                        <h1 class="text-3xl sm:text-4xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                            1. Inorder Predecessor &amp; Successor in a BST
+                        </h1>
+                        <p class="text-sm font-sans text-pencilGray mt-1">
+                            Fundamental definitions, BST ordering properties, sub-tree vs ancestor rules, and boundary convergence
+                        </p>
+                    </div>
+                    <span class="text-xs sm:text-sm font-bold font-sans bg-emerald-100 text-emerald-900 px-2.5 py-1 rounded border border-emerald-300">
+                        Binary Search Trees • Unit 4
+                    </span>
+                </div>
+
+                <!-- Teacher's Desk Memo -->
+                <div class="teacher-quote text-slate-800">
+                    <p class="font-bold text-inkRed text-xl sm:text-2xl mb-1">💡 Teacher's Desk Memo:</p>
+                    <p>
+                        "In a Binary Search Tree (BST), the in-order traversal (<span class="font-mono font-bold text-inkBlue">Left &rarr; Root &rarr; Right</span>) naturally visits all keys in <strong>strictly ascending sorted order</strong>!
+                        Because of this invariant, finding the predecessor and successor of a given key <span class="font-mono font-bold text-inkBlue">X</span> means finding its immediate neighbors in the sorted sequence.
+                        A novice uses an array with <span class="font-mono font-bold text-red-700">O(N)</span> space. A master algorithmist navigates directly down the tree in <span class="font-mono font-bold text-emerald-700">O(H)</span> time using zero extra memory!"
+                    </p>
+                </div>
+
+                <!-- Formal Problem Formulation -->
+                <div class="sketch-card p-6 space-y-4">
+                    <h2 class="text-2xl font-bold text-inkBlue border-b border-slate-200 pb-2">
+                        Formal Problem Definition
+                    </h2>
+                    <p>
+                        Given the root of a Binary Search Tree (<span class="font-mono font-bold text-inkBlue">BST</span>) and a target numerical key <span class="font-mono font-bold text-inkRed">X</span>:
+                    </p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="pen-box bg-amber-50/70 border-amber-300 space-y-2">
+                            <h3 class="font-bold text-amber-900 text-lg flex items-center gap-1.5">
+                                <span>⏮️</span> Inorder Predecessor
+                            </h3>
+                            <p class="text-sm text-slate-700">
+                                The node with the <strong>largest value strictly smaller than key X</strong>. In the in-order sequence, it is the element located immediately before <span class="font-mono font-bold">X</span>.
+                            </p>
+                            <div class="p-2 bg-white rounded border border-amber-200 text-xs font-mono font-bold text-amber-800 text-center">
+                                Predecessor = max { node.val | node.val &lt; X }
+                            </div>
+                        </div>
+
+                        <div class="pen-box bg-blue-50/70 border-blue-300 space-y-2">
+                            <h3 class="font-bold text-inkBlue text-lg flex items-center gap-1.5">
+                                <span>⏭️</span> Inorder Successor
+                            </h3>
+                            <p class="text-sm text-slate-700">
+                                The node with the <strong>smallest value strictly greater than key X</strong>. In the in-order sequence, it is the element located immediately after <span class="font-mono font-bold">X</span>.
+                            </p>
+                            <div class="p-2 bg-white rounded border border-blue-200 text-xs font-mono font-bold text-inkBlue text-center">
+                                Successor = min { node.val | node.val &gt; X }
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-3 bg-slate-50 rounded border text-sm font-sans space-y-1">
+                        <span class="font-bold text-inkRed">⚠️ Important Edge Condition:</span>
+                        <p class="text-slate-700">
+                            The target key <span class="font-mono font-bold text-inkBlue">X</span> <strong>does not need to be physically present in the BST!</strong> If <span class="font-mono font-bold">X</span> is absent, the predecessor is the largest element in the tree smaller than <span class="font-mono font-bold">X</span>, and the successor is the smallest element greater than <span class="font-mono font-bold">X</span>.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Structural Invariants Section (Balanced 2-Card Layout) -->
+                <div class="space-y-4">
+                    <div class="border-b-2 border-inkBlue/20 pb-2">
+                        <h2 class="text-2xl font-bold text-inkBlue flex items-center gap-2">
+                            <span>🧭</span> Structural Invariants: Subtree Extrema vs Ancestor Tracking
+                        </h2>
+                        <p class="text-sm font-sans text-pencilGray">
+                            The BST ordering property guarantees two distinct search mechanisms depending on whether child subtrees exist:
+                        </p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <!-- Rule 1: Subtree Extrema -->
+                        <div class="sketch-card p-5 space-y-3 flex flex-col justify-between">
+                            <div class="space-y-2">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs font-bold uppercase tracking-wider text-emerald-800 bg-emerald-100 px-2.5 py-0.5 rounded-full border border-emerald-300 font-sans">
+                                        Rule 1: Children Exist
+                                    </span>
+                                    <span class="text-xs font-mono font-bold text-slate-500">Local Extrema</span>
+                                </div>
+                                <h3 class="text-xl font-bold text-inkBlue">Subtree Extrema Search</h3>
+                                <p class="text-sm text-slate-700 leading-relaxed font-sans">
+                                    When target node <span class="font-mono font-bold text-cyan-800 bg-cyan-100 px-1.5 py-0.5 rounded">X</span> has child subtrees, the search is purely local within its children:
+                                </p>
+                                <ul class="text-sm space-y-1.5 list-disc list-inside font-sans text-slate-700">
+                                    <li><strong>Predecessor:</strong> Move to left child, then follow right pointers to the <em>rightmost leaf</em> (maximum element in left subtree).</li>
+                                    <li><strong>Successor:</strong> Move to right child, then follow left pointers to the <em>leftmost leaf</em> (minimum element in right subtree).</li>
+                                </ul>
+                            </div>
+                            <div class="bg-[#FAF6EE] p-3 rounded-lg border border-slate-200 mt-2">
+                                <canvas id="canvasConceptSubtree" class="w-full" height="170"></canvas>
+                                <p class="text-[11px] font-sans text-pencilGray italic text-center mt-1">
+                                    Max in Left Subtree = Predecessor • Min in Right Subtree = Successor
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Rule 2: Ancestor Tracking -->
+                        <div class="sketch-card p-5 space-y-3 flex flex-col justify-between">
+                            <div class="space-y-2">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs font-bold uppercase tracking-wider text-amber-800 bg-amber-100 px-2.5 py-0.5 rounded-full border border-amber-300 font-sans">
+                                        Rule 2: Children Missing
+                                    </span>
+                                    <span class="text-xs font-mono font-bold text-slate-500">Ancestor Turns</span>
+                                </div>
+                                <h3 class="text-xl font-bold text-inkBlue">Ancestor Turn Tracking</h3>
+                                <p class="text-sm text-slate-700 leading-relaxed font-sans">
+                                    When target node <span class="font-mono font-bold text-cyan-800 bg-cyan-100 px-1.5 py-0.5 rounded">X</span> has NO left or right children, search the root-to-leaf path:
+                                </p>
+                                <ul class="text-sm space-y-1.5 list-disc list-inside font-sans text-slate-700">
+                                    <li><strong>Predecessor:</strong> The deepest ancestor from which we took a <strong>RIGHT turn</strong> (the closest ancestor smaller than X).</li>
+                                    <li><strong>Successor:</strong> The deepest ancestor from which we took a <strong>LEFT turn</strong> (the closest ancestor greater than X).</li>
+                                </ul>
+                            </div>
+                            <div class="bg-[#FAF6EE] p-3 rounded-lg border border-slate-200 mt-2">
+                                <canvas id="canvasConceptAncestor" class="w-full" height="170"></canvas>
+                                <p class="text-[11px] font-sans text-pencilGray italic text-center mt-1">
+                                    Last Left Turn = Successor • Last Right Turn = Predecessor
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Two Approaches Summary Matrix -->
+                <div class="sketch-card p-5 space-y-3">
+                    <h2 class="text-2xl font-bold text-inkBlue border-b pb-2">Comparison: Brute Force vs Optimal Traversal</h2>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse font-sans text-sm">
+                            <thead>
+                                <tr class="bg-amber-100/70 text-amber-900 border-b-2 border-amber-300">
+                                    <th class="p-2.5 font-bold">Metric / Aspect</th>
+                                    <th class="p-2.5 font-bold">1. Brute Force (Inorder Array)</th>
+                                    <th class="p-2.5 font-bold">2. Optimal BST Traversal (O(H))</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-200">
+                                <tr>
+                                    <td class="p-2.5 font-bold text-slate-800">Core Strategy</td>
+                                    <td class="p-2.5 text-slate-600">Extract entire tree to a sorted vector, then find key X and take immediate neighbors.</td>
+                                    <td class="p-2.5 text-emerald-800 font-semibold">Binary search down the tree using BST comparisons (&lt;, &gt;, ==).</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2.5 font-bold text-slate-800">Time Complexity</td>
+                                    <td class="p-2.5 text-red-700 font-bold">O(N) always (must visit every single node)</td>
+                                    <td class="p-2.5 text-emerald-800 font-bold">O(H) where H = log₂ N in balanced trees!</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2.5 font-bold text-slate-800">Auxiliary Space</td>
+                                    <td class="p-2.5 text-red-700 font-bold">O(N) for array + O(H) recursion stack</td>
+                                    <td class="p-2.5 text-emerald-800 font-bold">O(1) auxiliary memory (iterative pointers)</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2.5 font-bold text-slate-800">Key Absent from Tree?</td>
+                                    <td class="p-2.5 text-slate-600">Requires linear search or `std::lower_bound` in array.</td>
+                                    <td class="p-2.5 text-emerald-800 font-semibold">Naturally captured by the last updated candidate pointers!</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Deep Dive: The Optimal Approach Mental Model -->
+                <div class="sketch-card p-6 space-y-4">
+                    <div class="border-b pb-2 flex flex-col sm:flex-row justify-between items-start sm:items-baseline gap-2">
+                        <div>
+                            <h2 class="text-2xl font-bold text-inkBlue flex items-center gap-2">
+                                <span>💡</span> The Optimal Algorithm Blueprint: How It Works Without Parent Pointers
+                            </h2>
+                            <p class="text-sm font-sans text-pencilGray mt-0.5">
+                                The "Candidate Caching" paradigm that solves predecessor &amp; successor in a single pass (O(H) Time, O(1) Memory)
+                            </p>
+                        </div>
+                        <span class="text-xs font-bold font-sans bg-emerald-100 text-emerald-900 px-2.5 py-1 rounded border border-emerald-300">
+                            Core Intuition
+                        </span>
+                    </div>
+
+                    <!-- Teacher's Intuition Breakdown (With Explicit WHY & Invariants) -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 font-sans text-sm">
+                        <!-- Rule 1 -->
+                        <div class="p-4 rounded-lg bg-blue-50/80 border border-blue-200 flex flex-col justify-between space-y-2">
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="font-bold text-inkBlue text-base flex items-center gap-1.5">
+                                        <span>1️⃣</span> Turn Left
+                                    </span>
+                                    <span class="text-[11px] font-mono font-bold bg-blue-100 text-blue-800 px-2 py-0.5 rounded border border-blue-300">
+                                        key &lt; curr-&gt;data
+                                    </span>
+                                </div>
+                                <div class="p-2 bg-white rounded border border-blue-200 text-xs font-mono font-bold text-indigo-900 mb-2">
+                                    suc = curr;<br>curr = curr-&gt;left;
+                                </div>
+                                <div class="text-xs text-slate-700 space-y-1.5">
+                                    <p><strong>🎯 WHY this action?</strong> Because <span class="font-mono font-bold">curr-&gt;data &gt; key</span>, <span class="font-mono">curr</span> is a proven upper bound for key. Moving left searches for a <em>tighter</em> successor (smaller value that still exceeds key).</p>
+                                    <p><strong>🛡️ Invariant Maintained:</strong> <span class="font-mono font-bold text-indigo-700">suc</span> caches the closest ancestor strictly greater than key. If left subtree has no values &gt; key, this cached value is guaranteed to be the final answer!</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Rule 2 -->
+                        <div class="p-4 rounded-lg bg-amber-50/80 border border-amber-200 flex flex-col justify-between space-y-2">
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="font-bold text-amber-900 text-base flex items-center gap-1.5">
+                                        <span>2️⃣</span> Turn Right
+                                    </span>
+                                    <span class="text-[11px] font-mono font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded border border-amber-300">
+                                        key &gt; curr-&gt;data
+                                    </span>
+                                </div>
+                                <div class="p-2 bg-white rounded border border-amber-200 text-xs font-mono font-bold text-amber-900 mb-2">
+                                    pre = curr;<br>curr = curr-&gt;right;
+                                </div>
+                                <div class="text-xs text-slate-700 space-y-1.5">
+                                    <p><strong>🎯 WHY this action?</strong> Because <span class="font-mono font-bold">curr-&gt;data &lt; key</span>, <span class="font-mono">curr</span> is a proven lower bound for key. Moving right searches for a <em>tighter</em> predecessor (larger value that is still less than key).</p>
+                                    <p><strong>🛡️ Invariant Maintained:</strong> <span class="font-mono font-bold text-amber-800">pre</span> caches the closest ancestor strictly smaller than key. If right subtree has no values &lt; key, this cached value is guaranteed to be the final answer!</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Rule 3 -->
+                        <div class="p-4 rounded-lg bg-emerald-50/80 border border-emerald-200 flex flex-col justify-between space-y-2">
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="font-bold text-emerald-900 text-base flex items-center gap-1.5">
+                                        <span>3️⃣</span> Key Matched
+                                    </span>
+                                    <span class="text-[11px] font-mono font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded border border-emerald-300">
+                                        key == curr-&gt;data
+                                    </span>
+                                </div>
+                                <div class="p-2 bg-white rounded border border-emerald-200 text-xs font-mono font-bold text-emerald-900 mb-2">
+                                    pre = max(left_subtree);<br>suc = min(right_subtree);
+                                </div>
+                                <div class="text-xs text-slate-700 space-y-1.5">
+                                    <p><strong>🎯 WHY this action?</strong> Subtree elements are numerically closer to <span class="font-mono font-bold">curr</span> than any ancestor. Left subtree maximum is the immediate smaller neighbor; right subtree minimum is the immediate larger neighbor.</p>
+                                    <p><strong>🛡️ Invariant Maintained:</strong> If either child is null, the previously recorded turn ancestors are naturally preserved—zero backtracking needed!</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Epiphany Box -->
+                    <div class="p-4 bg-amber-100/60 rounded-lg border border-amber-300 font-sans text-sm space-y-1.5">
+                        <span class="font-bold text-inkRed text-base flex items-center gap-1.5">
+                            <span>✨</span> The "Aha!" Moment: Why No Backtracking or Parent Pointers are Needed
+                        </span>
+                        <p class="text-slate-700 leading-relaxed text-xs sm:text-sm">
+                            Students often wonder: <em>"If a node has no children (like leaf node 45), how can we find its predecessor/successor above it without parent pointers?"</em><br>
+                            <strong>Answer:</strong> We already visited those ancestors while walking down from the root! Because we updated <span class="font-mono font-bold text-amber-800">pre</span> and <span class="font-mono font-bold text-indigo-800">suc</span> at every turn on the way down, when we arrive at a childless node, <strong>our pointers already contain the exact ancestors we need!</strong>
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ==================================================================== -->
+            <!-- TAB 2: STEP-BY-STEP TRACES (ALL 3 CASES)                             -->
+            <!-- ==================================================================== -->
+            <div id="tab-step-by-step" class="tab-pane space-y-12">
+
+                <!-- Section Header -->
+                <div class="border-b-2 border-inkRed pb-2 flex flex-col sm:flex-row justify-between items-start sm:items-baseline gap-2">
+                    <div>
+                        <h1 class="text-3xl sm:text-4xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                            2. Deep Sequential Step-by-Step Traces
+                        </h1>
+                        <p class="text-sm font-sans text-pencilGray mt-1">
+                            Dissecting all three operational cases on a standard reference BST with dedicated snapshot canvases
+                        </p>
+                    </div>
+                    <span class="text-xs sm:text-sm font-bold font-sans bg-rose-100 text-inkRed px-2.5 py-1 rounded border border-rose-300">
+                        Exam Walkthrough • Complete Traces
+                    </span>
+                </div>
+
+                <!-- Reference BST Banner -->
+                <div class="sketch-card p-5 bg-amber-50/80 border-amber-300 space-y-2">
+                    <h2 class="text-2xl font-bold text-amber-900 font-['Kalam']">Standard Reference BST Structure</h2>
+                    <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <div class="text-sm font-sans text-slate-700">
+                            <strong>11 Nodes:</strong> <span class="font-mono font-bold text-inkBlue">50, 30, 20, 10, 40, 35, 45, 70, 60, 80, 90</span><br>
+                            <strong>Inorder Sequence:</strong> <span class="font-mono font-bold text-emerald-800">[10, 20, 30, 35, 40, 45, 50, 60, 70, 80, 90]</span>
+                        </div>
+                        <span class="text-xs bg-white text-inkBlue border border-amber-300 font-bold px-3 py-1.5 rounded shadow-sm">
+                            Height H = 4 Levels
+                        </span>
+                    </div>
+                </div>
+
+                <!-- ================================================================= -->
+                <!-- TRACE 1: BRUTE FORCE (INORDER ARRAY DUMP)                         -->
+                <!-- ================================================================= -->
+                <div class="sketch-card p-5 space-y-4">
+                    <div class="flex justify-between items-center border-b pb-2">
+                        <h3 class="text-xl font-bold text-inkRed flex items-center gap-2">
+                            <span>🐢 Approach 1:</span> Brute Force (In-Order Traversal &amp; Array Lookup)
+                        </h3>
+                        <span class="text-xs font-bold font-sans bg-red-100 text-red-800 px-2.5 py-0.5 rounded border border-red-300">
+                            Time O(N) • Space O(N)
+                        </span>
+                    </div>
+                    <p class="text-base text-slate-700">
+                        We execute a standard recursive in-order traversal (<span class="font-mono font-bold">Left &rarr; Visit &rarr; Right</span>) storing all node values in a dynamic array (`std::vector<int>`).
+                    </p>
+                    
+                    <!-- Dedicated Inorder Array Canvas -->
+                    <div class="overflow-x-auto bg-[#FAF6EE] p-2.5 rounded-lg border border-slate-200">
+                        <canvas id="canvasBruteForceArray" class="w-full min-w-[540px]" height="90"></canvas>
+                    </div>
+
+                    <div class="text-sm font-sans text-pencilGray bg-slate-50 p-3 rounded border space-y-1">
+                        <p class="font-bold text-slate-800">Array Inspection for Key = 40:</p>
+                        <p>Index of 40 is <span class="font-mono font-bold text-inkBlue">idx = 4</span>. Predecessor is <span class="font-mono font-bold text-amber-700">arr[3] = 35</span>. Successor is <span class="font-mono font-bold text-indigo-700">arr[5] = 45</span>.</p>
+                        <p class="text-red-700 italic">Disadvantage: We had to touch all 11 nodes and allocate memory for the entire tree!</p>
+                    </div>
+                </div>
+
+                <!-- ================================================================= -->
+                <!-- APPROACH 2: OPTIMAL BST TRAVERSAL (THE 3 CASES)                    -->
+                <!-- ================================================================= -->
+                <div class="border-t-2 border-dashed border-inkBlue/30 pt-6 space-y-4">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-baseline gap-2">
+                        <div>
+                            <h2 class="text-2xl sm:text-3xl font-bold text-inkBlue flex items-center gap-2">
+                                <span>⚡ Approach 2:</span> Optimal BST Traversal (O(H) Time, O(1) Space)
+                            </h2>
+                            <p class="text-sm font-sans text-pencilGray mt-1">
+                                Unlike Brute Force (which dumps the whole tree into a flat array), the Optimal algorithm searches along a single root-to-leaf path. 
+                                Depending on where the target key sits in the tree, the algorithm resolves using one of the <strong>3 structural cases below</strong>:
+                            </p>
+                        </div>
+                        <span class="text-xs font-bold font-sans bg-emerald-100 text-emerald-900 px-3 py-1 rounded border border-emerald-300 whitespace-nowrap">
+                            No Extra Memory • Single Path O(H)
+                        </span>
+                    </div>
+
+                    <!-- 3 Structural Cases Quick Overview Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs font-sans">
+                        <div class="p-3 rounded-lg bg-emerald-50/80 border border-emerald-200 space-y-1">
+                            <span class="font-bold text-emerald-900 flex items-center gap-1">
+                                <span>🌳</span> Case 1: Subtrees Exist
+                            </span>
+                            <p class="text-slate-600 leading-snug">
+                                Key is in tree and has child subtrees. Search is local inside children (Subtree Extrema).
+                            </p>
+                        </div>
+                        <div class="p-3 rounded-lg bg-amber-50/80 border border-amber-200 space-y-1">
+                            <span class="font-bold text-amber-900 flex items-center gap-1">
+                                <span>🍃</span> Case 2: Leaf / No Subtrees
+                            </span>
+                            <p class="text-slate-600 leading-snug">
+                                Key is in tree but has no children. Look upwards at root-to-leaf ancestor turns.
+                            </p>
+                        </div>
+                        <div class="p-3 rounded-lg bg-blue-50/80 border border-blue-200 space-y-1">
+                            <span class="font-bold text-blue-900 flex items-center gap-1">
+                                <span>🔍</span> Case 3: Absent Key
+                            </span>
+                            <p class="text-slate-600 leading-snug">
+                                Key is not in the BST. Search terminates at null; floor and ceil candidates captured.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ================================================================= -->
+                <!-- OPTIMAL CASE 1 (KEY PRESENT WITH SUBTREES - KEY = 30)              -->
+                <!-- ================================================================= -->
+                <div class="sketch-card p-5 space-y-4">
+                    <div class="flex justify-between items-center border-b pb-2">
+                        <h3 class="text-xl font-bold text-inkBlue flex items-center gap-2">
+                            <span>⚡ Optimal Case 1:</span> Key Found &amp; Has Both Subtrees (<span class="font-mono text-inkRed font-bold">Key = 30</span>)
+                        </h3>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-bold font-sans bg-emerald-100 text-emerald-800 px-2.5 py-0.5 rounded border border-emerald-300">
+                                Subtree Extrema Rule
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Detailed Step Cards with Explicit WHY -->
+                    <div class="space-y-3 font-sans text-xs sm:text-sm">
+                        <!-- Step 1 -->
+                        <div class="p-3.5 bg-blue-50/70 rounded-lg border border-blue-200 space-y-1.5">
+                            <div class="flex flex-wrap items-center justify-between gap-2">
+                                <span class="font-bold text-inkBlue text-sm flex items-center gap-1.5">
+                                    <span class="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs">1</span>
+                                    At Root Node <span class="font-mono font-bold text-inkBlue">50</span> (Inspect <span class="font-mono">key = 30</span>)
+                                </span>
+                                <span class="text-[11px] font-mono font-bold bg-blue-100 text-blue-900 px-2 py-0.5 rounded border border-blue-300">
+                                    Action: Cache suc = 50, Branch Left
+                                </span>
+                            </div>
+                            <p class="text-slate-700">
+                                <strong>🎯 WHY branch left and cache 50?</strong> Because <span class="font-mono font-bold">30 &lt; 50</span>, node 50 is strictly greater than the target key, making it a valid candidate for successor. In a BST, all keys smaller than 50 reside strictly in its left subtree. Thus, branching left is the <em>only</em> direction that can yield an even smaller (tighter) successor.
+                            </p>
+                            <p class="text-slate-600 text-xs">
+                                <strong>🛡️ Invariant / Edge-case:</strong> We cache <span class="font-mono font-bold text-indigo-700">suc = 50</span> before leaving node 50. If the left subtree has no values &gt; 30, node 50 remains our guaranteed correct successor!
+                            </p>
+                        </div>
+
+                        <!-- Step 2 -->
+                        <div class="p-3.5 bg-emerald-50/70 rounded-lg border border-emerald-200 space-y-1.5">
+                            <div class="flex flex-wrap items-center justify-between gap-2">
+                                <span class="font-bold text-emerald-950 text-sm flex items-center gap-1.5">
+                                    <span class="w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs">2</span>
+                                    At Node <span class="font-mono font-bold text-cyan-800">30</span> (Exact Key Match: <span class="font-mono">30 == 30</span>)
+                                </span>
+                                <span class="text-[11px] font-mono font-bold bg-emerald-100 text-emerald-900 px-2 py-0.5 rounded border border-emerald-300">
+                                    Action: Subtree Extrema Search Initiated
+                                </span>
+                            </div>
+                            <p class="text-slate-700">
+                                <strong>🎯 WHY shift to subtree rules?</strong> BST ordering guarantees that any key in node 30's left subtree is strictly &lt; 30 and numerically closer to 30 than any ancestor. Likewise, any key in node 30's right subtree is strictly &gt; 30 and closer than any ancestor. Local subtree extrema unconditionally override ancestor turn candidates!
+                            </p>
+                        </div>
+
+                        <!-- Step 3a -->
+                        <div class="p-3.5 bg-amber-50/70 rounded-lg border border-amber-200 space-y-1.5">
+                            <div class="flex flex-wrap items-center justify-between gap-2">
+                                <span class="font-bold text-amber-950 text-sm flex items-center gap-1.5">
+                                    <span class="w-5 h-5 rounded-full bg-amber-600 text-white flex items-center justify-center text-xs">3a</span>
+                                    Predecessor: Left Subtree Maximum (<span class="font-mono">Node 20</span>)
+                                </span>
+                                <span class="text-[11px] font-mono font-bold bg-amber-100 text-amber-900 px-2 py-0.5 rounded border border-amber-300">
+                                    Final pre = 20
+                                </span>
+                            </div>
+                            <p class="text-slate-700">
+                                <strong>🎯 WHY max in left subtree?</strong> Node 30 has left child 20. We move to 20 and follow <span class="font-mono font-semibold">right</span> pointers as far as possible. Because node 20 has no right child, 20 is itself the maximum element in the left subtree. Therefore, <span class="font-mono font-bold text-amber-800">pre = 20</span> is the immediate smaller neighbor!
+                            </p>
+                        </div>
+
+                        <!-- Step 3b -->
+                        <div class="p-3.5 bg-indigo-50/70 rounded-lg border border-indigo-200 space-y-1.5">
+                            <div class="flex flex-wrap items-center justify-between gap-2">
+                                <span class="font-bold text-indigo-950 text-sm flex items-center gap-1.5">
+                                    <span class="w-5 h-5 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs">3b</span>
+                                    Successor: Right Subtree Minimum (<span class="font-mono">Node 40 &rarr; 35</span>)
+                                </span>
+                                <span class="text-[11px] font-mono font-bold bg-indigo-100 text-indigo-900 px-2 py-0.5 rounded border border-indigo-300">
+                                    Final suc = 35
+                                </span>
+                            </div>
+                            <p class="text-slate-700">
+                                <strong>🎯 WHY min in right subtree?</strong> Node 30 has right child 40. We move to 40 and follow <span class="font-mono font-semibold">left</span> pointers as far as possible: <span class="font-mono">40 &rarr; left</span> is node 35. Since 35 has no left child, 35 is the minimum element in the right subtree. It replaces ancestor 50 because <span class="font-mono font-bold">35 &lt; 50</span>, giving the tightest possible successor <span class="font-mono font-bold text-indigo-700">suc = 35</span>!
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Step-by-Step State Evolution Table for Case 1 -->
+                    <div class="overflow-x-auto font-sans text-xs">
+                        <table class="w-full text-left border-collapse border border-slate-200 bg-white rounded">
+                            <thead>
+                                <tr class="bg-slate-100 text-slate-700 border-b border-slate-200">
+                                    <th class="p-2 font-bold">Step</th>
+                                    <th class="p-2 font-bold">Current Node</th>
+                                    <th class="p-2 font-bold">Comparison &amp; Explicit WHY Rationale</th>
+                                    <th class="p-2 font-bold text-amber-800">Candidate pre</th>
+                                    <th class="p-2 font-bold text-indigo-800">Candidate suc</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100">
+                                <tr>
+                                    <td class="p-2 font-bold">1</td>
+                                    <td class="p-2 font-mono font-bold text-inkBlue">50 (Root)</td>
+                                    <td class="p-2 text-slate-600">30 &lt; 50 ⟹ <strong>WHY:</strong> 50 is greater than key (candidate suc). Move left to find tighter upper bound.</td>
+                                    <td class="p-2 font-mono text-slate-400">nullptr</td>
+                                    <td class="p-2 font-mono font-bold text-indigo-700">50</td>
+                                </tr>
+                                <tr class="bg-emerald-50/50">
+                                    <td class="p-2 font-bold">2</td>
+                                    <td class="p-2 font-mono font-bold text-cyan-800">30 (Match!)</td>
+                                    <td class="p-2 text-slate-700 font-semibold">30 == 30 ⟹ <strong>WHY:</strong> Key found! Immediate neighbors in subtrees are closer than any ancestor.</td>
+                                    <td class="p-2 font-mono text-slate-400">nullptr</td>
+                                    <td class="p-2 font-mono font-bold text-indigo-700">50</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2 font-bold">3a</td>
+                                    <td class="p-2 font-mono">20 (Left child)</td>
+                                    <td class="p-2 text-slate-600">Follow right pointers ⟹ <strong>WHY:</strong> Maximum of left subtree is tightest element smaller than 30.</td>
+                                    <td class="p-2 font-mono font-bold text-amber-700">20 (Final)</td>
+                                    <td class="p-2 font-mono font-bold text-indigo-700">50</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2 font-bold">3b</td>
+                                    <td class="p-2 font-mono">40 &rarr; 35</td>
+                                    <td class="p-2 text-slate-600">Follow left pointers to 35 ⟹ <strong>WHY:</strong> Minimum of right subtree is tightest element greater than 30 (35 &lt; 50).</td>
+                                    <td class="p-2 font-mono font-bold text-amber-700">20 (Final)</td>
+                                    <td class="p-2 font-mono font-bold text-indigo-700">35 (Final)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Canvas for Case 1 -->
+                    <div class="overflow-x-auto bg-[#FAF6EE] p-3 rounded-lg border border-slate-200">
+                        <div class="flex justify-between items-center text-xs font-sans font-bold text-slate-600 mb-2 px-1">
+                            <span>Snapshot: Target Node = 30 (Subtrees Traversed)</span>
+                            <div class="flex items-center gap-3">
+                                <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-cyan-300 inline-block border border-cyan-600"></span> Key = 30</span>
+                                <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-amber-300 inline-block border border-amber-600"></span> Pred = 20</span>
+                                <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-indigo-300 inline-block border border-indigo-600"></span> Succ = 35</span>
+                                <span class="flex items-center gap-1"><span class="w-4 h-0.5 bg-blue-600 inline-block"></span> Search Path</span>
+                            </div>
+                        </div>
+                        <canvas id="canvasTraceCase1" class="w-full min-w-[740px]" height="340"></canvas>
+                    </div>
+                </div>
+
+                <!-- ================================================================= -->
+                <!-- OPTIMAL CASE 2 (KEY IS A LEAF - ANCESTOR TRACKING - KEY = 45)     -->
+                <!-- ================================================================= -->
+                <div class="sketch-card p-5 space-y-4">
+                    <div class="flex justify-between items-center border-b pb-2">
+                        <h3 class="text-xl font-bold text-inkBlue flex items-center gap-2">
+                            <span>⚡ Optimal Case 2:</span> Key Found but Has No Subtrees / Leaf (<span class="font-mono text-inkRed font-bold">Key = 45</span>)
+                        </h3>
+                        <span class="text-xs font-bold font-sans bg-amber-100 text-amber-900 px-2.5 py-0.5 rounded border border-amber-300">
+                            Ancestor Turn Tracking
+                        </span>
+                    </div>
+
+                    <!-- Detailed Step Cards with Explicit WHY -->
+                    <div class="space-y-3 font-sans text-xs sm:text-sm">
+                        <!-- Step 1 -->
+                        <div class="p-3.5 bg-blue-50/70 rounded-lg border border-blue-200 space-y-1.5">
+                            <div class="flex flex-wrap items-center justify-between gap-2">
+                                <span class="font-bold text-inkBlue text-sm flex items-center gap-1.5">
+                                    <span class="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs">1</span>
+                                    At Root <span class="font-mono font-bold text-inkBlue">50</span>: Compare <span class="font-mono">45 &lt; 50</span>
+                                </span>
+                                <span class="text-[11px] font-mono font-bold bg-blue-100 text-blue-900 px-2 py-0.5 rounded border border-blue-300">
+                                    Turn LEFT ⟹ Cache suc = 50
+                                </span>
+                            </div>
+                            <p class="text-slate-700">
+                                <strong>🎯 WHY cache suc = 50?</strong> Because <span class="font-mono font-bold">50 &gt; 45</span>, 50 is an upper bound on 45. We cache it in `suc` and branch left into values smaller than 50 to search for tighter candidates.
+                            </p>
+                        </div>
+
+                        <!-- Step 2 -->
+                        <div class="p-3.5 bg-amber-50/70 rounded-lg border border-amber-200 space-y-1.5">
+                            <div class="flex flex-wrap items-center justify-between gap-2">
+                                <span class="font-bold text-amber-950 text-sm flex items-center gap-1.5">
+                                    <span class="w-5 h-5 rounded-full bg-amber-600 text-white flex items-center justify-center text-xs">2</span>
+                                    At Node <span class="font-mono font-bold text-inkBlue">30</span>: Compare <span class="font-mono">45 &gt; 30</span>
+                                </span>
+                                <span class="text-[11px] font-mono font-bold bg-amber-100 text-amber-900 px-2 py-0.5 rounded border border-amber-300">
+                                    Turn RIGHT ⟹ Cache pre = 30
+                                </span>
+                            </div>
+                            <p class="text-slate-700">
+                                <strong>🎯 WHY cache pre = 30?</strong> Because <span class="font-mono font-bold">30 &lt; 45</span>, 30 is a lower bound on 45. We cache it in `pre` and branch right into values greater than 30 to search for tighter candidates.
+                            </p>
+                        </div>
+
+                        <!-- Step 3 -->
+                        <div class="p-3.5 bg-amber-50/70 rounded-lg border border-amber-200 space-y-1.5">
+                            <div class="flex flex-wrap items-center justify-between gap-2">
+                                <span class="font-bold text-amber-950 text-sm flex items-center gap-1.5">
+                                    <span class="w-5 h-5 rounded-full bg-amber-600 text-white flex items-center justify-center text-xs">3</span>
+                                    At Node <span class="font-mono font-bold text-inkBlue">40</span>: Compare <span class="font-mono">45 &gt; 40</span>
+                                </span>
+                                <span class="text-[11px] font-mono font-bold bg-amber-100 text-amber-900 px-2 py-0.5 rounded border border-amber-300">
+                                    Turn RIGHT ⟹ Update pre = 40
+                                </span>
+                            </div>
+                            <p class="text-slate-700">
+                                <strong>🎯 WHY update pre to 40?</strong> Because <span class="font-mono font-bold">40 &lt; 45</span> and <span class="font-mono font-bold">40 &gt; 30</span>. Node 40 is a tighter lower bound than 30! We update `pre = 40` and branch right.
+                            </p>
+                        </div>
+
+                        <!-- Step 4 -->
+                        <div class="p-3.5 bg-emerald-50/70 rounded-lg border border-emerald-200 space-y-1.5">
+                            <div class="flex flex-wrap items-center justify-between gap-2">
+                                <span class="font-bold text-emerald-950 text-sm flex items-center gap-1.5">
+                                    <span class="w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs">4</span>
+                                    At Leaf Node <span class="font-mono font-bold text-cyan-800">45</span> (Match: <span class="font-mono">45 == 45</span>)
+                                </span>
+                                <span class="text-[11px] font-mono font-bold bg-emerald-100 text-emerald-900 px-2 py-0.5 rounded border border-emerald-300">
+                                    Final pre = 40 • Final suc = 50
+                                </span>
+                            </div>
+                            <p class="text-slate-700">
+                                <strong>🎯 WHY do cached ancestor turns become the final answer?</strong> Node 45 has no left child (<span class="font-mono">nullptr</span>) and no right child (<span class="font-mono">nullptr</span>). Because it has no subtrees, its predecessor and successor <em>cannot</em> be in its descendants—they must be ancestors! The deepest ancestor from which we turned right was 40 (closest ancestor &lt; 45). The deepest ancestor from which we turned left was 50 (closest ancestor &gt; 45).
+                            </p>
+                            <p class="text-slate-600 text-xs">
+                                <strong>🛡️ Edge-case / Elegance:</strong> Zero parent pointers and zero upward tree climbing are needed! Our single downward pass already pre-recorded both values!
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Step-by-Step State Evolution Table for Case 2 -->
+                    <div class="overflow-x-auto font-sans text-xs">
+                        <table class="w-full text-left border-collapse border border-slate-200 bg-white rounded">
+                            <thead>
+                                <tr class="bg-slate-100 text-slate-700 border-b border-slate-200">
+                                    <th class="p-2 font-bold">Step</th>
+                                    <th class="p-2 font-bold">Current Node</th>
+                                    <th class="p-2 font-bold">Comparison &amp; Explicit WHY Rationale</th>
+                                    <th class="p-2 font-bold text-amber-800">Candidate pre</th>
+                                    <th class="p-2 font-bold text-indigo-800">Candidate suc</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100">
+                                <tr>
+                                    <td class="p-2 font-bold">1</td>
+                                    <td class="p-2 font-mono font-bold text-inkBlue">50 (Root)</td>
+                                    <td class="p-2 text-slate-600">45 &lt; 50 ⟹ <strong>WHY:</strong> 50 is greater than key. Left turn caches 50 as closest upper ancestor.</td>
+                                    <td class="p-2 font-mono text-slate-400">nullptr</td>
+                                    <td class="p-2 font-mono font-bold text-indigo-700">50</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2 font-bold">2</td>
+                                    <td class="p-2 font-mono font-bold text-inkBlue">30</td>
+                                    <td class="p-2 text-slate-600">45 &gt; 30 ⟹ <strong>WHY:</strong> 30 is less than key. Right turn caches 30 as lower ancestor candidate.</td>
+                                    <td class="p-2 font-mono font-bold text-amber-700">30</td>
+                                    <td class="p-2 font-mono font-bold text-indigo-700">50</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2 font-bold">3</td>
+                                    <td class="p-2 font-mono font-bold text-inkBlue">40</td>
+                                    <td class="p-2 text-slate-600">45 &gt; 40 ⟹ <strong>WHY:</strong> 40 is less than 45 and tighter than 30 (40 &gt; 30). Updates pre to 40.</td>
+                                    <td class="p-2 font-mono font-bold text-amber-700">40</td>
+                                    <td class="p-2 font-mono font-bold text-indigo-700">50</td>
+                                </tr>
+                                <tr class="bg-emerald-50/50">
+                                    <td class="p-2 font-bold">4</td>
+                                    <td class="p-2 font-mono font-bold text-cyan-800">45 (Leaf Match!)</td>
+                                    <td class="p-2 text-slate-700 font-semibold">45 == 45 ⟹ <strong>WHY:</strong> Subtrees are null! Last turn ancestors (pre=40, suc=50) naturally complete the answer.</td>
+                                    <td class="p-2 font-mono font-bold text-amber-700">40 (Final)</td>
+                                    <td class="p-2 font-mono font-bold text-indigo-700">50 (Final)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Canvas for Case 2 -->
+                    <div class="overflow-x-auto bg-[#FAF6EE] p-3 rounded-lg border border-slate-200">
+                        <div class="flex justify-between items-center text-xs font-sans font-bold text-slate-600 mb-2 px-1">
+                            <span>Snapshot: Target Node = 45 (Leaf Node Reached)</span>
+                            <div class="flex items-center gap-3">
+                                <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-cyan-300 inline-block border border-cyan-600"></span> Key = 45</span>
+                                <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-amber-300 inline-block border border-amber-600"></span> Pred = 40</span>
+                                <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-indigo-300 inline-block border border-indigo-600"></span> Succ = 50</span>
+                                <span class="flex items-center gap-1"><span class="w-4 h-0.5 bg-blue-600 inline-block"></span> Search Path</span>
+                            </div>
+                        </div>
+                        <canvas id="canvasTraceCase2" class="w-full min-w-[740px]" height="340"></canvas>
+                    </div>
+                </div>
+
+                <!-- ================================================================= -->
+                <!-- OPTIMAL CASE 3 (KEY NOT IN BST - KEY = 65)                        -->
+                <!-- ================================================================= -->
+                <div class="sketch-card p-5 space-y-4">
+                    <div class="flex justify-between items-center border-b pb-2">
+                        <h3 class="text-xl font-bold text-inkBlue flex items-center gap-2">
+                            <span>⚡ Optimal Case 3:</span> Key is Not Present in the Tree (<span class="font-mono text-inkRed font-bold">Key = 65</span>)
+                        </h3>
+                        <span class="text-xs font-bold font-sans bg-blue-100 text-blue-900 px-2.5 py-0.5 rounded border border-blue-300">
+                            Boundary Floor &amp; Ceil
+                        </span>
+                    </div>
+
+                    <!-- Detailed Step Cards with Explicit WHY -->
+                    <div class="space-y-3 font-sans text-xs sm:text-sm">
+                        <!-- Step 1 -->
+                        <div class="p-3.5 bg-amber-50/70 rounded-lg border border-amber-200 space-y-1.5">
+                            <div class="flex flex-wrap items-center justify-between gap-2">
+                                <span class="font-bold text-amber-950 text-sm flex items-center gap-1.5">
+                                    <span class="w-5 h-5 rounded-full bg-amber-600 text-white flex items-center justify-center text-xs">1</span>
+                                    At Root <span class="font-mono font-bold text-inkBlue">50</span>: Compare <span class="font-mono">65 &gt; 50</span>
+                                </span>
+                                <span class="text-[11px] font-mono font-bold bg-amber-100 text-amber-900 px-2 py-0.5 rounded border border-amber-300">
+                                    Turn RIGHT ⟹ Cache pre = 50
+                                </span>
+                            </div>
+                            <p class="text-slate-700">
+                                <strong>🎯 WHY cache pre = 50?</strong> Because <span class="font-mono font-bold">50 &lt; 65</span>, 50 is a valid floor (lower bound). We branch right to search for larger numbers closer to 65.
+                            </p>
+                        </div>
+
+                        <!-- Step 2 -->
+                        <div class="p-3.5 bg-blue-50/70 rounded-lg border border-blue-200 space-y-1.5">
+                            <div class="flex flex-wrap items-center justify-between gap-2">
+                                <span class="font-bold text-inkBlue text-sm flex items-center gap-1.5">
+                                    <span class="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs">2</span>
+                                    At Node <span class="font-mono font-bold text-inkBlue">70</span>: Compare <span class="font-mono">65 &lt; 70</span>
+                                </span>
+                                <span class="text-[11px] font-mono font-bold bg-blue-100 text-blue-900 px-2 py-0.5 rounded border border-blue-300">
+                                    Turn LEFT ⟹ Cache suc = 70
+                                </span>
+                            </div>
+                            <p class="text-slate-700">
+                                <strong>🎯 WHY cache suc = 70?</strong> Because <span class="font-mono font-bold">70 &gt; 65</span>, 70 is a valid ceiling (upper bound). We branch left to narrow the bounding bracket between 50 and 70.
+                            </p>
+                        </div>
+
+                        <!-- Step 3 -->
+                        <div class="p-3.5 bg-amber-50/70 rounded-lg border border-amber-200 space-y-1.5">
+                            <div class="flex flex-wrap items-center justify-between gap-2">
+                                <span class="font-bold text-amber-950 text-sm flex items-center gap-1.5">
+                                    <span class="w-5 h-5 rounded-full bg-amber-600 text-white flex items-center justify-center text-xs">3</span>
+                                    At Node <span class="font-mono font-bold text-inkBlue">60</span>: Compare <span class="font-mono">65 &gt; 60</span>
+                                </span>
+                                <span class="text-[11px] font-mono font-bold bg-amber-100 text-amber-900 px-2 py-0.5 rounded border border-amber-300">
+                                    Turn RIGHT ⟹ Update pre = 60
+                                </span>
+                            </div>
+                            <p class="text-slate-700">
+                                <strong>🎯 WHY update pre to 60?</strong> Because <span class="font-mono font-bold">60 &lt; 65</span> and <span class="font-mono font-bold">60 &gt; 50</span>, node 60 is a much tighter floor than 50! We update `pre = 60` and attempt to move right.
+                            </p>
+                        </div>
+
+                        <!-- Step 4 -->
+                        <div class="p-3.5 bg-slate-100 rounded-lg border border-slate-300 space-y-1.5">
+                            <div class="flex flex-wrap items-center justify-between gap-2">
+                                <span class="font-bold text-slate-800 text-sm flex items-center gap-1.5">
+                                    <span class="w-5 h-5 rounded-full bg-slate-600 text-white flex items-center justify-center text-xs">4</span>
+                                    Pointer becomes <span class="font-mono font-bold text-red-700">nullptr</span> (Search Exhausted)
+                                </span>
+                                <span class="text-[11px] font-mono font-bold bg-slate-200 text-slate-800 px-2 py-0.5 rounded border border-slate-300">
+                                    Final pre = 60 • Final suc = 70
+                                </span>
+                            </div>
+                            <p class="text-slate-700">
+                                <strong>🎯 WHY do cached bounds correctly resolve absent keys?</strong> Because 65 does not exist in the BST, the traversal terminates at `nullptr`. However, throughout the walk down, every right turn tightened the lower bound (`pre = 60`) and every left turn tightened the upper bound (`suc = 70`). The final cached pointers form the exact mathematical bounding interval: $[60 &lt; 65 &lt; 70]$!
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Step-by-Step State Evolution Table for Case 3 -->
+                    <div class="overflow-x-auto font-sans text-xs">
+                        <table class="w-full text-left border-collapse border border-slate-200 bg-white rounded">
+                            <thead>
+                                <tr class="bg-slate-100 text-slate-700 border-b border-slate-200">
+                                    <th class="p-2 font-bold">Step</th>
+                                    <th class="p-2 font-bold">Current Node</th>
+                                    <th class="p-2 font-bold">Comparison &amp; Explicit WHY Rationale</th>
+                                    <th class="p-2 font-bold text-amber-800">Candidate pre</th>
+                                    <th class="p-2 font-bold text-indigo-800">Candidate suc</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100">
+                                <tr>
+                                    <td class="p-2 font-bold">1</td>
+                                    <td class="p-2 font-mono font-bold text-inkBlue">50 (Root)</td>
+                                    <td class="p-2 text-slate-600">65 &gt; 50 ⟹ <strong>WHY:</strong> 50 is less than key. Right turn records 50 as candidate floor.</td>
+                                    <td class="p-2 font-mono font-bold text-amber-700">50</td>
+                                    <td class="p-2 font-mono text-slate-400">nullptr</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2 font-bold">2</td>
+                                    <td class="p-2 font-mono font-bold text-inkBlue">70</td>
+                                    <td class="p-2 text-slate-600">65 &lt; 70 ⟹ <strong>WHY:</strong> 70 is greater than key. Left turn records 70 as candidate ceil.</td>
+                                    <td class="p-2 font-mono font-bold text-amber-700">50</td>
+                                    <td class="p-2 font-mono font-bold text-indigo-700">70</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2 font-bold">3</td>
+                                    <td class="p-2 font-mono font-bold text-inkBlue">60</td>
+                                    <td class="p-2 text-slate-600">65 &gt; 60 ⟹ <strong>WHY:</strong> 60 is less than 65 and tighter than 50 (60 &gt; 50). Updates floor pre = 60.</td>
+                                    <td class="p-2 font-mono font-bold text-amber-700">60</td>
+                                    <td class="p-2 font-mono font-bold text-indigo-700">70</td>
+                                </tr>
+                                <tr class="bg-blue-50/50">
+                                    <td class="p-2 font-bold">4</td>
+                                    <td class="p-2 font-mono text-slate-500">nullptr</td>
+                                    <td class="p-2 text-slate-700 font-semibold">Pointer hit null ⟹ <strong>WHY:</strong> Key is absent. Invariant guarantees pre=60 and suc=70 form the tightest bounding bracket.</td>
+                                    <td class="p-2 font-mono font-bold text-amber-700">60 (Floor)</td>
+                                    <td class="p-2 font-mono font-bold text-indigo-700">70 (Ceil)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Canvas for Case 3 -->
+                    <div class="overflow-x-auto bg-[#FAF6EE] p-3 rounded-lg border border-slate-200">
+                        <div class="flex justify-between items-center text-xs font-sans font-bold text-slate-600 mb-2 px-1">
+                            <span>Snapshot: Target Key = 65 (Absent - Bounded by Floor &amp; Ceil)</span>
+                            <div class="flex items-center gap-3">
+                                <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-amber-300 inline-block border border-amber-600"></span> Pred = 60</span>
+                                <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-indigo-300 inline-block border border-indigo-600"></span> Succ = 70</span>
+                                <span class="flex items-center gap-1"><span class="w-4 h-0.5 bg-blue-600 inline-block"></span> Search Path</span>
+                            </div>
+                        </div>
+                        <canvas id="canvasTraceCase3" class="w-full min-w-[740px]" height="340"></canvas>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ==================================================================== -->
+            <!-- TAB 3: C++ CODE & COMPLEXITY ANALYSIS                                -->
+            <!-- ==================================================================== -->
+            <div id="tab-algorithms" class="tab-pane space-y-8">
+
+                <!-- Section Header -->
+                <div class="border-b-2 border-inkRed pb-2 flex flex-col sm:flex-row justify-between items-start sm:items-baseline gap-2">
+                    <div>
+                        <h1 class="text-3xl sm:text-4xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                            3. Production C++ Implementations &amp; Complexity
+                        </h1>
+                        <p class="text-sm font-sans text-pencilGray mt-1">
+                            Modern C++ implementations for both Brute Force and Optimal approaches with complete test driver
+                        </p>
+                    </div>
+                    <span class="text-xs sm:text-sm font-bold font-sans bg-indigo-100 text-indigo-900 px-2.5 py-1 rounded border border-indigo-300">
+                        C++17 / C++20 Ready • Standard STL
+                    </span>
+                </div>
+
+                <!-- Code Block 1: Optimal Iterative Approach (O(H) Time, O(1) Space) -->
+                <div class="sketch-card p-5 space-y-4">
+                    <div class="flex justify-between items-center border-b pb-2">
+                        <div>
+                            <h2 class="text-xl font-bold text-inkBlue">1. Optimal Iterative Approach (O(H) Time, O(1) Space)</h2>
+                            <p class="text-xs font-sans text-pencilGray">Most efficient, production-standard solution</p>
+                        </div>
+                        <span class="text-xs font-mono font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-300">
+                            Time: O(H) • Space: O(1)
+                        </span>
+                    </div>
+
+                    <!-- VS Code Editor Window -->
+                    <div class="vscode-window shadow-2xl">
+                        <!-- Window Titlebar -->
+                        <div class="bg-[#252526] border-b border-[#181818] px-3.5 py-2 flex items-center justify-between select-none">
+                            <div class="flex items-center gap-3">
+                                <!-- macOS / VS Code Window Dots -->
+                                <div class="flex items-center gap-1.5">
+                                    <span class="w-3 h-3 rounded-full bg-[#ff5f56] inline-block shadow-sm"></span>
+                                    <span class="w-3 h-3 rounded-full bg-[#ffbd2e] inline-block shadow-sm"></span>
+                                    <span class="w-3 h-3 rounded-full bg-[#27c93f] inline-block shadow-sm"></span>
+                                </div>
+                                <!-- File Tab -->
+                                <div class="flex items-center bg-[#1e1e1e] border-t-2 border-[#007acc] px-3.5 py-1 rounded-t text-xs font-mono text-[#e5e5e5] gap-2 shadow">
+                                    <span class="px-1.5 py-0.5 bg-[#00599c] text-white rounded text-[10px] font-bold">C++</span>
+                                    <span class="font-semibold text-slate-200">find_pre_suc_optimal.cpp</span>
+                                    <span class="text-[#858585] text-xs hover:text-white cursor-pointer ml-1">✕</span>
+                                </div>
+                            </div>
+                            <!-- Action / Copy Button -->
+                            <button onclick="copyCode('codeOptimalCpp', this)" class="px-2.5 py-1 rounded bg-[#2d2d2d] hover:bg-[#3e3e3e] active:scale-95 text-[#cccccc] hover:text-white border border-[#454545] text-xs font-mono flex items-center gap-1.5 transition-all shadow-sm">
+                                📋 <span>Copy Code</span>
+                            </button>
+                        </div>
+
+                        <!-- VS Code Breadcrumb Bar -->
+                        <div class="bg-[#1e1e1e] border-b border-[#2d2d2d] px-4 py-1 text-[11px] font-mono text-[#858585] flex items-center gap-1.5 select-none">
+                            <span>src</span>
+                            <span>›</span>
+                            <span>trees</span>
+                            <span>›</span>
+                            <span>bst</span>
+                            <span>›</span>
+                            <span class="text-[#cccccc] font-semibold">find_pre_suc_optimal.cpp</span>
+                        </div>
+
+                        <!-- Editor Body with Gutter & Code -->
+                        <div class="flex text-xs sm:text-sm bg-[#1e1e1e] overflow-hidden">
+                            <!-- Line Numbers Gutter -->
+                            <div class="vscode-gutter py-3.5 px-3 select-none text-right font-mono leading-6">
+1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>41<br>42<br>43<br>44<br>45<br>46<br>47<br>48<br>49<br>50<br>51
+                            </div>
+
+                            <!-- Highlighted Code Area -->
+                            <pre id="codeOptimalCpp" class="vscode-code-pre flex-1 py-3.5 px-4 overflow-x-auto whitespace-pre"><code><span class="text-[#C586C0]">#include</span> <span class="text-[#CE9178]">&lt;iostream&gt;</span>
+
+<span class="text-[#6A9955] italic">// Definition for a Binary Search Tree Node</span>
+<span class="text-[#569CD6]">struct</span> <span class="text-[#4EC9B0]">Node</span> {
+    <span class="text-[#569CD6]">int</span> <span class="text-[#9CDCFE]">data</span>;
+    <span class="text-[#4EC9B0]">Node</span>* <span class="text-[#9CDCFE]">left</span>;
+    <span class="text-[#4EC9B0]">Node</span>* <span class="text-[#9CDCFE]">right</span>;
+    <span class="text-[#DCDCAA]">Node</span>(<span class="text-[#569CD6]">int</span> <span class="text-[#9CDCFE]">val</span>) : <span class="text-[#9CDCFE]">data</span>(<span class="text-[#9CDCFE]">val</span>), <span class="text-[#9CDCFE]">left</span>(<span class="text-[#569CD6]">nullptr</span>), <span class="text-[#9CDCFE]">right</span>(<span class="text-[#569CD6]">nullptr</span>) {}
+};
+
+<span class="text-[#6A9955] italic">// Function: findPreSucOptimal</span>
+<span class="text-[#6A9955] italic">// Finds Inorder Predecessor and Successor of a given key in BST</span>
+<span class="text-[#6A9955] italic">// Time Complexity: O(H) where H is tree height | Space: O(1)</span>
+<span class="text-[#569CD6]">void</span> <span class="text-[#DCDCAA]">findPreSucOptimal</span>(<span class="text-[#4EC9B0]">Node</span>* <span class="text-[#9CDCFE]">root</span>, <span class="text-[#4EC9B0]">Node</span>*&amp; <span class="text-[#9CDCFE]">pre</span>, <span class="text-[#4EC9B0]">Node</span>*&amp; <span class="text-[#9CDCFE]">suc</span>, <span class="text-[#569CD6]">int</span> <span class="text-[#9CDCFE]">key</span>) {
+    <span class="text-[#9CDCFE]">pre</span> = <span class="text-[#569CD6]">nullptr</span>;
+    <span class="text-[#9CDCFE]">suc</span> = <span class="text-[#569CD6]">nullptr</span>;
+    <span class="text-[#4EC9B0]">Node</span>* <span class="text-[#9CDCFE]">curr</span> = <span class="text-[#9CDCFE]">root</span>;
+
+    <span class="text-[#C586C0]">while</span> (<span class="text-[#9CDCFE]">curr</span> != <span class="text-[#569CD6]">nullptr</span>) {
+        <span class="text-[#C586C0]">if</span> (<span class="text-[#9CDCFE]">curr</span>-&gt;<span class="text-[#9CDCFE]">data</span> == <span class="text-[#9CDCFE]">key</span>) {
+            <span class="text-[#6A9955] italic">// Case 1: Predecessor is maximum element in left subtree</span>
+            <span class="text-[#C586C0]">if</span> (<span class="text-[#9CDCFE]">curr</span>-&gt;<span class="text-[#9CDCFE]">left</span> != <span class="text-[#569CD6]">nullptr</span>) {
+                <span class="text-[#4EC9B0]">Node</span>* <span class="text-[#9CDCFE]">temp</span> = <span class="text-[#9CDCFE]">curr</span>-&gt;<span class="text-[#9CDCFE]">left</span>;
+                <span class="text-[#C586C0]">while</span> (<span class="text-[#9CDCFE]">temp</span>-&gt;<span class="text-[#9CDCFE]">right</span> != <span class="text-[#569CD6]">nullptr</span>) {
+                    <span class="text-[#9CDCFE]">temp</span> = <span class="text-[#9CDCFE]">temp</span>-&gt;<span class="text-[#9CDCFE]">right</span>;
+                }
+                <span class="text-[#9CDCFE]">pre</span> = <span class="text-[#9CDCFE]">temp</span>;
+            }
+
+            <span class="text-[#6A9955] italic">// Case 2: Successor is minimum element in right subtree</span>
+            <span class="text-[#C586C0]">if</span> (<span class="text-[#9CDCFE]">curr</span>-&gt;<span class="text-[#9CDCFE]">right</span> != <span class="text-[#569CD6]">nullptr</span>) {
+                <span class="text-[#4EC9B0]">Node</span>* <span class="text-[#9CDCFE]">temp</span> = <span class="text-[#9CDCFE]">curr</span>-&gt;<span class="text-[#9CDCFE]">right</span>;
+                <span class="text-[#C586C0]">while</span> (<span class="text-[#9CDCFE]">temp</span>-&gt;<span class="text-[#9CDCFE]">left</span> != <span class="text-[#569CD6]">nullptr</span>) {
+                    <span class="text-[#9CDCFE]">temp</span> = <span class="text-[#9CDCFE]">temp</span>-&gt;<span class="text-[#9CDCFE]">left</span>;
+                }
+                <span class="text-[#9CDCFE]">suc</span> = <span class="text-[#9CDCFE]">temp</span>;
+            }
+            <span class="text-[#C586C0]">return</span>; <span class="text-[#6A9955] italic">// Finished searching</span>
+        }
+        <span class="text-[#C586C0]">else</span> <span class="text-[#C586C0]">if</span> (<span class="text-[#9CDCFE]">key</span> &lt; <span class="text-[#9CDCFE]">curr</span>-&gt;<span class="text-[#9CDCFE]">data</span>) {
+            <span class="text-[#6A9955] italic">// curr is greater than key -&gt; candidate for successor!</span>
+            <span class="text-[#9CDCFE]">suc</span> = <span class="text-[#9CDCFE]">curr</span>;
+            <span class="text-[#9CDCFE]">curr</span> = <span class="text-[#9CDCFE]">curr</span>-&gt;<span class="text-[#9CDCFE]">left</span>; <span class="text-[#6A9955] italic">// Search left for tighter successor</span>
+        }
+        <span class="text-[#C586C0]">else</span> {
+            <span class="text-[#6A9955] italic">// curr is smaller than key -&gt; candidate for predecessor!</span>
+            <span class="text-[#9CDCFE]">pre</span> = <span class="text-[#9CDCFE]">curr</span>;
+            <span class="text-[#9CDCFE]">curr</span> = <span class="text-[#9CDCFE]">curr</span>-&gt;<span class="text-[#9CDCFE]">right</span>; <span class="text-[#6A9955] italic">// Search right for tighter predecessor</span>
+        }
+    }
+}</code></pre>
+                        </div>
+
+                        <!-- VS Code Status Bar -->
+                        <div class="bg-[#007acc] text-white px-3.5 py-1 text-[11px] font-mono flex items-center justify-between select-none">
+                            <div class="flex items-center gap-3">
+                                <span>⎇ main*</span>
+                                <span>✓ 0 Errors</span>
+                                <span>⚠ 0 Warnings</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <span>Spaces: 4</span>
+                                <span>UTF-8</span>
+                                <span>C++20</span>
+                                <span>GCC 13.2</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Line-by-Line Code Dissection Card -->
+                    <div class="p-4 bg-slate-50 rounded-lg border border-slate-200 font-sans text-xs sm:text-sm space-y-2">
+                        <span class="font-bold text-inkBlue text-base block border-b pb-1">
+                            🔍 Step-by-Step Code Dissection: Why This While-Loop Is Complete
+                        </span>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-slate-700">
+                            <div class="space-y-1">
+                                <p><strong>1. While Loop Traversal:</strong></p>
+                                <p class="text-xs text-slate-600">
+                                    We start at <span class="font-mono font-bold">root</span> and iteratively walk down one level per iteration. This guarantees <span class="font-mono font-bold text-emerald-700">O(H)</span> time and <span class="font-mono font-bold text-emerald-700">O(1)</span> space.
+                                </p>
+                            </div>
+                            <div class="space-y-1">
+                                <p><strong>2. Turning Left (<span class="font-mono">key &lt; curr-&gt;data</span>):</strong></p>
+                                <p class="text-xs text-slate-600">
+                                    Since <span class="font-mono">curr-&gt;data</span> is larger than key, <span class="font-mono">curr</span> is a valid candidate for successor! We record <span class="font-mono font-bold text-indigo-700">suc = curr</span> and go left to search for an even smaller (tighter) successor.
+                                </p>
+                            </div>
+                            <div class="space-y-1">
+                                <p><strong>3. Turning Right (<span class="font-mono">key &gt; curr-&gt;data</span>):</strong></p>
+                                <p class="text-xs text-slate-600">
+                                    Since <span class="font-mono">curr-&gt;data</span> is smaller than key, <span class="font-mono">curr</span> is a valid candidate for predecessor! We record <span class="font-mono font-bold text-amber-700">pre = curr</span> and go right to search for an even larger (tighter) predecessor.
+                                </p>
+                            </div>
+                            <div class="space-y-1">
+                                <p><strong>4. Exact Match (<span class="font-mono">curr-&gt;data == key</span>):</strong></p>
+                                <p class="text-xs text-slate-600">
+                                    If left child exists, go left then all the way right (max of left subtree). If right child exists, go right then all the way left (min of right subtree). If either child is null, the previously recorded turn ancestors are automatically preserved!
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Code Block 2: Brute Force Approach (Inorder Array) -->
+                <div class="sketch-card p-5 space-y-4">
+                    <div class="flex justify-between items-center border-b pb-2">
+                        <div>
+                            <h2 class="text-xl font-bold text-inkBlue">2. Brute Force Approach (O(N) Time, O(N) Space)</h2>
+                            <p class="text-xs font-sans text-pencilGray">Extracts full in-order traversal to an array</p>
+                        </div>
+                        <span class="text-xs font-mono font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-800 border border-amber-300">
+                            Time: O(N) • Space: O(N)
+                        </span>
+                    </div>
+
+                    <!-- VS Code Editor Window -->
+                    <div class="vscode-window shadow-2xl">
+                        <!-- Window Titlebar -->
+                        <div class="bg-[#252526] border-b border-[#181818] px-3.5 py-2 flex items-center justify-between select-none">
+                            <div class="flex items-center gap-3">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="w-3 h-3 rounded-full bg-[#ff5f56] inline-block shadow-sm"></span>
+                                    <span class="w-3 h-3 rounded-full bg-[#ffbd2e] inline-block shadow-sm"></span>
+                                    <span class="w-3 h-3 rounded-full bg-[#27c93f] inline-block shadow-sm"></span>
+                                </div>
+                                <div class="flex items-center bg-[#1e1e1e] border-t-2 border-[#007acc] px-3.5 py-1 rounded-t text-xs font-mono text-[#e5e5e5] gap-2 shadow">
+                                    <span class="px-1.5 py-0.5 bg-[#00599c] text-white rounded text-[10px] font-bold">C++</span>
+                                    <span class="font-semibold text-slate-200">brute_inorder.cpp</span>
+                                    <span class="text-[#858585] text-xs hover:text-white cursor-pointer ml-1">✕</span>
+                                </div>
+                            </div>
+                            <button onclick="copyCode('codeBruteCpp', this)" class="px-2.5 py-1 rounded bg-[#2d2d2d] hover:bg-[#3e3e3e] active:scale-95 text-[#cccccc] hover:text-white border border-[#454545] text-xs font-mono flex items-center gap-1.5 transition-all shadow-sm">
+                                📋 <span>Copy Code</span>
+                            </button>
+                        </div>
+
+                        <!-- VS Code Breadcrumb Bar -->
+                        <div class="bg-[#1e1e1e] border-b border-[#2d2d2d] px-4 py-1 text-[11px] font-mono text-[#858585] flex items-center gap-1.5 select-none">
+                            <span>src</span>
+                            <span>›</span>
+                            <span>trees</span>
+                            <span>›</span>
+                            <span>bst</span>
+                            <span>›</span>
+                            <span class="text-[#cccccc] font-semibold">brute_inorder.cpp</span>
+                        </div>
+
+                        <!-- Editor Body with Gutter & Code -->
+                        <div class="flex text-xs sm:text-sm bg-[#1e1e1e] overflow-hidden">
+                            <!-- Line Numbers Gutter -->
+                            <div class="vscode-gutter py-3.5 px-3 select-none text-right font-mono leading-6">
+1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34
+                            </div>
+
+                            <!-- Highlighted Code Area -->
+                            <pre id="codeBruteCpp" class="vscode-code-pre flex-1 py-3.5 px-4 overflow-x-auto whitespace-pre"><code><span class="text-[#C586C0]">#include</span> <span class="text-[#CE9178]">&lt;iostream&gt;</span>
+<span class="text-[#C586C0]">#include</span> <span class="text-[#CE9178]">&lt;vector&gt;</span>
+
+<span class="text-[#6A9955] italic">// Helper: Inorder Traversal to collect nodes in sorted order</span>
+<span class="text-[#569CD6]">void</span> <span class="text-[#DCDCAA]">inorderTraversal</span>(<span class="text-[#4EC9B0]">Node</span>* <span class="text-[#9CDCFE]">root</span>, <span class="text-[#4EC9B0]">std::vector</span>&lt;<span class="text-[#4EC9B0]">Node</span>*&gt;&amp; <span class="text-[#9CDCFE]">nodes</span>) {
+    <span class="text-[#C586C0]">if</span> (<span class="text-[#9CDCFE]">root</span> == <span class="text-[#569CD6]">nullptr</span>) <span class="text-[#C586C0]">return</span>;
+    <span class="text-[#DCDCAA]">inorderTraversal</span>(<span class="text-[#9CDCFE]">root</span>-&gt;<span class="text-[#9CDCFE]">left</span>, <span class="text-[#9CDCFE]">nodes</span>);
+    <span class="text-[#9CDCFE]">nodes</span>.<span class="text-[#DCDCAA]">push_back</span>(<span class="text-[#9CDCFE]">root</span>);
+    <span class="text-[#DCDCAA]">inorderTraversal</span>(<span class="text-[#9CDCFE]">root</span>-&gt;<span class="text-[#9CDCFE]">right</span>, <span class="text-[#9CDCFE]">nodes</span>);
+}
+
+<span class="text-[#6A9955] italic">// Brute Force: Scan sorted vector (O(N) Time, O(N) Space)</span>
+<span class="text-[#569CD6]">void</span> <span class="text-[#DCDCAA]">findPreSucBrute</span>(<span class="text-[#4EC9B0]">Node</span>* <span class="text-[#9CDCFE]">root</span>, <span class="text-[#4EC9B0]">Node</span>*&amp; <span class="text-[#9CDCFE]">pre</span>, <span class="text-[#4EC9B0]">Node</span>*&amp; <span class="text-[#9CDCFE]">suc</span>, <span class="text-[#569CD6]">int</span> <span class="text-[#9CDCFE]">key</span>) {
+    <span class="text-[#9CDCFE]">pre</span> = <span class="text-[#569CD6]">nullptr</span>;
+    <span class="text-[#9CDCFE]">suc</span> = <span class="text-[#569CD6]">nullptr</span>;
+    <span class="text-[#4EC9B0]">std::vector</span>&lt;<span class="text-[#4EC9B0]">Node</span>*&gt; <span class="text-[#9CDCFE]">nodes</span>;
+    <span class="text-[#DCDCAA]">inorderTraversal</span>(<span class="text-[#9CDCFE]">root</span>, <span class="text-[#9CDCFE]">nodes</span>);
+
+    <span class="text-[#569CD6]">int</span> <span class="text-[#9CDCFE]">n</span> = <span class="text-[#9CDCFE]">nodes</span>.<span class="text-[#DCDCAA]">size</span>();
+    <span class="text-[#C586C0]">for</span> (<span class="text-[#569CD6]">int</span> <span class="text-[#9CDCFE]">i</span> = <span class="text-[#B5CEA8]">0</span>; <span class="text-[#9CDCFE]">i</span> &lt; <span class="text-[#9CDCFE]">n</span>; ++<span class="text-[#9CDCFE]">i</span>) {
+        <span class="text-[#C586C0]">if</span> (<span class="text-[#9CDCFE]">nodes</span>[<span class="text-[#9CDCFE]">i</span>]-&gt;<span class="text-[#9CDCFE]">data</span> == <span class="text-[#9CDCFE]">key</span>) {
+            <span class="text-[#C586C0]">if</span> (<span class="text-[#9CDCFE]">i</span> &gt; <span class="text-[#B5CEA8]">0</span>) <span class="text-[#9CDCFE]">pre</span> = <span class="text-[#9CDCFE]">nodes</span>[<span class="text-[#9CDCFE]">i</span> - <span class="text-[#B5CEA8]">1</span>];
+            <span class="text-[#C586C0]">if</span> (<span class="text-[#9CDCFE]">i</span> &lt; <span class="text-[#9CDCFE]">n</span> - <span class="text-[#B5CEA8]">1</span>) <span class="text-[#9CDCFE]">suc</span> = <span class="text-[#9CDCFE]">nodes</span>[<span class="text-[#9CDCFE]">i</span> + <span class="text-[#B5CEA8]">1</span>];
+            <span class="text-[#C586C0]">return</span>;
+        } <span class="text-[#C586C0]">else</span> <span class="text-[#C586C0]">if</span> (<span class="text-[#9CDCFE]">nodes</span>[<span class="text-[#9CDCFE]">i</span>]-&gt;<span class="text-[#9CDCFE]">data</span> &gt; <span class="text-[#9CDCFE]">key</span>) {
+            <span class="text-[#6A9955] italic">// For absent keys: first element greater is successor</span>
+            <span class="text-[#9CDCFE]">suc</span> = <span class="text-[#9CDCFE]">nodes</span>[<span class="text-[#9CDCFE]">i</span>];
+            <span class="text-[#C586C0]">if</span> (<span class="text-[#9CDCFE]">i</span> &gt; <span class="text-[#B5CEA8]">0</span>) <span class="text-[#9CDCFE]">pre</span> = <span class="text-[#9CDCFE]">nodes</span>[<span class="text-[#9CDCFE]">i</span> - <span class="text-[#B5CEA8]">1</span>];
+            <span class="text-[#C586C0]">return</span>;
+        }
+    }
+    <span class="text-[#6A9955] italic">// Key is larger than all elements in BST</span>
+    <span class="text-[#C586C0]">if</span> (<span class="text-[#9CDCFE]">n</span> &gt; <span class="text-[#B5CEA8]">0</span>) <span class="text-[#9CDCFE]">pre</span> = <span class="text-[#9CDCFE]">nodes</span>.<span class="text-[#DCDCAA]">back</span>();
+}</code></pre>
+                        </div>
+
+                        <!-- VS Code Status Bar -->
+                        <div class="bg-[#007acc] text-white px-3.5 py-1 text-[11px] font-mono flex items-center justify-between select-none">
+                            <div class="flex items-center gap-3">
+                                <span>⎇ main*</span>
+                                <span>✓ 0 Errors</span>
+                                <span>⚠ 0 Warnings</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <span>Spaces: 4</span>
+                                <span>UTF-8</span>
+                                <span>C++20</span>
+                                <span>GCC 13.2</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Code Block 3: Complete Executable Driver -->
+                <div class="sketch-card p-5 space-y-4">
+                    <div class="flex justify-between items-center border-b pb-2">
+                        <div>
+                            <h2 class="text-xl font-bold text-inkBlue">3. Complete Executable Main Driver</h2>
+                            <p class="text-xs font-sans text-pencilGray">Constructs reference BST and tests all scenarios</p>
+                        </div>
+                        <span class="text-xs font-mono font-bold px-2 py-0.5 rounded bg-blue-100 text-blue-800 border border-blue-300">
+                            C++ Test Harness
+                        </span>
+                    </div>
+
+                    <!-- VS Code Editor Window -->
+                    <div class="vscode-window shadow-2xl">
+                        <!-- Window Titlebar -->
+                        <div class="bg-[#252526] border-b border-[#181818] px-3.5 py-2 flex items-center justify-between select-none">
+                            <div class="flex items-center gap-3">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="w-3 h-3 rounded-full bg-[#ff5f56] inline-block shadow-sm"></span>
+                                    <span class="w-3 h-3 rounded-full bg-[#ffbd2e] inline-block shadow-sm"></span>
+                                    <span class="w-3 h-3 rounded-full bg-[#27c93f] inline-block shadow-sm"></span>
+                                </div>
+                                <div class="flex items-center bg-[#1e1e1e] border-t-2 border-[#007acc] px-3.5 py-1 rounded-t text-xs font-mono text-[#e5e5e5] gap-2 shadow">
+                                    <span class="px-1.5 py-0.5 bg-[#00599c] text-white rounded text-[10px] font-bold">C++</span>
+                                    <span class="font-semibold text-slate-200">main_driver.cpp</span>
+                                    <span class="text-[#858585] text-xs hover:text-white cursor-pointer ml-1">✕</span>
+                                </div>
+                            </div>
+                            <button onclick="copyCode('codeMainDriverCpp', this)" class="px-2.5 py-1 rounded bg-[#2d2d2d] hover:bg-[#3e3e3e] active:scale-95 text-[#cccccc] hover:text-white border border-[#454545] text-xs font-mono flex items-center gap-1.5 transition-all shadow-sm">
+                                📋 <span>Copy Code</span>
+                            </button>
+                        </div>
+
+                        <!-- VS Code Breadcrumb Bar -->
+                        <div class="bg-[#1e1e1e] border-b border-[#2d2d2d] px-4 py-1 text-[11px] font-mono text-[#858585] flex items-center gap-1.5 select-none">
+                            <span>src</span>
+                            <span>›</span>
+                            <span>test</span>
+                            <span>›</span>
+                            <span>bst</span>
+                            <span>›</span>
+                            <span class="text-[#cccccc] font-semibold">main_driver.cpp</span>
+                        </div>
+
+                        <!-- Editor Body with Gutter & Code -->
+                        <div class="flex text-xs sm:text-sm bg-[#1e1e1e] overflow-hidden">
+                            <!-- Line Numbers Gutter -->
+                            <div class="vscode-gutter py-3.5 px-3 select-none text-right font-mono leading-6">
+1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37
+                            </div>
+
+                            <!-- Highlighted Code Area -->
+                            <pre id="codeMainDriverCpp" class="vscode-code-pre flex-1 py-3.5 px-4 overflow-x-auto whitespace-pre"><code><span class="text-[#C586C0]">#include</span> <span class="text-[#CE9178]">&lt;iostream&gt;</span>
+<span class="text-[#C586C0]">#include</span> <span class="text-[#CE9178]">&lt;string&gt;</span>
+
+<span class="text-[#569CD6]">int</span> <span class="text-[#DCDCAA]">main</span>() {
+    <span class="text-[#6A9955] italic">// Construct Reference BST:</span>
+    <span class="text-[#6A9955] italic">//             50</span>
+    <span class="text-[#6A9955] italic">//           /    \</span>
+    <span class="text-[#6A9955] italic">//         30      70</span>
+    <span class="text-[#6A9955] italic">//        /  \    /  \</span>
+    <span class="text-[#6A9955] italic">//      20   40  60   80</span>
+    <span class="text-[#6A9955] italic">//     /    /  \        \</span>
+    <span class="text-[#6A9955] italic">//    10   35  45       90</span>
+    <span class="text-[#4EC9B0]">Node</span>* <span class="text-[#9CDCFE]">root</span> = <span class="text-[#569CD6]">new</span> <span class="text-[#4EC9B0]">Node</span>(<span class="text-[#B5CEA8]">50</span>);
+    <span class="text-[#9CDCFE]">root</span>-&gt;<span class="text-[#9CDCFE]">left</span> = <span class="text-[#569CD6]">new</span> <span class="text-[#4EC9B0]">Node</span>(<span class="text-[#B5CEA8]">30</span>);
+    <span class="text-[#9CDCFE]">root</span>-&gt;<span class="text-[#9CDCFE]">right</span> = <span class="text-[#569CD6]">new</span> <span class="text-[#4EC9B0]">Node</span>(<span class="text-[#B5CEA8]">70</span>);
+    <span class="text-[#9CDCFE]">root</span>-&gt;<span class="text-[#9CDCFE]">left</span>-&gt;<span class="text-[#9CDCFE]">left</span> = <span class="text-[#569CD6]">new</span> <span class="text-[#4EC9B0]">Node</span>(<span class="text-[#B5CEA8]">20</span>);
+    <span class="text-[#9CDCFE]">root</span>-&gt;<span class="text-[#9CDCFE]">left</span>-&gt;<span class="text-[#9CDCFE]">right</span> = <span class="text-[#569CD6]">new</span> <span class="text-[#4EC9B0]">Node</span>(<span class="text-[#B5CEA8]">40</span>);
+    <span class="text-[#9CDCFE]">root</span>-&gt;<span class="text-[#9CDCFE]">left</span>-&gt;<span class="text-[#9CDCFE]">left</span>-&gt;<span class="text-[#9CDCFE]">left</span> = <span class="text-[#569CD6]">new</span> <span class="text-[#4EC9B0]">Node</span>(<span class="text-[#B5CEA8]">10</span>);
+    <span class="text-[#9CDCFE]">root</span>-&gt;<span class="text-[#9CDCFE]">left</span>-&gt;<span class="text-[#9CDCFE]">right</span>-&gt;<span class="text-[#9CDCFE]">left</span> = <span class="text-[#569CD6]">new</span> <span class="text-[#4EC9B0]">Node</span>(<span class="text-[#B5CEA8]">35</span>);
+    <span class="text-[#9CDCFE]">root</span>-&gt;<span class="text-[#9CDCFE]">left</span>-&gt;<span class="text-[#9CDCFE]">right</span>-&gt;<span class="text-[#9CDCFE]">right</span> = <span class="text-[#569CD6]">new</span> <span class="text-[#4EC9B0]">Node</span>(<span class="text-[#B5CEA8]">45</span>);
+    <span class="text-[#9CDCFE]">root</span>-&gt;<span class="text-[#9CDCFE]">right</span>-&gt;<span class="text-[#9CDCFE]">left</span> = <span class="text-[#569CD6]">new</span> <span class="text-[#4EC9B0]">Node</span>(<span class="text-[#B5CEA8]">60</span>);
+    <span class="text-[#9CDCFE]">root</span>-&gt;<span class="text-[#9CDCFE]">right</span>-&gt;<span class="text-[#9CDCFE]">right</span> = <span class="text-[#569CD6]">new</span> <span class="text-[#4EC9B0]">Node</span>(<span class="text-[#B5CEA8]">80</span>);
+    <span class="text-[#9CDCFE]">root</span>-&gt;<span class="text-[#9CDCFE]">right</span>-&gt;<span class="text-[#9CDCFE]">right</span>-&gt;<span class="text-[#9CDCFE]">right</span> = <span class="text-[#569CD6]">new</span> <span class="text-[#4EC9B0]">Node</span>(<span class="text-[#B5CEA8]">90</span>);
+
+    <span class="text-[#569CD6]">int</span> <span class="text-[#9CDCFE]">testKeys</span>[] = { <span class="text-[#B5CEA8]">30</span>, <span class="text-[#B5CEA8]">45</span>, <span class="text-[#B5CEA8]">65</span>, <span class="text-[#B5CEA8]">10</span>, <span class="text-[#B5CEA8]">90</span> };
+
+    <span class="text-[#C586C0]">for</span> (<span class="text-[#569CD6]">int</span> <span class="text-[#9CDCFE]">key</span> : <span class="text-[#9CDCFE]">testKeys</span>) {
+        <span class="text-[#4EC9B0]">Node</span> *<span class="text-[#9CDCFE]">pre</span> = <span class="text-[#569CD6]">nullptr</span>, *<span class="text-[#9CDCFE]">suc</span> = <span class="text-[#569CD6]">nullptr</span>;
+        <span class="text-[#DCDCAA]">findPreSucOptimal</span>(<span class="text-[#9CDCFE]">root</span>, <span class="text-[#9CDCFE]">pre</span>, <span class="text-[#9CDCFE]">suc</span>, <span class="text-[#9CDCFE]">key</span>);
+
+        <span class="text-[#4EC9B0]">std::cout</span> &lt;&lt; <span class="text-[#CE9178]">"Target Key: "</span> &lt;&lt; <span class="text-[#9CDCFE]">key</span> &lt;&lt; <span class="text-[#CE9178]">"\n"</span>;
+        <span class="text-[#4EC9B0]">std::cout</span> &lt;&lt; <span class="text-[#CE9178]">"  Predecessor: "</span> &lt;&lt; (<span class="text-[#9CDCFE]">pre</span> ? <span class="text-[#4EC9B0]">std</span>::<span class="text-[#DCDCAA]">to_string</span>(<span class="text-[#9CDCFE]">pre</span>-&gt;<span class="text-[#9CDCFE]">data</span>) : <span class="text-[#CE9178]">"None"</span>) &lt;&lt; <span class="text-[#CE9178]">"\n"</span>;
+        <span class="text-[#4EC9B0]">std::cout</span> &lt;&lt; <span class="text-[#CE9178]">"  Successor:   "</span> &lt;&lt; (<span class="text-[#9CDCFE]">suc</span> ? <span class="text-[#4EC9B0]">std</span>::<span class="text-[#DCDCAA]">to_string</span>(<span class="text-[#9CDCFE]">suc</span>-&gt;<span class="text-[#9CDCFE]">data</span>) : <span class="text-[#CE9178]">"None"</span>) &lt;&lt; <span class="text-[#CE9178]">"\n\n"</span>;
+    }
+
+    <span class="text-[#C586C0]">return</span> <span class="text-[#B5CEA8]">0</span>;
+}</code></pre>
+                        </div>
+
+                        <!-- VS Code Status Bar -->
+                        <div class="bg-[#007acc] text-white px-3.5 py-1 text-[11px] font-mono flex items-center justify-between select-none">
+                            <div class="flex items-center gap-3">
+                                <span>⎇ main*</span>
+                                <span>✓ 0 Errors</span>
+                                <span>⚠ 0 Warnings</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <span>Spaces: 4</span>
+                                <span>UTF-8</span>
+                                <span>C++20</span>
+                                <span>GCC 13.2</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Comprehensive Complexity Analysis -->
+                <div class="sketch-card p-6 space-y-6">
+                    <h2 class="text-2xl font-bold text-inkBlue border-b pb-2">
+                        Formal Asymptotic Complexity Breakdown
+                    </h2>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        
+                        <!-- Brute Force Analysis -->
+                        <div class="space-y-3">
+                            <h3 class="text-xl font-bold text-inkRed flex items-center gap-1.5">
+                                <span>🐢</span> Brute Force Complexity
+                            </h3>
+                            <ul class="text-base space-y-2 list-disc list-inside">
+                                <li>
+                                    <strong>Time Complexity:</strong> <span class="font-mono font-bold text-red-700">O(N)</span>. Inorder traversal visits every single node in the tree regardless of tree balance or key position.
+                                </li>
+                                <li>
+                                    <strong>Auxiliary Space:</strong> <span class="font-mono font-bold text-red-700">O(N)</span>. Allocates memory for an array/vector of size <span class="font-mono font-bold">N</span>, plus <span class="font-mono font-bold">O(H)</span> recursion stack frames.
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- Optimal Analysis -->
+                        <div class="space-y-3">
+                            <h3 class="text-xl font-bold text-inkBlue flex items-center gap-1.5">
+                                <span>⚡</span> Optimal BST Traversal Complexity
+                            </h3>
+                            <ul class="text-base space-y-2 list-disc list-inside">
+                                <li>
+                                    <strong>Time Complexity:</strong> <span class="font-mono font-bold text-emerald-700">O(H)</span> where <span class="font-mono font-bold">H</span> is the height of the BST.
+                                    <ul class="ml-6 mt-1 text-sm list-circle space-y-1">
+                                        <li><strong>Balanced BST (AVL / Red-Black):</strong> <span class="font-mono font-bold">H = ⌊log₂ N⌋ ⟹ O(log N)</span>.</li>
+                                        <li><strong>Worst Case (Degenerate Skewed Tree):</strong> <span class="font-mono font-bold">H = N ⟹ O(N)</span>.</li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <strong>Auxiliary Space:</strong> <span class="font-mono font-bold text-emerald-700">O(1)</span>. Uses only two pointer references (`pre` and `suc`) in an iterative while-loop.
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Comparison Table -->
+                    <div class="overflow-x-auto mt-4">
+                        <table class="w-full text-center border-collapse font-sans text-sm">
+                            <thead>
+                                <tr class="bg-slate-800 text-white">
+                                    <th class="p-2 border border-slate-700">Algorithm</th>
+                                    <th class="p-2 border border-slate-700">Balanced BST Time</th>
+                                    <th class="p-2 border border-slate-700">Worst Case Time</th>
+                                    <th class="p-2 border border-slate-700">Auxiliary Space</th>
+                                    <th class="p-2 border border-slate-700">Modifies Tree?</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-200">
+                                <tr class="bg-white">
+                                    <td class="p-2 border font-bold text-slate-800">Brute Force (Array)</td>
+                                    <td class="p-2 border font-mono text-amber-700">O(N)</td>
+                                    <td class="p-2 border font-mono font-bold text-red-700">O(N)</td>
+                                    <td class="p-2 border font-mono font-bold text-red-700">O(N)</td>
+                                    <td class="p-2 border text-emerald-700 font-bold">No</td>
+                                </tr>
+                                <tr class="bg-emerald-50/40">
+                                    <td class="p-2 border font-bold text-inkBlue">Optimal BST Traversal</td>
+                                    <td class="p-2 border font-mono font-bold text-emerald-700">O(log N)</td>
+                                    <td class="p-2 border font-mono font-bold text-amber-800">O(N) (skewed)</td>
+                                    <td class="p-2 border font-mono font-bold text-emerald-700">O(1)</td>
+                                    <td class="p-2 border text-emerald-700 font-bold">No</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ==================================================================== -->
+            <!-- TAB 4: INTERACTIVE BST SIMULATOR                                     -->
+            <!-- ==================================================================== -->
+            <div id="tab-simulator" class="tab-pane space-y-8">
+
+                <!-- Section Header -->
+                <div class="border-b-2 border-inkRed pb-2 flex flex-col sm:flex-row justify-between items-start sm:items-baseline gap-2">
+                    <div>
+                        <h1 class="text-3xl sm:text-4xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                            4. Interactive BST Simulator &amp; Visualizer
+                        </h1>
+                        <p class="text-sm font-sans text-pencilGray mt-1">
+                            Interactive step engine: Step through decisions, observe ancestor candidates update, and verify results live!
+                        </p>
+                    </div>
+                    <span class="text-xs sm:text-sm font-bold font-sans bg-emerald-100 text-emerald-900 px-2.5 py-1 rounded border border-emerald-300">
+                        Interactive Engine • Canvas 2D
+                    </span>
+                </div>
+
+                <!-- Simulation Control Panel -->
+                <div class="sketch-card p-5 space-y-4">
+                    <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                        <div class="flex items-center gap-3 w-full sm:w-auto">
+                            <label class="text-sm font-bold text-slate-700 font-sans whitespace-nowrap">
+                                Target Key:
+                            </label>
+                            <input type="number" id="simKeyInput" value="30"
+                                class="w-24 font-mono text-base font-bold px-3 py-1.5 rounded border border-slate-300 bg-white focus:border-inkBlue focus:outline-none text-inkRed text-center">
+                            <button onclick="applySimKey()" class="px-3 py-1.5 rounded bg-inkBlue text-white text-xs font-sans font-bold shadow hover:bg-slate-800 transition">
+                                Apply Key
+                            </button>
+                        </div>
+
+                        <!-- Presets -->
+                        <div class="flex flex-wrap items-center gap-1.5 text-xs font-sans font-bold">
+                            <span class="text-slate-500 mr-1">Presets:</span>
+                            <button onclick="loadSimPreset(30)" class="px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 border">
+                                Key = 30 (Subtree Case)
+                            </button>
+                            <button onclick="loadSimPreset(45)" class="px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 border">
+                                Key = 45 (Ancestor Case)
+                            </button>
+                            <button onclick="loadSimPreset(65)" class="px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 border">
+                                Key = 65 (Absent Key)
+                            </button>
+                            <button onclick="loadSimPreset(10)" class="px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 border">
+                                Key = 10 (Min Node)
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Step Controllers & Status Badges -->
+                    <div class="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-200">
+                        <div class="flex items-center gap-2">
+                            <button onclick="simStepPrev()" class="px-3 py-1.5 rounded bg-slate-200 hover:bg-slate-300 text-slate-800 text-xs sm:text-sm font-bold font-sans transition">
+                                ◀ Prev Step
+                            </button>
+                            <button onclick="simStepNext()" class="px-4 py-1.5 rounded bg-inkBlue hover:bg-slate-800 text-white text-xs sm:text-sm font-bold font-sans shadow transition">
+                                Next Step ▶
+                            </button>
+                            <button id="btnSimPlay" onclick="simTogglePlay()" class="px-3 py-1.5 rounded bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold font-sans shadow transition">
+                                ▶ Play Auto
+                            </button>
+                            <button onclick="simReset()" class="px-3 py-1.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs sm:text-sm font-bold font-sans border transition">
+                                ↺ Reset
+                            </button>
+                        </div>
+
+                        <!-- Live Candidates Badges -->
+                        <div class="flex items-center gap-3 font-sans text-xs sm:text-sm">
+                            <span class="bg-amber-100 text-amber-900 border border-amber-300 px-3 py-1 rounded-full font-bold">
+                                Predecessor: <span id="simPreBadge" class="font-mono text-base text-amber-900">None</span>
+                            </span>
+                            <span class="bg-indigo-100 text-indigo-900 border border-indigo-300 px-3 py-1 rounded-full font-bold">
+                                Successor: <span id="simSucBadge" class="font-mono text-base text-indigo-900">None</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Simulator Live Canvas -->
+                <div class="sketch-card p-4 space-y-3">
+                    <div class="flex justify-between items-center border-b pb-2">
+                        <span id="simStatusBanner" class="font-sans font-bold text-sm text-inkBlue">
+                            Ready. Click "Next Step ▶" or "Play Auto" to start traversal.
+                        </span>
+                        <div class="flex items-center gap-3 text-xs font-sans font-bold text-slate-600">
+                            <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-amber-400 inline-block border border-amber-600"></span> Predecessor</span>
+                            <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-indigo-400 inline-block border border-indigo-600"></span> Successor</span>
+                            <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-cyan-300 inline-block border border-cyan-600"></span> Target Key</span>
+                        </div>
+                    </div>
+
+                    <!-- Canvas element -->
+                    <div class="overflow-x-auto bg-[#FAF6EE] p-2 rounded border border-slate-200">
+                        <canvas id="canvasSimulator" class="w-full min-w-[750px]" height="380"></canvas>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Notebook Scripts -->
+    <script>
+        // =========================================================================
+        // 1. TYPOGRAPHY & TAB SWITCHING
+        // =========================================================================
+        function toggleFontMode() {
+            document.body.classList.toggle('font-clean');
+            const btnText = document.getElementById('fontBtnText');
+            if (document.body.classList.contains('font-clean')) {
+                btnText.textContent = 'Handwritten Font';
+            } else {
+                btnText.textContent = 'Clean Font';
+            }
+        }
+
+        let currentActiveTab = 'definitions';
+
+        function switchTab(tabId) {
+            currentActiveTab = tabId;
+
+            // Hide all panes
+            document.querySelectorAll('.tab-pane').forEach(pane => {
+                pane.classList.remove('active');
+            });
+
+            // Deactivate all nav buttons
+            document.querySelectorAll('.nav-tab').forEach(btn => {
+                btn.classList.remove('bg-amber-200', 'text-inkBlue', 'border-b-2', 'border-inkBlue');
+                btn.classList.add('text-slate-600', 'hover:text-inkBlue');
+            });
+
+            // Activate target pane & button
+            const targetPane = document.getElementById('tab-' + tabId);
+            const targetBtn = document.getElementById('nav-tab-' + tabId);
+            if (targetPane) targetPane.classList.add('active');
+            if (targetBtn) {
+                targetBtn.classList.remove('text-slate-600', 'hover:text-inkBlue');
+                targetBtn.classList.add('bg-amber-200', 'text-inkBlue', 'border-b-2', 'border-inkBlue');
+            }
+
+            // Trigger redraws for canvases
+            setTimeout(() => {
+                if (tabId === 'definitions') {
+                    renderConceptOverviewCanvas();
+                } else if (tabId === 'step-by-step') {
+                    renderStepByStepCanvases();
+                } else if (tabId === 'simulator') {
+                    initSimulator();
+                    renderSimulatorCanvas();
+                }
+            }, 50);
+        }
+
+        function copyCode(elementId, btn) {
+            const codeEl = document.getElementById(elementId);
+            if (!codeEl) return;
+            navigator.clipboard.writeText(codeEl.innerText).then(() => {
+                if (btn) {
+                    const origHtml = btn.innerHTML;
+                    btn.innerHTML = `✓ <span class="text-emerald-400 font-bold">Copied!</span>`;
+                    btn.classList.add('border-emerald-500/70', 'bg-emerald-950/60');
+                    setTimeout(() => {
+                        btn.innerHTML = origHtml;
+                        btn.classList.remove('border-emerald-500/70', 'bg-emerald-950/60');
+                    }, 2000);
+                }
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+            });
+        }
+
+        // High-DPI Canvas Setup Helper
+        function setupHighDpiCanvas(canvas, logicalHeight) {
+            const dpr = window.devicePixelRatio || 1;
+            const rect = canvas.getBoundingClientRect();
+            let logicalWidth = rect.width;
+            if (!logicalWidth || logicalWidth <= 0) {
+                logicalWidth = canvas.clientWidth || (canvas.parentElement ? canvas.parentElement.clientWidth - 20 : 800);
+            }
+            if (canvas.classList.contains('min-w-[740px]') && logicalWidth < 740) {
+                logicalWidth = 740;
+            }
+            if (canvas.classList.contains('min-w-[750px]') && logicalWidth < 750) {
+                logicalWidth = 750;
+            }
+            if (canvas.classList.contains('min-w-[540px]') && logicalWidth < 540) {
+                logicalWidth = 540;
+            }
+            
+            canvas.width = logicalWidth * dpr;
+            canvas.height = logicalHeight * dpr;
+            canvas.style.height = `${logicalHeight}px`;
+
+            const ctx = canvas.getContext('2d');
+            ctx.scale(dpr, dpr);
+            return { ctx, width: logicalWidth, height: logicalHeight };
+        }
+
+        // =========================================================================
+        // 2. BST COORDINATE GRAPHICS ENGINE
+        // =========================================================================
+        // Predefined layout coordinates for the 11-node Reference BST
+        const bstTreeData = {
+            50: { x: 380, y: 40, left: 30, right: 70 },
+            30: { x: 200, y: 110, left: 20, right: 40 },
+            70: { x: 560, y: 110, left: 60, right: 80 },
+            20: { x: 120, y: 180, left: 10, right: null },
+            40: { x: 280, y: 180, left: 35, right: 45 },
+            60: { x: 480, y: 180, left: null, right: null },
+            80: { x: 640, y: 180, left: null, right: 90 },
+            10: { x: 70,  y: 250, left: null, right: null },
+            35: { x: 230, y: 250, left: null, right: null },
+            45: { x: 320, y: 250, left: null, right: null },
+            90: { x: 700, y: 250, left: null, right: null },
+        };
+
+        function drawBstGraph(ctx, width, height, highlights = {}) {
+            // Tree base bounding dimensions:
+            // X: 70..700 -> base width ~ 760
+            // Y: 40..250 -> base height ~ 295
+            const baseW = 760;
+            const baseH = 295;
+            
+            // Constrain scale so it never overflows either width or height
+            const scaleX = (width - 40) / baseW;
+            const scaleY = (height - 35) / baseH;
+            const scale = Math.min(scaleX, scaleY, 1.05);
+            
+            const offsetX = (width - baseW * scale) / 2 + 10 * scale;
+            const offsetY = Math.max(12, (height - baseH * scale) / 2 + 6 * scale);
+
+            function getPt(val) {
+                const n = bstTreeData[val];
+                return {
+                    x: offsetX + n.x * scale,
+                    y: offsetY + n.y * scale
+                };
+            }
+
+            // 1. Draw Edges
+            ctx.lineWidth = 2;
+            Object.keys(bstTreeData).forEach(keyStr => {
+                const val = parseInt(keyStr);
+                const node = bstTreeData[val];
+                const p = getPt(val);
+
+                [node.left, node.right].forEach(childVal => {
+                    if (childVal !== null) {
+                        const cp = getPt(childVal);
+                        ctx.beginPath();
+                        ctx.moveTo(p.x, p.y);
+                        ctx.lineTo(cp.x, cp.y);
+
+                        // Highlight edge if traversal path
+                        if (highlights.edgePath && highlights.edgePath.has(`${val}->${childVal}`)) {
+                            ctx.strokeStyle = '#2563eb';
+                            ctx.lineWidth = 3.5;
+                            ctx.stroke();
+                            ctx.lineWidth = 2;
+                        } else {
+                            ctx.strokeStyle = '#94a3b8';
+                            ctx.stroke();
+                        }
+                    }
+                });
+            });
+
+            // 2. Draw Nodes
+            const radius = 18 * scale;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            Object.keys(bstTreeData).forEach(keyStr => {
+                const val = parseInt(keyStr);
+                const p = getPt(val);
+
+                const isCurrent = highlights.curr === val;
+                const isPred = highlights.pred === val;
+                const isSuc = highlights.suc === val;
+                const isTarget = highlights.target === val;
+
+                ctx.lineWidth = (isCurrent || isPred || isSuc || isTarget) ? 3 : 1.5;
+
+                // Color priority
+                if (isTarget) {
+                    ctx.fillStyle = '#cffafe'; // cyan target
+                    ctx.strokeStyle = '#0891b2';
+                } else if (isPred) {
+                    ctx.fillStyle = '#fef3c7'; // amber pred
+                    ctx.strokeStyle = '#d97706';
+                } else if (isSuc) {
+                    ctx.fillStyle = '#e0e7ff'; // indigo suc
+                    ctx.strokeStyle = '#4338ca';
+                } else if (isCurrent) {
+                    ctx.fillStyle = '#fef08a'; // yellow inspecting
+                    ctx.strokeStyle = '#ca8a04';
+                } else {
+                    ctx.fillStyle = '#ffffff';
+                    ctx.strokeStyle = '#64748b';
+                }
+
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, radius, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+
+                // Node Value Text
+                ctx.fillStyle = '#0f172a';
+                ctx.font = `bold ${Math.round(14 * scale)}px monospace`;
+                ctx.fillText(val.toString(), p.x, p.y + 1);
+
+                // Badges underneath
+                if (isPred) {
+                    ctx.fillStyle = '#b45309';
+                    ctx.font = `bold ${Math.round(10 * scale)}px Inter, sans-serif`;
+                    ctx.fillText('PRED', p.x, p.y + radius + 11);
+                } else if (isSuc) {
+                    ctx.fillStyle = '#3730a3';
+                    ctx.font = `bold ${Math.round(10 * scale)}px Inter, sans-serif`;
+                    ctx.fillText('SUCC', p.x, p.y + radius + 11);
+                } else if (isTarget && !isPred && !isSuc) {
+                    ctx.fillStyle = '#0e7490';
+                    ctx.font = `bold ${Math.round(10 * scale)}px Inter, sans-serif`;
+                    ctx.fillText('KEY', p.x, p.y + radius + 11);
+                }
+            });
+        }
+
+        // =========================================================================
+        // 3. CANVAS DRAWING: TAB 1 (CONCEPT OVERVIEW)
+        // =========================================================================
+        function renderConceptOverviewCanvas() {
+            renderConceptSubtreeCanvas();
+            renderConceptAncestorCanvas();
+        }
+
+        function renderConceptSubtreeCanvas() {
+            const canvas = document.getElementById('canvasConceptSubtree');
+            if (!canvas) return;
+            const { ctx, width, height } = setupHighDpiCanvas(canvas, 170);
+
+            ctx.clearRect(0, 0, width, height);
+
+            const midX = width / 2;
+            const nodeRadius = 15;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            // Coordinates
+            const xNode = { x: midX, y: 32 };
+            const leftChild = { x: midX - 85, y: 82 };
+            const predNode = { x: midX - 35, y: 132 };
+            const rightChild = { x: midX + 85, y: 82 };
+            const succNode = { x: midX + 35, y: 132 };
+
+            // 1. Edges
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = '#94a3b8';
+
+            // Branch Left
+            ctx.beginPath();
+            ctx.moveTo(xNode.x - 10, xNode.y + 10);
+            ctx.lineTo(leftChild.x + 8, leftChild.y - 8);
+            ctx.stroke();
+
+            // Branch Left -> Right to Pred
+            ctx.strokeStyle = '#d97706';
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            ctx.moveTo(leftChild.x + 10, leftChild.y + 10);
+            ctx.lineTo(predNode.x - 8, predNode.y - 8);
+            ctx.stroke();
+
+            // Branch Right
+            ctx.strokeStyle = '#94a3b8';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(xNode.x + 10, xNode.y + 10);
+            ctx.lineTo(rightChild.x - 8, rightChild.y - 8);
+            ctx.stroke();
+
+            // Branch Right -> Left to Succ
+            ctx.strokeStyle = '#4338ca';
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            ctx.moveTo(rightChild.x - 10, rightChild.y + 10);
+            ctx.lineTo(succNode.x + 8, succNode.y - 8);
+            ctx.stroke();
+
+            // 2. Draw Nodes
+            // Target Node X
+            ctx.fillStyle = '#cffafe';
+            ctx.strokeStyle = '#0891b2';
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            ctx.arc(xNode.x, xNode.y, 17, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+            ctx.fillStyle = '#0891b2';
+            ctx.font = 'bold 13px monospace';
+            ctx.fillText('X', xNode.x, xNode.y + 1);
+
+            // Left Intermediate Child
+            ctx.fillStyle = '#f8fafc';
+            ctx.strokeStyle = '#64748b';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.arc(leftChild.x, leftChild.y, nodeRadius, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+            ctx.fillStyle = '#475569';
+            ctx.font = 'bold 11px Inter, sans-serif';
+            ctx.fillText('Left', leftChild.x, leftChild.y + 1);
+
+            // Right Intermediate Child
+            ctx.beginPath();
+            ctx.arc(rightChild.x, rightChild.y, nodeRadius, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+            ctx.fillText('Right', rightChild.x, rightChild.y + 1);
+
+            // Predecessor Node (Rightmost in Left Subtree)
+            ctx.fillStyle = '#fef3c7';
+            ctx.strokeStyle = '#d97706';
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            ctx.arc(predNode.x, predNode.y, 16, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+            ctx.fillStyle = '#92400e';
+            ctx.font = 'bold 11px Inter, sans-serif';
+            ctx.fillText('Pred', predNode.x, predNode.y + 1);
+
+            // Successor Node (Leftmost in Right Subtree)
+            ctx.fillStyle = '#e0e7ff';
+            ctx.strokeStyle = '#4338ca';
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            ctx.arc(succNode.x, succNode.y, 16, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+            ctx.fillStyle = '#3730a3';
+            ctx.font = 'bold 11px Inter, sans-serif';
+            ctx.fillText('Succ', succNode.x, succNode.y + 1);
+
+            // Subtitle badges under nodes
+            ctx.font = 'bold 9.5px Inter, sans-serif';
+            ctx.fillStyle = '#b45309';
+            ctx.fillText('Max in Left Subtree', predNode.x, predNode.y + 24);
+            ctx.fillStyle = '#3730a3';
+            ctx.fillText('Min in Right Subtree', succNode.x, succNode.y + 24);
+        }
+
+        function renderConceptAncestorCanvas() {
+            const canvas = document.getElementById('canvasConceptAncestor');
+            if (!canvas) return;
+            const { ctx, width, height } = setupHighDpiCanvas(canvas, 170);
+
+            ctx.clearRect(0, 0, width, height);
+
+            const midX = width / 2;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            // Coordinates for Ancestor Turn Path
+            const nodeSucc = { x: midX - 60, y: 32 };
+            const nodePred = { x: midX - 110, y: 85 };
+            const nodeX = { x: midX - 60, y: 135 };
+
+            // 1. Edges
+            // Left Turn from Succ to Pred
+            ctx.strokeStyle = '#4338ca';
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            ctx.moveTo(nodeSucc.x - 10, nodeSucc.y + 10);
+            ctx.lineTo(nodePred.x + 8, nodePred.y - 8);
+            ctx.stroke();
+
+            // Right Turn from Pred to Leaf X
+            ctx.strokeStyle = '#d97706';
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            ctx.moveTo(nodePred.x + 10, nodePred.y + 10);
+            ctx.lineTo(nodeX.x - 8, nodeX.y - 8);
+            ctx.stroke();
+
+            // 2. Nodes
+            // Succ Ancestor Node
+            ctx.fillStyle = '#e0e7ff';
+            ctx.strokeStyle = '#4338ca';
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            ctx.arc(nodeSucc.x, nodeSucc.y, 16, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+            ctx.fillStyle = '#3730a3';
+            ctx.font = 'bold 11px Inter, sans-serif';
+            ctx.fillText('Succ', nodeSucc.x, nodeSucc.y + 1);
+
+            // Pred Ancestor Node
+            ctx.fillStyle = '#fef3c7';
+            ctx.strokeStyle = '#d97706';
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            ctx.arc(nodePred.x, nodePred.y, 16, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+            ctx.fillStyle = '#92400e';
+            ctx.font = 'bold 11px Inter, sans-serif';
+            ctx.fillText('Pred', nodePred.x, nodePred.y + 1);
+
+            // Target Node X (Leaf)
+            ctx.fillStyle = '#cffafe';
+            ctx.strokeStyle = '#0891b2';
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            ctx.arc(nodeX.x, nodeX.y, 16, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+            ctx.fillStyle = '#0891b2';
+            ctx.font = 'bold 13px monospace';
+            ctx.fillText('X', nodeX.x, nodeX.y + 1);
+
+            // Explanatory callouts on the right side
+            ctx.textAlign = 'left';
+            
+            // Callout 1: Left turn updates successor
+            ctx.fillStyle = '#3730a3';
+            ctx.font = 'bold 11px Inter, sans-serif';
+            ctx.fillText('↰ Took LEFT Turn:', nodeSucc.x + 30, nodeSucc.y - 3);
+            ctx.font = '10.5px Inter, sans-serif';
+            ctx.fillStyle = '#475569';
+            ctx.fillText('Ancestor > X ⟹ Candidate Successor', nodeSucc.x + 30, nodeSucc.y + 11);
+
+            // Callout 2: Right turn updates predecessor
+            ctx.fillStyle = '#b45309';
+            ctx.font = 'bold 11px Inter, sans-serif';
+            ctx.fillText('↱ Took RIGHT Turn:', nodePred.x + 75, nodePred.y - 3);
+            ctx.font = '10.5px Inter, sans-serif';
+            ctx.fillStyle = '#475569';
+            ctx.fillText('Ancestor < X ⟹ Candidate Predecessor', nodePred.x + 75, nodePred.y + 11);
+
+            // Callout 3: Leaf node
+            ctx.fillStyle = '#0e7490';
+            ctx.font = 'bold 11px Inter, sans-serif';
+            ctx.fillText('🎯 Leaf Node X reached:', nodeX.x + 28, nodeX.y - 3);
+            ctx.font = '10.5px Inter, sans-serif';
+            ctx.fillStyle = '#475569';
+            ctx.fillText('Retains recorded turn ancestors!', nodeX.x + 28, nodeX.y + 11);
+        }
+
+        // =========================================================================
+        // 4. CANVAS DRAWING: TAB 2 (STEP-BY-STEP TRACES)
+        // =========================================================================
+        function drawBruteForceArrayCanvas() {
+            const canvas = document.getElementById('canvasBruteForceArray');
+            if (!canvas) return;
+            const { ctx, width, height } = setupHighDpiCanvas(canvas, 90);
+
+            ctx.clearRect(0, 0, width, height);
+
+            const arr = [10, 20, 30, 35, 40, 45, 50, 60, 70, 80, 90];
+            const startX = 30;
+            const cellW = 32;
+            const cellH = 30;
+            const spacing = 4;
+
+            ctx.textAlign = 'left';
+            ctx.font = 'bold 11px Inter, sans-serif';
+            ctx.fillStyle = '#1e3a8a';
+            ctx.fillText('Inorder Array:', startX, 22);
+
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            for (let i = 0; i < arr.length; i++) {
+                const x = startX + 90 + i * (cellW + spacing);
+                const y = 8;
+                const val = arr[i];
+
+                ctx.lineWidth = 1.5;
+                if (val === 40) {
+                    ctx.fillStyle = '#cffafe'; // Target
+                    ctx.strokeStyle = '#0891b2';
+                } else if (val === 35) {
+                    ctx.fillStyle = '#fef3c7'; // Pred
+                    ctx.strokeStyle = '#d97706';
+                } else if (val === 45) {
+                    ctx.fillStyle = '#e0e7ff'; // Succ
+                    ctx.strokeStyle = '#4338ca';
+                } else {
+                    ctx.fillStyle = '#ffffff';
+                    ctx.strokeStyle = '#94a3b8';
+                }
+
+                ctx.beginPath();
+                ctx.roundRect(x, y, cellW, cellH, 4);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.fillStyle = '#1e293b';
+                ctx.font = 'bold 12px monospace';
+                ctx.fillText(val.toString(), x + cellW / 2, y + cellH / 2);
+
+                // Index underneath
+                ctx.fillStyle = '#64748b';
+                ctx.font = '9px monospace';
+                ctx.fillText(`[${i}]`, x + cellW / 2, y + cellH + 12);
+
+                // Labels
+                if (val === 35) {
+                    ctx.fillStyle = '#b45309';
+                    ctx.font = 'bold 9px Inter, sans-serif';
+                    ctx.fillText('PRED', x + cellW / 2, y + cellH + 24);
+                } else if (val === 40) {
+                    ctx.fillStyle = '#0891b2';
+                    ctx.font = 'bold 9px Inter, sans-serif';
+                    ctx.fillText('KEY', x + cellW / 2, y + cellH + 24);
+                } else if (val === 45) {
+                    ctx.fillStyle = '#3730a3';
+                    ctx.font = 'bold 9px Inter, sans-serif';
+                    ctx.fillText('SUCC', x + cellW / 2, y + cellH + 24);
+                }
+            }
+        }
+
+        function renderStepByStepCanvases() {
+            drawBruteForceArrayCanvas();
+
+            // Case 1 Canvas: Key = 30 (Has left child 20, right child 40 -> leftmost 35)
+            const c1 = document.getElementById('canvasTraceCase1');
+            if (c1) {
+                const { ctx, width, height } = setupHighDpiCanvas(c1, 340);
+                const pathEdges = new Set(['50->30', '30->20', '30->40', '40->35']);
+                drawBstGraph(ctx, width, height, {
+                    target: 30,
+                    pred: 20,
+                    suc: 35,
+                    edgePath: pathEdges
+                });
+            }
+
+            // Case 2 Canvas: Key = 45 (Leaf node -> Pred = 40, Succ = 50 from ancestors)
+            const c2 = document.getElementById('canvasTraceCase2');
+            if (c2) {
+                const { ctx, width, height } = setupHighDpiCanvas(c2, 340);
+                const pathEdges = new Set(['50->30', '30->40', '40->45']);
+                drawBstGraph(ctx, width, height, {
+                    target: 45,
+                    pred: 40,
+                    suc: 50,
+                    edgePath: pathEdges
+                });
+            }
+
+            // Case 3 Canvas: Key = 65 (Not present -> Pred = 60, Succ = 70)
+            const c3 = document.getElementById('canvasTraceCase3');
+            if (c3) {
+                const { ctx, width, height } = setupHighDpiCanvas(c3, 340);
+                const pathEdges = new Set(['50->70', '70->60']);
+                drawBstGraph(ctx, width, height, {
+                    target: null,
+                    pred: 60,
+                    suc: 70,
+                    edgePath: pathEdges
+                });
+            }
+        }
+
+        // =========================================================================
+        // 5. INTERACTIVE SIMULATOR (TAB 4)
+        // =========================================================================
+        let simTargetKey = 30;
+        let simHistory = [];
+        let simStepIdx = 0;
+        let simTimer = null;
+
+        function loadSimPreset(val) {
+            document.getElementById('simKeyInput').value = val;
+            applySimKey();
+        }
+
+        function applySimKey() {
+            const inputVal = parseInt(document.getElementById('simKeyInput').value);
+            simTargetKey = isNaN(inputVal) ? 30 : inputVal;
+            initSimulator();
+        }
+
+        function buildSimTrace() {
+            simHistory = [];
+            let pre = null;
+            let suc = null;
+            let curr = 50; // root
+            const edgePath = new Set();
+
+            simHistory.push({
+                curr: 50,
+                pred: null,
+                suc: null,
+                edgePath: new Set(),
+                banner: `Start at root (50). Target key is ${simTargetKey}.`
+            });
+
+            while (curr !== null) {
+                if (curr === simTargetKey) {
+                    simHistory.push({
+                        curr: curr,
+                        pred: pre,
+                        suc: suc,
+                        edgePath: new Set(edgePath),
+                        banner: `Key ${simTargetKey} matched at node ${curr}! Inspecting subtrees.`
+                    });
+
+                    // Left subtree max
+                    const node = bstTreeData[curr];
+                    if (node.left !== null) {
+                        let temp = node.left;
+                        edgePath.add(`${curr}->${temp}`);
+                        simHistory.push({
+                            curr: temp,
+                            pred: pre,
+                            suc: suc,
+                            edgePath: new Set(edgePath),
+                            banner: `Predecessor Search: Move to left child (${temp}).`
+                        });
+                        while (bstTreeData[temp].right !== null) {
+                            const nextR = bstTreeData[temp].right;
+                            edgePath.add(`${temp}->${nextR}`);
+                            temp = nextR;
+                            simHistory.push({
+                                curr: temp,
+                                pred: pre,
+                                suc: suc,
+                                edgePath: new Set(edgePath),
+                                banner: `Predecessor Search: Go right to ${temp}.`
+                            });
+                        }
+                        pre = temp;
+                    }
+
+                    // Right subtree min
+                    if (node.right !== null) {
+                        let temp = node.right;
+                        edgePath.add(`${curr}->${temp}`);
+                        simHistory.push({
+                            curr: temp,
+                            pred: pre,
+                            suc: suc,
+                            edgePath: new Set(edgePath),
+                            banner: `Successor Search: Move to right child (${temp}).`
+                        });
+                        while (bstTreeData[temp].left !== null) {
+                            const nextL = bstTreeData[temp].left;
+                            edgePath.add(`${temp}->${nextL}`);
+                            temp = nextL;
+                            simHistory.push({
+                                curr: temp,
+                                pred: pre,
+                                suc: suc,
+                                edgePath: new Set(edgePath),
+                                banner: `Successor Search: Go left to ${temp}.`
+                            });
+                        }
+                        suc = temp;
+                    }
+
+                    simHistory.push({
+                        curr: null,
+                        pred: pre,
+                        suc: suc,
+                        edgePath: new Set(edgePath),
+                        banner: `Complete! For Key ${simTargetKey} &rarr; Predecessor = ${pre || 'None'}, Successor = ${suc || 'None'}`
+                    });
+                    return;
+                } else if (simTargetKey < curr) {
+                    suc = curr;
+                    const nextVal = bstTreeData[curr].left;
+                    if (nextVal !== null) edgePath.add(`${curr}->${nextVal}`);
+
+                    simHistory.push({
+                        curr: curr,
+                        pred: pre,
+                        suc: suc,
+                        edgePath: new Set(edgePath),
+                        banner: `${simTargetKey} < ${curr}: Node ${curr} is candidate Successor! Move Left.`
+                    });
+                    curr = nextVal;
+                } else {
+                    pre = curr;
+                    const nextVal = bstTreeData[curr].right;
+                    if (nextVal !== null) edgePath.add(`${curr}->${nextVal}`);
+
+                    simHistory.push({
+                        curr: curr,
+                        pred: pre,
+                        suc: suc,
+                        edgePath: new Set(edgePath),
+                        banner: `${simTargetKey} > ${curr}: Node ${curr} is candidate Predecessor! Move Right.`
+                    });
+                    curr = nextVal;
+                }
+            }
+
+            // Key not present
+            simHistory.push({
+                curr: null,
+                pred: pre,
+                suc: suc,
+                edgePath: new Set(edgePath),
+                banner: `Target key ${simTargetKey} not present in tree! Terminated at null. Final Pred = ${pre || 'None'}, Succ = ${suc || 'None'}`
+            });
+        }
+
+        function initSimulator() {
+            buildSimTrace();
+            simStepIdx = 0;
+            if (simTimer) {
+                clearInterval(simTimer);
+                simTimer = null;
+                document.getElementById('btnSimPlay').textContent = '▶ Play Auto';
+            }
+            renderSimulatorCanvas();
+        }
+
+        function simStepNext() {
+            if (simStepIdx < simHistory.length - 1) {
+                simStepIdx++;
+                renderSimulatorCanvas();
+            } else {
+                if (simTimer) {
+                    clearInterval(simTimer);
+                    simTimer = null;
+                    document.getElementById('btnSimPlay').textContent = '▶ Play Auto';
+                }
+            }
+        }
+
+        function simStepPrev() {
+            if (simStepIdx > 0) {
+                simStepIdx--;
+                renderSimulatorCanvas();
+            }
+        }
+
+        function simReset() {
+            if (simTimer) {
+                clearInterval(simTimer);
+                simTimer = null;
+                document.getElementById('btnSimPlay').textContent = '▶ Play Auto';
+            }
+            simStepIdx = 0;
+            renderSimulatorCanvas();
+        }
+
+        function simTogglePlay() {
+            const btn = document.getElementById('btnSimPlay');
+            if (simTimer) {
+                clearInterval(simTimer);
+                simTimer = null;
+                btn.textContent = '▶ Play Auto';
+            } else {
+                if (simStepIdx >= simHistory.length - 1) {
+                    simStepIdx = 0;
+                }
+                btn.textContent = '⏸ Pause';
+                simTimer = setInterval(() => {
+                    if (simStepIdx < simHistory.length - 1) {
+                        simStepIdx++;
+                        renderSimulatorCanvas();
+                    } else {
+                        clearInterval(simTimer);
+                        simTimer = null;
+                        btn.textContent = '▶ Play Auto';
+                    }
+                }, 800);
+            }
+        }
+
+        function renderSimulatorCanvas() {
+            const canvas = document.getElementById('canvasSimulator');
+            if (!canvas) return;
+            const { ctx, width, height } = setupHighDpiCanvas(canvas, 380);
+
+            ctx.clearRect(0, 0, width, height);
+
+            const currState = simHistory[simStepIdx] || {
+                curr: null, pred: null, suc: null, edgePath: new Set(), banner: 'Ready'
+            };
+
+            // Update Badges
+            document.getElementById('simPreBadge').textContent = currState.pred !== null ? currState.pred : 'None';
+            document.getElementById('simSucBadge').textContent = currState.suc !== null ? currState.suc : 'None';
+            document.getElementById('simStatusBanner').textContent = currState.banner;
+
+            // Draw BST with active highlight state
+            drawBstGraph(ctx, width, height, {
+                curr: currState.curr,
+                pred: currState.pred,
+                suc: currState.suc,
+                target: bstTreeData[simTargetKey] ? simTargetKey : null,
+                edgePath: currState.edgePath
+            });
+        }
+
+        // =========================================================================
+        // 6. WINDOW EVENTS & INITIAL LOADER
+        // =========================================================================
+        window.addEventListener('load', () => {
+            renderConceptOverviewCanvas();
+        });
+
+        window.addEventListener('resize', () => {
+            if (currentActiveTab === 'definitions') {
+                renderConceptOverviewCanvas();
+            } else if (currentActiveTab === 'step-by-step') {
+                renderStepByStepCanvases();
+            } else if (currentActiveTab === 'simulator') {
+                renderSimulatorCanvas();
+            }
+        });
+    </script>
+</body>
+
+</html>

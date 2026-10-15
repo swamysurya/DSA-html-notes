@@ -169,7 +169,7 @@
             <div class="flex flex-wrap gap-1">
                 <button onclick="showCategory('all')" id="btn-cat-all"
                     class="cat-nav-btn px-2.5 py-1 rounded-md font-bold bg-amber-300 text-inkBlue border border-amber-400 transition">
-                    All (29)
+                    All (31)
                 </button>
                 <button onclick="showCategory('stl')" id="btn-cat-stl"
                     class="cat-nav-btn px-2.5 py-1 rounded-md font-bold text-slate-700 hover:bg-amber-100 transition">
@@ -185,7 +185,7 @@
                 </button>
                 <button onclick="showCategory('trees')" id="btn-cat-trees"
                     class="cat-nav-btn px-2.5 py-1 rounded-md font-bold text-slate-700 hover:bg-amber-100 transition">
-                    4. Trees (B-Trees) (1)
+                    4. Trees &amp; BST (2)
                 </button>
                 <button onclick="showCategory('greedy')" id="btn-cat-greedy"
                     class="cat-nav-btn px-2.5 py-1 rounded-md font-bold text-slate-700 hover:bg-amber-100 transition">
@@ -202,6 +202,10 @@
                 <button onclick="showCategory('branch_and_bound')" id="btn-cat-branch_and_bound"
                     class="cat-nav-btn px-2.5 py-1 rounded-md font-bold text-slate-700 hover:bg-amber-100 transition">
                     8. Branch &amp; Bound (1)
+                </button>
+                <button onclick="showCategory('pattern_matching')" id="btn-cat-pattern_matching"
+                    class="cat-nav-btn px-2.5 py-1 rounded-md font-bold text-slate-700 hover:bg-amber-100 transition">
+                    9. Pattern Matching (1)
                 </button>
             </div>
 
@@ -242,7 +246,7 @@
                     <h2 class="text-3xl sm:text-4xl font-bold text-inkBlue font-['Kalam'] mt-1">Pedagogical Topic Directory & Study Guide</h2>
                 </div>
                 <div class="text-right font-sans">
-                    <span class="text-xs sm:text-sm font-bold text-inkRed block">8 Study Units • 29 Interactive HTML Notebooks</span>
+                    <span class="text-xs sm:text-sm font-bold text-inkRed block">9 Study Units • 31 Interactive HTML Notebooks</span>
                     <span class="text-xs text-slate-500">Click any notebook card to launch</span>
                 </div>
             </div>
@@ -551,47 +555,65 @@
 
 
             <!-- ======================================================================
-                 UNIT 4: CONCEPT OF TREES (B-TREES)
+                 UNIT 4: CONCEPT OF TREES & BST
                  ====================================================================== -->
             <section id="sec-trees" class="note-section space-y-4">
                 <div class="flex items-baseline justify-between border-b-2 border-inkBlue/30 pb-1">
                     <h3 class="text-2xl sm:text-3xl font-bold text-emerald-800 font-['Kalam'] flex items-center gap-2">
-                        <span>🌳</span> Unit 4 – Concept of Trees (B-Trees & Multi-Way Trees)
+                        <span>🌳</span> Unit 4 – Concept of Trees &amp; BST (Binary Search Trees)
                     </h3>
                     <span
                         class="font-sans text-xs font-bold text-emerald-800 bg-emerald-100 px-2.5 py-0.5 rounded-full border border-emerald-300">
-                        1 Notebook (5 Topics)
+                        2 Notebooks (9 Topics)
                     </span>
                 </div>
                 <p class="text-base sm:text-lg text-pencilGray font-sans leading-relaxed">
-                    Generalization of binary trees to multi-way balanced trees, disk block structures, indexing tiers, and B & B+ Tree operations.
+                    Generalization of binary trees to multi-way balanced trees, disk block structures, indexing tiers, and optimal BST predecessor/successor navigation.
                 </p>
 
-                <div class="grid grid-cols-1 gap-3 pl-1 sm:pl-2">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pl-1 sm:pl-2">
                     
                     <!-- B & B+ Trees -->
                     <div class="personal-card border-emerald-700 note-item" data-search="concept of trees b-trees bplus trees multi-way m-way search trees disk tracks sectors blocks offsets multilevel index b tree plus search simulator">
-                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                        <div class="flex flex-col justify-between h-full space-y-2">
                             <div>
                                 <div class="flex items-center gap-2">
                                     <span class="text-[11px] font-sans font-bold uppercase text-emerald-800 bg-emerald-100 px-1.5 py-0.5 rounded border border-emerald-300">Concept of Trees</span>
-                                    <span class="text-[11px] font-sans font-bold uppercase text-blue-800 bg-blue-100 px-1.5 py-0.5 rounded border border-blue-300">Multi-Way Trees</span>
+                                    <span class="text-[11px] font-sans font-bold uppercase text-blue-800 bg-blue-100 px-1.5 py-0.5 rounded border border-blue-300">Multi-Way</span>
                                 </div>
-                                <h4 class="text-2xl font-bold text-inkBlue font-['Kalam'] mt-1">B-Trees & B+ Trees (Concept of Trees)</h4>
+                                <h4 class="text-xl font-bold text-inkBlue font-['Kalam'] mt-1">B-Trees &amp; B+ Trees</h4>
+                                <p class="text-sm font-sans text-slate-700 mt-1 leading-relaxed">
+                                    Physical disk geometry, blocks, record pointers, multi-level dense/sparse indexes, and node splitting/merging.
+                                </p>
                             </div>
-                            <a href="dbms_b_trees_notes.html" class="note-badge bg-emerald-700 hover:bg-emerald-800 text-white text-sm py-1.5 px-4">
-                                📖 Open B-Tree Notebook ↗
-                            </a>
+                            <div class="flex justify-between items-center pt-2 border-t border-slate-200">
+                                <span class="text-xs font-sans font-bold text-slate-500">5 Topics • Simulators</span>
+                                <a href="dbms_b_trees_notes.html" class="note-badge bg-emerald-700 hover:bg-emerald-800 text-white">
+                                    Open ↗
+                                </a>
+                            </div>
                         </div>
-                        <p class="text-sm font-sans text-slate-700 mt-2 leading-relaxed">
-                            Comprehensive 5-topic exploration of physical disk geometry, blocks, record pointers, multi-level dense/sparse indexes, M-Way search trees, node splitting/merging invariants, and interactive B/B+ Tree visual simulators.
-                        </p>
-                        <div class="flex flex-wrap gap-2 text-xs font-sans font-bold text-slate-500 mt-3 pt-2 border-t border-slate-200">
-                            <span class="bg-amber-100 text-amber-900 px-2 py-0.5 rounded">1. Disk Structure</span>
-                            <span class="bg-amber-100 text-amber-900 px-2 py-0.5 rounded">2. Indexing & Blocks</span>
-                            <span class="bg-amber-100 text-amber-900 px-2 py-0.5 rounded">3. Multi-Level Indexing</span>
-                            <span class="bg-amber-100 text-amber-900 px-2 py-0.5 rounded">4. M-Way Search Trees</span>
-                            <span class="bg-amber-100 text-amber-900 px-2 py-0.5 rounded">5. B & B+ Trees</span>
+                    </div>
+
+                    <!-- BST Predecessor & Successor -->
+                    <div class="personal-card border-teal-700 note-item" data-search="bst binary search tree inorder predecessor successor brute force optimal ancestor subtree extrema floor ceil">
+                        <div class="flex flex-col justify-between h-full space-y-2">
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-[11px] font-sans font-bold uppercase text-teal-800 bg-teal-100 px-1.5 py-0.5 rounded border border-teal-300">BST Traversal</span>
+                                    <span class="text-[11px] font-sans font-bold uppercase text-emerald-800 bg-emerald-100 px-1.5 py-0.5 rounded border border-emerald-300">Optimal O(H)</span>
+                                </div>
+                                <h4 class="text-xl font-bold text-inkBlue font-['Kalam'] mt-1">Inorder Predecessor &amp; Successor</h4>
+                                <p class="text-sm font-sans text-slate-700 mt-1 leading-relaxed">
+                                    Subtree extrema vs ancestor turn tracking, Brute Force $O(N)$ vs Optimal $O(H)$ search, and absent key boundaries.
+                                </p>
+                            </div>
+                            <div class="flex justify-between items-center pt-2 border-t border-slate-200">
+                                <span class="text-xs font-sans font-bold text-slate-500">4 Topics • Canvas Engine</span>
+                                <a href="bst_predecessor_successor.html" class="note-badge bg-teal-700 hover:bg-teal-800 text-white">
+                                    Open ↗
+                                </a>
+                            </div>
                         </div>
                     </div>
 
@@ -844,6 +866,41 @@
                 </div>
             </section>
 
+            <!-- ======================================================================
+                 UNIT 9: PATTERN MATCHING ALGORITHMS
+                 ====================================================================== -->
+            <section id="sec-pattern_matching" class="note-section space-y-4">
+                <div class="flex items-baseline justify-between border-b-2 border-inkBlue/30 pb-1">
+                    <h3 class="text-2xl sm:text-3xl font-bold text-amber-800 font-['Kalam'] flex items-center gap-2">
+                        <span>🔍</span> Unit 9 – Pattern Matching Algorithms
+                    </h3>
+                    <span
+                        class="font-sans text-xs font-bold text-amber-800 bg-amber-100 px-2.5 py-0.5 rounded-full border border-amber-300">
+                        1 Notebook
+                    </span>
+                </div>
+                <p class="text-base sm:text-lg text-pencilGray font-sans leading-relaxed">
+                    Exact string searching algorithms from sliding window brute-force methods to linear time Knuth-Morris-Pratt (KMP) using the Longest Proper Prefix which is also a Suffix (LPS) table.
+                </p>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pl-1 sm:pl-2">
+                    
+                    <!-- Pattern Matching (Naive & KMP) -->
+                    <div class="personal-card border-amber-600 note-item" data-search="pattern matching string search naive brute force kmp knuth morris pratt lps table prefix suffix proper prefix complexity">
+                        <div class="flex justify-between items-start gap-2">
+                            <div>
+                                <span class="text-[11px] font-sans font-bold uppercase text-amber-800 bg-amber-100 px-1.5 py-0.5 rounded border border-amber-300">String Matching</span>
+                                <h4 class="text-xl font-bold text-inkBlue font-['Kalam'] mt-0.5">Naive &amp; KMP Search</h4>
+                            </div>
+                            <a href="pattern_matching.html" class="note-badge bg-amber-700 hover:bg-amber-800 text-white">Open ↗</a>
+                        </div>
+                        <p class="text-sm font-sans text-slate-600 mt-1">Naive brute force vs Knuth-Morris-Pratt $O(N+M)$ with LPS array, avoiding text backtracking.</p>
+                        <span class="text-xs font-sans font-bold text-slate-500 mt-2 block">4 Topics • Canvas Interactive Engine</span>
+                    </div>
+
+                </div>
+            </section>
+
         </div>
     </main>
 
@@ -902,9 +959,10 @@
                 'dp': document.getElementById('sec-dp'),
                 'backtracking': document.getElementById('sec-backtracking'),
                 'branch_and_bound': document.getElementById('sec-branch_and_bound'),
+                'pattern_matching': document.getElementById('sec-pattern_matching'),
             };
 
-            const buttons = ['all', 'stl', 'searching', 'sorting', 'trees', 'greedy', 'dp', 'backtracking', 'branch_and_bound'];
+            const buttons = ['all', 'stl', 'searching', 'sorting', 'trees', 'greedy', 'dp', 'backtracking', 'branch_and_bound', 'pattern_matching'];
             buttons.forEach(b => {
                 const el = document.getElementById('btn-cat-' + b);
                 if (b === cat) {

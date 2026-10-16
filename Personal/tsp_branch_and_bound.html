@@ -1,0 +1,1864 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traveling Salesperson Problem: LC Branch and Bound - Digital Lecture Notes</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Kalam:wght@300;400;700&family=Patrick+Hand&family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap"
+        rel="stylesheet">
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        notebookBg: '#cbd5e1',
+                        notebookPaper: '#FAF6EE',
+                        inkBlue: '#1A365D',
+                        inkRed: '#9B2C2C',
+                        pencilGray: '#4A5568',
+                    },
+                    fontFamily: {
+                        notes: ['Patrick Hand', 'Kalam', 'cursive'],
+                        heading: ['Kalam', 'cursive'],
+                        clean: ['Inter', 'sans-serif'],
+                        code: ['Fira Code', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Physical Notebook Styling -->
+    <style>
+        body {
+            background-color: #cbd5e1;
+            font-family: 'Patrick Hand', 'Kalam', cursive;
+            color: #1e293b;
+        }
+
+        .lined-paper {
+            background-color: #FAF6EE !important;
+            background-image: repeating-linear-gradient(#FAF6EE 0px,
+                    #FAF6EE 31px,
+                    #e2ebf3 32px) !important;
+            line-height: 32px;
+            position: relative;
+        }
+
+        .notebook-margin {
+            border-left: 2.5px solid #FC8181 !important;
+            padding-left: 1.25rem;
+        }
+
+        @media (min-width: 640px) {
+            .notebook-margin {
+                padding-left: 2.5rem;
+            }
+        }
+
+        .spiral-ring {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #cbd5e1 0%, #64748b 50%, #334155 100%);
+            box-shadow: inset 1px 1px 2px rgba(255, 255, 255, 0.6), 2px 2px 4px rgba(0, 0, 0, 0.25);
+            margin: 11px 0;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            font-family: 'Kalam', cursive;
+        }
+
+        /* Clean Mode Font Switcher */
+        body.font-clean,
+        body.font-clean * {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+        }
+
+        body.font-clean pre,
+        body.font-clean code {
+            font-family: 'Fira Code', monospace !important;
+        }
+
+        /* Handwritten Highlighters & Sticky Callouts */
+        .highlighter-yellow {
+            background: linear-gradient(104deg, rgba(254, 240, 138, 0.95) 0.9%, rgba(253, 224, 71, 0.85) 98%);
+            padding: 2px 8px;
+            border-radius: 4px;
+            box-decoration-break: clone;
+            -webkit-box-decoration-break: clone;
+            display: inline-block;
+        }
+
+        .highlighter-green {
+            background: linear-gradient(104deg, rgba(187, 247, 208, 0.95) 0.9%, rgba(134, 239, 172, 0.85) 98%);
+            padding: 2px 8px;
+            border-radius: 4px;
+            box-decoration-break: clone;
+            -webkit-box-decoration-break: clone;
+            display: inline-block;
+        }
+
+        .highlighter-blue {
+            background: linear-gradient(104deg, rgba(191, 219, 254, 0.95) 0.9%, rgba(147, 197, 253, 0.85) 98%);
+            padding: 2px 8px;
+            border-radius: 4px;
+            box-decoration-break: clone;
+            -webkit-box-decoration-break: clone;
+            display: inline-block;
+        }
+
+        .highlighter-red {
+            background: linear-gradient(104deg, rgba(254, 205, 211, 0.95) 0.9%, rgba(253, 164, 175, 0.85) 98%);
+            padding: 2px 8px;
+            border-radius: 4px;
+            box-decoration-break: clone;
+            -webkit-box-decoration-break: clone;
+            display: inline-block;
+        }
+
+        .pen-box {
+            background: rgba(255, 255, 255, 0.92);
+            border: 2px dashed #3b82f6;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .pen-box-red {
+            background: rgba(255, 255, 255, 0.92);
+            border: 2px dashed #ef4444;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .pen-box-emerald {
+            background: rgba(255, 255, 255, 0.92);
+            border: 2px dashed #10b981;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .teacher-quote {
+            background: rgba(254, 243, 199, 0.92);
+            border-left: 5px solid #d97706;
+            border-radius: 6px;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-style: italic;
+        }
+
+        .sketch-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .canvas-frame {
+            background: #ffffff;
+            border: 2px solid #cbd5e1;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Matrix Table Styling */
+        .matrix-table {
+            border-collapse: collapse;
+            font-family: 'Fira Code', monospace;
+            text-align: center;
+        }
+
+        .matrix-table th,
+        .matrix-table td {
+            border: 1px solid #cbd5e1;
+            padding: 6px 10px;
+            min-width: 42px;
+        }
+
+        .matrix-table th {
+            background-color: #f1f5f9;
+            color: #1e3a8a;
+            font-weight: bold;
+        }
+
+        /* VS Code Dark+ Mockup Styling */
+        .vscode-window {
+            background: #1e1e1e;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+            font-family: 'Fira Code', monospace;
+        }
+
+        .vscode-titlebar {
+            background: #323233;
+            color: #cccccc;
+            padding: 6px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 12px;
+            user-select: none;
+        }
+
+        .vscode-tab {
+            background: #1e1e1e;
+            color: #ffffff;
+            padding: 4px 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border-top: 2px solid #007acc;
+            font-size: 12px;
+        }
+
+        .vscode-breadcrumbs {
+            background: #252526;
+            color: #a9a9a9;
+            padding: 3px 12px;
+            font-size: 11px;
+            border-bottom: 1px solid #333333;
+        }
+
+        .line-numbers {
+            color: #858585;
+            text-align: right;
+            padding-right: 12px;
+            user-select: none;
+            line-height: 1.5rem;
+            font-size: 13px;
+        }
+
+        pre code {
+            font-family: 'Fira Code', monospace !important;
+            font-size: 13px !important;
+            line-height: 1.5rem !important;
+            color: #d4d4d4;
+            tab-size: 4;
+        }
+
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+
+            body {
+                background: white !important;
+            }
+
+            .lined-paper {
+                background-image: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body class="text-xl text-slate-800 antialiased transition-all duration-300">
+
+    <!-- Sticky Header Navigation Bar -->
+    <header class="sticky top-0 z-50 bg-[#FAF6EE] shadow-md border-b-2 border-amber-200 px-4 py-3 no-print">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-3">
+            <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+                <a href="../index.html"
+                    class="px-3 py-1.5 rounded-lg bg-amber-100 hover:bg-amber-200 border border-amber-300 text-inkBlue text-xs sm:text-sm font-bold flex items-center gap-1.5 transition shadow-sm font-sans"
+                    title="Back to Digital Bookshelf">
+                    <span>📚</span> <span>Bookshelf</span>
+                </a>
+                <a href="index.html"
+                    class="px-3 py-1.5 rounded-lg bg-emerald-100 hover:bg-emerald-200 border border-emerald-300 text-emerald-900 text-xs sm:text-sm font-bold flex items-center gap-1.5 transition shadow-sm font-sans"
+                    title="Back to Personal Notes Directory">
+                    <span>📋</span> <span>Notes Directory</span>
+                </a>
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl sm:text-3xl font-bold text-inkBlue tracking-wide font-['Kalam']">🗺️
+                        Traveling Salesperson: LC Branch &amp; Bound</span>
+                    <span
+                        class="bg-indigo-100 text-indigo-900 text-xs sm:text-sm font-bold px-3 py-1 rounded-full border border-indigo-300 font-sans">
+                        Abdul Bari Transcript &bull; Reduced Matrix Method
+                    </span>
+                </div>
+            </div>
+
+            <!-- Right: Font Toggle Button -->
+            <div class="flex items-center gap-2">
+                <button id="fontToggleBtn" onclick="toggleFontMode()"
+                    class="shrink-0 px-3.5 py-1.5 rounded-lg bg-inkBlue text-white hover:bg-slate-800 transition text-xs sm:text-sm font-bold shadow flex items-center gap-1.5 font-sans"
+                    title="Toggle between Handwritten and Clean typography">
+                    <span>✍️</span> <span id="fontBtnText">Clean Font</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <nav
+            class="max-w-6xl mx-auto mt-2.5 flex flex-wrap gap-1 border-t border-amber-200 pt-2 text-sm sm:text-base font-sans">
+            <button onclick="switchTab('tab-problem-formulation')" id="nav-tab-problem-formulation"
+                class="nav-tab px-4 py-1.5 rounded-t-lg font-bold bg-amber-200 text-inkBlue border-b-2 border-inkBlue transition">
+                1. Problem &amp; Reduced Matrix Approach
+            </button>
+            <button onclick="switchTab('tab-reduction-mechanics')" id="nav-tab-reduction-mechanics"
+                class="nav-tab px-4 py-1.5 rounded-t-lg font-bold text-slate-600 hover:text-inkBlue transition">
+                2. Reduction Rules &amp; "The WHY"
+            </button>
+            <button onclick="switchTab('tab-state-space-tree')" id="nav-tab-state-space-tree"
+                class="nav-tab px-4 py-1.5 rounded-t-lg font-bold text-slate-600 hover:text-inkBlue transition">
+                3. State Space Tree (5 Vertices, Nodes 1–11)
+            </button>
+            <button onclick="switchTab('tab-cpp-complexity')" id="nav-tab-cpp-complexity"
+                class="nav-tab px-4 py-1.5 rounded-t-lg font-bold text-slate-600 hover:text-inkBlue transition">
+                4. C++ Implementation &amp; Complexity
+            </button>
+        </nav>
+    </header>
+
+    <!-- Main Notebook Container -->
+    <main
+        class="max-w-6xl mx-auto flex relative bg-notebookPaper rounded-xl shadow-2xl overflow-hidden min-h-[950px] border border-amber-200 my-8">
+
+        <!-- Left Binder Column (50 Physical Spiral Rings) -->
+        <div
+            class="w-10 sm:w-16 bg-amber-50 border-r-2 border-amber-200 flex flex-col items-center py-8 select-none shrink-0 no-print space-y-6 z-10 shadow-[inset_-5px_0_10px_rgba(0,0,0,0.05)]">
+            <script>
+                for (let i = 0; i < 50; i++) document.write('<div class="spiral-ring"></div>');
+            </script>
+        </div>
+
+        <!-- Notebook Content Area -->
+        <div class="flex-1 lined-paper p-4 sm:p-8 notebook-margin sm:pl-8 overflow-hidden z-0">
+
+            <!-- ==================================================================== -->
+            <!-- TAB 1: PROBLEM FORMULATION & REDUCED MATRIX APPROACH                 -->
+            <!-- ==================================================================== -->
+            <div id="tab-problem-formulation" class="tab-pane space-y-8">
+
+                <!-- Section Header -->
+                <div class="border-b-2 border-inkRed pb-2 flex justify-between items-baseline">
+                    <div>
+                        <h1
+                            class="text-3xl sm:text-4xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                            1. Traveling Salesperson Problem &amp; Branch and Bound Formulation
+                        </h1>
+                        <p class="text-sm font-sans text-pencilGray mt-1">
+                            Hamiltonian cycles, minimum cost bounding via row/column reductions, and introductory graph walkthrough.
+                        </p>
+                    </div>
+                    <span
+                        class="text-xs sm:text-sm font-bold font-sans bg-indigo-100 text-indigo-900 px-2.5 py-1 rounded border border-indigo-300">
+                        Lecture Transcript &bull; Abdul Bari
+                    </span>
+                </div>
+
+                <!-- Teacher's Direct Transcription Callout -->
+                <div class="teacher-quote text-slate-800">
+                    <span class="font-bold text-amber-900 not-italic">📝 Professor Abdul Bari's Lecture Transcript:</span>
+                    "The topic is travelling salesperson problem using branch and bound. In this video I'll explain you about the problem, then the approach of branch and bound, then I'll solve a textbook problem using branch and bound. See, the problem is a weighted graph is given, here is an example of 5 vertices graph and we have to find out a shortest tour that is going through all the vertices once and returning back to the starting vertex. Usually we have to take the starting vertex as 1, so we have to go around all the vertices that is 2, 3, 4, 5 and again we have to come back to vertex 1. For that, cost adjacency matrix is given here. Now we understand how this problem is solved using branch and bound. So for that I'll take a small graph with just 4 vertices and I'll discuss the approach, then we will solve this 5-vertex problem!"
+                </div>
+
+                <!-- 1.1 Formal Problem Definition -->
+                <section class="space-y-4">
+                    <h2 class="text-2xl sm:text-3xl font-bold text-inkRed">
+                        &sect;1.1 The Formal Problem Statement
+                    </h2>
+                    <p class="leading-relaxed">
+                        Let <span class="font-mono font-bold text-inkBlue">G = (V, E)</span> be a directed, weighted graph with <span class="font-mono font-bold">|V| = n</span> vertices. We are given a cost matrix <span class="font-mono font-bold">C[n][n]</span> where <span class="font-mono">C[i][j]</span> is the cost of travelling from city <span class="font-mono">i</span> to city <span class="font-mono">j</span> (<span class="font-mono">C[i][i] = &infin;</span>).
+                    </p>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 font-sans text-xs sm:text-sm">
+                        <div class="p-3.5 bg-blue-50 border border-blue-200 rounded-lg space-y-1">
+                            <span class="font-bold text-blue-950 block text-base">1. Complete Tour:</span>
+                            <p class="text-slate-700">The salesperson must visit <strong>every single vertex exactly once</strong> (Hamiltonian Cycle).</p>
+                        </div>
+                        <div class="p-3.5 bg-amber-50 border border-amber-200 rounded-lg space-y-1">
+                            <span class="font-bold text-amber-950 block text-base">2. Return to Start:</span>
+                            <p class="text-slate-700">Starting conventionally from <strong>vertex 1</strong>, the tour must return back to vertex 1 at the end.</p>
+                        </div>
+                        <div class="p-3.5 bg-emerald-50 border border-emerald-200 rounded-lg space-y-1">
+                            <span class="font-bold text-emerald-950 block text-base">3. Minimize Total Cost:</span>
+                            <p class="text-slate-700">The objective is to find the permutation that <strong>minimizes the sum of edge costs</strong> along the tour.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 1.2 Introductory 4-Vertex Graph Walkthrough -->
+                <section class="space-y-4">
+                    <h2 class="text-2xl sm:text-3xl font-bold text-inkRed">
+                        &sect;1.2 Introductory 4-Vertex Graph: Grasping the Core Approach
+                    </h2>
+                    <p class="leading-relaxed">
+                        Before tackling the full 5-vertex exam matrix, Professor Abdul Bari illustrates the intuition using a simple <span class="font-mono font-bold text-inkBlue">4-vertex graph</span>:
+                    </p>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 items-center">
+                        <!-- Canvas Diagram for 4-Vertex Graph -->
+                        <div class="canvas-frame p-3">
+                            <div class="font-bold text-inkBlue text-sm mb-1 font-['Kalam']">Simple 4-Vertex Complete Graph Tour</div>
+                            <canvas id="canvas-intro-4v" width="440" height="230" class="w-full bg-[#FAF6EE] rounded border border-slate-300"></canvas>
+                            <div class="text-[11px] font-sans text-slate-500 text-center mt-1">
+                                Tour path: 1 &rarr; 2 &rarr; 3 &rarr; 4 &rarr; 1 (visiting each node once)
+                            </div>
+                        </div>
+
+                        <!-- Conceptual Takeaways -->
+                        <div class="pen-box space-y-2 font-sans text-xs sm:text-sm">
+                            <h4 class="font-bold text-blue-950 text-base flex items-center gap-1.5">
+                                <span>💡</span> Key Insights from the 4-Vertex Example:
+                            </h4>
+                            <ul class="list-disc list-inside space-y-1.5 text-slate-800 leading-relaxed">
+                                <li><strong>Fixed Origin:</strong> Without loss of generality, we fix the starting vertex as <strong>vertex 1</strong>. This avoids counting identical cycles with rotated starting points.</li>
+                                <li><strong>Tour Decisions:</strong> At vertex 1, the salesperson has <span class="font-mono font-bold">(n - 1) = 3</span> choices: visit vertex 2, 3, or 4.</li>
+                                <li><strong>Brute Force Flaw:</strong> Generating all <span class="font-mono font-bold">(n - 1)! = 3! = 6</span> tours (or <span class="font-mono">(n-1)!</span> in general) explodes factorially.</li>
+                                <li><strong>Branch and Bound Goal:</strong> Compute a mathematical <strong>lower bound</strong> at every intermediate step. If a partial path already costs more than a known complete tour, <strong>kill it instantly without exploring its children</strong>!</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 1.3 The Textbook 5-Vertex Problem Dataset -->
+                <section class="space-y-4">
+                    <h2 class="text-2xl sm:text-3xl font-bold text-inkRed">
+                        &sect;1.3 The Given 5-Vertex Textbook Cost Matrix
+                    </h2>
+                    <p class="leading-relaxed">
+                        This is the classic textbook dataset examined in Professor Abdul Bari's lecture (<span class="font-mono font-bold">n = 5</span> vertices). Diagonal entries are <span class="font-mono font-bold text-inkRed">&infin;</span> because a city cannot have a self-loop:
+                    </p>
+
+                    <div class="overflow-x-auto flex justify-center py-2">
+                        <table class="matrix-table shadow-sm text-sm sm:text-base bg-white border-2 border-slate-700">
+                            <thead>
+                                <tr class="bg-amber-100">
+                                    <th class="p-2 border-r-2 border-slate-700">From \ To</th>
+                                    <th class="p-2 text-indigo-900">City 1</th>
+                                    <th class="p-2 text-indigo-900">City 2</th>
+                                    <th class="p-2 text-indigo-900">City 3</th>
+                                    <th class="p-2 text-indigo-900">City 4</th>
+                                    <th class="p-2 text-indigo-900">City 5</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="font-bold bg-amber-50 border-r-2 border-slate-700">City 1</td>
+                                    <td class="text-rose-700 font-bold">&infin;</td>
+                                    <td class="text-slate-800">20</td>
+                                    <td class="text-slate-800">30</td>
+                                    <td class="text-emerald-800 font-bold bg-emerald-50">10</td>
+                                    <td class="text-slate-800">11</td>
+                                </tr>
+                                <tr>
+                                    <td class="font-bold bg-amber-50 border-r-2 border-slate-700">City 2</td>
+                                    <td class="text-slate-800">15</td>
+                                    <td class="text-rose-700 font-bold">&infin;</td>
+                                    <td class="text-slate-800">16</td>
+                                    <td class="text-slate-800">4</td>
+                                    <td class="text-emerald-800 font-bold bg-emerald-50">2</td>
+                                </tr>
+                                <tr>
+                                    <td class="font-bold bg-amber-50 border-r-2 border-slate-700">City 3</td>
+                                    <td class="text-slate-800">3</td>
+                                    <td class="text-slate-800">5</td>
+                                    <td class="text-rose-700 font-bold">&infin;</td>
+                                    <td class="text-emerald-800 font-bold bg-emerald-50">2</td>
+                                    <td class="text-slate-800">4</td>
+                                </tr>
+                                <tr>
+                                    <td class="font-bold bg-amber-50 border-r-2 border-slate-700">City 4</td>
+                                    <td class="text-slate-800">19</td>
+                                    <td class="text-slate-800">6</td>
+                                    <td class="text-slate-800">18</td>
+                                    <td class="text-rose-700 font-bold">&infin;</td>
+                                    <td class="text-emerald-800 font-bold bg-emerald-50">3</td>
+                                </tr>
+                                <tr>
+                                    <td class="font-bold bg-amber-50 border-r-2 border-slate-700">City 5</td>
+                                    <td class="text-slate-800">16</td>
+                                    <td class="text-emerald-800 font-bold bg-emerald-50">4</td>
+                                    <td class="text-slate-800">7</td>
+                                    <td class="text-slate-800">16</td>
+                                    <td class="text-rose-700 font-bold">&infin;</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+            </div>
+
+            <!-- ==================================================================== -->
+            <!-- TAB 2: REDUCTION MECHANICS & "THE WHY"                               -->
+            <!-- ==================================================================== -->
+            <div id="tab-reduction-mechanics" class="tab-pane hidden space-y-8">
+
+                <!-- Section Header -->
+                <div class="border-b-2 border-inkRed pb-2 flex justify-between items-baseline">
+                    <div>
+                        <h1
+                            class="text-3xl sm:text-4xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                            2. Reduced Cost Matrix Mechanics &amp; Explicit "WHY" Rationale
+                        </h1>
+                        <p class="text-sm font-sans text-pencilGray mt-1">
+                            Unavoidable departure/arrival fees, row and column reductions, and state transition invariants.
+                        </p>
+                    </div>
+                    <span
+                        class="text-xs sm:text-sm font-bold font-sans bg-indigo-100 text-indigo-900 px-2.5 py-1 rounded border border-indigo-300">
+                        Mathematical Proofs &bull; Horowitz &amp; Sahni
+                    </span>
+                </div>
+
+                <!-- 2.1 The Two Invariants of a Reduced Matrix -->
+                <section class="space-y-4">
+                    <h2 class="text-2xl sm:text-3xl font-bold text-inkRed">
+                        &sect;2.1 What is a "Reduced Cost Matrix"?
+                    </h2>
+                    <div class="p-4 bg-amber-50 border-2 border-amber-300 rounded-lg space-y-2 font-sans text-sm">
+                        <span class="font-bold text-amber-950 block text-base">📌 Formal Definition:</span>
+                        <p class="text-slate-800 leading-relaxed">
+                            A cost matrix is said to be <strong>Reduced</strong> if and only if:
+                        </p>
+                        <ol class="list-decimal list-inside space-y-1 font-mono text-xs sm:text-sm text-slate-800">
+                            <li><strong>Every Row contains at least one zero (0)</strong>, or all its entries are &infin;.</li>
+                            <li><strong>Every Column contains at least one zero (0)</strong>, or all its entries are &infin;.</li>
+                        </ol>
+                    </div>
+
+                    <!-- Real-World Analogy: Airport Departure and Landing Taxes -->
+                    <div class="pen-box space-y-2 font-sans text-xs sm:text-sm">
+                        <h4 class="font-bold text-inkBlue text-base flex items-center gap-1.5">
+                            <span>✈️</span> The Real-Life Analogy: Mandatory Airport Departure &amp; Landing Taxes
+                        </h4>
+                        <p class="text-slate-800 leading-relaxed">
+                            Imagine 5 cities. Every time a flight takes off from City 1, the airline MUST pay at least <strong>$10</strong> departure tax, regardless of destination. Every time a flight lands in City 3, they MUST pay at least <strong>$3</strong> arrival tax.
+                        </p>
+                        <div class="p-2.5 bg-white rounded border border-blue-200 text-slate-900 font-bold">
+                            &bull; Row Minimum = The minimum unavoidable cost required to LEAVE that city.<br>
+                            &bull; Column Minimum = The minimum unavoidable cost required to ENTER that city.
+                        </div>
+                        <p class="text-slate-600 text-xs">
+                            Because a complete tour <em>must leave every city exactly once and enter every city exactly once</em>, summing all row and column reductions guarantees the <strong>absolute minimum baseline cost</strong> any valid tour can ever achieve!
+                        </p>
+                    </div>
+                </section>
+
+                <!-- 2.2 Step-by-Step Reduction for Root Node 1 -->
+                <section class="space-y-4">
+                    <h2 class="text-2xl sm:text-3xl font-bold text-inkRed">
+                        &sect;2.2 Exact Numerical Reduction of Root Node 1
+                    </h2>
+                    <p class="leading-relaxed">
+                        Let us follow Abdul Bari's step-by-step arithmetic to reduce the initial 5x5 matrix:
+                    </p>
+
+                    <!-- Row Reduction Step -->
+                    <div class="sketch-card p-4 space-y-3 font-sans text-xs sm:text-sm">
+                        <div class="flex justify-between items-center border-b pb-1.5">
+                            <span class="font-bold text-indigo-950 text-base">Step 1: Row Reduction (Subtract Row Minima)</span>
+                            <span class="px-2 py-0.5 bg-indigo-100 text-indigo-900 font-mono rounded font-bold">Row Sum = 21</span>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="space-y-1 font-mono text-slate-800 text-xs">
+                                <div>&bull; Row 1: min(&infin;, 20, 30, 10, 11) = <strong class="text-rose-800 text-sm">10</strong></div>
+                                <div>&bull; Row 2: min(15, &infin;, 16, 4, 2) = <strong class="text-rose-800 text-sm">2</strong></div>
+                                <div>&bull; Row 3: min(3, 5, &infin;, 2, 4) = <strong class="text-rose-800 text-sm">2</strong></div>
+                                <div>&bull; Row 4: min(19, 6, 18, &infin;, 3) = <strong class="text-rose-800 text-sm">3</strong></div>
+                                <div>&bull; Row 5: min(16, 4, 7, 16, &infin;) = <strong class="text-rose-800 text-sm">4</strong></div>
+                                <div class="pt-1.5 border-t border-slate-200 font-bold text-indigo-900">
+                                    Total Row Reduction r<sub>row</sub> = 10 + 2 + 2 + 3 + 4 = 21
+                                </div>
+                            </div>
+                            <div class="p-2.5 bg-slate-50 border rounded text-xs">
+                                <span class="font-bold text-slate-900 block mb-1">Matrix after Row Subtractions:</span>
+                                <div class="font-mono text-slate-700 leading-relaxed">
+                                    Row 1: [ &infin;, 10, 20, &nbsp;0, &nbsp;1 ]<br>
+                                    Row 2: [ 13, &infin;, 14, &nbsp;2, &nbsp;0 ]<br>
+                                    Row 3: [ &nbsp;1, &nbsp;3, &infin;, &nbsp;0, &nbsp;2 ]<br>
+                                    Row 4: [ 16, &nbsp;3, 15, &infin;, &nbsp;0 ]<br>
+                                    Row 5: [ 12, &nbsp;0, &nbsp;3, 12, &infin; ]
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Column Reduction Step -->
+                    <div class="sketch-card p-4 space-y-3 font-sans text-xs sm:text-sm">
+                        <div class="flex justify-between items-center border-b pb-1.5">
+                            <span class="font-bold text-emerald-950 text-base">Step 2: Column Reduction on the Result</span>
+                            <span class="px-2 py-0.5 bg-emerald-100 text-emerald-900 font-mono rounded font-bold">Col Sum = 4</span>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="space-y-1 font-mono text-slate-800 text-xs">
+                                <div>&bull; Col 1: min(13, 1, 16, 12) = <strong class="text-rose-800 text-sm">1</strong> &rarr; subtract 1</div>
+                                <div>&bull; Col 2: already has 0 (in row 5) &rarr; min = <strong class="text-emerald-700">0</strong></div>
+                                <div>&bull; Col 3: min(20, 14, 15, 3) = <strong class="text-rose-800 text-sm">3</strong> &rarr; subtract 3</div>
+                                <div>&bull; Col 4: already has 0 (in rows 1, 3) &rarr; min = <strong class="text-emerald-700">0</strong></div>
+                                <div>&bull; Col 5: already has 0 (in rows 2, 4) &rarr; min = <strong class="text-emerald-700">0</strong></div>
+                                <div class="pt-1.5 border-t border-slate-200 font-bold text-emerald-900">
+                                    Total Column Reduction r<sub>col</sub> = 1 + 0 + 3 + 0 + 0 = 4
+                                </div>
+                            </div>
+                            <div class="p-2.5 bg-emerald-50 border border-emerald-200 rounded text-xs">
+                                <span class="font-bold text-emerald-950 block mb-1">Final Reduced Matrix M₁ at Root:</span>
+                                <div class="font-mono text-emerald-900 leading-relaxed font-bold">
+                                    Row 1: [ &infin;, 10, 17, &nbsp;0, &nbsp;1 ]<br>
+                                    Row 2: [ 12, &infin;, 11, &nbsp;2, &nbsp;0 ]<br>
+                                    Row 3: [ &nbsp;0, &nbsp;3, &infin;, &nbsp;0, &nbsp;2 ]<br>
+                                    Row 4: [ 15, &nbsp;3, 12, &infin;, &nbsp;0 ]<br>
+                                    Row 5: [ 11, &nbsp;0, &nbsp;0, 12, &infin; ]
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-indigo-50 border border-indigo-200 rounded-lg text-center font-mono font-bold text-indigo-950 text-base">
+                            🎯 Initial Root Cost Bound: c&#770;(Node 1) = r<sub>row</sub> + r<sub>col</sub> = 21 + 4 = 25!
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 2.3 The 4 Crucial Rules for Branching (The "WHY") -->
+                <section class="space-y-4">
+                    <h2 class="text-2xl sm:text-3xl font-bold text-inkRed">
+                        &sect;2.3 Branching Transition Rules: Why Row i = &infin;, Col j = &infin;, and M[j][1] = &infin;?
+                    </h2>
+                    <p class="leading-relaxed">
+                        Suppose the salesman is currently at vertex <span class="font-mono font-bold text-inkBlue">i</span> and chooses to travel to vertex <span class="font-mono font-bold text-inkBlue">j</span> (taking edge <span class="font-mono font-bold">i &rarr; j</span>). We must transform the parent matrix <span class="font-mono">M<sub>parent</sub></span> into the child matrix <span class="font-mono">M<sub>child</sub></span> following 4 strict mathematical rules:
+                    </p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 font-sans text-xs sm:text-sm">
+                        <!-- Rule 1 -->
+                        <div class="p-4 bg-white border-2 border-blue-300 rounded-lg space-y-2">
+                            <span class="font-bold text-blue-950 block text-base flex items-center gap-1.5">
+                                <span>1️⃣</span> Rule 1: Set Row i = &infin;
+                            </span>
+                            <p class="text-slate-700 leading-relaxed">
+                                <strong>WHY?</strong> In a Hamiltonian tour, the salesman can <em>depart from city i exactly once</em>! Since edge <span class="font-mono font-bold">i &rarr; j</span> has been selected, city <span class="font-mono">i</span> can never have any other outgoing edge. Setting the entire row to &infin; permanently disables all other departures from city <span class="font-mono">i</span>.
+                            </p>
+                        </div>
+
+                        <!-- Rule 2 -->
+                        <div class="p-4 bg-white border-2 border-emerald-300 rounded-lg space-y-2">
+                            <span class="font-bold text-emerald-950 block text-base flex items-center gap-1.5">
+                                <span>2️⃣</span> Rule 2: Set Column j = &infin;
+                            </span>
+                            <p class="text-slate-700 leading-relaxed">
+                                <strong>WHY?</strong> The salesman can <em>enter city j exactly once</em>! Since city <span class="font-mono">j</span> has now been entered via edge <span class="font-mono font-bold">i &rarr; j</span>, no other city can ever lead into city <span class="font-mono">j</span> again. Setting the entire column to &infin; eliminates all duplicate incoming arrivals.
+                            </p>
+                        </div>
+
+                        <!-- Rule 3 -->
+                        <div class="p-4 bg-white border-2 border-rose-300 rounded-lg space-y-2">
+                            <span class="font-bold text-rose-950 block text-base flex items-center gap-1.5">
+                                <span>3️⃣</span> Rule 3: Set M[j][1] = &infin;
+                            </span>
+                            <p class="text-slate-700 leading-relaxed">
+                                <strong>WHY? (Preventing Premature Sub-Cycles)</strong> The salesman must visit ALL cities before returning to the start city 1. If edge <span class="font-mono font-bold">j &rarr; 1</span> were permitted prematurely, the salesman would loop back to city 1 and terminate the tour before visiting the remaining cities!
+                            </p>
+                        </div>
+
+                        <!-- Rule 4 -->
+                        <div class="p-4 bg-white border-2 border-amber-300 rounded-lg space-y-2">
+                            <span class="font-bold text-amber-950 block text-base flex items-center gap-1.5">
+                                <span>4️⃣</span> Rule 4: The Child Cost Formula
+                            </span>
+                            <div class="p-2 bg-amber-50 rounded border border-amber-300 font-mono font-bold text-amber-950 text-xs">
+                                c&#770;(child) = c&#770;(parent) + M<sub>parent</sub>[i][j] + r'
+                            </div>
+                            <p class="text-slate-700 text-xs leading-relaxed">
+                                Where <span class="font-mono">M<sub>parent</sub>[i][j]</span> is the edge cost in the parent's reduced matrix, and <span class="font-mono">r'</span> is the additional reduction required to re-reduce the newly formed matrix.
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+
+            <!-- ==================================================================== -->
+            <!-- TAB 3: STATE SPACE TREE (ABDUL BARI'S 11 NODES TRACE)                -->
+            <!-- ==================================================================== -->
+            <div id="tab-state-space-tree" class="tab-pane hidden space-y-8">
+
+                <!-- Section Header -->
+                <div class="border-b-2 border-inkRed pb-2 flex justify-between items-baseline">
+                    <div>
+                        <h1
+                            class="text-3xl sm:text-4xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                            3. Live State Space Tree Trace (Abdul Bari Nodes 1–11)
+                        </h1>
+                        <p class="text-sm font-sans text-pencilGray mt-1">
+                            Interactive state space tree, Level-by-Level matrix reductions, and Least-Cost decisions.
+                        </p>
+                    </div>
+                    <span
+                        class="text-xs sm:text-sm font-bold font-sans bg-indigo-100 text-indigo-900 px-2.5 py-1 rounded border border-indigo-300">
+                        State Space Tree &bull; 5 Vertices
+                    </span>
+                </div>
+
+                <!-- Interactive Master Tree Canvas Frame -->
+                <div class="canvas-frame p-4 space-y-3">
+                    <div class="flex flex-wrap justify-between items-center gap-2 border-b border-slate-200 pb-2">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xl">🌳</span>
+                            <span class="font-bold text-inkBlue text-base font-['Kalam']">Complete LC-BB State Space Tree (Horowitz &amp; Sahni / Abdul Bari)</span>
+                        </div>
+                        <div class="flex items-center gap-2 font-sans text-xs">
+                            <button onclick="renderAllTspCanvases()"
+                                class="px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 font-bold transition">
+                                ↺ Reset View
+                            </button>
+                            <span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold">● Node 11: Optimal Tour</span>
+                            <span class="px-2 py-0.5 rounded bg-rose-100 text-rose-800 font-bold">● Pruned / Dead</span>
+                            <span class="px-2 py-0.5 rounded bg-blue-100 text-blue-800 font-bold">● Explored</span>
+                        </div>
+                    </div>
+
+                    <!-- Master Tree Canvas -->
+                    <div class="overflow-x-auto">
+                        <canvas id="canvas-tsp-tree" width="1020" height="520"
+                            class="w-full bg-[#FAF6EE] rounded border border-slate-300"></canvas>
+                    </div>
+                    <div class="text-[11px] font-sans text-slate-500 text-center">
+                        💡 Interactive High-DPI Canvas: Visualizes the 11 nodes generated in Abdul Bari's textbook trace. Notice how Least-Cost Priority Queue dives straight to the optimal solution!
+                    </div>
+                </div>
+
+                <!-- Step-by-Step Decision Stages -->
+                <section class="space-y-8">
+                    <div class="border-b border-amber-300 pb-2 flex justify-between items-baseline">
+                        <div>
+                            <h2 class="text-2xl sm:text-3xl font-bold text-inkRed">
+                                &sect;3.1 Diagrammatic Step-by-Step State Evolution &amp; Matrix Reductions
+                            </h2>
+                            <p class="text-xs font-sans text-pencilGray mt-0.5">
+                                Every stage details the parent matrix, edge costs, row/col reductions performed, and Min-Heap queue states.
+                            </p>
+                        </div>
+                        <span class="text-xs font-mono bg-amber-100 text-amber-900 px-2 py-0.5 rounded font-bold">
+                            5 Decision Stages
+                        </span>
+                    </div>
+
+                    <!-- ========================================== -->
+                    <!-- STAGE 1: ROOT NODE 1                       -->
+                    <!-- ========================================== -->
+                    <div class="sketch-card p-4 sm:p-5 space-y-4 border-l-4 border-indigo-600 font-sans">
+                        <div class="flex flex-wrap justify-between items-center text-xs gap-2 border-b border-slate-200 pb-2">
+                            <span class="font-bold text-inkBlue text-base font-['Kalam']">Stage 1: Initialize Root (Node 1)</span>
+                            <span class="px-2.5 py-0.5 bg-indigo-100 text-indigo-900 rounded font-mono font-bold">Path: [ 1 ] &bull; Cost = 25</span>
+                        </div>
+
+                        <!-- Dedicated High-DPI Canvas -->
+                        <div class="overflow-x-auto">
+                            <canvas id="canvas-stage-1" width="900" height="190" class="w-full bg-[#FAF6EE] rounded border border-slate-300"></canvas>
+                        </div>
+
+                        <!-- Detailed Arithmetic Summary -->
+                        <div class="p-3.5 bg-indigo-50/70 border border-indigo-200 rounded-lg text-xs space-y-2">
+                            <div class="font-bold text-indigo-950 text-sm flex justify-between items-center border-b border-indigo-200 pb-1">
+                                <span>🧮 Initial Lower Bound Computation for Node 1</span>
+                                <span class="font-mono bg-white px-2 py-0.5 rounded border text-indigo-900">Start City: 1</span>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-slate-800">
+                                <div class="bg-white p-3 rounded border border-indigo-200 space-y-1 font-mono text-xs">
+                                    <div class="font-bold text-slate-900">Row Reductions Performed:</div>
+                                    <div>&bull; Row 1 min: 10 | Row 2 min: 2</div>
+                                    <div>&bull; Row 3 min: 2 &nbsp;| Row 4 min: 3</div>
+                                    <div>&bull; Row 5 min: 4</div>
+                                    <div class="font-bold text-indigo-900 pt-1 border-t">r<sub>row</sub> = 10 + 2 + 2 + 3 + 4 = 21</div>
+                                </div>
+                                <div class="bg-white p-3 rounded border border-indigo-200 space-y-1 font-mono text-xs">
+                                    <div class="font-bold text-slate-900">Column Reductions Performed:</div>
+                                    <div>&bull; Col 1 min: 1 | Col 2 min: 0</div>
+                                    <div>&bull; Col 3 min: 3 | Col 4 min: 0 | Col 5 min: 0</div>
+                                    <div class="font-bold text-emerald-900 pt-1 border-t">r<sub>col</sub> = 1 + 0 + 3 + 0 + 0 = 4</div>
+                                    <div class="text-rose-900 font-bold bg-amber-50 p-1 rounded mt-1">
+                                        c&#770;(Node 1) = 21 + 4 = 25! (Min-Heap Seed)
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ========================================== -->
+                    <!-- STAGE 2: LEVEL 1 BRANCHING (NODES 2,3,4,5) -->
+                    <!-- ========================================== -->
+                    <div class="sketch-card p-4 sm:p-5 space-y-4 border-l-4 border-blue-500 font-sans">
+                        <div class="flex flex-wrap justify-between items-center text-xs gap-2 border-b border-slate-200 pb-2">
+                            <span class="font-bold text-inkBlue text-base font-['Kalam']">Stage 2: Branch from Vertex 1 to {2, 3, 4, 5} (Nodes 2, 3, 4, 5)</span>
+                            <span class="px-2.5 py-0.5 bg-blue-100 text-blue-900 rounded font-mono font-bold">Level 1 &bull; Pick Node 4 (Cost = 25)</span>
+                        </div>
+
+                        <!-- Dedicated High-DPI Canvas -->
+                        <div class="overflow-x-auto">
+                            <canvas id="canvas-stage-2" width="900" height="215" class="w-full bg-[#FAF6EE] rounded border border-slate-300"></canvas>
+                        </div>
+
+                        <!-- 4 Children Comparison Grid -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 text-xs">
+                            <!-- Node 2 -->
+                            <div class="p-2.5 bg-slate-50 border rounded-lg space-y-1">
+                                <div class="font-bold text-slate-900 flex justify-between">
+                                    <span>Node 2 (Edge 1 &rarr; 2)</span>
+                                    <span class="font-mono text-slate-600">WAIT</span>
+                                </div>
+                                <div class="font-mono text-[11px] text-slate-700 space-y-0.5">
+                                    <div>&bull; Edge M₁[1][2] = 10</div>
+                                    <div>&bull; Reduction r' = 0</div>
+                                    <div class="font-bold text-indigo-950 pt-0.5 border-t">c&#770; = 25 + 10 + 0 = 35</div>
+                                </div>
+                            </div>
+
+                            <!-- Node 3 -->
+                            <div class="p-2.5 bg-slate-50 border rounded-lg space-y-1">
+                                <div class="font-bold text-slate-900 flex justify-between">
+                                    <span>Node 3 (Edge 1 &rarr; 3)</span>
+                                    <span class="font-mono text-slate-600">WAIT</span>
+                                </div>
+                                <div class="font-mono text-[11px] text-slate-700 space-y-0.5">
+                                    <div>&bull; Edge M₁[1][3] = 17</div>
+                                    <div>&bull; Reduction r' = 11</div>
+                                    <div class="font-bold text-indigo-950 pt-0.5 border-t">c&#770; = 25 + 17 + 11 = 53</div>
+                                </div>
+                            </div>
+
+                            <!-- Node 4 -->
+                            <div class="p-2.5 bg-emerald-50 border-2 border-emerald-400 rounded-lg space-y-1">
+                                <div class="font-bold text-emerald-950 flex justify-between">
+                                    <span>Node 4 (Edge 1 &rarr; 4)</span>
+                                    <span class="px-1.5 py-0.2 bg-emerald-200 text-emerald-900 rounded font-mono font-bold">TOP</span>
+                                </div>
+                                <div class="font-mono text-[11px] text-emerald-900 space-y-0.5">
+                                    <div>&bull; Edge M₁[1][4] = 0</div>
+                                    <div>&bull; Reduction r' = 0</div>
+                                    <div class="font-bold text-emerald-950 text-xs pt-0.5 border-t">c&#770; = 25 + 0 + 0 = 25!</div>
+                                </div>
+                            </div>
+
+                            <!-- Node 5 -->
+                            <div class="p-2.5 bg-slate-50 border rounded-lg space-y-1">
+                                <div class="font-bold text-slate-900 flex justify-between">
+                                    <span>Node 5 (Edge 1 &rarr; 5)</span>
+                                    <span class="font-mono text-slate-600">WAIT</span>
+                                </div>
+                                <div class="font-mono text-[11px] text-slate-700 space-y-0.5">
+                                    <div>&bull; Edge M₁[1][5] = 1</div>
+                                    <div>&bull; Reduction r' = 5</div>
+                                    <div class="font-bold text-indigo-950 pt-0.5 border-t">c&#770; = 25 + 1 + 5 = 31</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Heap Status -->
+                        <div class="p-2.5 bg-amber-50 rounded border border-amber-300 font-mono text-xs text-amber-950 flex flex-wrap justify-between items-center gap-2">
+                            <span>📋 <strong>Min-Heap:</strong> [ Node 4 (c&#770;=25), Node 5 (c&#770;=31), Node 2 (c&#770;=35), Node 3 (c&#770;=53) ]</span>
+                            <span class="font-bold text-inkBlue">Extract Node 4 next because min(25, 31, 35, 53) = 25!</span>
+                        </div>
+                    </div>
+
+                    <!-- ========================================== -->
+                    <!-- STAGE 3: LEVEL 2 BRANCHING (NODES 6, 7, 8) -->
+                    <!-- ========================================== -->
+                    <div class="sketch-card p-4 sm:p-5 space-y-4 border-l-4 border-emerald-500 font-sans">
+                        <div class="flex flex-wrap justify-between items-center text-xs gap-2 border-b border-slate-200 pb-2">
+                            <span class="font-bold text-inkBlue text-base font-['Kalam']">Stage 3: Branch from Vertex 4 to {2, 3, 5} (Nodes 6, 7, 8)</span>
+                            <span class="px-2.5 py-0.5 bg-emerald-100 text-emerald-900 rounded font-mono font-bold">Path: 1 &rarr; 4 &bull; Pick Node 6 (Cost = 28)</span>
+                        </div>
+
+                        <!-- Dedicated High-DPI Canvas -->
+                        <div class="overflow-x-auto">
+                            <canvas id="canvas-stage-3" width="900" height="215" class="w-full bg-[#FAF6EE] rounded border border-slate-300"></canvas>
+                        </div>
+
+                        <!-- Children Grid -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+                            <!-- Node 6 -->
+                            <div class="p-3 bg-emerald-50 border-2 border-emerald-400 rounded-lg space-y-1.5">
+                                <div class="font-bold text-emerald-950 text-sm flex justify-between">
+                                    <span>Node 6: Path [1 &rarr; 4 &rarr; 2]</span>
+                                    <span class="px-1.5 py-0.2 bg-emerald-200 text-emerald-900 rounded font-mono font-bold">TOP</span>
+                                </div>
+                                <div class="bg-white p-2 rounded border border-emerald-300 font-mono space-y-0.5 text-slate-800">
+                                    <div>&bull; Edge M₄[4][2] = 3</div>
+                                    <div>&bull; Row 4=&infin;, Col 2=&infin;, M[2][1]=&infin;</div>
+                                    <div>&bull; Reduction r' = 0</div>
+                                    <div class="font-bold text-emerald-950 text-sm pt-1 border-t">
+                                        c&#770;(Node 6) = 25 + 3 + 0 = 28!
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Node 7 -->
+                            <div class="p-3 bg-slate-50 border rounded-lg space-y-1.5">
+                                <div class="font-bold text-slate-900 text-sm flex justify-between">
+                                    <span>Node 7: Path [1 &rarr; 4 &rarr; 3]</span>
+                                    <span class="font-mono text-slate-600">WAIT</span>
+                                </div>
+                                <div class="bg-white p-2 rounded border border-slate-200 font-mono space-y-0.5 text-slate-800">
+                                    <div>&bull; Edge M₄[4][3] = 12</div>
+                                    <div>&bull; Reduction r' = 13</div>
+                                    <div class="font-bold text-slate-900 text-sm pt-1 border-t">
+                                        c&#770;(Node 7) = 25 + 12 + 13 = 50
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Node 8 -->
+                            <div class="p-3 bg-slate-50 border rounded-lg space-y-1.5">
+                                <div class="font-bold text-slate-900 text-sm flex justify-between">
+                                    <span>Node 8: Path [1 &rarr; 4 &rarr; 5]</span>
+                                    <span class="font-mono text-slate-600">WAIT</span>
+                                </div>
+                                <div class="bg-white p-2 rounded border border-slate-200 font-mono space-y-0.5 text-slate-800">
+                                    <div>&bull; Edge M₄[4][5] = 0</div>
+                                    <div>&bull; Reduction r' = 11</div>
+                                    <div class="font-bold text-slate-900 text-sm pt-1 border-t">
+                                        c&#770;(Node 8) = 25 + 0 + 11 = 36
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Heap Status -->
+                        <div class="p-2.5 bg-amber-50 rounded border border-amber-300 font-mono text-xs text-amber-950 flex flex-wrap justify-between items-center gap-2">
+                            <span>📋 <strong>Min-Heap:</strong> [ Node 6 (c&#770;=28), Node 5 (c&#770;=31), Node 2 (c&#770;=35), Node 8 (c&#770;=36), Node 7 (c&#770;=50), Node 3 (c&#770;=53) ]</span>
+                            <span class="font-bold text-inkBlue">Extract Node 6 next because min is 28!</span>
+                        </div>
+                    </div>
+
+                    <!-- ========================================== -->
+                    <!-- STAGE 4: LEVEL 3 BRANCHING (NODES 9, 10)   -->
+                    <!-- ========================================== -->
+                    <div class="sketch-card p-4 sm:p-5 space-y-4 border-l-4 border-amber-500 font-sans">
+                        <div class="flex flex-wrap justify-between items-center text-xs gap-2 border-b border-slate-200 pb-2">
+                            <span class="font-bold text-inkBlue text-base font-['Kalam']">Stage 4: Branch from Vertex 2 to {3, 5} (Nodes 9 &amp; 10)</span>
+                            <span class="px-2.5 py-0.5 bg-amber-100 text-amber-900 rounded font-mono font-bold">Path: 1 &rarr; 4 &rarr; 2 &bull; Pick Node 10 (Cost = 28)</span>
+                        </div>
+
+                        <!-- Dedicated High-DPI Canvas -->
+                        <div class="overflow-x-auto">
+                            <canvas id="canvas-stage-4" width="900" height="215" class="w-full bg-[#FAF6EE] rounded border border-slate-300"></canvas>
+                        </div>
+
+                        <!-- Children Grid -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                            <!-- Node 9 -->
+                            <div class="p-3 bg-slate-50 border rounded-lg space-y-1.5">
+                                <div class="font-bold text-slate-900 text-sm flex justify-between">
+                                    <span>Node 9: Path [1 &rarr; 4 &rarr; 2 &rarr; 3]</span>
+                                    <span class="font-mono text-slate-600">WAIT</span>
+                                </div>
+                                <div class="bg-white p-2 rounded border border-slate-200 font-mono space-y-0.5 text-slate-800">
+                                    <div>&bull; Edge M₆[2][3] = 11</div>
+                                    <div>&bull; Reduction r' = 13</div>
+                                    <div class="font-bold text-slate-900 text-sm pt-1 border-t">
+                                        c&#770;(Node 9) = 28 + 11 + 13 = 52
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Node 10 -->
+                            <div class="p-3 bg-emerald-50 border-2 border-emerald-400 rounded-lg space-y-1.5">
+                                <div class="font-bold text-emerald-950 text-sm flex justify-between">
+                                    <span>Node 10: Path [1 &rarr; 4 &rarr; 2 &rarr; 5]</span>
+                                    <span class="px-1.5 py-0.2 bg-emerald-200 text-emerald-900 rounded font-mono font-bold">TOP</span>
+                                </div>
+                                <div class="bg-white p-2 rounded border border-emerald-300 font-mono space-y-0.5 text-slate-800">
+                                    <div>&bull; Edge M₆[2][5] = 0</div>
+                                    <div>&bull; Row 2=&infin;, Col 5=&infin;, M[5][1]=&infin;</div>
+                                    <div>&bull; Reduction r' = 0</div>
+                                    <div class="font-bold text-emerald-950 text-sm pt-1 border-t">
+                                        c&#770;(Node 10) = 28 + 0 + 0 = 28!
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Heap Status -->
+                        <div class="p-2.5 bg-amber-50 rounded border border-amber-300 font-mono text-xs text-amber-950 flex flex-wrap justify-between items-center gap-2">
+                            <span>📋 <strong>Min-Heap:</strong> [ Node 10 (c&#770;=28), Node 5 (c&#770;=31), Node 2 (c&#770;=35), Node 8 (c&#770;=36), ... ]</span>
+                            <span class="font-bold text-inkBlue">Extract Node 10 next because min cost is 28!</span>
+                        </div>
+                    </div>
+
+                    <!-- ========================================== -->
+                    <!-- STAGE 5: FINAL TOUR COMPLETION & PRUNING   -->
+                    <!-- ========================================== -->
+                    <div class="sketch-card p-4 sm:p-5 space-y-4 border-l-4 border-emerald-600 bg-emerald-50/10 font-sans">
+                        <div class="flex flex-wrap justify-between items-center text-xs gap-2 border-b border-slate-200 pb-2">
+                            <span class="font-bold text-inkBlue text-base font-['Kalam']">Stage 5: Complete Tour to Leaf (Node 11) &amp; Mass Pruning</span>
+                            <span class="px-2.5 py-0.5 bg-emerald-100 text-emerald-900 rounded font-mono font-bold">Final Tour &bull; Cost = 28!</span>
+                        </div>
+
+                        <!-- Dedicated High-DPI Canvas -->
+                        <div class="overflow-x-auto">
+                            <canvas id="canvas-stage-5" width="900" height="235" class="w-full bg-[#FAF6EE] rounded border border-slate-300"></canvas>
+                        </div>
+
+                        <!-- Details Box -->
+                        <div class="p-3.5 bg-emerald-100/70 border-2 border-emerald-500 rounded-lg text-xs space-y-2">
+                            <div class="font-bold text-emerald-950 text-sm flex justify-between items-center border-b border-emerald-300 pb-1">
+                                <span>🏆 Complete Tour Generated: Node 11</span>
+                                <span class="font-mono bg-emerald-200 px-2 py-0.5 rounded font-bold text-emerald-950">OPTIMAL WINNER</span>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 font-mono text-slate-800">
+                                <div class="bg-white p-2.5 rounded border border-emerald-300 space-y-1">
+                                    <div><strong>Remaining City:</strong> Only City 3 left to visit!</div>
+                                    <div>&bull; Edge 5 &rarr; 3 &rarr; 1 (return to origin)</div>
+                                    <div class="text-emerald-950 font-bold pt-1 border-t">
+                                        Total Tour Cost = 28 + M₁₀[5][3] + M[3][1] = 28!
+                                    </div>
+                                </div>
+                                <div class="bg-white p-2.5 rounded border border-emerald-300 space-y-1">
+                                    <div class="font-bold text-rose-900">Mass Pruning Action:</div>
+                                    <div class="text-[11px] text-slate-700 leading-relaxed">
+                                        Every other live node in the Min-Heap has <span class="font-bold">c&#770; &ge; 28</span> (Node 5: 31, Node 2: 35, Node 8: 36, Node 7: 50, Node 9: 52, Node 3: 53).
+                                        <br><span class="text-rose-700 font-bold">&rArr; ALL remaining branches are KILLED immediately!</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Final Answer Banner Box -->
+                        <div class="p-3.5 bg-emerald-200/80 border-2 border-emerald-600 rounded-lg text-center font-mono space-y-1">
+                            <div class="text-emerald-950 font-bold text-base">
+                                🏆 OPTIMAL HAMILTONIAN TOUR FOUND
+                            </div>
+                            <div class="text-sm font-bold text-emerald-900">
+                                Optimal Tour Path: 1 &rarr; 4 &rarr; 2 &rarr; 5 &rarr; 3 &rarr; 1
+                            </div>
+                            <div class="text-xs text-slate-800">
+                                Edge breakdown: C[1,4]=10 + C[4,2]=6 + C[2,5]=2 + C[5,3]=7 + C[3,1]=3 = <strong>28</strong>!
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+
+            <!-- ==================================================================== -->
+            <!-- TAB 4: C++ IMPLEMENTATION & COMPLEXITY                               -->
+            <!-- ==================================================================== -->
+            <div id="tab-cpp-complexity" class="tab-pane hidden space-y-8">
+
+                <!-- Section Header -->
+                <div class="border-b-2 border-inkRed pb-2 flex justify-between items-baseline">
+                    <div>
+                        <h1
+                            class="text-3xl sm:text-4xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                            4. Complete C++ Implementation &amp; Complexity
+                        </h1>
+                        <p class="text-sm font-sans text-pencilGray mt-1">
+                            Self-contained C++20 implementation of TSP Least Cost Branch and Bound with dynamic matrix reduction.
+                        </p>
+                    </div>
+                    <span
+                        class="text-xs sm:text-sm font-bold font-sans bg-indigo-100 text-indigo-900 px-2.5 py-1 rounded border border-indigo-300">
+                        C++20 &bull; Compilable
+                    </span>
+                </div>
+
+                <!-- Algorithmic Pseudocode -->
+                <section class="space-y-4">
+                    <h2 class="text-2xl sm:text-3xl font-bold text-inkRed">
+                        &sect;4.1 High-Level LC-BB Algorithm Pseudocode
+                    </h2>
+                    <div
+                        class="sketch-card p-5 font-mono text-xs sm:text-sm bg-[#fafafa] border border-slate-300 leading-relaxed text-slate-800 space-y-1 overflow-x-auto">
+                        <div class="text-purple-800 font-bold">// Abdul Bari Reduced Matrix LC-BB for TSP</div>
+                        <div><span class="text-blue-700 font-bold">Algorithm</span> <span class="text-amber-700 font-bold">TSP_LCBB</span>(CostMatrix C, n):</div>
+                        <div class="pl-4">1. Reduce C by subtracting row and col minima; initialCost = r_row + r_col.</div>
+                        <div class="pl-4">2. Create root node: path = [1], reducedMatrix = C, cost = initialCost, level = 0.</div>
+                        <div class="pl-4">3. Initialize Min-Heap Priority Queue PQ, push root.</div>
+                        <div class="pl-4">4. <span class="text-blue-700 font-bold">while</span> PQ is not empty:</div>
+                        <div class="pl-8">a. curr = PQ.pop()</div>
+                        <div class="pl-8">b. <span class="text-blue-700 font-bold">if</span> curr.level == n - 1:</div>
+                        <div class="pl-12">Complete tour to remaining city &amp; start city 1.</div>
+                        <div class="pl-12"><span class="text-blue-700 font-bold">return</span> curr.cost and curr.path. <span class="text-emerald-700 font-bold">// Optimal guaranteed!</span></div>
+                        <div class="pl-8">c. <span class="text-blue-700 font-bold">for each</span> unvisited city j:</div>
+                        <div class="pl-12">i. child.matrix = copy(curr.reducedMatrix)</div>
+                        <div class="pl-12">ii. child.matrix[curr.city][:] = &infin;; child.matrix[:][j] = &infin;; child.matrix[j][1] = &infin;</div>
+                        <div class="pl-12">iii. r' = reduce(child.matrix)</div>
+                        <div class="pl-12">iv. child.cost = curr.cost + curr.reducedMatrix[curr.city][j] + r'</div>
+                        <div class="pl-12">v. PQ.push(child)</div>
+                    </div>
+                </section>
+
+                <!-- 4.2 VS Code Dark+ Mockup Container -->
+                <section class="space-y-4">
+                    <h2 class="text-2xl sm:text-3xl font-bold text-inkRed">
+                        &sect;4.2 Complete, Compilable C++20 Source Code
+                    </h2>
+
+                    <div class="vscode-window">
+                        <!-- VS Code Title Bar -->
+                        <div class="vscode-titlebar">
+                            <div class="flex items-center gap-2">
+                                <span class="w-3 h-3 rounded-full inline-block bg-[#FF5F56]"></span>
+                                <span class="w-3 h-3 rounded-full inline-block bg-[#FFBD2E]"></span>
+                                <span class="w-3 h-3 rounded-full inline-block bg-[#27C93F]"></span>
+                            </div>
+                            <div class="text-slate-400 text-xs">tsp_branch_and_bound.cpp - Antigravity IDE</div>
+                            <button onclick="copyCode('cppCodeBlock', this)"
+                                class="px-2.5 py-1 rounded bg-[#333333] hover:bg-[#444444] text-slate-200 text-xs font-sans transition flex items-center gap-1 border border-slate-600">
+                                <span>📋</span> <span>Copy Code</span>
+                            </button>
+                        </div>
+
+                        <!-- Active File Tab -->
+                        <div class="bg-[#252526] px-3 pt-1 flex items-center">
+                            <div class="vscode-tab">
+                                <span class="text-blue-400 font-bold">C++</span>
+                                <span>tsp_branch_and_bound.cpp</span>
+                                <span class="text-slate-500 hover:text-white cursor-pointer ml-1">&times;</span>
+                            </div>
+                        </div>
+
+                        <!-- Breadcrumbs -->
+                        <div class="vscode-breadcrumbs">
+                            src &rsaquo; algorithms &rsaquo; branch_and_bound &rsaquo; tsp_branch_and_bound.cpp
+                        </div>
+
+                        <!-- Code Body with Line Numbers -->
+                        <div class="p-4 overflow-x-auto flex text-sm">
+                            <div class="line-numbers font-mono select-none">
+                                <script>
+                                    for (let i = 1; i <= 118; i++) document.write(i + '<br>');
+                                </script>
+                            </div>
+                            <pre class="flex-1"><code id="cppCodeBlock"><span class="text-[#6A9955] italic">// =========================================================================</span>
+<span class="text-[#6A9955] italic">// Abdul Bari - Traveling Salesperson Problem (TSP) using Branch and Bound</span>
+<span class="text-[#6A9955] italic">// Technique: Least-Cost Branch & Bound (LC-BB) via Reduced Cost Matrix</span>
+<span class="text-[#6A9955] italic">// =========================================================================</span>
+
+<span class="text-[#C586C0]">#include</span> <span class="text-[#CE9178]">&lt;iostream&gt;</span>
+<span class="text-[#C586C0]">#include</span> <span class="text-[#CE9178]">&lt;vector&gt;</span>
+<span class="text-[#C586C0]">#include</span> <span class="text-[#CE9178]">&lt;queue&gt;</span>
+<span class="text-[#C586C0]">#include</span> <span class="text-[#CE9178]">&lt;algorithm&gt;</span>
+
+<span class="text-[#C586C0]">using</span> <span class="text-[#C586C0]">namespace</span> <span class="text-[#4EC9B0]">std</span>;
+
+<span class="text-[#569CD6]">const</span> <span class="text-[#569CD6]">int</span> <span class="text-[#9CDCFE]">INF</span> = <span class="text-[#B5CEA8]">1e9</span>;
+
+<span class="text-[#6A9955] italic">// State Space Tree Node</span>
+<span class="text-[#569CD6]">struct</span> <span class="text-[#4EC9B0]">Node</span> {
+    <span class="text-[#4EC9B0]">vector</span>&lt;<span class="text-[#569CD6]">int</span>&gt; <span class="text-[#9CDCFE]">path</span>;              <span class="text-[#6A9955] italic">// Tour path visited so far</span>
+    <span class="text-[#4EC9B0]">vector</span>&lt;<span class="text-[#4EC9B0]">vector</span>&lt;<span class="text-[#569CD6]">int</span>&gt;&gt; <span class="text-[#9CDCFE]">reducedMatrix</span>; <span class="text-[#6A9955] italic">// Reduced cost matrix for this node</span>
+    <span class="text-[#569CD6]">int</span> <span class="text-[#9CDCFE]">cost</span>;                     <span class="text-[#6A9955] italic">// Lower bound cost (c_hat)</span>
+    <span class="text-[#569CD6]">int</span> <span class="text-[#9CDCFE]">vertex</span>;                   <span class="text-[#6A9955] italic">// Current city index (0-indexed)</span>
+    <span class="text-[#569CD6]">int</span> <span class="text-[#9CDCFE]">level</span>;                    <span class="text-[#6A9955] italic">// Number of cities visited</span>
+};
+
+<span class="text-[#6A9955] italic">// Comparator for Min-Heap Priority Queue (Least Cost First)</span>
+<span class="text-[#569CD6]">struct</span> <span class="text-[#4EC9B0]">CompareNode</span> {
+    <span class="text-[#569CD6]">bool</span> <span class="text-[#DCDCAA]">operator</span>()(<span class="text-[#569CD6]">const</span> <span class="text-[#4EC9B0]">Node</span>&amp; <span class="text-[#9CDCFE]">a</span>, <span class="text-[#569CD6]">const</span> <span class="text-[#4EC9B0]">Node</span>&amp; <span class="text-[#9CDCFE]">b</span>) <span class="text-[#569CD6]">const</span> {
+        <span class="text-[#C586C0]">return</span> <span class="text-[#9CDCFE]">a</span>.<span class="text-[#9CDCFE]">cost</span> &gt; <span class="text-[#9CDCFE]">b</span>.<span class="text-[#9CDCFE]">cost</span>;
+    }
+};
+
+<span class="text-[#6A9955] italic">// Function to reduce the cost matrix and return the total reduction amount</span>
+<span class="text-[#569CD6]">int</span> <span class="text-[#DCDCAA]">reduceMatrix</span>(<span class="text-[#4EC9B0]">vector</span>&lt;<span class="text-[#4EC9B0]">vector</span>&lt;<span class="text-[#569CD6]">int</span>&gt;&gt;&amp; <span class="text-[#9CDCFE]">matrix</span>, <span class="text-[#569CD6]">int</span> <span class="text-[#9CDCFE]">n</span>) {
+    <span class="text-[#569CD6]">int</span> <span class="text-[#9CDCFE]">reductionCost</span> = <span class="text-[#B5CEA8]">0</span>;
+
+    <span class="text-[#6A9955] italic">// 1. Row Reduction</span>
+    <span class="text-[#C586C0]">for</span> (<span class="text-[#569CD6]">int</span> <span class="text-[#9CDCFE]">i</span> = <span class="text-[#B5CEA8]">0</span>; <span class="text-[#9CDCFE]">i</span> &lt; <span class="text-[#9CDCFE]">n</span>; ++<span class="text-[#9CDCFE]">i</span>) {
+        <span class="text-[#569CD6]">int</span> <span class="text-[#9CDCFE]">rowMin</span> = <span class="text-[#9CDCFE]">INF</span>;
+        <span class="text-[#C586C0]">for</span> (<span class="text-[#569CD6]">int</span> <span class="text-[#9CDCFE]">j</span> = <span class="text-[#B5CEA8]">0</span>; <span class="text-[#9CDCFE]">j</span> &lt; <span class="text-[#9CDCFE]">n</span>; ++<span class="text-[#9CDCFE]">j</span>) {
+            <span class="text-[#C586C0]">if</span> (<span class="text-[#9CDCFE]">matrix</span>[<span class="text-[#9CDCFE]">i</span>][<span class="text-[#9CDCFE]">j</span>] &lt; <span class="text-[#9CDCFE]">rowMin</span>) <span class="text-[#9CDCFE]">rowMin</span> = <span class="text-[#9CDCFE]">matrix</span>[<span class="text-[#9CDCFE]">i</span>][<span class="text-[#9CDCFE]">j</span>];
+        }
+        <span class="text-[#C586C0]">if</span> (<span class="text-[#9CDCFE]">rowMin</span> != <span class="text-[#9CDCFE]">INF</span> &amp;&amp; <span class="text-[#9CDCFE]">rowMin</span> &gt; <span class="text-[#B5CEA8]">0</span>) {
+            <span class="text-[#9CDCFE]">reductionCost</span> += <span class="text-[#9CDCFE]">rowMin</span>;
+            <span class="text-[#C586C0]">for</span> (<span class="text-[#569CD6]">int</span> <span class="text-[#9CDCFE]">j</span> = <span class="text-[#B5CEA8]">0</span>; <span class="text-[#9CDCFE]">j</span> &lt; <span class="text-[#9CDCFE]">n</span>; ++<span class="text-[#9CDCFE]">j</span>) {
+                <span class="text-[#C586C0]">if</span> (<span class="text-[#9CDCFE]">matrix</span>[<span class="text-[#9CDCFE]">i</span>][<span class="text-[#9CDCFE]">j</span>] != <span class="text-[#9CDCFE]">INF</span>) <span class="text-[#9CDCFE]">matrix</span>[<span class="text-[#9CDCFE]">i</span>][<span class="text-[#9CDCFE]">j</span>] -= <span class="text-[#9CDCFE]">rowMin</span>;
+            }
+        }
+    }
+
+    <span class="text-[#6A9955] italic">// 2. Column Reduction</span>
+    <span class="text-[#C586C0]">for</span> (<span class="text-[#569CD6]">int</span> <span class="text-[#9CDCFE]">j</span> = <span class="text-[#B5CEA8]">0</span>; <span class="text-[#9CDCFE]">j</span> &lt; <span class="text-[#9CDCFE]">n</span>; ++<span class="text-[#9CDCFE]">j</span>) {
+        <span class="text-[#569CD6]">int</span> <span class="text-[#9CDCFE]">colMin</span> = <span class="text-[#9CDCFE]">INF</span>;
+        <span class="text-[#C586C0]">for</span> (<span class="text-[#569CD6]">int</span> <span class="text-[#9CDCFE]">i</span> = <span class="text-[#B5CEA8]">0</span>; <span class="text-[#9CDCFE]">i</span> &lt; <span class="text-[#9CDCFE]">n</span>; ++<span class="text-[#9CDCFE]">i</span>) {
+            <span class="text-[#C586C0]">if</span> (<span class="text-[#9CDCFE]">matrix</span>[<span class="text-[#9CDCFE]">i</span>][<span class="text-[#9CDCFE]">j</span>] &lt; <span class="text-[#9CDCFE]">colMin</span>) <span class="text-[#9CDCFE]">colMin</span> = <span class="text-[#9CDCFE]">matrix</span>[<span class="text-[#9CDCFE]">i</span>][<span class="text-[#9CDCFE]">j</span>];
+        }
+        <span class="text-[#C586C0]">if</span> (<span class="text-[#9CDCFE]">colMin</span> != <span class="text-[#9CDCFE]">INF</span> &amp;&amp; <span class="text-[#9CDCFE]">colMin</span> &gt; <span class="text-[#B5CEA8]">0</span>) {
+            <span class="text-[#9CDCFE]">reductionCost</span> += <span class="text-[#9CDCFE]">colMin</span>;
+            <span class="text-[#C586C0]">for</span> (<span class="text-[#569CD6]">int</span> <span class="text-[#9CDCFE]">i</span> = <span class="text-[#B5CEA8]">0</span>; <span class="text-[#9CDCFE]">i</span> &lt; <span class="text-[#9CDCFE]">n</span>; ++<span class="text-[#9CDCFE]">i</span>) {
+                <span class="text-[#C586C0]">if</span> (<span class="text-[#9CDCFE]">matrix</span>[<span class="text-[#9CDCFE]">i</span>][<span class="text-[#9CDCFE]">j</span>] != <span class="text-[#9CDCFE]">INF</span>) <span class="text-[#9CDCFE]">matrix</span>[<span class="text-[#9CDCFE]">i</span>][<span class="text-[#9CDCFE]">j</span>] -= <span class="text-[#9CDCFE]">colMin</span>;
+            }
+        }
+    }
+
+    <span class="text-[#C586C0]">return</span> <span class="text-[#9CDCFE]">reductionCost</span>;
+}
+
+<span class="text-[#6A9955] italic">// Solves the TSP using Least-Cost Branch and Bound</span>
+<span class="text-[#569CD6]">int</span> <span class="text-[#DCDCAA]">solveTSP</span>(<span class="text-[#4EC9B0]">vector</span>&lt;<span class="text-[#4EC9B0]">vector</span>&lt;<span class="text-[#569CD6]">int</span>&gt;&gt; <span class="text-[#9CDCFE]">adj</span>, <span class="text-[#569CD6]">int</span> <span class="text-[#9CDCFE]">n</span>, <span class="text-[#4EC9B0]">vector</span>&lt;<span class="text-[#569CD6]">int</span>&gt;&amp; <span class="text-[#9CDCFE]">bestTour</span>) {
+    <span class="text-[#4EC9B0]">priority_queue</span>&lt;<span class="text-[#4EC9B0]">Node</span>, <span class="text-[#4EC9B0]">vector</span>&lt;<span class="text-[#4EC9B0]">Node</span>&gt;, <span class="text-[#4EC9B0]">CompareNode</span>&gt; <span class="text-[#9CDCFE]">pq</span>;
+
+    <span class="text-[#6A9955] italic">// Initialize Root Node (City 0 corresponds to City 1)</span>
+    <span class="text-[#4EC9B0]">Node</span> <span class="text-[#9CDCFE]">root</span>;
+    <span class="text-[#9CDCFE]">root</span>.<span class="text-[#9CDCFE]">path</span>.<span class="text-[#DCDCAA]">push_back</span>(<span class="text-[#B5CEA8]">0</span>);
+    <span class="text-[#9CDCFE]">root</span>.<span class="text-[#9CDCFE]">reducedMatrix</span> = <span class="text-[#9CDCFE]">adj</span>;
+    <span class="text-[#9CDCFE]">root</span>.<span class="text-[#9CDCFE]">vertex</span> = <span class="text-[#B5CEA8]">0</span>;
+    <span class="text-[#9CDCFE]">root</span>.<span class="text-[#9CDCFE]">level</span> = <span class="text-[#B5CEA8]">1</span>;
+    <span class="text-[#9CDCFE]">root</span>.<span class="text-[#9CDCFE]">cost</span> = <span class="text-[#DCDCAA]">reduceMatrix</span>(<span class="text-[#9CDCFE]">root</span>.<span class="text-[#9CDCFE]">reducedMatrix</span>, <span class="text-[#9CDCFE]">n</span>);
+
+    <span class="text-[#9CDCFE]">pq</span>.<span class="text-[#DCDCAA]">push</span>(<span class="text-[#9CDCFE]">root</span>);
+
+    <span class="text-[#C586C0]">while</span> (!<span class="text-[#9CDCFE]">pq</span>.<span class="text-[#DCDCAA]">empty</span>()) {
+        <span class="text-[#4EC9B0]">Node</span> <span class="text-[#9CDCFE]">curr</span> = <span class="text-[#9CDCFE]">pq</span>.<span class="text-[#DCDCAA]">top</span>();
+        <span class="text-[#9CDCFE]">pq</span>.<span class="text-[#DCDCAA]">pop</span>();
+
+        <span class="text-[#569CD6]">int</span> <span class="text-[#9CDCFE]">u</span> = <span class="text-[#9CDCFE]">curr</span>.<span class="text-[#9CDCFE]">vertex</span>;
+
+        <span class="text-[#6A9955] italic">// If all cities visited, return to starting city 0</span>
+        <span class="text-[#C586C0]">if</span> (<span class="text-[#9CDCFE]">curr</span>.<span class="text-[#9CDCFE]">level</span> == <span class="text-[#9CDCFE]">n</span>) {
+            <span class="text-[#9CDCFE]">curr</span>.<span class="text-[#9CDCFE]">path</span>.<span class="text-[#DCDCAA]">push_back</span>(<span class="text-[#B5CEA8]">0</span>);
+            <span class="text-[#9CDCFE]">bestTour</span> = <span class="text-[#9CDCFE]">curr</span>.<span class="text-[#9CDCFE]">path</span>;
+            <span class="text-[#C586C0]">return</span> <span class="text-[#9CDCFE]">curr</span>.<span class="text-[#9CDCFE]">cost</span>;
+        }
+
+        <span class="text-[#6A9955] italic">// Explore unvisited destinations v</span>
+        <span class="text-[#C586C0]">for</span> (<span class="text-[#569CD6]">int</span> <span class="text-[#9CDCFE]">v</span> = <span class="text-[#B5CEA8]">0</span>; <span class="text-[#9CDCFE]">v</span> &lt; <span class="text-[#9CDCFE]">n</span>; ++<span class="text-[#9CDCFE]">v</span>) {
+            <span class="text-[#C586C0]">if</span> (<span class="text-[#DCDCAA]">find</span>(<span class="text-[#9CDCFE]">curr</span>.<span class="text-[#9CDCFE]">path</span>.<span class="text-[#DCDCAA]">begin</span>(), <span class="text-[#9CDCFE]">curr</span>.<span class="text-[#9CDCFE]">path</span>.<span class="text-[#DCDCAA]">end</span>(), <span class="text-[#9CDCFE]">v</span>) == <span class="text-[#9CDCFE]">curr</span>.<span class="text-[#9CDCFE]">path</span>.<span class="text-[#DCDCAA]">end</span>() &amp;&amp; <span class="text-[#9CDCFE]">curr</span>.<span class="text-[#9CDCFE]">reducedMatrix</span>[<span class="text-[#9CDCFE]">u</span>][<span class="text-[#9CDCFE]">v</span>] != <span class="text-[#9CDCFE]">INF</span>) {
+                <span class="text-[#4EC9B0]">Node</span> <span class="text-[#9CDCFE]">child</span>;
+                <span class="text-[#9CDCFE]">child</span>.<span class="text-[#9CDCFE]">path</span> = <span class="text-[#9CDCFE]">curr</span>.<span class="text-[#9CDCFE]">path</span>;
+                <span class="text-[#9CDCFE]">child</span>.<span class="text-[#9CDCFE]">path</span>.<span class="text-[#DCDCAA]">push_back</span>(<span class="text-[#B5CEA8]">v</span>);
+                <span class="text-[#9CDCFE]">child</span>.<span class="text-[#9CDCFE]">reducedMatrix</span> = <span class="text-[#9CDCFE]">curr</span>.<span class="text-[#9CDCFE]">reducedMatrix</span>;
+
+                <span class="text-[#6A9955] italic">// Apply Rules: row u = INF, col v = INF, child[v][0] = INF</span>
+                <span class="text-[#C586C0]">for</span> (<span class="text-[#569CD6]">int</span> <span class="text-[#9CDCFE]">k</span> = <span class="text-[#B5CEA8]">0</span>; <span class="text-[#9CDCFE]">k</span> &lt; <span class="text-[#9CDCFE]">n</span>; ++<span class="text-[#9CDCFE]">k</span>) {
+                    <span class="text-[#9CDCFE]">child</span>.<span class="text-[#9CDCFE]">reducedMatrix</span>[<span class="text-[#9CDCFE]">u</span>][<span class="text-[#9CDCFE]">k</span>] = <span class="text-[#9CDCFE]">INF</span>;
+                    <span class="text-[#9CDCFE]">child</span>.<span class="text-[#9CDCFE]">reducedMatrix</span>[<span class="text-[#9CDCFE]">k</span>][<span class="text-[#9CDCFE]">v</span>] = <span class="text-[#9CDCFE]">INF</span>;
+                }
+                <span class="text-[#9CDCFE]">child</span>.<span class="text-[#9CDCFE]">reducedMatrix</span>[<span class="text-[#9CDCFE]">v</span>][<span class="text-[#B5CEA8]">0</span>] = <span class="text-[#9CDCFE]">INF</span>;
+
+                <span class="text-[#569CD6]">int</span> <span class="text-[#9CDCFE]">r_prime</span> = <span class="text-[#DCDCAA]">reduceMatrix</span>(<span class="text-[#9CDCFE]">child</span>.<span class="text-[#9CDCFE]">reducedMatrix</span>, <span class="text-[#9CDCFE]">n</span>);
+                <span class="text-[#9CDCFE]">child</span>.<span class="text-[#9CDCFE]">cost</span> = <span class="text-[#9CDCFE]">curr</span>.<span class="text-[#9CDCFE]">cost</span> + <span class="text-[#9CDCFE]">curr</span>.<span class="text-[#9CDCFE]">reducedMatrix</span>[<span class="text-[#9CDCFE]">u</span>][<span class="text-[#9CDCFE]">v</span>] + <span class="text-[#9CDCFE]">r_prime</span>;
+                <span class="text-[#9CDCFE]">child</span>.<span class="text-[#9CDCFE]">vertex</span> = <span class="text-[#9CDCFE]">v</span>;
+                <span class="text-[#9CDCFE]">child</span>.<span class="text-[#9CDCFE]">level</span> = <span class="text-[#9CDCFE]">curr</span>.<span class="text-[#9CDCFE]">level</span> + <span class="text-[#B5CEA8]">1</span>;
+
+                <span class="text-[#9CDCFE]">pq</span>.<span class="text-[#DCDCAA]">push</span>(<span class="text-[#9CDCFE]">child</span>);
+            }
+        }
+    }
+    <span class="text-[#C586C0]">return</span> <span class="text-[#9CDCFE]">INF</span>;
+}
+
+<span class="text-[#569CD6]">int</span> <span class="text-[#DCDCAA]">main</span>() {
+    <span class="text-[#569CD6]">int</span> <span class="text-[#9CDCFE]">n</span> = <span class="text-[#B5CEA8]">5</span>;
+    <span class="text-[#4EC9B0]">vector</span>&lt;<span class="text-[#4EC9B0]">vector</span>&lt;<span class="text-[#569CD6]">int</span>&gt;&gt; <span class="text-[#9CDCFE]">costMatrix</span> = {
+        { <span class="text-[#9CDCFE]">INF</span>, <span class="text-[#B5CEA8]">20</span>,  <span class="text-[#B5CEA8]">30</span>,  <span class="text-[#B5CEA8]">10</span>,  <span class="text-[#B5CEA8]">11</span> },
+        { <span class="text-[#B5CEA8]">15</span>,  <span class="text-[#9CDCFE]">INF</span>, <span class="text-[#B5CEA8]">16</span>,  <span class="text-[#B5CEA8]">4</span>,   <span class="text-[#B5CEA8]">2</span>  },
+        { <span class="text-[#B5CEA8]">3</span>,   <span class="text-[#B5CEA8]">5</span>,   <span class="text-[#9CDCFE]">INF</span>, <span class="text-[#B5CEA8]">2</span>,   <span class="text-[#B5CEA8]">4</span>  },
+        { <span class="text-[#B5CEA8]">19</span>,  <span class="text-[#B5CEA8]">6</span>,   <span class="text-[#B5CEA8]">18</span>,  <span class="text-[#9CDCFE]">INF</span>, <span class="text-[#B5CEA8]">3</span>  },
+        { <span class="text-[#B5CEA8]">16</span>,  <span class="text-[#B5CEA8]">4</span>,   <span class="text-[#B5CEA8]">7</span>,   <span class="text-[#B5CEA8]">16</span>,  <span class="text-[#9CDCFE]">INF</span> }
+    };
+
+    <span class="text-[#4EC9B0]">vector</span>&lt;<span class="text-[#569CD6]">int</span>&gt; <span class="text-[#9CDCFE]">bestTour</span>;
+    <span class="text-[#569CD6]">int</span> <span class="text-[#9CDCFE]">minCost</span> = <span class="text-[#DCDCAA]">solveTSP</span>(<span class="text-[#9CDCFE]">costMatrix</span>, <span class="text-[#9CDCFE]">n</span>, <span class="text-[#9CDCFE]">bestTour</span>);
+
+    <span class="text-[#4EC9B0]">cout</span> &lt;&lt; <span class="text-[#CE9178]">&quot;=== Abdul Bari TSP Solution (Branch and Bound) ===\n&quot;</span>;
+    <span class="text-[#4EC9B0]">cout</span> &lt;&lt; <span class="text-[#CE9178]">&quot;Minimum Tour Cost: &quot;</span> &lt;&lt; <span class="text-[#9CDCFE]">minCost</span> &lt;&lt; <span class="text-[#CE9178]">&quot;\n&quot;</span>;
+    <span class="text-[#4EC9B0]">cout</span> &lt;&lt; <span class="text-[#CE9178]">&quot;Optimal Tour Path: &quot;</span>;
+    <span class="text-[#C586C0]">for</span> (<span class="text-[#569CD6]">size_t</span> <span class="text-[#9CDCFE]">i</span> = <span class="text-[#B5CEA8]">0</span>; <span class="text-[#9CDCFE]">i</span> &lt; <span class="text-[#9CDCFE]">bestTour</span>.<span class="text-[#DCDCAA]">size</span>(); ++<span class="text-[#9CDCFE]">i</span>) {
+        <span class="text-[#4EC9B0]">cout</span> &lt;&lt; (<span class="text-[#9CDCFE]">bestTour</span>[<span class="text-[#9CDCFE]">i</span>] + <span class="text-[#B5CEA8]">1</span>) &lt;&lt; (<span class="text-[#9CDCFE]">i</span> + <span class="text-[#B5CEA8]">1</span> == <span class="text-[#9CDCFE]">bestTour</span>.<span class="text-[#DCDCAA]">size</span>() ? <span class="text-[#CE9178]">&quot;&quot;</span> : <span class="text-[#CE9178]">&quot; -&gt; &quot;</span>);
+    }
+    <span class="text-[#4EC9B0]">cout</span> &lt;&lt; <span class="text-[#CE9178]">&quot;\n&quot;</span>;
+
+    <span class="text-[#C586C0]">return</span> <span class="text-[#B5CEA8]">0</span>;
+}</code></pre>
+                        </div>
+
+                        <!-- VS Code Status Bar -->
+                        <div
+                            class="bg-[#007acc] text-white px-4 py-1 text-xs flex justify-between items-center select-none font-mono">
+                            <div class="flex items-center gap-4">
+                                <span class="flex items-center gap-1"><span>⎇</span> main*</span>
+                                <span class="flex items-center gap-1"><span>✕</span> 0 &nbsp; <span>⚠</span> 0</span>
+                            </div>
+                            <div class="flex items-center gap-4 text-[11px]">
+                                <span>Ln 118, Col 1</span>
+                                <span>Spaces: 4</span>
+                                <span>UTF-8</span>
+                                <span>C++20</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Rigorous Time & Space Complexity Analysis -->
+                <section class="space-y-4">
+                    <h2 class="text-2xl sm:text-3xl font-bold text-inkRed">
+                        &sect;4.3 Time and Space Complexity Analysis
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 font-sans text-sm">
+                        <!-- Time Complexity -->
+                        <div class="p-4 bg-amber-50 rounded-lg border border-amber-300 space-y-2">
+                            <span class="font-bold text-amber-950 block text-lg">⏳ Time Complexity</span>
+                            <div
+                                class="font-mono text-xs bg-white p-2.5 rounded border border-amber-200 text-slate-800 space-y-1">
+                                <div>&bull; Matrix Reduction per node: <strong>O(n<sup>2</sup>)</strong></div>
+                                <div>&bull; Worst-Case States Generated: <strong>O(n!)</strong> or <strong>O(2<sup>n</sup>)</strong></div>
+                                <div class="text-rose-800 font-bold">&rArr; Worst-Case Time: O(n<sup>2</sup> &middot; 2<sup>n</sup>)</div>
+                                <div class="text-emerald-800 font-bold">&rArr; LC-BB Practical: Explores only 11 nodes out of 120!</div>
+                            </div>
+                            <p class="text-xs text-slate-700 leading-relaxed">
+                                Without Branch and Bound, an exhaustive permutation search tests <span class="font-mono font-bold">(n-1)! = 4! = 24</span> complete tours and hundreds of subtree evaluations. Reduced-matrix LC-BB converges in just <strong>11 total nodes</strong>!
+                            </p>
+                        </div>
+
+                        <!-- Space Complexity -->
+                        <div class="p-4 bg-blue-50 rounded-lg border border-blue-300 space-y-2">
+                            <span class="font-bold text-blue-950 block text-lg">💾 Space Complexity</span>
+                            <div
+                                class="font-mono text-xs bg-white p-2.5 rounded border border-blue-200 text-slate-800 space-y-1">
+                                <div>&bull; Cost Matrix stored per live node: <strong>O(n<sup>2</sup>)</strong></div>
+                                <div>&bull; Min-Heap size in worst case: <strong>O(2<sup>n</sup>)</strong></div>
+                                <div class="text-rose-800 font-bold">&rArr; Auxiliary Space: O(n<sup>2</sup> &middot; 2<sup>n</sup>)</div>
+                                <div class="text-slate-700 font-bold">&bull; Dynamic Programming contrast: O(n &middot; 2<sup>n</sup>)</div>
+                            </div>
+                            <p class="text-xs text-slate-700 leading-relaxed">
+                                Branch and Bound stores the reduced matrix inside each active node in the Min-Heap. Although memory usage is higher than backtracking's <span class="font-mono">O(n)</span> stack, it avoids redundant recalculations.
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="max-w-6xl mx-auto py-6 text-center text-xs text-pencilGray font-sans no-print">
+        <p>Interactive Digital Lecture Notes &bull; Chapter: Travelling Salesperson Problem via Least Cost Branch and Bound &bull; Abdul Bari Curriculum</p>
+    </footer>
+
+    <!-- Interactive Scripts: Tabs, Font Toggle, Code Copy, and HTML5 Canvas Drawing -->
+    <script>
+        // Tab Switcher
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.nav-tab').forEach(el => {
+                el.classList.remove('bg-amber-200', 'text-inkBlue', 'border-b-2', 'border-inkBlue');
+                el.classList.add('text-slate-600');
+            });
+
+            const activeTab = document.getElementById(tabId);
+            const activeNav = document.getElementById('nav-' + tabId);
+            if (activeTab) activeTab.classList.remove('hidden');
+            if (activeNav) {
+                activeNav.classList.remove('text-slate-600');
+                activeNav.classList.add('bg-amber-200', 'text-inkBlue', 'border-b-2', 'border-inkBlue');
+            }
+
+            if (tabId === 'tab-state-space-tree') {
+                setTimeout(renderAllTspCanvases, 60);
+            } else if (tabId === 'tab-problem-formulation') {
+                setTimeout(renderIntro4vCanvas, 60);
+            }
+        }
+
+        // Font Toggle Mode
+        let isClean = false;
+        function toggleFontMode() {
+            isClean = !isClean;
+            document.body.classList.toggle('font-clean', isClean);
+            document.getElementById('fontBtnText').innerText = isClean ? 'Handwritten Font' : 'Clean Font';
+        }
+
+        // Copy Code to Clipboard
+        function copyCode(elementId, btn) {
+            const codeEl = document.getElementById(elementId);
+            if (!codeEl) return;
+            const text = codeEl.innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                const originalHtml = btn.innerHTML;
+                btn.innerHTML = '✓ <span class="text-emerald-400 font-bold">Copied!</span>';
+                setTimeout(() => {
+                    btn.innerHTML = originalHtml;
+                }, 2000);
+            });
+        }
+
+        // High-DPI Canvas Helper
+        function initCanvas(id, defaultHeight) {
+            const canvas = document.getElementById(id);
+            if (!canvas) return null;
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            const rect = canvas.getBoundingClientRect();
+            const width = rect.width > 0 ? rect.width : (canvas.parentElement ? canvas.parentElement.clientWidth : 900);
+            canvas.width = width * dpr;
+            canvas.height = defaultHeight * dpr;
+            ctx.scale(dpr, dpr);
+            ctx.clearRect(0, 0, width, defaultHeight);
+            return { ctx, width, height: defaultHeight };
+        }
+
+        // Helper: Draw standard node rounded box
+        function drawCanvasNode(ctx, x, y, w, h, title, costText, tagText, type) {
+            ctx.save();
+            ctx.beginPath();
+            ctx.roundRect(x - w / 2, y - h / 2, w, h, 8);
+            if (type === 'optimal') {
+                ctx.fillStyle = '#ecfdf5';
+                ctx.strokeStyle = '#059669';
+                ctx.lineWidth = 2.5;
+            } else if (type === 'pruned' || type === 'killed') {
+                ctx.fillStyle = '#fff1f2';
+                ctx.strokeStyle = '#e11d48';
+                ctx.lineWidth = 1.5;
+            } else if (type === 'wait') {
+                ctx.fillStyle = '#f8fafc';
+                ctx.strokeStyle = '#64748b';
+                ctx.lineWidth = 1.5;
+            } else {
+                ctx.fillStyle = '#ffffff';
+                ctx.strokeStyle = '#2563eb';
+                ctx.lineWidth = 2;
+            }
+            ctx.fill();
+            ctx.stroke();
+
+            // Diagonal slash if killed
+            if (type === 'pruned' || type === 'killed') {
+                ctx.beginPath();
+                ctx.moveTo(x - w / 2 + 6, y - h / 2 + 6);
+                ctx.lineTo(x + w / 2 - 6, y + h / 2 - 6);
+                ctx.strokeStyle = 'rgba(239, 68, 68, 0.45)';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+
+            // Title
+            ctx.textAlign = 'center';
+            ctx.font = 'bold 12px sans-serif';
+            ctx.fillStyle = type === 'optimal' ? '#065f46' : (type === 'pruned' || type === 'killed' ? '#991b1b' : '#1e3a8a');
+            ctx.fillText(title, x, y - 6);
+
+            // Cost & info
+            ctx.font = '11px monospace';
+            ctx.fillStyle = type === 'optimal' ? '#047857' : (type === 'pruned' || type === 'killed' ? '#b91c1c' : '#334155');
+            ctx.fillText(costText, x, y + 10);
+
+            // Tag Pill
+            if (tagText) {
+                ctx.font = 'bold 9px sans-serif';
+                ctx.fillStyle = type === 'optimal' ? '#059669' : (type === 'pruned' || type === 'killed' ? '#dc2626' : '#64748b');
+                ctx.fillText(tagText, x, y + h / 2 + 13);
+            }
+            ctx.restore();
+        }
+
+        // Helper: Draw edge with label
+        function drawCanvasEdge(ctx, x1, y1, x2, y2, label, style) {
+            ctx.save();
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            if (style === 'optimal') {
+                ctx.strokeStyle = '#059669';
+                ctx.lineWidth = 3;
+                ctx.setLineDash([]);
+            } else if (style === 'dashed') {
+                ctx.strokeStyle = '#f87171';
+                ctx.lineWidth = 1.5;
+                ctx.setLineDash([4, 4]);
+            } else {
+                ctx.strokeStyle = '#94a3b8';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([]);
+            }
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            if (label) {
+                const midX = (x1 + x2) / 2;
+                const midY = (y1 + y2) / 2;
+                ctx.font = 'bold 10px sans-serif';
+                ctx.fillStyle = style === 'optimal' ? '#047857' : (style === 'dashed' ? '#b91c1c' : '#475569');
+                ctx.textAlign = midX > x1 ? 'left' : 'right';
+                ctx.fillText(label, midX + (midX > x1 ? 6 : -6), midY);
+            }
+            ctx.restore();
+        }
+
+        // =========================================================
+        // INTRO CANVAS: 4-VERTEX GRAPH
+        // =========================================================
+        function renderIntro4vCanvas() {
+            const inst = initCanvas('canvas-intro-4v', 230);
+            if (!inst) return;
+            const { ctx, width, height } = inst;
+
+            const coords = [
+                { x: width * 0.25, y: 55, label: "1" },
+                { x: width * 0.75, y: 55, label: "2" },
+                { x: width * 0.75, y: 175, label: "3" },
+                { x: width * 0.25, y: 175, label: "4" }
+            ];
+
+            // Edges (Tour 1 -> 2 -> 3 -> 4 -> 1)
+            const edges = [
+                { from: 0, to: 1, cost: "10" },
+                { from: 1, to: 2, cost: "15" },
+                { from: 2, to: 3, cost: "20" },
+                { from: 3, to: 0, cost: "25" }
+            ];
+
+            // Other cross edges (dashed)
+            ctx.strokeStyle = '#cbd5e1';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([3, 3]);
+            ctx.beginPath();
+            ctx.moveTo(coords[0].x, coords[0].y);
+            ctx.lineTo(coords[2].x, coords[2].y);
+            ctx.moveTo(coords[1].x, coords[1].y);
+            ctx.lineTo(coords[3].x, coords[3].y);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Draw primary directed tour edges
+            edges.forEach(e => {
+                const src = coords[e.from];
+                const dst = coords[e.to];
+                ctx.beginPath();
+                ctx.moveTo(src.x, src.y);
+                ctx.lineTo(dst.x, dst.y);
+                ctx.strokeStyle = '#2563eb';
+                ctx.lineWidth = 2.5;
+                ctx.stroke();
+
+                // Cost badge
+                const mx = (src.x + dst.x) / 2;
+                const my = (src.y + dst.y) / 2;
+                ctx.fillStyle = '#ffffff';
+                ctx.strokeStyle = '#2563eb';
+                ctx.beginPath();
+                ctx.arc(mx, my, 12, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.font = 'bold 10px monospace';
+                ctx.fillStyle = '#1e3a8a';
+                ctx.textAlign = 'center';
+                ctx.fillText(e.cost, mx, my + 3.5);
+            });
+
+            // Draw Vertices
+            coords.forEach(c => {
+                ctx.beginPath();
+                ctx.arc(c.x, c.y, 18, 0, Math.PI * 2);
+                ctx.fillStyle = c.label === "1" ? '#fef3c7' : '#ffffff';
+                ctx.strokeStyle = c.label === "1" ? '#d97706' : '#1e3a8a';
+                ctx.lineWidth = 2.5;
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.font = 'bold 14px sans-serif';
+                ctx.fillStyle = c.label === "1" ? '#b45309' : '#1e3a8a';
+                ctx.textAlign = 'center';
+                ctx.fillText(c.label, c.x, c.y + 5);
+            });
+
+            // Origin Label
+            ctx.font = 'bold 11px sans-serif';
+            ctx.fillStyle = '#d97706';
+            ctx.textAlign = 'center';
+            ctx.fillText("Start City", coords[0].x, coords[0].y - 24);
+        }
+
+        // =========================================================
+        // MASTER STATE SPACE TREE: NODES 1 TO 11
+        // =========================================================
+        function renderMasterTspTree() {
+            const canvas = document.getElementById('canvas-tsp-tree');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            const rect = canvas.getBoundingClientRect();
+            const width = rect.width > 0 ? rect.width : 1020;
+            canvas.width = width * dpr;
+            canvas.height = 520 * dpr;
+            ctx.scale(dpr, dpr);
+            ctx.clearRect(0, 0, width, 520);
+
+            // Nodes 1 through 11
+            const nodes = [
+                // Level 0: Root
+                { id: 1, label: "Node 1", x: width * 0.48, y: 48, c: 25, path: "[ 1 ]", status: "live", tag: "Root Cost = 25" },
+
+                // Level 1: from Node 1 to 2, 3, 4, 5
+                { id: 2, label: "Node 2", x: width * 0.16, y: 155, c: 35, path: "1 → 2", status: "wait", tag: "ĉ = 35 (Wait)" },
+                { id: 3, label: "Node 3", x: width * 0.38, y: 155, c: 53, path: "1 → 3", status: "pruned", tag: "ĉ = 53 (Pruned)" },
+                { id: 4, label: "Node 4", x: width * 0.60, y: 155, c: 25, path: "1 → 4", status: "live", tag: "ĉ = 25 (TOP)" },
+                { id: 5, label: "Node 5", x: width * 0.82, y: 155, c: 31, path: "1 → 5", status: "wait", tag: "ĉ = 31 (Wait)" },
+
+                // Level 2: from Node 4 to 2, 3, 5
+                { id: 6, label: "Node 6", x: width * 0.48, y: 265, c: 28, path: "1→4→2", status: "live", tag: "ĉ = 28 (TOP)" },
+                { id: 7, label: "Node 7", x: width * 0.68, y: 265, c: 50, path: "1→4→3", status: "pruned", tag: "ĉ = 50 (Pruned)" },
+                { id: 8, label: "Node 8", x: width * 0.88, y: 265, c: 36, path: "1→4→5", status: "wait", tag: "ĉ = 36 (Wait)" },
+
+                // Level 3: from Node 6 to 3, 5
+                { id: 9, label: "Node 9", x: width * 0.36, y: 375, c: 52, path: "1→4→2→3", status: "pruned", tag: "ĉ = 52 (Pruned)" },
+                { id: 10, label: "Node 10", x: width * 0.58, y: 375, c: 28, path: "1→4→2→5", status: "live", tag: "ĉ = 28 (TOP)" },
+
+                // Level 4: from Node 10 to 3 -> 1
+                { id: 11, label: "Node 11", x: width * 0.58, y: 475, c: 28, path: "1→4→2→5→3→1", status: "optimal", tag: "★ OPTIMAL TOUR = 28!" }
+            ];
+
+            const edges = [
+                { from: 1, to: 2, label: "1 → 2", style: "normal" },
+                { from: 1, to: 3, label: "1 → 3", style: "dashed" },
+                { from: 1, to: 4, label: "1 → 4 (min)", style: "optimal" },
+                { from: 1, to: 5, label: "1 → 5", style: "normal" },
+
+                { from: 4, to: 6, label: "4 → 2 (min)", style: "optimal" },
+                { from: 4, to: 7, label: "4 → 3", style: "dashed" },
+                { from: 4, to: 8, label: "4 → 5", style: "normal" },
+
+                { from: 6, to: 9, label: "2 → 3", style: "dashed" },
+                { from: 6, to: 10, label: "2 → 5 (min)", style: "optimal" },
+
+                { from: 10, to: 11, label: "5 → 3 → 1", style: "optimal" }
+            ];
+
+            // Draw edges
+            edges.forEach(e => {
+                const src = nodes.find(n => n.id === e.from);
+                const dst = nodes.find(n => n.id === e.to);
+                if (!src || !dst) return;
+                drawCanvasEdge(ctx, src.x, src.y + 22, dst.x, dst.y - 22, e.label, e.style);
+            });
+
+            // Draw nodes
+            nodes.forEach(n => {
+                const nw = n.status === 'optimal' ? 140 : 110;
+                const nh = 44;
+                drawCanvasNode(ctx, n.x, n.y, nw, nh, n.label, `Cost: ${n.c}`, n.tag, n.status);
+            });
+        }
+
+        // =========================================================
+        // STAGE 1 CANVAS: ROOT REDUCTION FLOW
+        // =========================================================
+        function renderStage1() {
+            const inst = initCanvas('canvas-stage-1', 190);
+            if (!inst) return;
+            const { ctx, width } = inst;
+
+            const n1 = { x: width * 0.18, y: 85 };
+            drawCanvasNode(ctx, n1.x, n1.y, 130, 48, "Node 1 (Root)", "Cost: 25", "Path: [ 1 ]", "live");
+
+            // Flow diagram of reduction
+            const bX = Math.max(n1.x + 90, width * 0.35);
+            const bW = Math.min(width - bX - 20, 520);
+
+            ctx.font = 'bold 12px sans-serif';
+            ctx.fillStyle = '#1e3a8a';
+            ctx.textAlign = 'left';
+            ctx.fillText("🧮 Two-Phase Bounding Pipeline:", bX, 45);
+
+            // Phase 1 Box
+            ctx.fillStyle = '#eff6ff';
+            ctx.strokeStyle = '#3b82f6';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.roundRect(bX, 60, bW * 0.46, 75, 6);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.font = 'bold 11px sans-serif';
+            ctx.fillStyle = '#1e3a8a';
+            ctx.fillText("Phase 1: Row Reduction", bX + 10, 80);
+            ctx.font = '10px monospace';
+            ctx.fillStyle = '#334155';
+            ctx.fillText("Minima: 10 + 2 + 2 + 3 + 4", bX + 10, 100);
+            ctx.fillStyle = '#1d4ed8';
+            ctx.font = 'bold 10px monospace';
+            ctx.fillText("r_row = 21", bX + 10, 120);
+
+            // Arrow
+            ctx.beginPath();
+            ctx.moveTo(bX + bW * 0.46 + 5, 97);
+            ctx.lineTo(bX + bW * 0.54 - 5, 97);
+            ctx.strokeStyle = '#64748b';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Phase 2 Box
+            ctx.fillStyle = '#ecfdf5';
+            ctx.strokeStyle = '#10b981';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.roundRect(bX + bW * 0.54, 60, bW * 0.46, 75, 6);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.font = 'bold 11px sans-serif';
+            ctx.fillStyle = '#065f46';
+            ctx.fillText("Phase 2: Col Reduction", bX + bW * 0.54 + 10, 80);
+            ctx.font = '10px monospace';
+            ctx.fillStyle = '#334155';
+            ctx.fillText("Minima: 1 + 0 + 3 + 0 + 0", bX + bW * 0.54 + 10, 100);
+            ctx.fillStyle = '#047857';
+            ctx.font = 'bold 10px monospace';
+            ctx.fillText("r_col = 4  (Total = 25!)", bX + bW * 0.54 + 10, 120);
+
+            // Footer
+            ctx.font = 'bold 11px sans-serif';
+            ctx.fillStyle = '#b45309';
+            ctx.fillText("✓ Guaranteed Lower Bound on ANY tour = 25", bX, 160);
+        }
+
+        // =========================================================
+        // STAGE 2 CANVAS: LEVEL 1 (NODES 2, 3, 4, 5)
+        // =========================================================
+        function renderStage2() {
+            const inst = initCanvas('canvas-stage-2', 215);
+            if (!inst) return;
+            const { ctx, width } = inst;
+
+            const n1 = { x: width * 0.48, y: 40 };
+            const n2 = { x: width * 0.14, y: 150 };
+            const n3 = { x: width * 0.36, y: 150 };
+            const n4 = { x: width * 0.58, y: 150 };
+            const n5 = { x: width * 0.82, y: 150 };
+
+            drawCanvasEdge(ctx, n1.x, n1.y + 22, n2.x, n2.y - 22, "1 → 2", "normal");
+            drawCanvasEdge(ctx, n1.x, n1.y + 22, n3.x, n3.y - 22, "1 → 3", "dashed");
+            drawCanvasEdge(ctx, n1.x, n1.y + 22, n4.x, n4.y - 22, "1 → 4 (min)", "optimal");
+            drawCanvasEdge(ctx, n1.x, n1.y + 22, n5.x, n5.y - 22, "1 → 5", "normal");
+
+            drawCanvasNode(ctx, n1.x, n1.y, 110, 42, "Node 1", "Cost: 25", "Root", "live");
+            drawCanvasNode(ctx, n2.x, n2.y, 110, 44, "Node 2", "Cost: 35", "Wait", "wait");
+            drawCanvasNode(ctx, n3.x, n3.y, 110, 44, "Node 3", "Cost: 53", "Wait", "wait");
+            drawCanvasNode(ctx, n4.x, n4.y, 120, 46, "Node 4", "Cost: 25", "★ POP NEXT", "optimal");
+            drawCanvasNode(ctx, n5.x, n5.y, 110, 44, "Node 5", "Cost: 31", "Wait", "wait");
+        }
+
+        // =========================================================
+        // STAGE 3 CANVAS: LEVEL 2 (NODES 6, 7, 8)
+        // =========================================================
+        function renderStage3() {
+            const inst = initCanvas('canvas-stage-3', 215);
+            if (!inst) return;
+            const { ctx, width } = inst;
+
+            const n4 = { x: width * 0.48, y: 40 };
+            const n6 = { x: width * 0.22, y: 150 };
+            const n7 = { x: width * 0.50, y: 150 };
+            const n8 = { x: width * 0.78, y: 150 };
+
+            drawCanvasEdge(ctx, n4.x, n4.y + 22, n6.x, n6.y - 22, "4 → 2 (min)", "optimal");
+            drawCanvasEdge(ctx, n4.x, n4.y + 22, n7.x, n7.y - 22, "4 → 3", "dashed");
+            drawCanvasEdge(ctx, n4.x, n4.y + 22, n8.x, n8.y - 22, "4 → 5", "normal");
+
+            drawCanvasNode(ctx, n4.x, n4.y, 120, 42, "Node 4", "Cost: 25", "Path: 1→4", "live");
+            drawCanvasNode(ctx, n6.x, n6.y, 130, 46, "Node 6", "Cost: 28", "★ POP NEXT", "optimal");
+            drawCanvasNode(ctx, n7.x, n7.y, 120, 44, "Node 7", "Cost: 50", "Wait", "wait");
+            drawCanvasNode(ctx, n8.x, n8.y, 120, 44, "Node 8", "Cost: 36", "Wait", "wait");
+        }
+
+        // =========================================================
+        // STAGE 4 CANVAS: LEVEL 3 (NODES 9, 10)
+        // =========================================================
+        function renderStage4() {
+            const inst = initCanvas('canvas-stage-4', 215);
+            if (!inst) return;
+            const { ctx, width } = inst;
+
+            const n6 = { x: width * 0.48, y: 40 };
+            const n9 = { x: width * 0.28, y: 150 };
+            const n10 = { x: width * 0.68, y: 150 };
+
+            drawCanvasEdge(ctx, n6.x, n6.y + 22, n9.x, n9.y - 22, "2 → 3", "dashed");
+            drawCanvasEdge(ctx, n6.x, n6.y + 22, n10.x, n10.y - 22, "2 → 5 (min)", "optimal");
+
+            drawCanvasNode(ctx, n6.x, n6.y, 125, 42, "Node 6", "Cost: 28", "Path: 1→4→2", "live");
+            drawCanvasNode(ctx, n9.x, n9.y, 120, 44, "Node 9", "Cost: 52", "Wait", "wait");
+            drawCanvasNode(ctx, n10.x, n10.y, 135, 46, "Node 10", "Cost: 28", "★ POP NEXT", "optimal");
+        }
+
+        // =========================================================
+        // STAGE 5 CANVAS: LEVEL 4 & MASS PRUNING (NODE 11)
+        // =========================================================
+        function renderStage5() {
+            const inst = initCanvas('canvas-stage-5', 235);
+            if (!inst) return;
+            const { ctx, width } = inst;
+
+            const n10 = { x: width * 0.32, y: 40 };
+            const n11 = { x: width * 0.32, y: 155 };
+
+            drawCanvasEdge(ctx, n10.x, n10.y + 22, n11.x, n11.y - 24, "5 → 3 → 1 (Complete)", "optimal");
+
+            drawCanvasNode(ctx, n10.x, n10.y, 130, 42, "Node 10", "Cost: 28", "1→4→2→5", "live");
+            drawCanvasNode(ctx, n11.x, n11.y, 160, 52, "Node 11 ★ OPTIMAL", "Cost: 28", "1→4→2→5→3→1", "optimal");
+
+            // Mass pruning panel on right
+            const pX = Math.max(width * 0.62, width - 290);
+            ctx.fillStyle = '#fff1f2';
+            ctx.strokeStyle = '#e11d48';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.roundRect(pX, 35, 270, 175, 8);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.font = 'bold 12px sans-serif';
+            ctx.fillStyle = '#991b1b';
+            ctx.textAlign = 'left';
+            ctx.fillText("⚡ Mass Guillotine Pruning Event:", pX + 12, 58);
+            ctx.font = '11px sans-serif';
+            ctx.fillText("Best Complete Tour Cost = 28", pX + 12, 75);
+
+            ctx.fillStyle = '#ffffff';
+            ctx.strokeStyle = '#f87171';
+            ctx.strokeRect(pX + 12, 88, 246, 75);
+            ctx.fillRect(pX + 12, 88, 246, 75);
+
+            ctx.font = '10px monospace';
+            ctx.fillStyle = '#991b1b';
+            ctx.fillText("• Node 5: ĉ = 31 > 28 ➜ KILLED ✕", pX + 18, 106);
+            ctx.fillText("• Node 2: ĉ = 35 > 28 ➜ KILLED ✕", pX + 18, 122);
+            ctx.fillText("• Node 8: ĉ = 36 > 28 ➜ KILLED ✕", pX + 18, 138);
+            ctx.fillText("• Nodes 7, 9, 3: ĉ ≥ 50 ➜ KILLED ✕", pX + 18, 154);
+
+            ctx.font = 'bold 10px sans-serif';
+            ctx.fillStyle = '#065f46';
+            ctx.fillText("Search halts. Global Optimum found!", pX + 12, 195);
+        }
+
+        // Render all canvases
+        function renderAllTspCanvases() {
+            renderIntro4vCanvas();
+            renderMasterTspTree();
+            renderStage1();
+            renderStage2();
+            renderStage3();
+            renderStage4();
+            renderStage5();
+        }
+
+        // Page Load Init
+        window.addEventListener('DOMContentLoaded', () => {
+            renderAllTspCanvases();
+            window.addEventListener('resize', renderAllTspCanvases);
+        });
+    </script>
+</body>
+
+</html>

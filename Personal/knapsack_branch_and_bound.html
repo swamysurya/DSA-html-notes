@@ -1,0 +1,2146 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>0/1 Knapsack Problem: Least Cost Branch and Bound - Digital Lecture Notes</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Kalam:wght@300;400;700&family=Patrick+Hand&family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap"
+        rel="stylesheet">
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        notebookBg: '#cbd5e1',
+                        notebookPaper: '#FAF6EE',
+                        inkBlue: '#1A365D',
+                        inkRed: '#9B2C2C',
+                        pencilGray: '#4A5568',
+                    },
+                    fontFamily: {
+                        notes: ['Patrick Hand', 'Kalam', 'cursive'],
+                        heading: ['Kalam', 'cursive'],
+                        clean: ['Inter', 'sans-serif'],
+                        code: ['Fira Code', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Physical Notebook Styling -->
+    <style>
+        body {
+            background-color: #cbd5e1;
+            font-family: 'Patrick Hand', 'Kalam', cursive;
+            color: #1e293b;
+        }
+
+        .lined-paper {
+            background-color: #FAF6EE !important;
+            background-image: repeating-linear-gradient(#FAF6EE 0px,
+                    #FAF6EE 31px,
+                    #e2ebf3 32px) !important;
+            line-height: 32px;
+            position: relative;
+        }
+
+        .notebook-margin {
+            border-left: 2.5px solid #FC8181 !important;
+            padding-left: 1.25rem;
+        }
+
+        @media (min-width: 640px) {
+            .notebook-margin {
+                padding-left: 2.5rem;
+            }
+        }
+
+        .spiral-ring {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #cbd5e1 0%, #64748b 50%, #334155 100%);
+            box-shadow: inset 1px 1px 2px rgba(255, 255, 255, 0.6), 2px 2px 4px rgba(0, 0, 0, 0.25);
+            margin: 11px 0;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            font-family: 'Kalam', cursive;
+        }
+
+        /* Clean Mode Font Switcher */
+        body.font-clean,
+        body.font-clean * {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+        }
+
+        body.font-clean pre,
+        body.font-clean code {
+            font-family: 'Fira Code', monospace !important;
+        }
+
+        /* Handwritten Highlighters & Sticky Callouts */
+        .highlighter-yellow {
+            background: linear-gradient(104deg, rgba(254, 240, 138, 0.95) 0.9%, rgba(253, 224, 71, 0.85) 98%);
+            padding: 2px 8px;
+            border-radius: 4px;
+            box-decoration-break: clone;
+            -webkit-box-decoration-break: clone;
+            display: inline-block;
+        }
+
+        .highlighter-green {
+            background: linear-gradient(104deg, rgba(187, 247, 208, 0.95) 0.9%, rgba(134, 239, 172, 0.85) 98%);
+            padding: 2px 8px;
+            border-radius: 4px;
+            box-decoration-break: clone;
+            -webkit-box-decoration-break: clone;
+            display: inline-block;
+        }
+
+        .highlighter-blue {
+            background: linear-gradient(104deg, rgba(191, 219, 254, 0.95) 0.9%, rgba(147, 197, 253, 0.85) 98%);
+            padding: 2px 8px;
+            border-radius: 4px;
+            box-decoration-break: clone;
+            -webkit-box-decoration-break: clone;
+            display: inline-block;
+        }
+
+        .highlighter-red {
+            background: linear-gradient(104deg, rgba(254, 205, 211, 0.95) 0.9%, rgba(253, 164, 175, 0.85) 98%);
+            padding: 2px 8px;
+            border-radius: 4px;
+            box-decoration-break: clone;
+            -webkit-box-decoration-break: clone;
+            display: inline-block;
+        }
+
+        .pen-box {
+            background: rgba(255, 255, 255, 0.92);
+            border: 2px dashed #3b82f6;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .pen-box-red {
+            background: rgba(255, 255, 255, 0.92);
+            border: 2px dashed #ef4444;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .pen-box-emerald {
+            background: rgba(255, 255, 255, 0.92);
+            border: 2px dashed #10b981;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .teacher-quote {
+            background: rgba(254, 243, 199, 0.92);
+            border-left: 5px solid #d97706;
+            border-radius: 6px;
+            padding: 0.85rem 1.2rem;
+            font-style: italic;
+        }
+
+        .sketch-card {
+            background: #ffffff;
+            border: 1.5px solid #cbd5e1;
+            box-shadow: 2px 3px 6px rgba(0, 0, 0, 0.06);
+            border-radius: 10px;
+        }
+
+        .canvas-frame {
+            background: #ffffff;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 10px;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.06);
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* VS Code Dark+ Mockup Styling */
+        .vscode-window {
+            background-color: #1e1e1e;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            border: 1px solid #333333;
+            font-family: 'Fira Code', monospace;
+        }
+
+        .vscode-gutter {
+            color: #858585;
+            user-select: none;
+            border-right: 1px solid #2d2d2d;
+            background-color: #1e1e1e;
+        }
+
+        .vscode-code-pre {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            tab-size: 4;
+        }
+
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+
+            body {
+                background: white !important;
+            }
+
+            .lined-paper {
+                background-image: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body class="text-xl text-slate-800 antialiased transition-all duration-300">
+
+    <!-- Sticky Header Navigation Bar -->
+    <header class="sticky top-0 z-50 bg-[#FAF6EE] shadow-md border-b-2 border-amber-200 px-4 py-3 no-print">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-3">
+            <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+                <a href="../index.html"
+                    class="px-3 py-1.5 rounded-lg bg-amber-100 hover:bg-amber-200 border border-amber-300 text-inkBlue text-xs sm:text-sm font-bold flex items-center gap-1.5 transition shadow-sm font-sans"
+                    title="Back to Digital Bookshelf">
+                    <span>📚</span> <span>Bookshelf</span>
+                </a>
+                <a href="index.html"
+                    class="px-3 py-1.5 rounded-lg bg-emerald-100 hover:bg-emerald-200 border border-emerald-300 text-emerald-900 text-xs sm:text-sm font-bold flex items-center gap-1.5 transition shadow-sm font-sans"
+                    title="Back to Personal Notes Directory">
+                    <span>📋</span> <span>Notes Directory</span>
+                </a>
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl sm:text-3xl font-bold text-inkBlue tracking-wide font-['Kalam']">🎒 0/1
+                        Knapsack: LC Branch &amp; Bound</span>
+                    <span
+                        class="bg-indigo-100 text-indigo-900 text-xs sm:text-sm font-bold px-3 py-1 rounded-full border border-indigo-300 font-sans">
+                        Abdul Bari Method &bull; Min-Cost Formulation
+                    </span>
+                </div>
+            </div>
+
+            <!-- Right: Font Toggle Button -->
+            <div class="flex items-center gap-2">
+                <button id="fontToggleBtn" onclick="toggleFontMode()"
+                    class="shrink-0 px-3.5 py-1.5 rounded-lg bg-inkBlue text-white hover:bg-slate-800 transition text-xs sm:text-sm font-bold shadow flex items-center gap-1.5 font-sans"
+                    title="Toggle between Handwritten and Clean typography">
+                    <span>✍️</span> <span id="fontBtnText">Clean Font</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <nav
+            class="max-w-6xl mx-auto mt-2.5 flex flex-wrap gap-1 border-t border-amber-200 pt-2 text-sm sm:text-base font-sans">
+            <button onclick="switchTab('tab-problem-formulation')" id="nav-tab-problem-formulation"
+                class="nav-tab px-4 py-1.5 rounded-t-lg font-bold bg-amber-200 text-inkBlue border-b-2 border-inkBlue transition">
+                1. Problem Statement &amp; Min-Cost Conversion
+            </button>
+            <button onclick="switchTab('tab-cost-upper-math')" id="nav-tab-cost-upper-math"
+                class="nav-tab px-4 py-1.5 rounded-t-lg font-bold text-slate-600 hover:text-inkBlue transition">
+                2. Cost &amp; Upper Bound Mechanics
+            </button>
+            <button onclick="switchTab('tab-abdul-bari-tree')" id="nav-tab-abdul-bari-tree"
+                class="nav-tab px-4 py-1.5 rounded-t-lg font-bold text-slate-600 hover:text-inkBlue transition">
+                3. State Space Tree (Nodes 1–9 with Calculations)
+            </button>
+            <button onclick="switchTab('tab-cpp-complexity')" id="nav-tab-cpp-complexity"
+                class="nav-tab px-4 py-1.5 rounded-t-lg font-bold text-slate-600 hover:text-inkBlue transition">
+                4. C++ Implementation &amp; Complexity
+            </button>
+        </nav>
+    </header>
+
+    <!-- Main Notebook Container -->
+    <main
+        class="max-w-6xl mx-auto flex relative bg-notebookPaper rounded-xl shadow-2xl overflow-hidden min-h-[950px] border border-amber-200 my-8">
+
+        <!-- Left Binder Column (50 Physical Spiral Rings) -->
+        <div
+            class="w-10 sm:w-16 bg-amber-50 border-r-2 border-amber-200 flex flex-col items-center py-8 select-none shrink-0 no-print space-y-6 z-10 shadow-[inset_-5px_0_10px_rgba(0,0,0,0.05)]">
+            <script>
+                for (let i = 0; i < 50; i++) document.write('<div class="spiral-ring"></div>');
+            </script>
+        </div>
+
+        <!-- Notebook Content Area -->
+        <div class="flex-1 lined-paper p-4 sm:p-8 notebook-margin sm:pl-8 overflow-hidden z-0">
+
+            <!-- ==================================================================== -->
+            <!-- TAB 1: PROBLEM STATEMENT & MIN-COST CONVERSION                       -->
+            <!-- ==================================================================== -->
+            <div id="tab-problem-formulation" class="tab-pane space-y-8">
+
+                <!-- Section Header -->
+                <div class="border-b-2 border-inkRed pb-2 flex justify-between items-baseline">
+                    <div>
+                        <h1
+                            class="text-3xl sm:text-4xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                            1. 0/1 Knapsack Problem &amp; Branch and Bound Formulation
+                        </h1>
+                        <p class="text-sm font-sans text-pencilGray mt-1">
+                            Discrete indivisibility property, converting maximization to minimization, fixed-size
+                            solution representation.
+                        </p>
+                    </div>
+                    <span
+                        class="text-xs sm:text-sm font-bold font-sans bg-indigo-100 text-indigo-900 px-2.5 py-1 rounded border border-indigo-300">
+                        Lecture Transcript &bull; Abdul Bari
+                    </span>
+                </div>
+
+                <!-- Teacher's Direct Transcription Callout -->
+                <div class="teacher-quote text-slate-800">
+                    <span class="font-bold text-amber-900 not-italic">📝 Professor Abdul Bari's Lecture:</span>
+                    "Here some objects are given. For each object there is some profit and some weight, and there is a
+                    bag of capacity <strong>15 kg</strong>. The objective is to fill the bag such that the total weight
+                    of the objects is less than or equal to 15, and if you take any object you must take the complete
+                    object or don't take it at all. It is a maximization problem, but in Branch and Bound we
+                    traditionally solve <strong>minimization problems</strong>. So we convert the signs of profits to
+                    negative, solve it using Least Cost Branch and Bound, and convert the result back to positive!"
+                </div>
+
+                <!-- 1.1 The Given Problem Dataset -->
+                <section class="space-y-4">
+                    <h2 class="text-2xl sm:text-3xl font-bold text-inkRed">
+                        &sect;1.1 The Given Problem Dataset (Capacity M = 15 kg, n = 4)
+                    </h2>
+                    <p class="leading-relaxed">
+                        We have <span class="font-mono font-bold text-inkBlue">n = 4</span> objects and a knapsack of
+                        capacity
+                        <span class="highlighter-yellow font-bold font-mono">M = 15 kg</span>.
+                        Items are pre-sorted in descending order of profit/weight ratio (<span
+                            class="font-mono">p<sub>i</sub> / w<sub>i</sub></span>):
+                    </p>
+
+                    <!-- Authentic Handwritten Notebook Data Table -->
+                    <div class="overflow-x-auto">
+                        <table
+                            class="w-full text-center border-collapse border-2 border-slate-700 bg-white shadow-sm font-sans text-sm sm:text-base">
+                            <thead>
+                                <tr class="bg-amber-100 border-b-2 border-slate-700 text-inkBlue font-bold">
+                                    <th class="p-3 border-r-2 border-slate-700">Object Index ( i )</th>
+                                    <th class="p-3 border-r-2 border-slate-700 font-mono text-indigo-900">Object 1</th>
+                                    <th class="p-3 border-r-2 border-slate-700 font-mono text-indigo-900">Object 2</th>
+                                    <th class="p-3 border-r-2 border-slate-700 font-mono text-indigo-900">Object 3</th>
+                                    <th class="p-3 font-mono text-indigo-900">Object 4</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-b border-slate-400">
+                                    <td class="p-3 border-r-2 border-slate-700 font-bold text-slate-800 bg-amber-50/50">
+                                        Profit ( p<sub>i</sub> )
+                                    </td>
+                                    <td
+                                        class="p-3 border-r-2 border-slate-700 font-mono font-bold text-emerald-800 text-lg">
+                                        10</td>
+                                    <td
+                                        class="p-3 border-r-2 border-slate-700 font-mono font-bold text-emerald-800 text-lg">
+                                        10</td>
+                                    <td
+                                        class="p-3 border-r-2 border-slate-700 font-mono font-bold text-emerald-800 text-lg">
+                                        12</td>
+                                    <td class="p-3 font-mono font-bold text-emerald-800 text-lg">18</td>
+                                </tr>
+                                <tr class="border-b-2 border-slate-700">
+                                    <td class="p-3 border-r-2 border-slate-700 font-bold text-slate-800 bg-amber-50/50">
+                                        Weight ( w<sub>i</sub> in kg )
+                                    </td>
+                                    <td
+                                        class="p-3 border-r-2 border-slate-700 font-mono font-bold text-rose-800 text-lg">
+                                        2</td>
+                                    <td
+                                        class="p-3 border-r-2 border-slate-700 font-mono font-bold text-rose-800 text-lg">
+                                        4</td>
+                                    <td
+                                        class="p-3 border-r-2 border-slate-700 font-mono font-bold text-rose-800 text-lg">
+                                        6</td>
+                                    <td class="p-3 font-mono font-bold text-rose-800 text-lg">9</td>
+                                </tr>
+                                <tr class="bg-slate-50 text-xs sm:text-sm">
+                                    <td class="p-2.5 border-r-2 border-slate-700 font-semibold text-slate-600">
+                                        Ratio ( p<sub>i</sub> / w<sub>i</sub> )
+                                    </td>
+                                    <td class="p-2.5 border-r-2 border-slate-700 font-mono text-slate-800 font-bold">
+                                        10/2 = 5.0</td>
+                                    <td class="p-2.5 border-r-2 border-slate-700 font-mono text-slate-800 font-bold">
+                                        10/4 = 2.5</td>
+                                    <td class="p-2.5 border-r-2 border-slate-700 font-mono text-slate-800 font-bold">
+                                        12/6 = 2.0</td>
+                                    <td class="p-2.5 font-mono text-slate-800 font-bold">18/9 = 2.0</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- 1.2 Converting Maximization into Minimization -->
+                <section class="space-y-4">
+                    <h2 class="text-2xl sm:text-3xl font-bold text-inkRed">
+                        &sect;1.2 Converting Maximization to Minimization
+                    </h2>
+                    <p class="leading-relaxed">
+                        In theoretical computer science and standard Branch and Bound textbooks (Horowitz &amp; Sahni),
+                        Branch and Bound solvers are built as <strong>Minimization engines</strong>:
+                    </p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 font-sans text-sm">
+                        <div class="p-4 bg-rose-50 border border-rose-300 rounded-lg">
+                            <span class="font-bold text-rose-950 block text-base">Original Problem
+                                (Maximization):</span>
+                            <div
+                                class="p-2 bg-white rounded border border-rose-200 font-mono text-inkRed font-bold mt-2">
+                                Maximize &nbsp; Profit = &sum; (p<sub>i</sub> &middot; x<sub>i</sub>)
+                            </div>
+                            <p class="text-xs text-slate-600 mt-2">We want the highest positive profit.</p>
+                        </div>
+                        <div class="p-4 bg-emerald-50 border border-emerald-300 rounded-lg">
+                            <span class="font-bold text-emerald-950 block text-base">Branch &amp; Bound Engine
+                                (Minimization):</span>
+                            <div
+                                class="p-2 bg-white rounded border border-emerald-200 font-mono text-emerald-900 font-bold mt-2">
+                                Minimize &nbsp; Cost = -Profit = -&sum; (p<sub>i</sub> &middot; x<sub>i</sub>)
+                            </div>
+                            <p class="text-xs text-slate-600 mt-2">We negate the profits and search for the minimum
+                                negative cost.</p>
+                        </div>
+                    </div>
+                    <div class="p-3 bg-blue-50 border border-blue-200 rounded text-sm font-sans text-slate-800">
+                        <strong>Result Conversion:</strong> At the end of the search, when the minimum cost node is
+                        found (e.g. <span class="font-mono font-bold text-inkRed">-38</span>), we invert the sign back
+                        to positive:
+                        <span class="font-mono font-bold text-emerald-800 ml-1">Maximum Profit = -(-38) = 38</span>!
+                    </div>
+                </section>
+
+                <!-- 1.3 Solution Representation: Variable vs Fixed Size -->
+                <section class="space-y-4">
+                    <h2 class="text-2xl sm:text-3xl font-bold text-inkRed">
+                        &sect;1.3 Solution Representation: Fixed Size Tuple
+                    </h2>
+                    <p class="leading-relaxed">
+                        In the lecture, Abdul Bari discusses two choices of solution representation:
+                    </p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 font-sans text-sm">
+                        <div class="p-4 bg-slate-50 border border-slate-300 rounded-lg">
+                            <span class="font-bold text-slate-900 block text-base">1. Variable-Size Representation
+                                (Subset List):</span>
+                            <p class="text-xs text-slate-700 mt-1 leading-relaxed">
+                                Stored as indices of included objects, e.g. <span class="font-mono font-bold">{1, 2,
+                                    4}</span>. The size of the answer tuple changes depending on how many items are
+                                picked.
+                            </p>
+                        </div>
+                        <div class="p-4 bg-indigo-50 border border-indigo-300 rounded-lg">
+                            <span class="font-bold text-indigo-950 block text-base">2. Fixed-Size Representation (0/1
+                                Tuple): &check; Selected</span>
+                            <p class="text-xs text-slate-700 mt-1 leading-relaxed">
+                                Stored as an n-tuple <span class="font-mono font-bold text-indigo-900">X =
+                                    (x<sub>1</sub>, x<sub>2</sub>, x<sub>3</sub>, x<sub>4</sub>)</span> where each <span
+                                    class="font-mono font-bold">x<sub>i</sub> &isin; {0, 1}</span>.
+                                Each level in the tree directly corresponds to deciding object <span
+                                    class="font-mono">i</span>.
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+
+            <!-- ==================================================================== -->
+            <!-- TAB 2: COST & UPPER BOUND MECHANICS                                 -->
+            <!-- ==================================================================== -->
+            <div id="tab-cost-upper-math" class="tab-pane hidden space-y-8">
+
+                <!-- Section Header -->
+                <div class="border-b-2 border-inkRed pb-2 flex justify-between items-baseline">
+                    <div>
+                        <h1
+                            class="text-3xl sm:text-4xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                            2. Cost (c&#770;) and Upper Bound (u) Calculation Mechanics
+                        </h1>
+                        <p class="text-sm font-sans text-pencilGray mt-1">
+                            Exact definitions of c&#770; (with fractions) and u (without fractions), and the global
+                            variable UPPER.
+                        </p>
+                    </div>
+                    <span
+                        class="text-xs sm:text-sm font-bold font-sans bg-amber-100 text-inkRed px-2.5 py-1 rounded border border-amber-300">
+                        Formulas &amp; Rules
+                    </span>
+                </div>
+
+                <!-- 2.0 Intuitive Knapsack Analogy -->
+                <section class="space-y-4">
+                    <h2 class="text-2xl sm:text-3xl font-bold text-inkRed">
+                        &sect;2.0 The Intuitive Knapsack Analogy: "The 15 kg Jewelry Heist"
+                    </h2>
+                    <div class="teacher-quote text-slate-800 text-sm sm:text-base leading-relaxed">
+                        <span class="font-bold text-amber-950 not-italic">🎒 The Core Dilemma:</span>
+                        Imagine you are a robber packing a sturdy backpack with a maximum capacity of <strong>15
+                            kg</strong>. You are looking at 4 solid, unbreakable items (heavy gold bars, electronics,
+                        diamond cases).
+                        <strong>The strict rule:</strong> You cannot slice an electronic device or saw a diamond case in
+                        half; you either pack the whole item (<span
+                            class="font-mono font-bold text-emerald-800">x<sub>i</sub> = 1</span>) or leave it (<span
+                            class="font-mono font-bold text-slate-600">x<sub>i</sub> = 0</span>).
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 font-sans text-xs sm:text-sm">
+                        <!-- u -->
+                        <div class="p-3.5 bg-amber-50 rounded-lg border-2 border-amber-300 space-y-1.5">
+                            <span class="font-bold text-amber-950 block text-base flex items-center gap-1.5">
+                                <span>📦</span> 1. upper (u) &mdash; "The Legal Pack"
+                            </span>
+                            <p class="text-slate-700 text-xs leading-relaxed">
+                                <strong>What it is:</strong> What can you pack right now using only legal, whole objects
+                                that fit completely?<br>
+                                <strong>At Root:</strong> Pack Obj 1 (2kg, $10) + Obj 2 (4kg, $10) + Obj 3 (6kg, $12) =
+                                12 kg. You have 3 kg left, but Obj 4 needs 9 kg. Since you can't break it, you close the
+                                zipper.<br>
+                                <strong class="text-amber-900 font-mono">&rArr; Real Cash in Bag = $32 (u =
+                                    -32)</strong>.
+                            </p>
+                        </div>
+
+                        <!-- UPPER -->
+                        <div class="p-3.5 bg-indigo-50 rounded-lg border-2 border-indigo-300 space-y-1.5">
+                            <span class="font-bold text-indigo-950 block text-base flex items-center gap-1.5">
+                                <span>🚐</span> 2. UPPER &mdash; "Cash in the Van"
+                            </span>
+                            <p class="text-slate-700 text-xs leading-relaxed">
+                                <strong>What it is:</strong> The highest confirmed legal cash you have secured in the
+                                getaway van so far.<br>
+                                <strong>At Root:</strong> Since you have a guaranteed bag worth $32, you radio the van:
+                                <em>"We already have $32 secured!"</em><br>
+                                <strong class="text-indigo-900 font-mono">&rArr; UPPER = -32 (Benchmark to
+                                    beat!)</strong>.
+                            </p>
+                        </div>
+
+                        <!-- c_hat -->
+                        <div class="p-3.5 bg-blue-50 rounded-lg border-2 border-blue-300 space-y-1.5">
+                            <span class="font-bold text-blue-950 block text-base flex items-center gap-1.5">
+                                <span>⚡</span> 3. cost (c&#770;) &mdash; "The Laser Cutter Fantasy"
+                            </span>
+                            <p class="text-slate-700 text-xs leading-relaxed">
+                                <strong>What it is:</strong> If you had a magic laser cutter and were allowed to turn
+                                the remaining 3 kg into gold dust, what is the MAXIMUM possible value this branch could
+                                ever dream of?<br>
+                                <strong>At Root:</strong> $32 + (18/9 &times; 3) = $38.<br>
+                                <strong class="text-blue-900 font-mono">&rArr; Dream Profit = $38 (c&#770; =
+                                    -38)</strong>.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Pruning Analogy -->
+                    <div class="pen-box-red space-y-2 font-sans text-xs sm:text-sm">
+                        <h4 class="font-bold text-rose-950 text-base flex items-center gap-1.5">
+                            <span>🚪</span> Why We KILL A Branch (The Laser Cutter Test):
+                        </h4>
+                        <p class="text-slate-800 leading-relaxed">
+                            Later at Node 7, you find an even better legal pack worth <strong>$38</strong>, so your van
+                            has <strong>UPPER = -38 ($38 cash)</strong>.
+                            Now you look down another aisle (Node 5, where you skipped Obj 2). You ask the laser cutter
+                            for its fantasy value: it says <strong>at best, with magic dust, this aisle can only produce
+                                $36 (cost = -36)</strong>!
+                        </p>
+                        <div
+                            class="p-2.5 bg-white rounded border border-rose-300 font-mono text-center text-rose-900 font-bold">
+                            Fantasy Value ($36) &lt; Real Cash in Van ($38) &rArr; c&#770; (-36) &gt; UPPER (-38) &rArr;
+                            SLAM THE DOOR! (KILL NODE!)
+                        </div>
+                        <p class="text-slate-600 text-xs">
+                            Why waste time searching through drawers in an aisle whose magical maximum is $36, when you
+                            already have $38 in cold hard cash in the van?! <strong>Prune it immediately!</strong>
+                        </p>
+                    </div>
+                </section>
+
+                <!-- 2.1 The Two Bounding Functions Explained -->
+                <section class="space-y-4">
+                    <h2 class="text-2xl sm:text-3xl font-bold text-inkRed">
+                        &sect;2.1 Cost (c&#770;) vs Upper Bound (u): The Golden Distinction
+                    </h2>
+                    <p class="leading-relaxed">
+                        For every node in the state space tree, we compute two critical values. Both represent the sum
+                        of profits (negated for minimization), but with one crucial difference:
+                    </p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 font-sans text-sm">
+                        <!-- Cost c-hat -->
+                        <div class="p-4 bg-blue-50 border-2 border-blue-300 rounded-lg space-y-2">
+                            <span class="font-bold text-blue-950 block text-base flex items-center gap-1.5">
+                                <span>⚖️</span> 1. Cost c&#770;(node) &mdash; WITH FRACTION
+                            </span>
+                            <div
+                                class="p-2.5 bg-white rounded border border-blue-200 font-mono text-xs text-slate-800 leading-relaxed">
+                                c&#770; = - (Sum of profits of all full items + fraction of next item to completely fill
+                                remaining capacity)
+                            </div>
+                            <p class="text-xs text-slate-700 leading-relaxed">
+                                Though the 0/1 problem forbids fractions in the final solution, we compute the
+                                fractional knapsack relaxation <em>purely for the mathematical bound</em>. Because
+                                fractional relaxation gives the optimistic theoretical maximum, <span
+                                    class="font-mono font-bold">c&#770;</span> is the absolute lower bound on cost.
+                            </p>
+                        </div>
+
+                        <!-- Upper Bound u -->
+                        <div class="p-4 bg-amber-50 border-2 border-amber-300 rounded-lg space-y-2">
+                            <span class="font-bold text-amber-950 block text-base flex items-center gap-1.5">
+                                <span>🛡️</span> 2. Upper Bound u(node) &mdash; WITHOUT FRACTION
+                            </span>
+                            <div
+                                class="p-2.5 bg-white rounded border border-amber-200 font-mono text-xs text-slate-800 leading-relaxed">
+                                u = - (Sum of profits of only those items that can be included COMPLETELY without taking
+                                any fractions)
+                            </div>
+                            <p class="text-xs text-slate-700 leading-relaxed">
+                                <span class="font-mono font-bold">u</span> is a guaranteed, valid, 100% integer feasible
+                                solution value achievable down this path.
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 2.2 Global Variable UPPER & The Killing Rule -->
+                <section class="space-y-4">
+                    <h2 class="text-2xl sm:text-3xl font-bold text-inkRed">
+                        &sect;2.2 Global Variable UPPER &amp; The Killing (Pruning) Rule
+                    </h2>
+                    <div class="sketch-card p-5 font-sans space-y-3">
+                        <h4 class="font-bold text-inkBlue text-base">🔑 How the Global Variable UPPER Works:</h4>
+                        <ol
+                            class="list-decimal list-inside space-y-2 text-xs sm:text-sm text-slate-800 leading-relaxed">
+                            <li><strong>Initialization:</strong> Before starting, initialize <span
+                                    class="font-mono font-bold text-inkRed">UPPER = &infin;</span>.</li>
+                            <li><strong>Updating UPPER:</strong> Whenever any generated node yields a smaller (more
+                                negative) upper bound:
+                                <div class="font-mono bg-amber-50 p-2 rounded mt-1 border text-amber-950 font-bold">
+                                    If (u &lt; UPPER) &rarr; UPPER = u;
+                                </div>
+                            </li>
+                            <li><strong>The Killing (Pruning) Condition:</strong>
+                                <div
+                                    class="p-3 bg-rose-50 border border-rose-300 rounded-lg mt-1 font-mono text-xs text-rose-900 leading-relaxed font-bold">
+                                    If c&#770;(node) &gt; UPPER &rarr; KILL THAT NODE!
+                                </div>
+                                <p class="text-xs text-slate-600 font-normal mt-1">
+                                    <strong>WHY?</strong> In negative minimization, <span class="font-mono">c&#770; &gt;
+                                        UPPER</span> means the optimistic fractional profit is strictly worse than a
+                                    real integer solution we already possess! Expanding it would be a complete waste of
+                                    time.
+                                </p>
+                            </li>
+                            <li><strong>Retroactive Killing:</strong> When <span
+                                    class="font-mono font-bold">UPPER</span> drops to a smaller value (e.g. from <span
+                                    class="font-mono">-32</span> to <span class="font-mono">-38</span>), we re-examine
+                                all currently alive nodes in the tree. Any alive node whose <span
+                                    class="font-mono font-bold">c&#770; &gt; -38</span> (such as <span
+                                    class="font-mono">-36</span> or <span class="font-mono">-32</span>) is immediately
+                                <strong>KILLED</strong>!
+                            </li>
+                        </ol>
+                    </div>
+                </section>
+
+                <!-- 2.3 Calculation for Root Node (Step-by-Step as in Video) -->
+                <section class="space-y-4">
+                    <h2 class="text-2xl sm:text-3xl font-bold text-inkRed">
+                        &sect;2.3 Numerical Root Node Calculation (Abdul Bari Walkthrough)
+                    </h2>
+                    <div class="pen-box space-y-3 font-sans text-sm">
+                        <h4 class="font-bold text-inkBlue text-base flex items-center gap-2">
+                            <span>🧮</span> Calculation for Root Node 1 (Capacity M = 15 kg):
+                        </h4>
+                        <div
+                            class="space-y-1.5 text-xs sm:text-sm font-mono leading-relaxed bg-white p-3.5 rounded border border-blue-200 text-slate-800">
+                            <div>Objects: (p1=10, w1=2), (p2=10, w2=4), (p3=12, w3=6), (p4=18, w4=9)</div>
+                            <div class="text-slate-600">&bull; Object 1: wt = 2 &le; 15. Accumulated wt = 2, profit =
+                                10.</div>
+                            <div class="text-slate-600">&bull; Object 2: wt = 4 &le; 15. Accumulated wt = 2 + 4 = 6,
+                                profit = 10 + 10 = 20.</div>
+                            <div class="text-slate-600">&bull; Object 3: wt = 6 &le; 15. Accumulated wt = 6 + 6 = 12,
+                                profit = 20 + 12 = 32.</div>
+                            <div class="text-amber-800 font-bold">&bull; Remaining Capacity: 15 - 12 = 3 kg. Object 4
+                                weighs 9 kg (cannot fit whole).</div>
+
+                            <div class="pt-2 border-t border-slate-200 text-inkBlue font-bold">
+                                1. Cost c&#770; (WITH FRACTION):
+                            </div>
+                            <div class="pl-4 text-inkBlue">
+                                Fractional profit from Obj 4 = (18 / 9) &times; 3 = 2 &times; 3 = 6.<br>
+                                Total Profit = 10 + 10 + 12 + 6 = 38.<br>
+                                &rArr; <strong class="text-rose-800 text-base">Cost c&#770; = -38</strong>
+                            </div>
+
+                            <div class="pt-2 border-t border-slate-200 text-amber-900 font-bold">
+                                2. Upper Bound u (WITHOUT FRACTION):
+                            </div>
+                            <div class="pl-4 text-amber-900">
+                                Only complete objects 1, 2, 3 fit (wt = 12 kg &le; 15 kg).<br>
+                                Total Profit = 10 + 10 + 12 = 32.<br>
+                                &rArr; <strong class="text-emerald-800 text-base">Upper Bound u = -32</strong>
+                            </div>
+
+                            <div class="pt-2 border-t border-slate-200 text-indigo-900 font-bold">
+                                3. Global UPPER Update:
+                            </div>
+                            <div class="pl-4 text-indigo-900">
+                                Since -32 &lt; &infin; &rArr; <strong class="text-indigo-950 text-base">UPPER is updated
+                                    to -32</strong>.
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+
+            <!-- ==================================================================== -->
+            <!-- TAB 3: STATE SPACE TREE (ABDUL BARI'S 9 NODES)                       -->
+            <!-- ==================================================================== -->
+            <div id="tab-abdul-bari-tree" class="tab-pane hidden space-y-8">
+
+                <!-- Section Header -->
+                <div class="border-b-2 border-inkRed pb-2 flex justify-between items-baseline">
+                    <div>
+                        <h1
+                            class="text-3xl sm:text-4xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                            3. Live State Space Tree Trace (Abdul Bari Nodes 1–9)
+                        </h1>
+                        <p class="text-sm font-sans text-pencilGray mt-1">
+                            Step-by-step arithmetic, Least Cost decisions, retroactive killing, and interactive high-DPI
+                            canvas.
+                        </p>
+                    </div>
+                    <span
+                        class="text-xs sm:text-sm font-bold font-sans bg-indigo-100 text-indigo-900 px-2.5 py-1 rounded border border-indigo-300">
+                        State Space Tree
+                    </span>
+                </div>
+
+                <!-- Interactive Master Tree Canvas Frame -->
+                <div class="canvas-frame p-4 space-y-3">
+                    <div class="flex flex-wrap justify-between items-center gap-2 border-b border-slate-200 pb-2">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xl">🌳</span>
+                            <span class="font-bold text-inkBlue text-base font-['Kalam']">Abdul Bari 0/1 Knapsack State
+                                Space Tree (n=4, M=15 kg)</span>
+                        </div>
+                        <div class="flex items-center gap-2 font-sans text-xs">
+                            <button onclick="resetBariTreeZoom()"
+                                class="px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 font-bold transition">
+                                ↺ Reset View
+                            </button>
+                            <span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold">● Node 8:
+                                Optimal Solution</span>
+                            <span class="px-2 py-0.5 rounded bg-rose-100 text-rose-800 font-bold">● Killed /
+                                Infeasible</span>
+                            <span class="px-2 py-0.5 rounded bg-blue-100 text-blue-800 font-bold">● Explored</span>
+                        </div>
+                    </div>
+
+                    <!-- Canvas Element -->
+                    <div class="overflow-x-auto">
+                        <canvas id="canvas-abdul-bari-tree" width="1020" height="540"
+                            class="w-full bg-[#FAF6EE] rounded border border-slate-300"></canvas>
+                    </div>
+                    <div class="text-[11px] font-sans text-slate-500 text-center">
+                        💡 Interactive High-DPI Canvas: Visualizes the exact nodes 1 through 9 from Abdul Bari's
+                        lecture.
+                    </div>
+                </div>
+
+                <!-- 3.1 Diagrammatic Step-by-Step State Evolution with Arithmetic Sums -->
+                <section class="space-y-8">
+                    <div class="border-b border-amber-300 pb-2 flex justify-between items-baseline">
+                        <div>
+                            <h2 class="text-2xl sm:text-3xl font-bold text-inkRed">
+                                &sect;3.1 Diagrammatic Step-by-Step State Evolution &amp; Performed Arithmetic Sums
+                            </h2>
+                            <p class="text-xs font-sans text-pencilGray mt-0.5">
+                                For every step: exactly which objects are added, the weight sums, upper bound sums (u), and fractional cost sums (c&#770;).
+                            </p>
+                        </div>
+                        <span class="text-xs font-mono bg-amber-100 text-amber-900 px-2 py-0.5 rounded font-bold">
+                            5 Visual Decision Stages
+                        </span>
+                    </div>
+
+                    <!-- ========================================== -->
+                    <!-- STAGE 1: ROOT NODE 1                       -->
+                    <!-- ========================================== -->
+                    <div class="sketch-card p-4 sm:p-5 space-y-4 border-l-4 border-indigo-600 font-sans">
+                        <div class="flex flex-wrap justify-between items-center text-xs gap-2 border-b border-slate-200 pb-2">
+                            <span class="font-bold text-inkBlue text-base font-['Kalam']">Stage 1: Initialize Root (Node 1)</span>
+                            <span class="px-2.5 py-0.5 bg-indigo-100 text-indigo-900 rounded font-mono font-bold">Root Initialization &bull; M = 15 kg</span>
+                        </div>
+
+                        <!-- Dedicated High-DPI Diagram Canvas -->
+                        <div class="overflow-x-auto">
+                            <canvas id="canvas-step-1" width="900" height="190" class="w-full bg-[#FAF6EE] rounded border border-slate-300"></canvas>
+                        </div>
+
+                        <!-- Performed Arithmetic Sums Card -->
+                        <div class="p-3.5 bg-indigo-50/70 border border-indigo-200 rounded-lg text-xs space-y-2.5">
+                            <div class="font-bold text-indigo-950 text-sm flex items-center justify-between border-b border-indigo-200 pb-1.5">
+                                <span class="flex items-center gap-1.5">🧮 <span>Exact Objects Added &amp; Performed Sums at Root Node 1</span></span>
+                                <span class="font-mono bg-white px-2 py-0.5 rounded border border-indigo-200 text-indigo-900">Capacity M = 15 kg</span>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-slate-800">
+                                <div class="bg-white p-3 rounded border border-indigo-200 space-y-2">
+                                    <div class="font-bold text-slate-900 flex items-center gap-1">
+                                        <span>➕</span> <span>Objects Added (Greedy Ratio Order):</span>
+                                    </div>
+                                    <div class="font-mono text-xs text-slate-700 space-y-1">
+                                        <div>&bull; <strong>Add Obj 1</strong>: w₁ = 2 kg, p₁ = 10 &rarr; Fits (2 &le; 15)</div>
+                                        <div>&bull; <strong>Add Obj 2</strong>: w₂ = 4 kg, p₂ = 10 &rarr; Fits (2 + 4 = 6 &le; 15)</div>
+                                        <div>&bull; <strong>Add Obj 3</strong>: w₃ = 6 kg, p₃ = 12 &rarr; Fits (6 + 6 = 12 &le; 15)</div>
+                                        <div class="text-rose-800 font-bold bg-rose-50 p-1 rounded border border-rose-200">
+                                            &bull; Remaining Capacity = 15 - 12 = 3 kg<br>
+                                            Obj 4 weighs 9 kg (cannot fit completely!)
+                                        </div>
+                                    </div>
+                                    <div class="font-mono font-bold text-indigo-950 text-xs pt-1.5 border-t border-slate-200">
+                                        ⚖️ <strong>Weight Sum Performed:</strong> 2 + 4 + 6 = 12 kg &le; 15 kg &check;
+                                    </div>
+                                </div>
+
+                                <div class="bg-white p-3 rounded border border-indigo-200 space-y-2">
+                                    <div class="font-bold text-slate-900 flex items-center gap-1">
+                                        <span>🛡️</span> <span>Performed Bounds &amp; Benchmark Sums:</span>
+                                    </div>
+                                    <div class="font-mono text-xs text-slate-700 space-y-1.5">
+                                        <div class="p-1.5 bg-emerald-50 rounded border border-emerald-200 text-emerald-950">
+                                            <strong>Upper Bound u Sum (Integer Objects Only):</strong><br>
+                                            Objects included: { Obj 1, Obj 2, Obj 3 }<br>
+                                            <span class="font-bold">u = -(p₁ + p₂ + p₃) = -(10 + 10 + 12) = -32</span>
+                                        </div>
+                                        <div class="p-1.5 bg-blue-50 rounded border border-blue-200 text-blue-950">
+                                            <strong>Cost c&#770; Sum (Includes Fractional Slice of Obj 4):</strong><br>
+                                            Obj 4 slice = (3 kg left / 9 kg total) &times; 18 = 6<br>
+                                            <span class="font-bold">c&#770; = -(10 + 10 + 12 + 6) = -38</span>
+                                        </div>
+                                        <div class="p-1.5 bg-amber-50 rounded border border-amber-200 text-amber-950 font-bold">
+                                            🔑 <strong>Global Benchmark:</strong> UPPER is initialized to <span class="text-rose-800">-32</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ========================================== -->
+                    <!-- STAGE 2: BRANCH ON OBJECT 1 (NODES 2 & 3)   -->
+                    <!-- ========================================== -->
+                    <div class="sketch-card p-4 sm:p-5 space-y-4 border-l-4 border-blue-500 font-sans">
+                        <div class="flex flex-wrap justify-between items-center text-xs gap-2 border-b border-slate-200 pb-2">
+                            <span class="font-bold text-inkBlue text-base font-['Kalam']">Stage 2: Branch on Object 1 (Nodes 2 &amp; 3)</span>
+                            <span class="px-2.5 py-0.5 bg-blue-100 text-blue-900 rounded font-mono font-bold">Level 1 Decision &bull; Obj 1: w₁=2 kg, p₁=10</span>
+                        </div>
+
+                        <!-- Dedicated High-DPI Diagram Canvas -->
+                        <div class="overflow-x-auto">
+                            <canvas id="canvas-step-2" width="900" height="215" class="w-full bg-[#FAF6EE] rounded border border-slate-300"></canvas>
+                        </div>
+
+                        <!-- Performed Arithmetic Sums for Both Branches -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                            <!-- Node 2 -->
+                            <div class="p-3 bg-blue-50/70 border-2 border-blue-300 rounded-lg space-y-2">
+                                <div class="font-bold text-blue-950 text-sm flex justify-between items-center border-b border-blue-200 pb-1">
+                                    <span>🌿 Node 2: Left Branch (x₁ = 1, Take Obj 1)</span>
+                                    <span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded font-mono font-bold">ALIVE</span>
+                                </div>
+                                <div class="bg-white p-2.5 rounded border border-blue-200 font-mono space-y-1 text-slate-800">
+                                    <div><strong>➕ Objects Added in Bag:</strong> { Obj 1 } (w=2 kg, p=10)</div>
+                                    <div><strong>➕ Greedy Probe Items Added:</strong> Obj 2 (4 kg) + Obj 3 (6 kg)</div>
+                                    <div class="text-blue-950 font-bold bg-blue-50/50 p-1 rounded">
+                                        ⚖️ <strong>Weight Sum Performed:</strong> 2 + 4 + 6 = 12 kg &le; 15 kg &check;
+                                    </div>
+                                    <div class="text-slate-600">&bull; Remaining Capacity = 15 - 12 = 3 kg (Obj 4 sliced: 3/9)</div>
+                                    <div class="text-emerald-900 font-bold">
+                                        🛡️ <strong>Upper Bound u Sum:</strong> -(10 + 10 + 12) = -32
+                                    </div>
+                                    <div class="text-blue-900 font-bold">
+                                        📉 <strong>Cost c&#770; Sum:</strong> -(10 + 10 + 12 + (3/9)&times;18) = -(32 + 6) = -38
+                                    </div>
+                                    <div class="text-amber-900 font-bold pt-1 border-t text-[11px]">
+                                        ⚔️ <strong>Pruning Comparison Performed:</strong><br>
+                                        c&#770; (-38) &le; UPPER (-32) &rarr; <span class="text-emerald-700">SURVIVES in Priority Queue!</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Node 3 -->
+                            <div class="p-3 bg-slate-50 border-2 border-slate-300 rounded-lg space-y-2">
+                                <div class="font-bold text-slate-900 text-sm flex justify-between items-center border-b border-slate-200 pb-1">
+                                    <span>🌿 Node 3: Right Branch (x₁ = 0, Skip Obj 1)</span>
+                                    <span class="px-2 py-0.5 bg-slate-200 text-slate-800 rounded font-mono font-bold">ALIVE (Wait)</span>
+                                </div>
+                                <div class="bg-white p-2.5 rounded border border-slate-200 font-mono space-y-1 text-slate-800">
+                                    <div><strong>➕ Objects Added in Bag:</strong> None (Obj 1 skipped, w=0, p=0)</div>
+                                    <div><strong>➕ Greedy Probe Items Added:</strong> Obj 2 (4 kg) + Obj 3 (6 kg)</div>
+                                    <div class="text-slate-950 font-bold bg-slate-100/50 p-1 rounded">
+                                        ⚖️ <strong>Weight Sum Performed:</strong> 4 + 6 = 10 kg &le; 15 kg &check;
+                                    </div>
+                                    <div class="text-slate-600">&bull; Remaining Capacity = 15 - 10 = 5 kg (Obj 4 sliced: 5/9)</div>
+                                    <div class="text-emerald-900 font-bold">
+                                        🛡️ <strong>Upper Bound u Sum:</strong> -(10 + 12) = -22 (Obj 4 needs 9 kg)
+                                    </div>
+                                    <div class="text-blue-900 font-bold">
+                                        📉 <strong>Cost c&#770; Sum:</strong> -(10 + 12 + (5/9)&times;18) = -(22 + 10) = -32
+                                    </div>
+                                    <div class="text-slate-800 font-bold pt-1 border-t text-[11px]">
+                                        ⚔️ <strong>Pruning Comparison Performed:</strong><br>
+                                        c&#770; (-32) &le; UPPER (-32) &rarr; <span class="text-slate-700">Survives temporarily in Heap</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Heap Status Banner -->
+                        <div class="p-2.5 bg-amber-50 rounded border border-amber-300 font-mono text-xs text-amber-950 flex flex-wrap justify-between items-center gap-2">
+                            <span>📋 <strong>Min-Heap Status:</strong> [ Node 2 (c&#770; = -38), Node 3 (c&#770; = -32) ]</span>
+                            <span class="font-bold text-inkBlue">Next Node to Expand: Node 2 because min(-38, -32) = -38!</span>
+                        </div>
+                    </div>
+
+                    <!-- ========================================== -->
+                    <!-- STAGE 3: BRANCH ON OBJECT 2 (NODES 4 & 5)   -->
+                    <!-- ========================================== -->
+                    <div class="sketch-card p-4 sm:p-5 space-y-4 border-l-4 border-emerald-500 font-sans">
+                        <div class="flex flex-wrap justify-between items-center text-xs gap-2 border-b border-slate-200 pb-2">
+                            <span class="font-bold text-inkBlue text-base font-['Kalam']">Stage 3: Branch on Object 2 from Node 2 (Nodes 4 &amp; 5)</span>
+                            <span class="px-2.5 py-0.5 bg-emerald-100 text-emerald-900 rounded font-mono font-bold">Level 2 Decision &bull; Obj 2: w₂=4 kg, p₂=10</span>
+                        </div>
+
+                        <!-- Dedicated High-DPI Diagram Canvas -->
+                        <div class="overflow-x-auto">
+                            <canvas id="canvas-step-3" width="900" height="225" class="w-full bg-[#FAF6EE] rounded border border-slate-300"></canvas>
+                        </div>
+
+                        <!-- Performed Arithmetic Sums for Both Branches -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                            <!-- Node 4 -->
+                            <div class="p-3 bg-blue-50/70 border-2 border-blue-300 rounded-lg space-y-2">
+                                <div class="font-bold text-blue-950 text-sm flex justify-between items-center border-b border-blue-200 pb-1">
+                                    <span>🌿 Node 4: Left Branch (x₂ = 1, Take Obj 2)</span>
+                                    <span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded font-mono font-bold">ALIVE</span>
+                                </div>
+                                <div class="bg-white p-2.5 rounded border border-blue-200 font-mono space-y-1 text-slate-800">
+                                    <div><strong>➕ Objects Added in Bag:</strong> { Obj 1, Obj 2 } (w=2+4=6 kg, p=10+10=20)</div>
+                                    <div><strong>➕ Greedy Probe Items Added:</strong> Obj 3 (6 kg)</div>
+                                    <div class="text-blue-950 font-bold bg-blue-50/50 p-1 rounded">
+                                        ⚖️ <strong>Weight Sum Performed:</strong> 2 + 4 + 6 = 12 kg &le; 15 kg &check;
+                                    </div>
+                                    <div class="text-slate-600">&bull; Remaining Capacity = 15 - 12 = 3 kg (Obj 4 sliced: 3/9)</div>
+                                    <div class="text-emerald-900 font-bold">
+                                        🛡️ <strong>Upper Bound u Sum:</strong> -(10 + 10 + 12) = -32
+                                    </div>
+                                    <div class="text-blue-900 font-bold">
+                                        📉 <strong>Cost c&#770; Sum:</strong> -(10 + 10 + 12 + (3/9)&times;18) = -(32 + 6) = -38
+                                    </div>
+                                    <div class="text-amber-900 font-bold pt-1 border-t text-[11px]">
+                                        ⚔️ <strong>Pruning Comparison Performed:</strong><br>
+                                        c&#770; (-38) &le; UPPER (-32) &rarr; <span class="text-emerald-700">SURVIVES as Heap Top!</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Node 5 -->
+                            <div class="p-3 bg-slate-50 border-2 border-slate-300 rounded-lg space-y-2">
+                                <div class="font-bold text-slate-900 text-sm flex justify-between items-center border-b border-slate-200 pb-1">
+                                    <span>🌿 Node 5: Right Branch (x₂ = 0, Skip Obj 2)</span>
+                                    <span class="px-2 py-0.5 bg-slate-200 text-slate-800 rounded font-mono font-bold">ALIVE (Wait)</span>
+                                </div>
+                                <div class="bg-white p-2.5 rounded border border-slate-200 font-mono space-y-1 text-slate-800">
+                                    <div><strong>➕ Objects Added in Bag:</strong> { Obj 1 } only (w=2 kg, p=10)</div>
+                                    <div><strong>➕ Greedy Probe Items Added:</strong> Obj 3 (6 kg)</div>
+                                    <div class="text-slate-950 font-bold bg-slate-100/50 p-1 rounded">
+                                        ⚖️ <strong>Weight Sum Performed:</strong> 2 + 6 = 8 kg &le; 15 kg &check;
+                                    </div>
+                                    <div class="text-slate-600">&bull; Remaining Capacity = 15 - 8 = 7 kg (Obj 4 sliced: 7/9)</div>
+                                    <div class="text-emerald-900 font-bold">
+                                        🛡️ <strong>Upper Bound u Sum:</strong> -(10 + 12) = -22 (Obj 4 needs 9 kg)
+                                    </div>
+                                    <div class="text-blue-900 font-bold">
+                                        📉 <strong>Cost c&#770; Sum:</strong> -(10 + 12 + (7/9)&times;18) = -(22 + 14) = -36
+                                    </div>
+                                    <div class="text-slate-800 font-bold pt-1 border-t text-[11px]">
+                                        ⚔️ <strong>Pruning Comparison Performed:</strong><br>
+                                        c&#770; (-36) &le; UPPER (-32) &rarr; <span class="text-slate-700">Survives temporarily in Heap</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Heap Status Banner -->
+                        <div class="p-2.5 bg-amber-50 rounded border border-amber-300 font-mono text-xs text-amber-950 flex flex-wrap justify-between items-center gap-2">
+                            <span>📋 <strong>Min-Heap Status:</strong> [ Node 4 (c&#770; = -38), Node 5 (c&#770; = -36), Node 3 (c&#770; = -32) ]</span>
+                            <span class="font-bold text-inkBlue">Next Node to Expand: Node 4 because minimum cost is -38!</span>
+                        </div>
+                    </div>
+
+                    <!-- ========================================== -->
+                    <!-- STAGE 4: BRANCH ON OBJ 3 & RETROACTIVE     -->
+                    <!-- ========================================== -->
+                    <div class="sketch-card p-4 sm:p-5 space-y-4 border-l-4 border-amber-500 bg-amber-50/10 font-sans">
+                        <div class="flex flex-wrap justify-between items-center text-xs gap-2 border-b border-slate-200 pb-2">
+                            <span class="font-bold text-inkBlue text-base font-['Kalam']">Stage 4: Branch on Object 3 (Nodes 6 &amp; 7) &amp; Retroactive Pruning Event!</span>
+                            <span class="px-2.5 py-0.5 bg-rose-100 text-rose-900 rounded font-mono font-bold">Level 3 Critical Guillotine &bull; Obj 3: w₃=6 kg, p₃=12</span>
+                        </div>
+
+                        <!-- Dedicated High-DPI Diagram Canvas -->
+                        <div class="overflow-x-auto">
+                            <canvas id="canvas-step-4" width="900" height="245" class="w-full bg-[#FAF6EE] rounded border border-slate-300"></canvas>
+                        </div>
+
+                        <!-- Performed Arithmetic Sums for Both Branches -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                            <!-- Node 6 -->
+                            <div class="p-3 bg-rose-50 border-2 border-rose-300 rounded-lg space-y-2">
+                                <div class="font-bold text-rose-950 text-sm flex justify-between items-center border-b border-rose-200 pb-1">
+                                    <span>🛑 Node 6: Left Branch (x₃ = 1, Take Obj 3)</span>
+                                    <span class="px-2 py-0.5 bg-rose-200 text-rose-900 rounded font-mono font-bold">INFEASIBLE</span>
+                                </div>
+                                <div class="bg-white p-2.5 rounded border border-rose-200 font-mono space-y-1 text-slate-800">
+                                    <div><strong>➕ Objects Fixed in Bag:</strong> { Obj 1, Obj 2, Obj 3 }</div>
+                                    <div>&bull; Weight of {1, 2, 3} = 2 + 4 + 6 = 12 kg &le; 15 kg</div>
+                                    <div>Now check Obj 4 (w₄ = 9 kg):</div>
+                                    <div class="text-rose-950 font-bold text-xs bg-rose-50 p-1.5 rounded border border-rose-300">
+                                        ⚖️ <strong>Performed Weight Sum:</strong><br>
+                                        12 + 9 = 21 kg &gt; 15 kg ➜ EXCEEDS CAPACITY!
+                                    </div>
+                                    <div class="text-rose-800 font-bold pt-1 border-t text-[11px]">
+                                        ⚔️ <strong>Decision:</strong> Infeasible branch. Pruned immediately!
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Node 7 -->
+                            <div class="p-3 bg-emerald-50 border-2 border-emerald-400 rounded-lg space-y-2">
+                                <div class="font-bold text-emerald-950 text-sm flex justify-between items-center border-b border-emerald-200 pb-1">
+                                    <span>⚡ Node 7: Right Branch (x₃ = 0, Skip Obj 3)</span>
+                                    <span class="px-2 py-0.5 bg-emerald-200 text-emerald-900 rounded font-mono font-bold">UPPER = -38!</span>
+                                </div>
+                                <div class="bg-white p-2.5 rounded border border-emerald-300 font-mono space-y-1 text-slate-800">
+                                    <div><strong>➕ Objects Fixed in Bag:</strong> { Obj 1, Obj 2 } (w = 2+4=6 kg, p = 10+10=20)</div>
+                                    <div><strong>➕ Remaining Capacity:</strong> 15 - 6 = 9 kg. Can we take Obj 4 (w₄=9 kg, p₄=18)?</div>
+                                    <div class="text-emerald-950 font-bold bg-emerald-50/50 p-1 rounded">
+                                        ⚖️ <strong>Weight Sum Performed:</strong> 2 + 4 + 9 = 15 kg &le; 15 kg (Exact Fit!)
+                                    </div>
+                                    <div class="text-emerald-950 font-bold">
+                                        🛡️ <strong>Upper Bound u Sum:</strong> -(10 + 10 + 18) = -38 (NO FRACTION!)
+                                    </div>
+                                    <div class="text-emerald-950 font-bold">
+                                        📉 <strong>Cost c&#770; Sum:</strong> -(10 + 10 + 18) = -38
+                                    </div>
+                                    <div class="text-emerald-900 font-bold pt-1 border-t text-[11px]">
+                                        🔑 <strong>Benchmark Update:</strong> -38 &lt; -32 &rarr; <strong>UPPER updated to -38!</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- The Retroactive Pruning Event Box -->
+                        <div class="p-3 bg-rose-100/80 border-2 border-rose-400 rounded-lg font-mono text-xs text-rose-950 space-y-2">
+                            <div class="font-bold text-sm text-rose-900 flex items-center gap-1.5">
+                                <span>⚡</span> THE RETROACTIVE GUILLOTINE EXECUTION (Benchmark UPPER is now -38):
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
+                                <div class="bg-white p-2 rounded border border-rose-300 space-y-0.5">
+                                    <div class="font-bold text-rose-900">&bull; Node 3 Pruning Test:</div>
+                                    <div>Cost c&#770; = -32. Compare: -32 &gt; -38</div>
+                                    <div class="text-rose-700 font-bold">&rArr; KILLED RETROACTIVELY!</div>
+                                </div>
+                                <div class="bg-white p-2 rounded border border-rose-300 space-y-0.5">
+                                    <div class="font-bold text-rose-900">&bull; Node 5 Pruning Test:</div>
+                                    <div>Cost c&#770; = -36. Compare: -36 &gt; -38</div>
+                                    <div class="text-rose-700 font-bold">&rArr; KILLED RETROACTIVELY!</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ========================================== -->
+                    <!-- STAGE 5: FINAL DECISION ON OBJ 4 (LEAVES)  -->
+                    <!-- ========================================== -->
+                    <div class="sketch-card p-4 sm:p-5 space-y-4 border-l-4 border-emerald-600 bg-emerald-50/10 font-sans">
+                        <div class="flex flex-wrap justify-between items-center text-xs gap-2 border-b border-slate-200 pb-2">
+                            <span class="font-bold text-inkBlue text-base font-['Kalam']">Stage 5: Expand Node 7 to Final Leaves (Nodes 8 &amp; 9) &mdash; Optimal Winner</span>
+                            <span class="px-2.5 py-0.5 bg-emerald-100 text-emerald-900 rounded font-mono font-bold">Level 4 Decision &bull; Obj 4: w₄=9 kg, p₄=18</span>
+                        </div>
+
+                        <!-- Dedicated High-DPI Diagram Canvas -->
+                        <div class="overflow-x-auto">
+                            <canvas id="canvas-step-5" width="900" height="235" class="w-full bg-[#FAF6EE] rounded border border-slate-300"></canvas>
+                        </div>
+
+                        <!-- Performed Arithmetic Sums for Final Leaves -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                            <!-- Node 8 -->
+                            <div class="p-3 bg-emerald-100 border-2 border-emerald-500 rounded-lg space-y-2">
+                                <div class="font-bold text-emerald-950 text-sm flex justify-between items-center border-b border-emerald-300 pb-1">
+                                    <span>🏆 Node 8: Left Leaf (x₄ = 1, Take Obj 4)</span>
+                                    <span class="px-2 py-0.5 bg-emerald-300 text-emerald-950 rounded font-mono font-bold">GLOBAL OPTIMUM</span>
+                                </div>
+                                <div class="bg-white p-2.5 rounded border border-emerald-400 font-mono space-y-1 text-slate-800">
+                                    <div><strong>➕ Objects Added in Bag:</strong> { Obj 1, Obj 2, Obj 4 } (Obj 3 skipped)</div>
+                                    <div class="text-emerald-900 font-bold bg-emerald-50 p-1 rounded">
+                                        ⚖️ <strong>Weight Sum Performed:</strong><br>
+                                        w₁ + w₂ + w₄ = 2 + 4 + 9 = 15 kg &le; 15 kg &check;
+                                    </div>
+                                    <div class="text-emerald-950 font-bold text-xs bg-emerald-100/60 p-1 rounded border border-emerald-300">
+                                        💰 <strong>Profit Sum Performed:</strong><br>
+                                        p₁ + p₂ + p₄ = 10 + 10 + 18 = 38!
+                                    </div>
+                                    <div>&bull; Cost c&#770; = -38 | Upper Bound u = -38</div>
+                                    <div class="text-emerald-950 font-bold pt-1 border-t text-[11px]">
+                                        ⚔️ <strong>Result:</strong> Feasible leaf with c&#770; = UPPER = -38. <strong>Declared Optimal Winner!</strong>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Node 9 -->
+                            <div class="p-3 bg-rose-50 border-2 border-rose-300 rounded-lg space-y-2">
+                                <div class="font-bold text-rose-950 text-sm flex justify-between items-center border-b border-rose-200 pb-1">
+                                    <span>❌ Node 9: Right Leaf (x₄ = 0, Skip Obj 4)</span>
+                                    <span class="px-2 py-0.5 bg-rose-200 text-rose-900 rounded font-mono font-bold">KILLED</span>
+                                </div>
+                                <div class="bg-white p-2.5 rounded border border-rose-200 font-mono space-y-1 text-slate-800">
+                                    <div><strong>➕ Objects Added in Bag:</strong> { Obj 1, Obj 2 } only (Obj 3 &amp; 4 skipped)</div>
+                                    <div class="text-slate-800 font-bold bg-slate-50 p-1 rounded">
+                                        ⚖️ <strong>Weight Sum Performed:</strong> 2 + 4 = 6 kg &le; 15 kg
+                                    </div>
+                                    <div class="text-emerald-950 font-bold">
+                                        🛡️ <strong>Upper Bound u Sum:</strong> -(p₁ + p₂) = -(10 + 10) = -20
+                                    </div>
+                                    <div class="text-blue-900 font-bold">
+                                        📉 <strong>Cost c&#770; Sum:</strong> -(10 + 10) = -20 (No further items left)
+                                    </div>
+                                    <div class="text-rose-950 font-bold text-xs bg-rose-100/60 p-1 rounded border border-rose-300">
+                                        ⚔️ <strong>Pruning Comparison Performed:</strong><br>
+                                        c&#770; (-20) &gt; UPPER (-38) ➜ KILLED!
+                                    </div>
+                                    <div class="text-rose-800 font-bold pt-1 border-t text-[11px]">
+                                        Result: Pruned immediately.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Final Answer Banner Box -->
+                        <div class="p-3.5 bg-emerald-200/70 border-2 border-emerald-600 rounded-lg text-center font-mono space-y-1">
+                            <div class="text-emerald-950 font-bold text-base">
+                                🏆 FINAL OPTIMAL SOLUTION: Node 8
+                            </div>
+                            <div class="text-xs text-slate-900">
+                                Optimal Solution Vector: <strong>X = (1, 1, 0, 1)</strong> &bull; Objects Included: <strong>{ Object 1, Object 2, Object 4 }</strong>
+                            </div>
+                            <div class="text-xs font-bold text-emerald-950">
+                                Total Weight = 2 + 4 + 9 = 15 kg &le; 15 kg | Maximum Profit = -(-38) = 38!
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+
+            <!-- ==================================================================== -->
+            <!-- TAB 4: C++ CODE & COMPLEXITY ANALYSIS                                -->
+            <!-- ==================================================================== -->
+            <div id="tab-cpp-complexity" class="tab-pane hidden space-y-8">
+
+                <!-- Section Header -->
+                <div class="border-b-2 border-inkRed pb-2 flex justify-between items-baseline">
+                    <div>
+                        <h1
+                            class="text-3xl sm:text-4xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                            4. Complete C++ Implementation &amp; Complexity
+                        </h1>
+                        <p class="text-sm font-sans text-pencilGray mt-1">
+                            Least Cost Branch and Bound using Min-Cost Formulation, negative bounds, priority queue, and
+                            time/space proofs.
+                        </p>
+                    </div>
+                    <span
+                        class="text-xs sm:text-sm font-bold font-sans bg-indigo-100 text-indigo-900 px-2.5 py-1 rounded border border-indigo-300">
+                        Executable Code
+                    </span>
+                </div>
+
+                <!-- Algorithmic Pseudocode -->
+                <section class="space-y-4">
+                    <h2 class="text-2xl sm:text-3xl font-bold text-inkRed">
+                        &sect;4.1 Formal LC-Branch and Bound Pseudocode
+                    </h2>
+                    <div
+                        class="sketch-card p-5 font-mono text-xs sm:text-sm bg-[#fafafa] border border-slate-300 leading-relaxed text-slate-800 space-y-1 overflow-x-auto">
+                        <div class="text-purple-800 font-bold">// Abdul Bari Least-Cost Branch and Bound for 0/1
+                            Knapsack</div>
+                        <div><span class="text-blue-700 font-bold">Algorithm</span> <span
+                                class="text-amber-700 font-bold">Knapsack_LCBB</span>(p[1..n], w[1..n], M):</div>
+                        <div class="pl-4">1. Sort items in descending order of (p[i] / w[i]).</div>
+                        <div class="pl-4">2. UPPER = &infin;; Initialize Min-Heap PQ based on Cost c&#770;.</div>
+                        <div class="pl-4">3. root.level = 0, root.weight = 0, root.profit = 0.</div>
+                        <div class="pl-4">4. root.cost = CalculateCost(root), root.upper = CalculateUpper(root).</div>
+                        <div class="pl-4">5. UPPER = root.upper; PQ.push(root).</div>
+                        <div class="pl-4">6. <span class="text-blue-700 font-bold">While</span> PQ is not empty:</div>
+                        <div class="pl-8">u = PQ.extract_min();</div>
+                        <div class="pl-8"><span class="text-purple-700 font-bold">If</span> u.cost &gt; UPPER &rarr;
+                            <span class="text-rose-700 font-bold">Continue</span> (Kill node);
+                        </div>
+                        <div class="pl-8"><span class="text-purple-700 font-bold">If</span> u.level == n &rarr; <span
+                                class="text-emerald-700 font-bold">Record best solution</span>;</div>
+                        <div class="pl-8"><span class="text-emerald-700 font-bold">// Branch 1: Include item (x[i] =
+                                1)</span></div>
+                        <div class="pl-8">v_left = CreateChild(u, x=1);</div>
+                        <div class="pl-8"><span class="text-purple-700 font-bold">If</span> v_left.weight &le; M:</div>
+                        <div class="pl-12">v_left.upper = CalculateUpper(v_left);</div>
+                        <div class="pl-12"><span class="text-purple-700 font-bold">If</span> v_left.upper &lt; UPPER
+                            &rarr; UPPER = v_left.upper;</div>
+                        <div class="pl-12">v_left.cost = CalculateCost(v_left);</div>
+                        <div class="pl-12"><span class="text-purple-700 font-bold">If</span> v_left.cost &le; UPPER
+                            &rarr; PQ.push(v_left);</div>
+                        <div class="pl-8"><span class="text-slate-600 font-bold">// Branch 2: Exclude item (x[i] =
+                                0)</span></div>
+                        <div class="pl-8">v_right = CreateChild(u, x=0);</div>
+                        <div class="pl-8">v_right.upper = CalculateUpper(v_right);</div>
+                        <div class="pl-8"><span class="text-purple-700 font-bold">If</span> v_right.upper &lt; UPPER
+                            &rarr; UPPER = v_right.upper;</div>
+                        <div class="pl-8">v_right.cost = CalculateCost(v_right);</div>
+                        <div class="pl-8"><span class="text-purple-700 font-bold">If</span> v_right.cost &le; UPPER
+                            &rarr; PQ.push(v_right);</div>
+                        <div class="pl-4">7. <span class="text-blue-700 font-bold">Return</span> -UPPER (Max Profit).
+                        </div>
+                    </div>
+                </section>
+
+                <!-- High-Fidelity VS Code Mockup Container -->
+                <section class="space-y-4">
+                    <h2 class="text-2xl sm:text-3xl font-bold text-inkRed">
+                        &sect;4.2 Complete, Executable C++20 Implementation
+                    </h2>
+
+                    <!-- VS Code Container -->
+                    <div class="vscode-window">
+                        <!-- Window Titlebar -->
+                        <div
+                            class="flex items-center justify-between bg-[#252526] px-4 py-2 border-b border-[#333333] select-none">
+                            <div class="flex items-center gap-3">
+                                <!-- Traffic Dots -->
+                                <div class="flex items-center gap-1.5">
+                                    <span class="w-3 h-3 rounded-full bg-[#ff5f56] inline-block shadow-sm"></span>
+                                    <span class="w-3 h-3 rounded-full bg-[#ffbd2e] inline-block shadow-sm"></span>
+                                    <span class="w-3 h-3 rounded-full bg-[#27c93f] inline-block shadow-sm"></span>
+                                </div>
+                                <!-- File Tab -->
+                                <div
+                                    class="flex items-center bg-[#1e1e1e] border-t-2 border-[#007acc] px-3.5 py-1 rounded-t text-xs font-mono text-[#e5e5e5] gap-2 shadow">
+                                    <span
+                                        class="px-1.5 py-0.5 bg-[#00599c] text-white rounded text-[10px] font-bold">C++</span>
+                                    <span class="font-semibold text-slate-200">abdul_bari_knapsack_bb.cpp</span>
+                                    <span class="text-[#858585] text-xs hover:text-white cursor-pointer ml-1">✕</span>
+                                </div>
+                            </div>
+                            <!-- Copy Button -->
+                            <button onclick="copyCode('codeBariKnapsackCpp', this)"
+                                class="px-2.5 py-1 rounded bg-[#2d2d2d] hover:bg-[#3e3e3e] active:scale-95 text-[#cccccc] hover:text-white border border-[#454545] text-xs font-mono flex items-center gap-1.5 transition-all shadow-sm">
+                                📋 <span>Copy Code</span>
+                            </button>
+                        </div>
+
+                        <!-- VS Code Breadcrumbs Bar -->
+                        <div
+                            class="bg-[#1e1e1e] border-b border-[#2d2d2d] px-4 py-1 text-[11px] font-mono text-[#858585] flex items-center gap-1.5 select-none">
+                            <span>src</span>
+                            <span>›</span>
+                            <span>branch_and_bound</span>
+                            <span>›</span>
+                            <span>knapsack</span>
+                            <span>›</span>
+                            <span class="text-[#cccccc] font-semibold">abdul_bari_knapsack_bb.cpp</span>
+                        </div>
+
+                        <!-- Code Body with Gutter -->
+                        <div class="flex text-xs sm:text-sm bg-[#1e1e1e] overflow-hidden">
+                            <!-- Line Gutter -->
+                            <div class="vscode-gutter py-3.5 px-3 select-none text-right font-mono leading-6">
+                                1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>41<br>42<br>43<br>44<br>45<br>46<br>47<br>48<br>49<br>50<br>51<br>52<br>53<br>54<br>55<br>56<br>57<br>58<br>59<br>60<br>61<br>62<br>63<br>64<br>65<br>66<br>67<br>68<br>69<br>70<br>71<br>72<br>73<br>74<br>75<br>76<br>77<br>78<br>79<br>80<br>81<br>82<br>83<br>84<br>85<br>86<br>87<br>88<br>89<br>90<br>91<br>92<br>93<br>94<br>95<br>96<br>97<br>98<br>99<br>100
+                            </div>
+
+                            <!-- Highlighted Code Area -->
+                            <pre id="codeBariKnapsackCpp"
+                                class="vscode-code-pre flex-1 py-3.5 px-4 overflow-x-auto whitespace-pre leading-6"><code><span class="text-[#C586C0]">#include</span> <span class="text-[#CE9178]">&lt;iostream&gt;</span>
+<span class="text-[#C586C0]">#include</span> <span class="text-[#CE9178]">&lt;vector&gt;</span>
+<span class="text-[#C586C0]">#include</span> <span class="text-[#CE9178]">&lt;queue&gt;</span>
+<span class="text-[#C586C0]">#include</span> <span class="text-[#CE9178]">&lt;algorithm&gt;</span>
+
+<span class="text-[#569CD6]">using</span> <span class="text-[#569CD6]">namespace</span> <span class="text-[#4EC9B0]">std</span>;
+
+<span class="text-[#6A9955] italic">// Structure representing each object</span>
+<span class="text-[#569CD6]">struct</span> <span class="text-[#4EC9B0]">Item</span> {
+    <span class="text-[#569CD6]">int</span> <span class="text-[#9CDCFE]">id</span>;
+    <span class="text-[#569CD6]">double</span> <span class="text-[#9CDCFE]">profit</span>;
+    <span class="text-[#569CD6]">double</span> <span class="text-[#9CDCFE]">weight</span>;
+    <span class="text-[#569CD6]">double</span> <span class="text-[#9CDCFE]">ratio</span>;
+};
+
+<span class="text-[#6A9955] italic">// State Space Tree Node</span>
+<span class="text-[#569CD6]">struct</span> <span class="text-[#4EC9B0]">Node</span> {
+    <span class="text-[#569CD6]">int</span> <span class="text-[#9CDCFE]">level</span>;              <span class="text-[#6A9955] italic">// Index of item considered (0 to n - 1)</span>
+    <span class="text-[#569CD6]">double</span> <span class="text-[#9CDCFE]">weight</span>;          <span class="text-[#6A9955] italic">// Total accumulated weight so far</span>
+    <span class="text-[#569CD6]">double</span> <span class="text-[#9CDCFE]">profit</span>;          <span class="text-[#6A9955] italic">// Total accumulated profit so far</span>
+    <span class="text-[#569CD6]">double</span> <span class="text-[#9CDCFE]">cost</span>;            <span class="text-[#6A9955] italic">// c_hat: Cost WITH fraction (negative)</span>
+    <span class="text-[#569CD6]">double</span> <span class="text-[#9CDCFE]">upper</span>;           <span class="text-[#6A9955] italic">// u: Upper bound WITHOUT fraction (negative)</span>
+    <span class="text-[#4EC9B0]">vector</span>&lt;<span class="text-[#569CD6]">int</span>&gt; <span class="text-[#9CDCFE]">x</span>;          <span class="text-[#6A9955] italic">// Solution vector (1 = included, 0 = excluded)</span>
+};
+
+<span class="text-[#6A9955] italic">// Comparator for Min-Heap Priority Queue (Least Cost Branch and Bound)</span>
+<span class="text-[#569CD6]">struct</span> <span class="text-[#4EC9B0]">CompareNode</span> {
+    <span class="text-[#569CD6]">bool</span> <span class="text-[#DCDCAA]">operator</span>()(<span class="text-[#569CD6]">const</span> <span class="text-[#4EC9B0]">Node</span>&amp; <span class="text-[#9CDCFE]">a</span>, <span class="text-[#569CD6]">const</span> <span class="text-[#4EC9B0]">Node</span>&amp; <span class="text-[#9CDCFE]">b</span>) {
+        <span class="text-[#C586C0]">return</span> <span class="text-[#9CDCFE]">a</span>.<span class="text-[#9CDCFE]">cost</span> &gt; <span class="text-[#9CDCFE]">b</span>.<span class="text-[#9CDCFE]">cost</span>;  <span class="text-[#6A9955] italic">// Smallest (most negative) cost has highest priority</span>
+    }
+};
+
+<span class="text-[#6A9955] italic">// Computes Upper Bound 'u' WITHOUT fraction (negated)</span>
+<span class="text-[#569CD6]">double</span> <span class="text-[#DCDCAA]">computeUpper</span>(<span class="text-[#569CD6]">const</span> <span class="text-[#4EC9B0]">Node</span>&amp; <span class="text-[#9CDCFE]">u</span>, <span class="text-[#569CD6]">int</span> <span class="text-[#9CDCFE]">n</span>, <span class="text-[#569CD6]">double</span> <span class="text-[#9CDCFE]">M</span>, <span class="text-[#569CD6]">const</span> <span class="text-[#4EC9B0]">vector</span>&lt;<span class="text-[#4EC9B0]">Item</span>&gt;&amp; <span class="text-[#9CDCFE]">items</span>) {
+    <span class="text-[#569CD6]">double</span> <span class="text-[#9CDCFE]">total_weight</span> = <span class="text-[#9CDCFE]">u</span>.<span class="text-[#9CDCFE]">weight</span>;
+    <span class="text-[#569CD6]">double</span> <span class="text-[#9CDCFE]">total_profit</span> = <span class="text-[#9CDCFE]">u</span>.<span class="text-[#9CDCFE]">profit</span>;
+
+    <span class="text-[#C586C0]">for</span> (<span class="text-[#569CD6]">int</span> <span class="text-[#9CDCFE]">j</span> = <span class="text-[#9CDCFE]">u</span>.<span class="text-[#9CDCFE]">level</span>; <span class="text-[#9CDCFE]">j</span> &lt; <span class="text-[#9CDCFE]">n</span>; ++<span class="text-[#9CDCFE]">j</span>) {
+        <span class="text-[#C586C0]">if</span> (<span class="text-[#9CDCFE]">total_weight</span> + <span class="text-[#9CDCFE]">items</span>[<span class="text-[#9CDCFE]">j</span>].<span class="text-[#9CDCFE]">weight</span> &lt;= <span class="text-[#9CDCFE]">M</span>) {
+            <span class="text-[#9CDCFE]">total_weight</span> += <span class="text-[#9CDCFE]">items</span>[<span class="text-[#9CDCFE]">j</span>].<span class="text-[#9CDCFE]">weight</span>;
+            <span class="text-[#9CDCFE]">total_profit</span> += <span class="text-[#9CDCFE]">items</span>[<span class="text-[#9CDCFE]">j</span>].<span class="text-[#9CDCFE]">profit</span>;
+        }
+    }
+    <span class="text-[#C586C0]">return</span> -<span class="text-[#9CDCFE]">total_profit</span>;  <span class="text-[#6A9955] italic">// Negate for minimization</span>
+}
+
+<span class="text-[#6A9955] italic">// Computes Cost 'c_hat' WITH fraction (negated)</span>
+<span class="text-[#569CD6]">double</span> <span class="text-[#DCDCAA]">computeCost</span>(<span class="text-[#569CD6]">const</span> <span class="text-[#4EC9B0]">Node</span>&amp; <span class="text-[#9CDCFE]">u</span>, <span class="text-[#569CD6]">int</span> <span class="text-[#9CDCFE]">n</span>, <span class="text-[#569CD6]">double</span> <span class="text-[#9CDCFE]">M</span>, <span class="text-[#569CD6]">const</span> <span class="text-[#4EC9B0]">vector</span>&lt;<span class="text-[#4EC9B0]">Item</span>&gt;&amp; <span class="text-[#9CDCFE]">items</span>) {
+    <span class="text-[#569CD6]">double</span> <span class="text-[#9CDCFE]">total_weight</span> = <span class="text-[#9CDCFE]">u</span>.<span class="text-[#9CDCFE]">weight</span>;
+    <span class="text-[#569CD6]">double</span> <span class="text-[#9CDCFE]">total_profit</span> = <span class="text-[#9CDCFE]">u</span>.<span class="text-[#9CDCFE]">profit</span>;
+
+    <span class="text-[#569CD6]">int</span> <span class="text-[#9CDCFE]">j</span> = <span class="text-[#9CDCFE]">u</span>.<span class="text-[#9CDCFE]">level</span>;
+    <span class="text-[#C586C0]">while</span> (<span class="text-[#9CDCFE]">j</span> &lt; <span class="text-[#9CDCFE]">n</span> &amp;&amp; <span class="text-[#9CDCFE]">total_weight</span> + <span class="text-[#9CDCFE]">items</span>[<span class="text-[#9CDCFE]">j</span>].<span class="text-[#9CDCFE]">weight</span> &lt;= <span class="text-[#9CDCFE]">M</span>) {
+        <span class="text-[#9CDCFE]">total_weight</span> += <span class="text-[#9CDCFE]">items</span>[<span class="text-[#9CDCFE]">j</span>].<span class="text-[#9CDCFE]">weight</span>;
+        <span class="text-[#9CDCFE]">total_profit</span> += <span class="text-[#9CDCFE]">items</span>[<span class="text-[#9CDCFE]">j</span>].<span class="text-[#9CDCFE]">profit</span>;
+        <span class="text-[#9CDCFE]">j</span>++;
+    }
+
+    <span class="text-[#6A9955] italic">// Take fraction if room permits</span>
+    <span class="text-[#C586C0]">if</span> (<span class="text-[#9CDCFE]">j</span> &lt; <span class="text-[#9CDCFE]">n</span>) {
+        <span class="text-[#9CDCFE]">total_profit</span> += (<span class="text-[#9CDCFE]">M</span> - <span class="text-[#9CDCFE]">total_weight</span>) * <span class="text-[#9CDCFE]">items</span>[<span class="text-[#9CDCFE]">j</span>].<span class="text-[#9CDCFE]">ratio</span>;
+    }
+
+    <span class="text-[#C586C0]">return</span> -<span class="text-[#9CDCFE]">total_profit</span>;  <span class="text-[#6A9955] italic">// Negate for minimization</span>
+}
+
+<span class="text-[#6A9955] italic">// Least Cost Branch and Bound 0/1 Knapsack Solver</span>
+<span class="text-[#569CD6]">double</span> <span class="text-[#DCDCAA]">knapsackAbdulBariLCBB</span>(<span class="text-[#569CD6]">double</span> <span class="text-[#9CDCFE]">M</span>, <span class="text-[#4EC9B0]">vector</span>&lt;<span class="text-[#4EC9B0]">Item</span>&gt; <span class="text-[#9CDCFE]">items</span>, <span class="text-[#4EC9B0]">vector</span>&lt;<span class="text-[#569CD6]">int</span>&gt;&amp; <span class="text-[#9CDCFE]">best_x</span>) {
+    <span class="text-[#569CD6]">int</span> <span class="text-[#9CDCFE]">n</span> = <span class="text-[#9CDCFE]">items</span>.<span class="text-[#DCDCAA]">size</span>();
+
+    <span class="text-[#6A9955] italic">// 1. Pre-sort items in descending order of ratio (p/w)</span>
+    <span class="text-[#DCDCAA]">sort</span>(<span class="text-[#9CDCFE]">items</span>.<span class="text-[#DCDCAA]">begin</span>(), <span class="text-[#9CDCFE]">items</span>.<span class="text-[#DCDCAA]">end</span>(), [](<span class="text-[#569CD6]">const</span> <span class="text-[#4EC9B0]">Item</span>&amp; <span class="text-[#9CDCFE]">a</span>, <span class="text-[#569CD6]">const</span> <span class="text-[#4EC9B0]">Item</span>&amp; <span class="text-[#9CDCFE]">b</span>) {
+        <span class="text-[#C586C0]">return</span> <span class="text-[#9CDCFE]">a</span>.<span class="text-[#9CDCFE]">ratio</span> &gt; <span class="text-[#9CDCFE]">b</span>.<span class="text-[#9CDCFE]">ratio</span>;
+    });
+
+    <span class="text-[#4EC9B0]">priority_queue</span>&lt;<span class="text-[#4EC9B0]">Node</span>, <span class="text-[#4EC9B0]">vector</span>&lt;<span class="text-[#4EC9B0]">Node</span>&gt;, <span class="text-[#4EC9B0]">CompareNode</span>&gt; <span class="text-[#9CDCFE]">PQ</span>;
+    <span class="text-[#569CD6]">double</span> <span class="text-[#9CDCFE]">UPPER</span> = <span class="text-[#B5CEA8]">1e9</span>;  <span class="text-[#6A9955] italic">// Initialized to infinity</span>
+
+    <span class="text-[#6A9955] italic">// 2. Initialize Root Node 1</span>
+    <span class="text-[#4EC9B0]">Node</span> <span class="text-[#9CDCFE]">root</span>;
+    <span class="text-[#9CDCFE]">root</span>.<span class="text-[#9CDCFE]">level</span> = <span class="text-[#B5CEA8]">0</span>;
+    <span class="text-[#9CDCFE]">root</span>.<span class="text-[#9CDCFE]">weight</span> = <span class="text-[#B5CEA8]">0.0</span>;
+    <span class="text-[#9CDCFE]">root</span>.<span class="text-[#9CDCFE]">profit</span> = <span class="text-[#B5CEA8]">0.0</span>;
+    <span class="text-[#9CDCFE]">root</span>.<span class="text-[#9CDCFE]">upper</span> = <span class="text-[#DCDCAA]">computeUpper</span>(<span class="text-[#9CDCFE]">root</span>, <span class="text-[#9CDCFE]">n</span>, <span class="text-[#9CDCFE]">M</span>, <span class="text-[#9CDCFE]">items</span>);
+    <span class="text-[#9CDCFE]">root</span>.<span class="text-[#9CDCFE]">cost</span> = <span class="text-[#DCDCAA]">computeCost</span>(<span class="text-[#9CDCFE]">root</span>, <span class="text-[#9CDCFE]">n</span>, <span class="text-[#9CDCFE]">M</span>, <span class="text-[#9CDCFE]">items</span>);
+
+    <span class="text-[#9CDCFE]">UPPER</span> = <span class="text-[#9CDCFE]">root</span>.<span class="text-[#9CDCFE]">upper</span>;  <span class="text-[#6A9955] italic">// Becomes -32</span>
+    <span class="text-[#9CDCFE]">PQ</span>.<span class="text-[#DCDCAA]">push</span>(<span class="text-[#9CDCFE]">root</span>);
+
+    <span class="text-[#C586C0]">while</span> (!<span class="text-[#9CDCFE]">PQ</span>.<span class="text-[#DCDCAA]">empty</span>()) {
+        <span class="text-[#4EC9B0]">Node</span> <span class="text-[#9CDCFE]">u</span> = <span class="text-[#9CDCFE]">PQ</span>.<span class="text-[#DCDCAA]">top</span>();
+        <span class="text-[#9CDCFE]">PQ</span>.<span class="text-[#DCDCAA]">pop</span>();
+
+        <span class="text-[#6A9955] italic">// Killing condition: if cost exceeds current UPPER, kill node!</span>
+        <span class="text-[#C586C0]">if</span> (<span class="text-[#9CDCFE]">u</span>.<span class="text-[#9CDCFE]">cost</span> &gt; <span class="text-[#9CDCFE]">UPPER</span>) <span class="text-[#C586C0]">continue</span>;
+
+        <span class="text-[#C586C0]">if</span> (<span class="text-[#9CDCFE]">u</span>.<span class="text-[#9CDCFE]">level</span> == <span class="text-[#9CDCFE]">n</span>) {
+            <span class="text-[#9CDCFE]">best_x</span> = <span class="text-[#9CDCFE]">u</span>.<span class="text-[#9CDCFE]">x</span>;
+            <span class="text-[#C586C0]">continue</span>;
+        }
+
+        <span class="text-[#569CD6]">int</span> <span class="text-[#9CDCFE]">i</span> = <span class="text-[#9CDCFE]">u</span>.<span class="text-[#9CDCFE]">level</span>;
+
+        <span class="text-[#6A9955] italic">// --- Branch 1: INCLUDE Object i (x[i] = 1) ---</span>
+        <span class="text-[#C586C0]">if</span> (<span class="text-[#9CDCFE]">u</span>.<span class="text-[#9CDCFE]">weight</span> + <span class="text-[#9CDCFE]">items</span>[<span class="text-[#9CDCFE]">i</span>].<span class="text-[#9CDCFE]">weight</span> &lt;= <span class="text-[#9CDCFE]">M</span>) {
+            <span class="text-[#4EC9B0]">Node</span> <span class="text-[#9CDCFE]">v_left</span>;
+            <span class="text-[#9CDCFE]">v_left</span>.<span class="text-[#9CDCFE]">level</span> = <span class="text-[#9CDCFE]">i</span> + <span class="text-[#B5CEA8]">1</span>;
+            <span class="text-[#9CDCFE]">v_left</span>.<span class="text-[#9CDCFE]">weight</span> = <span class="text-[#9CDCFE]">u</span>.<span class="text-[#9CDCFE]">weight</span> + <span class="text-[#9CDCFE]">items</span>[<span class="text-[#9CDCFE]">i</span>].<span class="text-[#9CDCFE]">weight</span>;
+            <span class="text-[#9CDCFE]">v_left</span>.<span class="text-[#9CDCFE]">profit</span> = <span class="text-[#9CDCFE]">u</span>.<span class="text-[#9CDCFE]">profit</span> + <span class="text-[#9CDCFE]">items</span>[<span class="text-[#9CDCFE]">i</span>].<span class="text-[#9CDCFE]">profit</span>;
+            <span class="text-[#9CDCFE]">v_left</span>.<span class="text-[#9CDCFE]">x</span> = <span class="text-[#9CDCFE]">u</span>.<span class="text-[#9CDCFE]">x</span>;
+            <span class="text-[#9CDCFE]">v_left</span>.<span class="text-[#9CDCFE]">x</span>.<span class="text-[#DCDCAA]">push_back</span>(<span class="text-[#B5CEA8]">1</span>);
+
+            <span class="text-[#9CDCFE]">v_left</span>.<span class="text-[#9CDCFE]">upper</span> = <span class="text-[#DCDCAA]">computeUpper</span>(<span class="text-[#9CDCFE]">v_left</span>, <span class="text-[#9CDCFE]">n</span>, <span class="text-[#9CDCFE]">M</span>, <span class="text-[#9CDCFE]">items</span>);
+            <span class="text-[#C586C0]">if</span> (<span class="text-[#9CDCFE]">v_left</span>.<span class="text-[#9CDCFE]">upper</span> &lt; <span class="text-[#9CDCFE]">UPPER</span>) {
+                <span class="text-[#9CDCFE]">UPPER</span> = <span class="text-[#9CDCFE]">v_left</span>.<span class="text-[#9CDCFE]">upper</span>;  <span class="text-[#6A9955] italic">// Smaller upper bound found!</span>
+            }
+
+            <span class="text-[#9CDCFE]">v_left</span>.<span class="text-[#9CDCFE]">cost</span> = <span class="text-[#DCDCAA]">computeCost</span>(<span class="text-[#9CDCFE]">v_left</span>, <span class="text-[#9CDCFE]">n</span>, <span class="text-[#9CDCFE]">M</span>, <span class="text-[#9CDCFE]">items</span>);
+            <span class="text-[#C586C0]">if</span> (<span class="text-[#9CDCFE]">v_left</span>.<span class="text-[#9CDCFE]">cost</span> &lt;= <span class="text-[#9CDCFE]">UPPER</span>) {
+                <span class="text-[#9CDCFE]">PQ</span>.<span class="text-[#DCDCAA]">push</span>(<span class="text-[#9CDCFE]">v_left</span>);
+            }
+        }
+
+        <span class="text-[#6A9955] italic">// --- Branch 2: EXCLUDE Object i (x[i] = 0) ---</span>
+        <span class="text-[#4EC9B0]">Node</span> <span class="text-[#9CDCFE]">v_right</span>;
+        <span class="text-[#9CDCFE]">v_right</span>.<span class="text-[#9CDCFE]">level</span> = <span class="text-[#9CDCFE]">i</span> + <span class="text-[#B5CEA8]">1</span>;
+        <span class="text-[#9CDCFE]">v_right</span>.<span class="text-[#9CDCFE]">weight</span> = <span class="text-[#9CDCFE]">u</span>.<span class="text-[#9CDCFE]">weight</span>;
+        <span class="text-[#9CDCFE]">v_right</span>.<span class="text-[#9CDCFE]">profit</span> = <span class="text-[#9CDCFE]">u</span>.<span class="text-[#9CDCFE]">profit</span>;
+        <span class="text-[#9CDCFE]">v_right</span>.<span class="text-[#9CDCFE]">x</span> = <span class="text-[#9CDCFE]">u</span>.<span class="text-[#9CDCFE]">x</span>;
+        <span class="text-[#9CDCFE]">v_right</span>.<span class="text-[#9CDCFE]">x</span>.<span class="text-[#DCDCAA]">push_back</span>(<span class="text-[#B5CEA8]">0</span>);
+
+        <span class="text-[#9CDCFE]">v_right</span>.<span class="text-[#9CDCFE]">upper</span> = <span class="text-[#DCDCAA]">computeUpper</span>(<span class="text-[#9CDCFE]">v_right</span>, <span class="text-[#9CDCFE]">n</span>, <span class="text-[#9CDCFE]">M</span>, <span class="text-[#9CDCFE]">items</span>);
+        <span class="text-[#C586C0]">if</span> (<span class="text-[#9CDCFE]">v_right</span>.<span class="text-[#9CDCFE]">upper</span> &lt; <span class="text-[#9CDCFE]">UPPER</span>) {
+            <span class="text-[#9CDCFE]">UPPER</span> = <span class="text-[#9CDCFE]">v_right</span>.<span class="text-[#9CDCFE]">upper</span>;
+        }
+
+        <span class="text-[#9CDCFE]">v_right</span>.<span class="text-[#9CDCFE]">cost</span> = <span class="text-[#DCDCAA]">computeCost</span>(<span class="text-[#9CDCFE]">v_right</span>, <span class="text-[#9CDCFE]">n</span>, <span class="text-[#9CDCFE]">M</span>, <span class="text-[#9CDCFE]">items</span>);
+        <span class="text-[#C586C0]">if</span> (<span class="text-[#9CDCFE]">v_right</span>.<span class="text-[#9CDCFE]">cost</span> &lt;= <span class="text-[#9CDCFE]">UPPER</span>) {
+            <span class="text-[#9CDCFE]">PQ</span>.<span class="text-[#DCDCAA]">push</span>(<span class="text-[#9CDCFE]">v_right</span>);
+        }
+    }
+
+    <span class="text-[#C586C0]">return</span> -<span class="text-[#9CDCFE]">UPPER</span>;  <span class="text-[#6A9955] italic">// Convert back to positive maximum profit</span>
+}
+
+<span class="text-[#569CD6]">int</span> <span class="text-[#DCDCAA]">main</span>() {
+    <span class="text-[#6A9955] italic">// Abdul Bari Lecture Dataset: M = 15 kg, n = 4</span>
+    <span class="text-[#569CD6]">double</span> <span class="text-[#9CDCFE]">M</span> = <span class="text-[#B5CEA8]">15.0</span>;
+    <span class="text-[#4EC9B0]">vector</span>&lt;<span class="text-[#4EC9B0]">Item</span>&gt; <span class="text-[#9CDCFE]">items</span> = {
+        {<span class="text-[#B5CEA8]">1</span>, <span class="text-[#B5CEA8]">10.0</span>, <span class="text-[#B5CEA8]">2.0</span>, <span class="text-[#B5CEA8]">5.0</span>},    <span class="text-[#6A9955] italic">// Obj 1: p=10, w=2, ratio=5.0</span>
+        {<span class="text-[#B5CEA8]">2</span>, <span class="text-[#B5CEA8]">10.0</span>, <span class="text-[#B5CEA8]">4.0</span>, <span class="text-[#B5CEA8]">2.5</span>},    <span class="text-[#6A9955] italic">// Obj 2: p=10, w=4, ratio=2.5</span>
+        {<span class="text-[#B5CEA8]">3</span>, <span class="text-[#B5CEA8]">12.0</span>, <span class="text-[#B5CEA8]">6.0</span>, <span class="text-[#B5CEA8]">2.0</span>},    <span class="text-[#6A9955] italic">// Obj 3: p=12, w=6, ratio=2.0</span>
+        {<span class="text-[#B5CEA8]">4</span>, <span class="text-[#B5CEA8]">18.0</span>, <span class="text-[#B5CEA8]">9.0</span>, <span class="text-[#B5CEA8]">2.0</span>}     <span class="text-[#6A9955] italic">// Obj 4: p=18, w=9, ratio=2.0</span>
+    };
+
+    <span class="text-[#4EC9B0]">vector</span>&lt;<span class="text-[#569CD6]">int</span>&gt; <span class="text-[#9CDCFE]">best_x</span>;
+    <span class="text-[#569CD6]">double</span> <span class="text-[#9CDCFE]">max_profit</span> = <span class="text-[#DCDCAA]">knapsackAbdulBariLCBB</span>(<span class="text-[#9CDCFE]">M</span>, <span class="text-[#9CDCFE]">items</span>, <span class="text-[#9CDCFE]">best_x</span>);
+
+    <span class="text-[#4EC9B0]">cout</span> &lt;&lt; <span class="text-[#CE9178]">&quot;=== Abdul Bari 0/1 Knapsack LC-BB Solution ===\n&quot;</span>;
+    <span class="text-[#4EC9B0]">cout</span> &lt;&lt; <span class="text-[#CE9178]">&quot;Maximum Profit: &quot;</span> &lt;&lt; <span class="text-[#9CDCFE]">max_profit</span> &lt;&lt; <span class="text-[#CE9178]">&quot;\n&quot;</span>;
+    <span class="text-[#4EC9B0]">cout</span> &lt;&lt; <span class="text-[#CE9178]">&quot;Fixed-Size Solution Tuple X: (&quot;</span>;
+    <span class="text-[#C586C0]">for</span> (<span class="text-[#569CD6]">size_t</span> <span class="text-[#9CDCFE]">i</span> = <span class="text-[#B5CEA8]">0</span>; <span class="text-[#9CDCFE]">i</span> &lt; <span class="text-[#9CDCFE]">best_x</span>.<span class="text-[#DCDCAA]">size</span>(); ++<span class="text-[#9CDCFE]">i</span>) {
+        <span class="text-[#4EC9B0]">cout</span> &lt;&lt; <span class="text-[#9CDCFE]">best_x</span>[<span class="text-[#9CDCFE]">i</span>] &lt;&lt; (<span class="text-[#9CDCFE]">i</span> + <span class="text-[#B5CEA8]">1</span> == <span class="text-[#9CDCFE]">best_x</span>.<span class="text-[#DCDCAA]">size</span>() ? <span class="text-[#CE9178]">&quot;&quot;</span> : <span class="text-[#CE9178]">&quot;, &quot;</span>);
+    }
+    <span class="text-[#4EC9B0]">cout</span> &lt;&lt; <span class="text-[#CE9178]">&quot;)\n&quot;</span>;
+    <span class="text-[#4EC9B0]">cout</span> &lt;&lt; <span class="text-[#CE9178]">&quot;Objects Included: &quot;</span>;
+    <span class="text-[#569CD6]">double</span> <span class="text-[#9CDCFE]">total_weight</span> = <span class="text-[#B5CEA8]">0.0</span>;
+    <span class="text-[#C586C0]">for</span> (<span class="text-[#569CD6]">size_t</span> <span class="text-[#9CDCFE]">i</span> = <span class="text-[#B5CEA8]">0</span>; <span class="text-[#9CDCFE]">i</span> &lt; <span class="text-[#9CDCFE]">best_x</span>.<span class="text-[#DCDCAA]">size</span>(); ++<span class="text-[#9CDCFE]">i</span>) {
+        <span class="text-[#C586C0]">if</span> (<span class="text-[#9CDCFE]">best_x</span>[<span class="text-[#9CDCFE]">i</span>] == <span class="text-[#B5CEA8]">1</span>) {
+            <span class="text-[#4EC9B0]">cout</span> &lt;&lt; <span class="text-[#CE9178]">&quot;Object &quot;</span> &lt;&lt; (<span class="text-[#9CDCFE]">i</span> + <span class="text-[#B5CEA8]">1</span>) &lt;&lt; <span class="text-[#CE9178]">&quot; &quot;</span>;
+            <span class="text-[#9CDCFE]">total_weight</span> += <span class="text-[#9CDCFE]">items</span>[<span class="text-[#9CDCFE]">i</span>].<span class="text-[#9CDCFE]">weight</span>;
+        }
+    }
+    <span class="text-[#4EC9B0]">cout</span> &lt;&lt; <span class="text-[#CE9178]">&quot;\nTotal Weight Consumed: &quot;</span> &lt;&lt; <span class="text-[#9CDCFE]">total_weight</span> &lt;&lt; <span class="text-[#CE9178]">&quot; / &quot;</span> &lt;&lt; <span class="text-[#9CDCFE]">M</span> &lt;&lt; <span class="text-[#CE9178]">&quot; kg\n&quot;</span>;
+
+    <span class="text-[#C586C0]">return</span> <span class="text-[#B5CEA8]">0</span>;
+}</code></pre>
+                        </div>
+
+                        <!-- VS Code Status Bar -->
+                        <div
+                            class="bg-[#007acc] text-white px-4 py-1 text-xs flex justify-between items-center select-none font-mono">
+                            <div class="flex items-center gap-4">
+                                <span class="flex items-center gap-1"><span>⎇</span> main*</span>
+                                <span class="flex items-center gap-1"><span>✕</span> 0 &nbsp; <span>⚠</span> 0</span>
+                            </div>
+                            <div class="flex items-center gap-4 text-[11px]">
+                                <span>Ln 100, Col 1</span>
+                                <span>Spaces: 4</span>
+                                <span>UTF-8</span>
+                                <span>C++20</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Rigorous Time & Space Complexity Analysis -->
+                <section class="space-y-4">
+                    <h2 class="text-2xl sm:text-3xl font-bold text-inkRed">
+                        &sect;4.3 Time and Space Complexity Analysis
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 font-sans text-sm">
+                        <!-- Time Complexity -->
+                        <div class="p-4 bg-amber-50 rounded-lg border border-amber-300 space-y-2">
+                            <span class="font-bold text-amber-950 block text-lg">⏳ Time Complexity</span>
+                            <div
+                                class="font-mono text-xs bg-white p-2.5 rounded border border-amber-200 text-slate-800 space-y-1">
+                                <div>&bull; Sorting ratios: <strong>O(n log n)</strong></div>
+                                <div>&bull; Bound Calculation per node: <strong>O(n)</strong></div>
+                                <div>&bull; Worst-Case State Space Tree: <strong>O(2<sup>n</sup>)</strong></div>
+                                <div class="text-rose-800 font-bold">&rArr; Worst-Case Time: O(n &middot; 2<sup>n</sup>)
+                                </div>
+                                <div class="text-emerald-800 font-bold">&rArr; LC-BB Practical: Fast pruning cuts off
+                                    majority of nodes!</div>
+                            </div>
+                            <p class="text-xs text-slate-700 leading-relaxed">
+                                Notice in Abdul Bari's 4-object tree: instead of exploring all <span
+                                    class="font-mono font-bold">2<sup>4</sup> = 16</span> leaf states and <span
+                                    class="font-mono">31</span> total tree nodes, LC-BB generates only <strong>9 total
+                                    nodes</strong>, immediately pruning dead branches like Nodes 3, 5, 6, and 9!
+                            </p>
+                        </div>
+
+                        <!-- Space Complexity -->
+                        <div class="p-4 bg-blue-50 rounded-lg border border-blue-300 space-y-2">
+                            <span class="font-bold text-blue-950 block text-lg">💾 Space Complexity</span>
+                            <div
+                                class="font-mono text-xs bg-white p-2.5 rounded border border-blue-200 text-slate-800 space-y-1">
+                                <div>&bull; Min-Heap Priority Queue: <strong>O(2<sup>n</sup>)</strong> worst-case</div>
+                                <div>&bull; Solution Tuple tracking: <strong>O(n)</strong></div>
+                                <div class="text-rose-800 font-bold">&rArr; Auxiliary Space: O(2<sup>n</sup>)</div>
+                                <div class="text-slate-700 font-bold">&bull; Backtracking Contrast: O(n) recursion stack
+                                </div>
+                            </div>
+                            <p class="text-xs text-slate-700 leading-relaxed">
+                                Least Cost Branch and Bound trades memory for intelligent search order. By keeping live
+                                candidate nodes in a Min-Heap, it always extracts the node with the lowest cost, finding
+                                the global optimum much faster than DFS.
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="max-w-6xl mx-auto py-6 text-center text-xs text-pencilGray font-sans no-print">
+        <p>Interactive Digital Lecture Notes &bull; Chapter: 0/1 Knapsack via Least Cost Branch and Bound &bull; Abdul
+            Bari Curriculum</p>
+    </footer>
+
+    <!-- Interactive Scripts: Tabs, Font Toggle, Code Copy, and HTML5 Canvas Drawing -->
+    <script>
+        // Tab Switcher
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.nav-tab').forEach(el => {
+                el.classList.remove('bg-amber-200', 'text-inkBlue', 'border-b-2', 'border-inkBlue');
+                el.classList.add('text-slate-600');
+            });
+
+            const activeTab = document.getElementById(tabId);
+            const activeNav = document.getElementById('nav-' + tabId);
+            if (activeTab) activeTab.classList.remove('hidden');
+            if (activeNav) {
+                activeNav.classList.remove('text-slate-600');
+                activeNav.classList.add('bg-amber-200', 'text-inkBlue', 'border-b-2', 'border-inkBlue');
+            }
+
+            if (tabId === 'tab-abdul-bari-tree') {
+                setTimeout(renderAllCanvases, 60);
+            }
+        }
+
+        // Font Toggle Mode
+        let isClean = false;
+        function toggleFontMode() {
+            isClean = !isClean;
+            document.body.classList.toggle('font-clean', isClean);
+            document.getElementById('fontBtnText').innerText = isClean ? 'Handwritten Font' : 'Clean Font';
+        }
+
+        // Copy Code to Clipboard
+        function copyCode(elementId, btn) {
+            const codeEl = document.getElementById(elementId);
+            if (!codeEl) return;
+            const text = codeEl.innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                const originalHtml = btn.innerHTML;
+                btn.innerHTML = '✓ <span class="text-emerald-400 font-bold">Copied!</span>';
+                setTimeout(() => {
+                    btn.innerHTML = originalHtml;
+                }, 2000);
+            });
+        }
+
+        // High-DPI Canvas Helper
+        function initCanvas(id, defaultHeight) {
+            const canvas = document.getElementById(id);
+            if (!canvas) return null;
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            const rect = canvas.getBoundingClientRect();
+            const width = rect.width > 0 ? rect.width : (canvas.parentElement ? canvas.parentElement.clientWidth : 900);
+            canvas.width = width * dpr;
+            canvas.height = defaultHeight * dpr;
+            ctx.scale(dpr, dpr);
+            ctx.clearRect(0, 0, width, defaultHeight);
+            return { ctx, width, height: defaultHeight };
+        }
+
+        // Helper: Draw standard node rounded box
+        function drawCanvasNode(ctx, x, y, w, h, title, costText, tagText, type) {
+            ctx.save();
+            ctx.beginPath();
+            ctx.roundRect(x - w / 2, y - h / 2, w, h, 8);
+            if (type === 'optimal') {
+                ctx.fillStyle = '#ecfdf5';
+                ctx.strokeStyle = '#059669';
+                ctx.lineWidth = 2.5;
+            } else if (type === 'killed' || type === 'infeasible') {
+                ctx.fillStyle = '#fff1f2';
+                ctx.strokeStyle = '#e11d48';
+                ctx.lineWidth = 1.5;
+            } else if (type === 'wait') {
+                ctx.fillStyle = '#f8fafc';
+                ctx.strokeStyle = '#64748b';
+                ctx.lineWidth = 1.5;
+            } else {
+                ctx.fillStyle = '#ffffff';
+                ctx.strokeStyle = '#2563eb';
+                ctx.lineWidth = 2;
+            }
+            ctx.fill();
+            ctx.stroke();
+
+            // Diagonal slash if killed
+            if (type === 'killed' || type === 'infeasible') {
+                ctx.beginPath();
+                ctx.moveTo(x - w / 2 + 6, y - h / 2 + 6);
+                ctx.lineTo(x + w / 2 - 6, y + h / 2 - 6);
+                ctx.strokeStyle = 'rgba(239, 68, 68, 0.45)';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+
+            // Title
+            ctx.textAlign = 'center';
+            ctx.font = 'bold 12px sans-serif';
+            ctx.fillStyle = type === 'optimal' ? '#065f46' : (type === 'killed' || type === 'infeasible' ? '#991b1b' : '#1e3a8a');
+            ctx.fillText(title, x, y - 6);
+
+            // Cost & upper
+            ctx.font = '11px monospace';
+            ctx.fillStyle = type === 'optimal' ? '#047857' : (type === 'killed' || type === 'infeasible' ? '#b91c1c' : '#334155');
+            ctx.fillText(costText, x, y + 10);
+
+            // Tag Pill
+            if (tagText) {
+                ctx.font = 'bold 9px sans-serif';
+                ctx.fillStyle = type === 'optimal' ? '#059669' : (type === 'killed' || type === 'infeasible' ? '#dc2626' : '#64748b');
+                ctx.fillText(tagText, x, y + h / 2 + 13);
+            }
+            ctx.restore();
+        }
+
+        // Helper: Draw edge with label
+        function drawCanvasEdge(ctx, x1, y1, x2, y2, label, style) {
+            ctx.save();
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            if (style === 'optimal') {
+                ctx.strokeStyle = '#059669';
+                ctx.lineWidth = 3;
+                ctx.setLineDash([]);
+            } else if (style === 'dashed') {
+                ctx.strokeStyle = '#f87171';
+                ctx.lineWidth = 1.5;
+                ctx.setLineDash([4, 4]);
+            } else {
+                ctx.strokeStyle = '#94a3b8';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([]);
+            }
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            if (label) {
+                const midX = (x1 + x2) / 2;
+                const midY = (y1 + y2) / 2;
+                ctx.font = 'bold 10px sans-serif';
+                ctx.fillStyle = style === 'optimal' ? '#047857' : (style === 'dashed' ? '#b91c1c' : '#475569');
+                ctx.textAlign = midX > x1 ? 'left' : 'right';
+                ctx.fillText(label, midX + (midX > x1 ? 6 : -6), midY);
+            }
+            ctx.restore();
+        }
+
+        // =========================================================
+        // CANVAS 1: STAGE 1 (ROOT NODE & 15 KG CONTAINER PIPELINE)
+        // =========================================================
+        function renderStep1() {
+            const inst = initCanvas('canvas-step-1', 190);
+            if (!inst) return;
+            const { ctx, width, height } = inst;
+
+            // Draw Node 1 Box
+            const nodeX = width * 0.18;
+            const nodeY = 85;
+            drawCanvasNode(ctx, nodeX, nodeY, 130, 48, "Node 1 (Root)", "ĉ: -38 | u: -32", "UPPER = -32", "live");
+
+            // Draw Capacity Container Pipeline
+            const pipeX = Math.max(nodeX + 90, width * 0.36);
+            const pipeW = Math.min(width - pipeX - 30, 520);
+            const pipeY = 65;
+            const pipeH = 46;
+
+            // Header title for container
+            ctx.font = 'bold 12px sans-serif';
+            ctx.fillStyle = '#1e3a8a';
+            ctx.textAlign = 'left';
+            ctx.fillText("🎒 Knapsack Container Breakdown (Total Capacity M = 15 kg):", pipeX, pipeY - 14);
+
+            // Background container frame
+            ctx.fillStyle = '#f1f5f9';
+            ctx.strokeStyle = '#334155';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.roundRect(pipeX, pipeY, pipeW, pipeH, 6);
+            ctx.fill();
+            ctx.stroke();
+
+            // Slots: Obj 1 (2kg), Obj 2 (4kg), Obj 3 (6kg), Obj 4 (3kg / 9kg slice)
+            const scale = pipeW / 15;
+            const w1 = 2 * scale;
+            const w2 = 4 * scale;
+            const w3 = 6 * scale;
+            const w4 = 3 * scale;
+
+            // Item 1
+            ctx.fillStyle = '#bbf7d0';
+            ctx.strokeStyle = '#16a34a';
+            ctx.fillRect(pipeX, pipeY, w1, pipeH);
+            ctx.strokeRect(pipeX, pipeY, w1, pipeH);
+            ctx.font = 'bold 10px monospace';
+            ctx.fillStyle = '#14532d';
+            ctx.textAlign = 'center';
+            ctx.fillText("Obj 1", pipeX + w1 / 2, pipeY + 18);
+            ctx.fillText("2kg, $10", pipeX + w1 / 2, pipeY + 32);
+
+            // Item 2
+            ctx.fillStyle = '#bfdbfe';
+            ctx.strokeStyle = '#2563eb';
+            ctx.fillRect(pipeX + w1, pipeY, w2, pipeH);
+            ctx.strokeRect(pipeX + w1, pipeY, w2, pipeH);
+            ctx.fillStyle = '#1e3a8a';
+            ctx.fillText("Obj 2 (4kg, $10)", pipeX + w1 + w2 / 2, pipeY + 25);
+
+            // Item 3
+            ctx.fillStyle = '#fed7aa';
+            ctx.strokeStyle = '#ea580c';
+            ctx.fillRect(pipeX + w1 + w2, pipeY, w3, pipeH);
+            ctx.strokeRect(pipeX + w1 + w2, pipeY, w3, pipeH);
+            ctx.fillStyle = '#7c2d12';
+            ctx.fillText("Obj 3 (6kg, $12)", pipeX + w1 + w2 + w3 / 2, pipeY + 25);
+
+            // Item 4 Fraction (3kg)
+            ctx.fillStyle = '#fef08a';
+            ctx.strokeStyle = '#ca8a04';
+            ctx.setLineDash([3, 3]);
+            ctx.fillRect(pipeX + w1 + w2 + w3, pipeY, w4, pipeH);
+            ctx.strokeRect(pipeX + w1 + w2 + w3, pipeY, w4, pipeH);
+            ctx.setLineDash([]);
+            ctx.fillStyle = '#713f12';
+            ctx.fillText("Obj 4 (3kg/$6)", pipeX + w1 + w2 + w3 + w4 / 2, pipeY + 25);
+
+            // Footers
+            ctx.font = 'bold 11px sans-serif';
+            ctx.fillStyle = '#15803d';
+            ctx.textAlign = 'left';
+            ctx.fillText("🛡️ Integer Fits: 2+4+6 = 12 kg (Profit: $32 ➜ u = -32)", pipeX, pipeY + pipeH + 20);
+
+            ctx.fillStyle = '#b45309';
+            ctx.fillText("📉 Fractional Fit: + 3kg of Obj 4 (+$6 ➜ ĉ = -38)", pipeX + 280, pipeY + pipeH + 20);
+
+            // Connecting arrow from Node 1 to pipeline
+            ctx.beginPath();
+            ctx.moveTo(nodeX + 65, nodeY);
+            ctx.lineTo(pipeX - 10, nodeY);
+            ctx.strokeStyle = '#3b82f6';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+        }
+
+        // =========================================================
+        // CANVAS 2: STAGE 2 (NODES 2 & 3 LEVEL 1)
+        // =========================================================
+        function renderStep2() {
+            const inst = initCanvas('canvas-step-2', 215);
+            if (!inst) return;
+            const { ctx, width } = inst;
+
+            const n1 = { x: width * 0.40, y: 40 };
+            const n2 = { x: width * 0.22, y: 145 };
+            const n3 = { x: width * 0.58, y: 145 };
+
+            drawCanvasEdge(ctx, n1.x, n1.y + 24, n2.x, n2.y - 24, "x1 = 1 (Include Obj 1: w=2, p=10)", "live");
+            drawCanvasEdge(ctx, n1.x, n1.y + 24, n3.x, n3.y - 24, "x1 = 0 (Skip Obj 1: w=0, p=0)", "dashed");
+
+            drawCanvasNode(ctx, n1.x, n1.y, 120, 44, "Node 1", "ĉ: -38 | u: -32", "Root", "live");
+            drawCanvasNode(ctx, n2.x, n2.y, 130, 48, "Node 2 (Left)", "ĉ: -38 | u: -32", "Wt = 12 kg | ALIVE", "live");
+            drawCanvasNode(ctx, n3.x, n3.y, 130, 48, "Node 3 (Right)", "ĉ: -32 | u: -22", "Wt = 10 kg | IN HEAP", "wait");
+
+            // Side Min-Heap visual card
+            const heapX = Math.max(width * 0.76, width - 210);
+            ctx.fillStyle = '#fffbeb';
+            ctx.strokeStyle = '#f59e0b';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.roundRect(heapX, 40, 190, 140, 8);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.font = 'bold 11px sans-serif';
+            ctx.fillStyle = '#78350f';
+            ctx.textAlign = 'left';
+            ctx.fillText("📋 Min-Heap Status:", heapX + 12, 60);
+
+            ctx.font = '10px monospace';
+            ctx.fillStyle = '#1e3a8a';
+            ctx.fillText("1. Node 2 (ĉ = -38) ◄ TOP", heapX + 12, 85);
+            ctx.fillStyle = '#64748b';
+            ctx.fillText("2. Node 3 (ĉ = -32)", heapX + 12, 105);
+
+            ctx.fillStyle = '#047857';
+            ctx.font = 'bold 10px sans-serif';
+            ctx.fillText("✓ Pop Node 2 next!", heapX + 12, 135);
+        }
+
+        // =========================================================
+        // CANVAS 3: STAGE 3 (NODES 4 & 5 LEVEL 2)
+        // =========================================================
+        function renderStep3() {
+            const inst = initCanvas('canvas-step-3', 225);
+            if (!inst) return;
+            const { ctx, width } = inst;
+
+            const n2 = { x: width * 0.40, y: 40 };
+            const n4 = { x: width * 0.22, y: 150 };
+            const n5 = { x: width * 0.58, y: 150 };
+
+            drawCanvasEdge(ctx, n2.x, n2.y + 24, n4.x, n4.y - 24, "x2 = 1 (Include Obj 2: w=4, p=10)", "live");
+            drawCanvasEdge(ctx, n2.x, n2.y + 24, n5.x, n5.y - 24, "x2 = 0 (Skip Obj 2: w=0, p=0)", "dashed");
+
+            drawCanvasNode(ctx, n2.x, n2.y, 125, 44, "Node 2", "ĉ: -38 | u: -32", "Level 1 Top", "live");
+            drawCanvasNode(ctx, n4.x, n4.y, 135, 48, "Node 4 (Left)", "ĉ: -38 | u: -32", "Fixed: {1,2} | ALIVE", "live");
+            drawCanvasNode(ctx, n5.x, n5.y, 135, 48, "Node 5 (Right)", "ĉ: -36 | u: -22", "Fixed: {1} | IN HEAP", "wait");
+
+            // Min-Heap ranking
+            const heapX = Math.max(width * 0.76, width - 210);
+            ctx.fillStyle = '#fffbeb';
+            ctx.strokeStyle = '#f59e0b';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.roundRect(heapX, 40, 190, 145, 8);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.font = 'bold 11px sans-serif';
+            ctx.fillStyle = '#78350f';
+            ctx.textAlign = 'left';
+            ctx.fillText("📋 Min-Heap Priority:", heapX + 12, 60);
+
+            ctx.font = '10px monospace';
+            ctx.fillStyle = '#1e3a8a';
+            ctx.fillText("1. Node 4 (ĉ = -38) ◄ TOP", heapX + 12, 85);
+            ctx.fillStyle = '#475569';
+            ctx.fillText("2. Node 5 (ĉ = -36)", heapX + 12, 105);
+            ctx.fillText("3. Node 3 (ĉ = -32)", heapX + 12, 125);
+
+            ctx.fillStyle = '#047857';
+            ctx.font = 'bold 10px sans-serif';
+            ctx.fillText("✓ Pop Node 4 next!", heapX + 12, 155);
+        }
+
+        // =========================================================
+        // CANVAS 4: STAGE 4 (NODES 6 & 7 & RETROACTIVE GUILLOTINE)
+        // =========================================================
+        function renderStep4() {
+            const inst = initCanvas('canvas-step-4', 245);
+            if (!inst) return;
+            const { ctx, width } = inst;
+
+            const n4 = { x: width * 0.32, y: 40 };
+            const n6 = { x: width * 0.16, y: 155 };
+            const n7 = { x: width * 0.48, y: 155 };
+
+            drawCanvasEdge(ctx, n4.x, n4.y + 24, n6.x, n6.y - 24, "x3 = 1", "dashed");
+            drawCanvasEdge(ctx, n4.x, n4.y + 24, n7.x, n7.y - 24, "x3 = 0 (Skip Obj 3)", "optimal");
+
+            drawCanvasNode(ctx, n4.x, n4.y, 125, 44, "Node 4", "ĉ: -38 | u: -32", "Parent", "live");
+            drawCanvasNode(ctx, n6.x, n6.y, 135, 48, "Node 6 (Left)", "12+9 = 21kg", "INFEASIBLE 🛑", "infeasible");
+            drawCanvasNode(ctx, n7.x, n7.y, 140, 50, "Node 7 (Right)", "ĉ: -38 | u: -38", "⚡ UPPER = -38!", "optimal");
+
+            // Guillotine retroactive execution box
+            const gX = Math.max(width * 0.68, width - 260);
+            ctx.fillStyle = '#fff1f2';
+            ctx.strokeStyle = '#e11d48';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.roundRect(gX, 35, 240, 175, 8);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.font = 'bold 11px sans-serif';
+            ctx.fillStyle = '#991b1b';
+            ctx.textAlign = 'left';
+            ctx.fillText("⚡ Retroactive Pruning Event:", gX + 12, 58);
+            ctx.fillText("New Threshold: UPPER = -38", gX + 12, 75);
+
+            // Node 3 killed
+            ctx.fillStyle = '#ffffff';
+            ctx.strokeStyle = '#f87171';
+            ctx.strokeRect(gX + 12, 88, 216, 32);
+            ctx.fillRect(gX + 12, 88, 216, 32);
+            ctx.font = '10px monospace';
+            ctx.fillStyle = '#991b1b';
+            ctx.fillText("Node 3: ĉ = -32 > -38 ➜ KILLED ✕", gX + 18, 108);
+
+            // Node 5 killed
+            ctx.fillStyle = '#ffffff';
+            ctx.strokeRect(gX + 12, 128, 216, 32);
+            ctx.fillRect(gX + 12, 128, 216, 32);
+            ctx.fillStyle = '#991b1b';
+            ctx.fillText("Node 5: ĉ = -36 > -38 ➜ KILLED ✕", gX + 18, 148);
+
+            ctx.font = 'bold 10px sans-serif';
+            ctx.fillStyle = '#b91c1c';
+            ctx.fillText("All other branches wiped out!", gX + 12, 192);
+        }
+
+        // =========================================================
+        // CANVAS 5: STAGE 5 (NODES 8 & 9 FINAL OPTIMAL LEAVES)
+        // =========================================================
+        function renderStep5() {
+            const inst = initCanvas('canvas-step-5', 235);
+            if (!inst) return;
+            const { ctx, width } = inst;
+
+            const n7 = { x: width * 0.40, y: 40 };
+            const n8 = { x: width * 0.22, y: 150 };
+            const n9 = { x: width * 0.60, y: 150 };
+
+            drawCanvasEdge(ctx, n7.x, n7.y + 24, n8.x, n8.y - 24, "x4 = 1 (Take Obj 4: w=9, p=18)", "optimal");
+            drawCanvasEdge(ctx, n7.x, n7.y + 24, n9.x, n9.y - 24, "x4 = 0 (Skip Obj 4)", "dashed");
+
+            drawCanvasNode(ctx, n7.x, n7.y, 135, 46, "Node 7", "ĉ: -38 | u: -38", "UPPER = -38", "live");
+            drawCanvasNode(ctx, n8.x, n8.y, 160, 52, "Node 8 ★ OPTIMUM", "Profit: $38 | Wt: 15kg", "X = (1, 1, 0, 1)", "optimal");
+            drawCanvasNode(ctx, n9.x, n9.y, 140, 50, "Node 9", "ĉ: -20 > -38", "KILLED ✕", "killed");
+
+            // Optimal banner box on right
+            const bX = Math.max(width * 0.77, width - 200);
+            ctx.fillStyle = '#ecfdf5';
+            ctx.strokeStyle = '#059669';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.roundRect(bX, 40, 180, 150, 8);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.font = 'bold 12px sans-serif';
+            ctx.fillStyle = '#065f46';
+            ctx.textAlign = 'left';
+            ctx.fillText("🏆 Winner Declared!", bX + 12, 65);
+
+            ctx.font = '10px monospace';
+            ctx.fillStyle = '#047857';
+            ctx.fillText("Best X = (1,1,0,1)", bX + 12, 90);
+            ctx.fillText("Obj 1 + Obj 2 + Obj 4", bX + 12, 110);
+            ctx.fillText("Weight = 15 kg", bX + 12, 130);
+            ctx.font = 'bold 11px monospace';
+            ctx.fillText("Max Profit = 38!", bX + 12, 155);
+        }
+
+        // Master Renderer: Renders state space tree + all 5 step diagrams
+        function resetBariTreeZoom() {
+            renderAllCanvases();
+        }
+
+        function renderAllCanvases() {
+            renderAbdulBariTree();
+            renderStep1();
+            renderStep2();
+            renderStep3();
+            renderStep4();
+            renderStep5();
+        }
+
+        function renderAbdulBariTree() {
+            const canvas = document.getElementById('canvas-abdul-bari-tree');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width * dpr;
+            canvas.height = 540 * dpr;
+            ctx.scale(dpr, dpr);
+
+            const width = rect.width;
+            const height = 540;
+
+            ctx.clearRect(0, 0, width, height);
+
+            // Nodes 1 to 9 from Abdul Bari's lecture
+            const nodes = [
+                { id: 1, label: "Node 1", x: width * 0.50, y: 55, c: -38, u: -32, status: "live", tag: "UPPER = -32 (Root)" },
+                { id: 2, label: "Node 2", x: width * 0.28, y: 160, c: -38, u: -32, status: "live", tag: "x1 = 1 (Alive: -38 <= -32)" },
+                { id: 3, label: "Node 3", x: width * 0.72, y: 160, c: -32, u: -22, status: "killed", tag: "x1 = 0 (KILLED: -32 > -38)" },
+                { id: 4, label: "Node 4", x: width * 0.18, y: 280, c: -38, u: -32, status: "live", tag: "x2 = 1 (Alive: -38 <= -32)" },
+                { id: 5, label: "Node 5", x: width * 0.40, y: 280, c: -36, u: -22, status: "killed", tag: "x2 = 0 (KILLED: -36 > -38)" },
+                { id: 6, label: "Node 6", x: width * 0.10, y: 400, c: -38, u: -32, status: "infeasible", tag: "x3 = 1 (wt=12; Obj 4 wt=9 > 15 Infeasible)" },
+                { id: 7, label: "Node 7", x: width * 0.27, y: 400, c: -38, u: -38, status: "live", tag: "x3 = 0 (UPPER drops to -38!)" },
+                { id: 8, label: "Node 8", x: width * 0.20, y: 495, c: -38, u: -38, status: "optimal", tag: "x4 = 1 (★ Optimal Sol: wt=15, profit=38)" },
+                { id: 9, label: "Node 9", x: width * 0.35, y: 495, c: -20, u: -20, status: "killed", tag: "x4 = 0 (KILLED: -20 > -38)" },
+            ];
+
+            const edges = [
+                { from: 1, to: 2, label: "x1 = 1 (Include Obj 1)" },
+                { from: 1, to: 3, label: "x1 = 0 (Exclude Obj 1)" },
+                { from: 2, to: 4, label: "x2 = 1 (Include Obj 2)" },
+                { from: 2, to: 5, label: "x2 = 0 (Exclude Obj 2)" },
+                { from: 4, to: 6, label: "x3 = 1" },
+                { from: 4, to: 7, label: "x3 = 0" },
+                { from: 7, to: 8, label: "x4 = 1 (Include Obj 4)" },
+                { from: 7, to: 9, label: "x4 = 0 (Exclude Obj 4)" },
+            ];
+
+            // Draw Edges
+            edges.forEach(edge => {
+                const src = nodes.find(n => n.id === edge.from);
+                const dst = nodes.find(n => n.id === edge.to);
+                if (!src || !dst) return;
+
+                ctx.beginPath();
+                ctx.moveTo(src.x, src.y + 24);
+                ctx.lineTo(dst.x, dst.y - 24);
+
+                if (dst.status === 'optimal') {
+                    ctx.strokeStyle = '#059669';
+                    ctx.lineWidth = 3;
+                    ctx.setLineDash([]);
+                } else if (dst.status === 'killed' || dst.status === 'infeasible') {
+                    ctx.strokeStyle = '#f87171';
+                    ctx.lineWidth = 1.5;
+                    ctx.setLineDash([4, 4]);
+                } else {
+                    ctx.strokeStyle = '#94a3b8';
+                    ctx.lineWidth = 2;
+                    ctx.setLineDash([]);
+                }
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                // Edge label
+                const midX = (src.x + dst.x) / 2;
+                const midY = (src.y + dst.y) / 2;
+                ctx.font = 'bold 11px sans-serif';
+                ctx.fillStyle = dst.status === 'optimal' ? '#047857' : (dst.status === 'killed' ? '#b91c1c' : '#475569');
+                ctx.textAlign = midX > src.x ? 'left' : 'right';
+                ctx.fillText(edge.label, midX + (midX > src.x ? 8 : -8), midY);
+            });
+
+            // Draw Nodes
+            nodes.forEach(node => {
+                ctx.beginPath();
+                const nodeWidth = 120;
+                const nodeHeight = 48;
+                const r = 8;
+                const x = node.x - nodeWidth / 2;
+                const y = node.y - nodeHeight / 2;
+
+                ctx.roundRect(x, y, nodeWidth, nodeHeight, r);
+
+                if (node.status === 'optimal') {
+                    ctx.fillStyle = '#ecfdf5';
+                    ctx.strokeStyle = '#059669';
+                    ctx.lineWidth = 2.5;
+                } else if (node.status === 'killed') {
+                    ctx.fillStyle = '#fff1f2';
+                    ctx.strokeStyle = '#e11d48';
+                    ctx.lineWidth = 1.5;
+                } else if (node.status === 'infeasible') {
+                    ctx.fillStyle = '#fef2f2';
+                    ctx.strokeStyle = '#dc2626';
+                    ctx.lineWidth = 1.5;
+                } else {
+                    ctx.fillStyle = '#ffffff';
+                    ctx.strokeStyle = '#2563eb';
+                    ctx.lineWidth = 2;
+                }
+                ctx.fill();
+                ctx.stroke();
+
+                // Cross out killed nodes with red diagonal line
+                if (node.status === 'killed' || node.status === 'infeasible') {
+                    ctx.beginPath();
+                    ctx.moveTo(x + 6, y + 6);
+                    ctx.lineTo(x + nodeWidth - 6, y + nodeHeight - 6);
+                    ctx.strokeStyle = 'rgba(239, 68, 68, 0.4)';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                }
+
+                // Text
+                ctx.textAlign = 'center';
+                ctx.font = 'bold 12px sans-serif';
+                ctx.fillStyle = node.status === 'optimal' ? '#065f46' : (node.status === 'killed' || node.status === 'infeasible' ? '#991b1b' : '#1e3a8a');
+                ctx.fillText(`${node.label}`, node.x, node.y - 7);
+
+                ctx.font = '11px monospace';
+                ctx.fillStyle = node.status === 'optimal' ? '#047857' : (node.status === 'killed' || node.status === 'infeasible' ? '#b91c1c' : '#334155');
+                ctx.fillText(`ĉ: ${node.c} | u: ${node.u}`, node.x, node.y + 11);
+
+                // Small Tag Pill below
+                if (node.tag) {
+                    ctx.font = 'bold 9px sans-serif';
+                    ctx.fillStyle = node.status === 'optimal' ? '#059669' : (node.status === 'killed' || node.status === 'infeasible' ? '#dc2626' : '#64748b');
+                    ctx.fillText(node.tag, node.x, node.y + nodeHeight / 2 + 13);
+                }
+            });
+        }
+
+        // Initialize state space tree and step canvases on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            renderAllCanvases();
+            window.addEventListener('resize', renderAllCanvases);
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,2419 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter: NP-Hard & NP-Complete - Digital Lecture Notes</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Kalam:wght@300;400;700&family=Patrick+Hand&family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap"
+        rel="stylesheet">
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        notebookBg: '#cbd5e1',
+                        notebookPaper: '#FAF6EE',
+                        inkBlue: '#1A365D',
+                        inkRed: '#9B2C2C',
+                        pencilGray: '#4A5568',
+                    },
+                    fontFamily: {
+                        notes: ['Patrick Hand', 'Kalam', 'cursive'],
+                        heading: ['Kalam', 'cursive'],
+                        clean: ['Inter', 'sans-serif'],
+                        code: ['Fira Code', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Physical Notebook Styling -->
+    <style>
+        body {
+            background-color: #cbd5e1;
+            font-family: 'Patrick Hand', 'Kalam', cursive;
+            color: #1e293b;
+        }
+
+        .lined-paper {
+            background-color: #FAF6EE !important;
+            background-image: repeating-linear-gradient(#FAF6EE 0px,
+                    #FAF6EE 31px,
+                    #e2ebf3 32px) !important;
+            line-height: 32px;
+            position: relative;
+        }
+
+        .notebook-margin {
+            border-left: 2.5px solid #FC8181 !important;
+            padding-left: 1.25rem;
+        }
+
+        @media (min-width: 640px) {
+            .notebook-margin {
+                padding-left: 2.5rem;
+            }
+        }
+
+        .spiral-ring {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #cbd5e1 0%, #64748b 50%, #334155 100%);
+            box-shadow: inset 1px 1px 2px rgba(255, 255, 255, 0.6), 2px 2px 4px rgba(0, 0, 0, 0.25);
+            margin: 11px 0;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Kalam', cursive;
+        }
+
+        /* Clean Mode Font Switcher */
+        body.font-clean,
+        body.font-clean * {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+        }
+
+        body.font-clean pre,
+        body.font-clean code {
+            font-family: 'Fira Code', monospace !important;
+        }
+
+        /* Handwritten Highlighters & Sticky Callouts */
+        .highlighter-yellow {
+            background: linear-gradient(104deg, rgba(254, 240, 138, 0.95) 0.9%, rgba(253, 224, 71, 0.85) 98%);
+            padding: 2px 8px;
+            border-radius: 4px;
+            box-decoration-break: clone;
+            -webkit-box-decoration-break: clone;
+            display: inline-block;
+        }
+
+        .highlighter-green {
+            background: linear-gradient(104deg, rgba(187, 247, 208, 0.95) 0.9%, rgba(134, 239, 172, 0.85) 98%);
+            padding: 2px 8px;
+            border-radius: 4px;
+            box-decoration-break: clone;
+            -webkit-box-decoration-break: clone;
+            display: inline-block;
+        }
+
+        .highlighter-blue {
+            background: linear-gradient(104deg, rgba(191, 219, 254, 0.95) 0.9%, rgba(147, 197, 253, 0.85) 98%);
+            padding: 2px 8px;
+            border-radius: 4px;
+            box-decoration-break: clone;
+            -webkit-box-decoration-break: clone;
+            display: inline-block;
+        }
+
+        .highlighter-red {
+            background: linear-gradient(104deg, rgba(254, 205, 211, 0.95) 0.9%, rgba(253, 164, 175, 0.85) 98%);
+            padding: 2px 8px;
+            border-radius: 4px;
+            box-decoration-break: clone;
+            -webkit-box-decoration-break: clone;
+            display: inline-block;
+        }
+
+        .pen-box {
+            background: rgba(255, 255, 255, 0.92);
+            border: 2px dashed #3b82f6;
+            border-radius: 8px;
+            padding: 1.25rem;
+        }
+
+        .pen-box-red {
+            background: rgba(255, 255, 255, 0.92);
+            border: 2px dashed #ef4444;
+            border-radius: 8px;
+            padding: 1.25rem;
+        }
+
+        .pen-box-amber {
+            background: rgba(254, 252, 232, 0.95);
+            border: 2px dashed #d97706;
+            border-radius: 8px;
+            padding: 1.25rem;
+        }
+
+        .teacher-quote {
+            background: rgba(254, 243, 199, 0.92);
+            border-left: 5px solid #d97706;
+            border-radius: 6px;
+            padding: 0.85rem 1.25rem;
+            font-style: italic;
+        }
+
+        .sketch-card {
+            background: #ffffff;
+            border: 1.5px solid #cbd5e1;
+            box-shadow: 2px 3px 6px rgba(0, 0, 0, 0.06);
+            border-radius: 10px;
+        }
+
+        /* VS Code High-Fidelity Container */
+        .vscode-window {
+            background-color: #1e1e1e;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+            border: 1px solid #333333;
+            overflow: hidden;
+            font-family: 'Fira Code', monospace;
+        }
+
+        .vscode-gutter {
+            color: #858585;
+            user-select: none;
+            -webkit-user-select: none;
+            background-color: #1e1e1e;
+            border-right: 1px solid #2d2d2d;
+            font-size: 12px;
+            line-height: 22px;
+        }
+
+        .vscode-code-pre {
+            font-size: 13px;
+            line-height: 22px;
+            tab-size: 4;
+            color: #d4d4d4;
+        }
+
+        .vscode-code-pre code {
+            font-family: 'Fira Code', monospace !important;
+        }
+
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            body {
+                background: white !important;
+            }
+            .lined-paper {
+                background-image: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body class="text-xl text-slate-800 antialiased transition-all duration-300">
+
+    <!-- Sticky Header Navigation Bar -->
+    <header class="sticky top-0 z-50 bg-[#FAF6EE] shadow-md border-b-2 border-amber-200 px-4 py-3 no-print">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-3">
+            <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+                <a href="../index.html"
+                    class="px-3 py-1.5 rounded-lg bg-amber-100 hover:bg-amber-200 border border-amber-300 text-inkBlue text-xs sm:text-sm font-bold flex items-center gap-1.5 transition shadow-sm font-sans"
+                    title="Back to Digital Bookshelf">
+                    <span>📚</span> <span>Bookshelf</span>
+                </a>
+                <a href="index.html"
+                    class="px-3 py-1.5 rounded-lg bg-emerald-100 hover:bg-emerald-200 border border-emerald-300 text-emerald-900 text-xs sm:text-sm font-bold flex items-center gap-1.5 transition shadow-sm font-sans"
+                    title="Back to Personal Notes Directory">
+                    <span>📋</span> <span>Notes Directory</span>
+                </a>
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl sm:text-3xl font-bold text-inkBlue tracking-wide font-['Kalam']">⚡ NP-Hard &amp; NP-Complete</span>
+                    <span
+                        class="bg-rose-100 text-rose-900 text-xs sm:text-sm font-bold px-3 py-1 rounded-full border border-rose-300 font-sans">
+                        Complexity Theory &amp; Intractability
+                    </span>
+                </div>
+            </div>
+
+            <!-- Right: Font Toggle Button -->
+            <div class="flex items-center gap-2">
+                <button id="fontToggleBtn" onclick="toggleFontMode()"
+                    class="shrink-0 px-3.5 py-1.5 rounded-lg bg-inkBlue text-white hover:bg-slate-800 transition text-xs sm:text-sm font-bold shadow flex items-center gap-1.5 font-sans"
+                    title="Toggle between Handwritten and Clean typography">
+                    <span>✍️</span> <span id="fontBtnText">Clean Font</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <nav class="max-w-6xl mx-auto mt-2.5 flex flex-wrap gap-1 border-t border-amber-200 pt-2 text-sm sm:text-base font-sans">
+            <button onclick="switchTab('tab-concepts-crisis')" id="nav-tab-concepts-crisis"
+                class="nav-tab px-4 py-1.5 rounded-t-lg font-bold bg-amber-200 text-inkBlue border-b-2 border-inkBlue transition">
+                1. Concepts &amp; Research Crisis (§1–§6)
+            </button>
+            <button onclick="switchTab('tab-reductions-traces')" id="nav-tab-reductions-traces"
+                class="nav-tab px-4 py-1.5 rounded-t-lg font-bold text-slate-600 hover:text-inkBlue transition">
+                2. Base SAT, Tree Equivalence &amp; Reductions (§7–§11)
+            </button>
+            <button onclick="switchTab('tab-algorithms-code')" id="nav-tab-algorithms-code"
+                class="nav-tab px-4 py-1.5 rounded-t-lg font-bold text-slate-600 hover:text-inkBlue transition">
+                3. Non-Det Algorithms, C++ Verifiers &amp; Cook's Thm (§12–§16)
+            </button>
+            <button onclick="switchTab('tab-interactive-visualizer')" id="nav-tab-interactive-visualizer"
+                class="nav-tab px-4 py-1.5 rounded-t-lg font-bold text-slate-600 hover:text-inkBlue transition">
+                4. Interactive Complexity Sandbox &amp; Tree Visualizer
+            </button>
+        </nav>
+    </header>
+
+    <!-- Main Notebook Container -->
+    <main
+        class="max-w-6xl mx-auto flex relative bg-notebookPaper rounded-xl shadow-2xl overflow-hidden min-h-[950px] border border-amber-200 my-8">
+
+        <!-- Left Binder Column (50 Physical Spiral Rings) -->
+        <div
+            class="w-10 sm:w-16 bg-amber-50 border-r-2 border-amber-200 flex flex-col items-center py-8 select-none shrink-0 no-print space-y-6 z-10 shadow-[inset_-5px_0_10px_rgba(0,0,0,0.05)]">
+            <script>
+                for (let i = 0; i < 50; i++) document.write('<div class="spiral-ring"></div>');
+            </script>
+        </div>
+
+        <!-- Notebook Content Area -->
+        <div class="flex-1 lined-paper p-4 sm:p-8 notebook-margin sm:pl-8 overflow-hidden z-0">
+
+            <!-- ==================================================================== -->
+            <!-- TAB 1: CONCEPTS & THE RESEARCH CRISIS (§1 - §6)                      -->
+            <!-- ==================================================================== -->
+            <div id="tab-concepts-crisis" class="tab-pane space-y-8">
+
+                <!-- Section Header -->
+                <div class="border-b-2 border-inkRed pb-2 flex justify-between items-baseline">
+                    <div>
+                        <h1 class="text-3xl sm:text-4xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                            1. Demystifying NP-Hard &amp; NP-Complete: The Research Framework
+                        </h1>
+                        <p class="text-sm font-sans text-pencilGray mt-1">
+                            Why this is the most critical yet confusing topic in Computer Science • Polynomial vs. Exponential Divide • The Two-Pillar Research Protocol
+                        </p>
+                    </div>
+                    <span class="text-xs sm:text-sm font-bold font-sans bg-amber-100 text-inkRed px-2.5 py-1 rounded border border-amber-300">
+                        Tab 1 • Theoretical Foundations
+                    </span>
+                </div>
+
+                <!-- Teacher's Initial Warning Quote -->
+                <div class="teacher-quote text-lg sm:text-xl">
+                    <span class="font-bold text-inkRed not-italic font-sans text-xs uppercase tracking-wider block mb-1">Teacher's Advice Before Starting:</span>
+                    “Don't watch this video or read this note if you're in a hurry! Watch it when you are calm and ready. NP-Hard and NP-Complete is considered confusing only because people jump straight into jargon. Once you see why researchers invented these ideas when their algorithms hit a brick wall, the whole topic becomes simple and clear!”
+                </div>
+
+                <!-- 1. The Great Algorithmic Divide -->
+                <section class="space-y-4 text-lg leading-relaxed">
+                    <h2 class="text-2xl font-bold text-inkRed flex items-center gap-2">
+                        <span>⚖️</span> 1. The Two Types of Problems: "Fast" vs. "Impossible"
+                    </h2>
+
+                    <p>
+                        Every algorithm we learn in computer science falls into one of two simple categories:
+                    </p>
+
+                    <!-- Comparison Table: Polynomial vs Exponential -->
+                    <div class="overflow-x-auto bg-white p-3 rounded-xl border border-slate-300 shadow-sm font-sans text-sm sm:text-base">
+                        <table class="w-full text-left border-collapse border border-slate-300">
+                            <thead>
+                                <tr class="bg-indigo-900 text-white font-bold">
+                                    <th class="py-2.5 px-3 border border-indigo-800">Category</th>
+                                    <th class="py-2.5 px-3 border border-indigo-800">Time Taken</th>
+                                    <th class="py-2.5 px-3 border border-indigo-800">Everyday Examples</th>
+                                    <th class="py-2.5 px-3 border border-indigo-800">Can Computers Run It?</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="hover:bg-amber-50 border-b border-slate-200">
+                                    <td class="py-2.5 px-3 font-bold text-emerald-800 border-r border-slate-200 bg-emerald-50/50">
+                                        Fast Problems (Polynomial Time)
+                                    </td>
+                                    <td class="py-2.5 px-3 font-mono border-r border-slate-200">
+                                        <span class="font-bold text-emerald-700">O(n), O(n log n), O(n²)</span>
+                                    </td>
+                                    <td class="py-2.5 px-3 border-r border-slate-200">
+                                        • Linear Search: <span class="font-mono font-bold text-slate-800">O(n)</span><br>
+                                        • Binary Search: <span class="font-mono font-bold text-slate-800">O(log n)</span><br>
+                                        • Merge Sort: <span class="font-mono font-bold text-slate-800">O(n log n)</span><br>
+                                        • Shortest Paths (Dijkstra)
+                                    </td>
+                                    <td class="py-2.5 px-3 text-emerald-900 font-bold">
+                                        ✅ YES! Super fast.<br>Even with 1,000,000 items, your laptop finishes in a split second.
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-amber-50">
+                                    <td class="py-2.5 px-3 font-bold text-rose-800 border-r border-slate-200 bg-rose-50/50">
+                                        Slow / Impossible Problems (Exponential Time)
+                                    </td>
+                                    <td class="py-2.5 px-3 font-mono border-r border-slate-200">
+                                        <span class="font-bold text-rose-700">O(2ⁿ), O(n!), O(nⁿ)</span>
+                                    </td>
+                                    <td class="py-2.5 px-3 border-r border-slate-200">
+                                        • 0/1 Knapsack: <span class="font-mono font-bold text-slate-800">O(2ⁿ)</span><br>
+                                        • Traveling Salesperson: <span class="font-mono font-bold text-slate-800">O(2ⁿ)</span><br>
+                                        • Graph Coloring: <span class="font-mono font-bold text-slate-800">O(mⁿ)</span><br>
+                                        • Hamiltonian Cycle
+                                    </td>
+                                    <td class="py-2.5 px-3 text-rose-900 font-bold">
+                                        ❌ NO! Freezes computers.<br>Time doubles with every single extra item. At n=60, it takes billions of years!
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Plain English Reality Check -->
+                    <div class="pen-box-red space-y-2 font-sans text-base">
+                        <h3 class="text-xl font-bold text-inkRed font-['Kalam']">💥 Plain English: Why Exponential Time Freezes Everything</h3>
+                        <p class="text-slate-800">
+                            Students often ask: <em>"Isn't n<sup>100</sup> bigger than 2ⁿ?"</em><br>
+                            For small numbers like n=2, yes. But as soon as n gets large, <span class="highlighter-red font-bold">2ⁿ explodes into outer space</span>.
+                        </p>
+                        <div class="p-3 bg-white rounded-lg border border-rose-300 font-mono font-bold text-center text-rose-950 text-base">
+                            n¹⁰ &lt; 2ⁿ &nbsp;&nbsp;|&nbsp;&nbsp; n¹⁰⁰ &lt; 2ⁿ &nbsp;&nbsp;|&nbsp;&nbsp; (Even n¹⁰⁰⁰ is eventually tiny compared to 2ⁿ)
+                        </div>
+                        <p class="text-slate-700 text-sm">
+                            <strong>The takeaway:</strong> Fast polynomial algorithms scale smoothly when computers get faster. But for exponential problems, buying a computer that is twice as fast only lets you add <strong>one extra item (+1)</strong> to your input!
+                        </p>
+                    </div>
+                </section>
+
+                <!-- 2. The Research Dilemma -->
+                <section class="space-y-4 text-lg leading-relaxed pt-4 border-t border-amber-200">
+                    <h2 class="text-2xl font-bold text-inkRed flex items-center gap-2">
+                        <span>🔬</span> 2. The Research Dilemma: Decades of Fruitless Search
+                    </h2>
+
+                    <p>
+                        In computer science and mathematics, researchers constantly hunt for faster algorithms:
+                    </p>
+                    <ul class="list-disc pl-6 space-y-2">
+                        <li>
+                            For <strong>Searching</strong>: We advanced from Linear Search (<span class="font-mono font-bold text-inkBlue">O(n)</span>) to Binary Search (<span class="font-mono font-bold text-inkBlue">O(log n)</span>). Researchers still dream of finding a deterministic general search taking <span class="font-mono font-bold text-emerald-700">O(1)</span>.
+                        </li>
+                        <li>
+                            For <strong>Sorting</strong>: We advanced from Bubble/Insertion Sort (<span class="font-mono font-bold text-inkBlue">O(n<sup>2</sup>)</span>) to Merge/Quick Sort (<span class="font-mono font-bold text-inkBlue">O(n log n)</span>). We would love an unrestricted comparison sorting algorithm taking <span class="font-mono font-bold text-emerald-700">O(n)</span>.
+                        </li>
+                        <li>
+                            For <strong>Exponential Problems (Knapsack, TSP, SAT)</strong>: The dream was to discover a <strong>deterministic polynomial time algorithm</strong> (<span class="font-mono font-bold text-emerald-700">O(n<sup>k</sup>)</span>).
+                        </li>
+                    </ul>
+
+                    <div class="teacher-quote text-xl">
+                        ⚠️ <strong>The Historical Reality:</strong>
+                        <div class="text-2xl font-bold text-amber-900 mt-1 not-italic">
+                            “Thousands of top mathematicians and computer scientists spent 10, 20, 30+ years attempting to solve 0/1 Knapsack, TSP, and Graph Coloring in deterministic polynomial time. So far, ZERO deterministic polynomial solutions have ever been found!”
+                        </div>
+                    </div>
+
+                    <p>
+                        When decades of research lead to dead ends, researchers face a critical problem: <em>Are all those years of labor completely wasted? How can researchers organize and protect their work so the scientific community moves forward?</em>
+                    </p>
+                </section>
+
+                <!-- 3. The Two Foundational Pillars -->
+                <section class="space-y-4 text-lg leading-relaxed pt-4 border-t border-amber-200">
+                    <h2 class="text-2xl font-bold text-inkRed flex items-center gap-2">
+                        <span>🏛️</span> 3. The Two-Pillar Research Framework
+                    </h2>
+
+                    <p>
+                        To transform dead-end frustration into structured scientific progress, computer scientists established a standardized <strong>Research Framework</strong> built on two foundational pillars:
+                    </p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch font-sans">
+                        <!-- Pillar 1 -->
+                        <div class="bg-white p-5 rounded-xl border-2 border-indigo-300 shadow-sm flex flex-col justify-between">
+                            <div>
+                                <span class="text-xs uppercase font-bold text-indigo-900 bg-indigo-100 px-2.5 py-1 rounded">
+                                    Pillar 1: Collective Association
+                                </span>
+                                <h3 class="text-2xl font-bold text-inkBlue font-['Kalam'] mt-2">
+                                    Relate the Problems (Polynomial Reduction)
+                                </h3>
+                                <p class="text-slate-800 text-sm mt-2 leading-relaxed">
+                                    Stop working in isolation! Researcher A should not secretly grind on 0/1 Knapsack while Researcher B grinds on Graph Coloring and Researcher C on Traveling Salesperson.
+                                </p>
+                                <div class="mt-3 p-3 bg-indigo-50 border border-indigo-200 rounded text-indigo-950 font-bold text-sm">
+                                    💡 <strong>The Core Strategy:</strong> Prove rigorous mathematical links between them. If we can show that Problem A reduces to Problem B in polynomial time, then <em>solving ANY ONE problem in polynomial time automatically solves ALL of them in polynomial time!</em>
+                                </div>
+                            </div>
+                            <span class="text-xs text-indigo-700 font-bold mt-4 block">Result &rarr; Forms the Class of NP-Hard Problems</span>
+                        </div>
+
+                        <!-- Pillar 2 -->
+                        <div class="bg-white p-5 rounded-xl border-2 border-amber-400 shadow-sm flex flex-col justify-between">
+                            <div>
+                                <span class="text-xs uppercase font-bold text-amber-900 bg-amber-100 px-2.5 py-1 rounded">
+                                    Pillar 2: Preserving Scientific Work
+                                </span>
+                                <h3 class="text-2xl font-bold text-inkBlue font-['Kalam'] mt-2">
+                                    Write Non-Deterministic Algorithms
+                                </h3>
+                                <p class="text-slate-800 text-sm mt-2 leading-relaxed">
+                                    If you cannot write a <em>deterministic</em> polynomial time algorithm, do NOT discard your work. Write a <strong>non-deterministic polynomial time algorithm</strong>!
+                                </p>
+                                <div class="mt-3 p-3 bg-amber-50 border border-amber-200 rounded text-amber-950 font-bold text-sm">
+                                    ✨ <strong>The Core Strategy:</strong> Keep all the algorithmic statements you understand deterministically. For the elusive polynomial leap, use a formal "magical" guessing primitive (<code class="font-mono text-purple-900">choice()</code>). This encapsulates your partial work so future researchers only need to replace that one primitive with concrete logic!
+                                </div>
+                            </div>
+                            <span class="text-xs text-amber-800 font-bold mt-4 block">Result &rarr; Defines the Class NP &amp; NP-Complete</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 4. Deterministic vs Non-Deterministic -->
+                <section class="space-y-4 text-lg leading-relaxed pt-4 border-t border-amber-200">
+                    <h2 class="text-2xl font-bold text-inkRed flex items-center gap-2">
+                        <span>🔮</span> 4. Deterministic vs. Non-Deterministic Algorithms
+                    </h2>
+
+                    <p>
+                        What exactly separates a standard algorithm from a non-deterministic one?
+                    </p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 font-sans text-sm sm:text-base">
+                        <div class="p-4 bg-white rounded-xl border border-slate-300 shadow-sm">
+                            <span class="text-xs uppercase font-bold text-blue-900 bg-blue-100 px-2 py-0.5 rounded">Deterministic Algorithm</span>
+                            <p class="text-slate-800 mt-2">
+                                Every single statement has a crystal-clear, predictable, reproducible execution path. Given the exact same input, it will execute the exact same state transitions and terminate in the exact same number of clock cycles every single time.
+                            </p>
+                            <div class="mt-2 text-xs font-mono text-slate-600 bg-slate-50 p-2 rounded border">
+                                State S<sub>i</sub> &rarr; Uniquely determined next state S<sub>i+1</sub>
+                            </div>
+                        </div>
+
+                        <div class="p-4 bg-white rounded-xl border border-purple-300 shadow-sm">
+                            <span class="text-xs uppercase font-bold text-purple-900 bg-purple-100 px-2 py-0.5 rounded">Non-Deterministic Algorithm</span>
+                            <p class="text-slate-800 mt-2">
+                                An algorithm containing non-deterministic operations that cannot be executed directly on standard physical hardware. It relies on a theoretical oracle that can miraculously guess the optimal path or explore all parallel branches simultaneously.
+                            </p>
+                            <div class="mt-2 text-xs font-mono text-purple-900 bg-purple-50 p-2 rounded border">
+                                State S<sub>i</sub> &rarr; Set of potential candidate states {S<sub>1</sub>, S<sub>2</sub>, ..., S<sub>k</sub>}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- The 3 Non-Deterministic Primitives -->
+                    <h3 class="text-xl font-bold text-inkBlue font-['Kalam'] pt-2">The Three Non-Deterministic Primitive Statements:</h3>
+                    <p>
+                        In theoretical computer science, non-deterministic algorithms are formally written using three specialized operations (all assumed to execute in <span class="font-mono font-bold text-emerald-800">O(1)</span> constant time):
+                    </p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 font-sans text-sm">
+                        <div class="p-3 bg-purple-50 border border-purple-300 rounded-lg">
+                            <span class="font-mono font-bold text-purple-900 text-base">choice(1, n)</span>
+                            <p class="text-slate-700 mt-1">
+                                Non-deterministically chooses an arbitrary integer between 1 and n. If any candidate leads to a successful outcome, <code class="font-mono font-bold">choice()</code> is guaranteed to magically pick that exact candidate!
+                            </p>
+                        </div>
+                        <div class="p-3 bg-emerald-50 border border-emerald-300 rounded-lg">
+                            <span class="font-mono font-bold text-emerald-900 text-base">success()</span>
+                            <p class="text-slate-700 mt-1">
+                                Signals that a valid, satisfying certificate or solution has been verified. The algorithm halts immediately with success.
+                            </p>
+                        </div>
+                        <div class="p-3 bg-rose-50 border border-rose-300 rounded-lg">
+                            <span class="font-mono font-bold text-rose-900 text-base">failure()</span>
+                            <p class="text-slate-700 mt-1">
+                                Signals that the current choice path does not produce a valid solution. Halts this branch.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Teacher's Philosophy: Magic to Logic -->
+                    <div class="teacher-quote text-xl">
+                        ✨ <strong>Teacher's Philosophy on "Magic" vs "Logic":</strong>
+                        <div class="text-xl font-bold text-amber-900 mt-1 not-italic">
+                            “Whenever we don't understand how something works, we call it magic. Once we discover the underlying mechanism, it becomes logic and technique! Merge Sort taking O(n log n) was 'magic' to our ancestors before John von Neumann invented it. Writing non-deterministic algorithms today preserves our scaffolding so tomorrow's genius can turn magic into deterministic logic!”
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 5. Formal Complexity Classes Defined -->
+                <section class="space-y-4 text-lg leading-relaxed pt-4 border-t border-amber-200">
+                    <h2 class="text-2xl font-bold text-inkRed flex items-center gap-2">
+                        <span>🏷️</span> 5. The Four Big Terms in Plain English
+                    </h2>
+
+                    <p>
+                        Think of computer science problems like locks, puzzles, and keys:
+                    </p>
+
+                    <div class="space-y-4 font-sans">
+                        <!-- Class P -->
+                        <div class="p-4 bg-white rounded-xl border-l-4 border-emerald-600 shadow-sm">
+                            <div class="flex justify-between items-baseline">
+                                <h3 class="text-xl font-bold text-emerald-900 font-['Kalam']">1. Class P: "Easy to Solve"</h3>
+                                <span class="text-xs font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">Fast from Scratch</span>
+                            </div>
+                            <p class="text-slate-800 mt-1 text-sm sm:text-base">
+                                Problems your computer can <strong>solve quickly from scratch</strong> using normal, straightforward code.
+                            </p>
+                            <p class="text-xs text-emerald-900 mt-1.5 font-bold">
+                                💡 Real-life analogy: Multiplying two numbers (like 23 × 17). You can do it by hand in 15 seconds.
+                            </p>
+                            <p class="text-xs text-slate-500 mt-0.5 italic">
+                                Examples: Linear Search, Binary Search, Merge Sort, Dijkstra's Shortest Path.
+                            </p>
+                        </div>
+
+                        <!-- Class NP -->
+                        <div class="p-4 bg-white rounded-xl border-l-4 border-indigo-600 shadow-sm">
+                            <div class="flex justify-between items-baseline">
+                                <h3 class="text-xl font-bold text-indigo-900 font-['Kalam']">2. Class NP: "Easy to Check"</h3>
+                                <span class="text-xs font-bold px-2 py-0.5 rounded bg-indigo-100 text-indigo-800">Quick Verification</span>
+                            </div>
+                            <p class="text-slate-800 mt-1 text-sm sm:text-base">
+                                Problems where finding the solution might take forever, but <strong>checking someone's answer takes just a few seconds</strong>!
+                            </p>
+                            <p class="text-xs text-indigo-950 mt-1.5 font-bold">
+                                💡 Real-life analogy: A hard Sudoku puzzle. Solving a blank grid might take you 45 minutes of trial and error. But if your friend hands you a completed grid, you can double-check each row and column in 30 seconds!
+                            </p>
+                            <p class="text-xs text-slate-500 mt-0.5 italic">
+                                Note: NP does NOT mean "Non-Polynomial". It means "Non-deterministic Polynomial" (checkable in fast time). P is inside NP because anything you can solve fast, you can also check fast!
+                            </p>
+                        </div>
+
+                        <!-- Class NP-Hard -->
+                        <div class="p-4 bg-white rounded-xl border-l-4 border-rose-600 shadow-sm">
+                            <div class="flex justify-between items-baseline">
+                                <h3 class="text-xl font-bold text-rose-900 font-['Kalam']">3. Class NP-Hard: "The Master Keys"</h3>
+                                <span class="text-xs font-bold px-2 py-0.5 rounded bg-rose-100 text-rose-800">Toughest of the Tough</span>
+                            </div>
+                            <p class="text-slate-800 mt-1 text-sm sm:text-base">
+                                Problems that are <strong>at least as hard as any problem in NP</strong>. If you ever find a fast shortcut for even ONE NP-Hard problem, you can unlock and solve EVERY problem in NP!
+                            </p>
+                            <p class="text-xs text-rose-950 mt-1.5 font-bold">
+                                💡 Real-life analogy: A master key. If you know how to pick this master lock, you can instantly open every door in the entire skyscraper.
+                            </p>
+                            <p class="text-xs text-slate-500 mt-0.5 italic">
+                                Note: NP-Hard problems don't even need to be easy to check. Some of them (like Turing's Halting Problem) are mathematically impossible for computers to ever finish.
+                            </p>
+                        </div>
+
+                        <!-- Class NP-Complete -->
+                        <div class="p-4 bg-white rounded-xl border-l-4 border-purple-600 shadow-sm">
+                            <div class="flex justify-between items-baseline">
+                                <h3 class="text-xl font-bold text-purple-900 font-['Kalam']">4. Class NP-Complete: "The Boss Problems"</h3>
+                                <span class="text-xs font-bold px-2 py-0.5 rounded bg-purple-100 text-purple-800">The Elite Center</span>
+                            </div>
+                            <p class="text-slate-800 mt-1 text-sm sm:text-base">
+                                The hardest problems that still live inside NP. They must satisfy both conditions:
+                            </p>
+                            <div class="mt-2 p-2.5 bg-purple-50 rounded border border-purple-200 font-mono text-purple-950 text-xs sm:text-sm font-bold">
+                                1. In NP: Easy to double-check in fast time.<br>
+                                2. NP-Hard: It is a master key that can solve everything else.
+                            </div>
+                            <p class="text-xs text-purple-900 mt-2 font-bold">
+                                In plain English: NP-Complete = (Easy to Check) + (Master Key). Solve just ONE of these fast, and you win a $1,000,000 Millennium Prize!
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 6. Venn Diagrams of Complexity Worlds -->
+                <section class="space-y-4 text-lg leading-relaxed pt-4 border-t border-amber-200">
+                    <h2 class="text-2xl font-bold text-inkRed flex items-center gap-2">
+                        <span>📊</span> 6. The Historic Venn Diagrams: P vs. NP
+                    </h2>
+
+                    <p>
+                        Why is <span class="font-mono font-bold text-inkBlue">P &sube; NP</span>? Because any deterministic algorithm is already a non-deterministic algorithm that simply makes zero use of the guessing primitive!
+                    </p>
+
+                    <!-- Dual Canvas Containers for Static Concept Diagrams -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+                        <div class="bg-white p-3 rounded-xl border border-slate-300 shadow-sm text-center">
+                            <span class="text-xs uppercase font-bold text-indigo-900 bg-indigo-100 px-2.5 py-1 rounded font-sans block mb-2">
+                                Standard Assumption: If P &ne; NP
+                            </span>
+                            <canvas id="canvas-venn-p-neq-np" width="480" height="320" class="w-full bg-[#FAF6EE] rounded border border-slate-200"></canvas>
+                            <p class="text-xs text-slate-600 mt-2 font-sans">
+                                NP-Complete represents the boundary frontier between solvable (P) and outside intractable NP-Hard problems.
+                            </p>
+                        </div>
+
+                        <div class="bg-white p-3 rounded-xl border border-slate-300 shadow-sm text-center">
+                            <span class="text-xs uppercase font-bold text-emerald-900 bg-emerald-100 px-2.5 py-1 rounded font-sans block mb-2">
+                                The Grand Dream: If P = NP
+                            </span>
+                            <canvas id="canvas-venn-p-eq-np" width="480" height="320" class="w-full bg-[#FAF6EE] rounded border border-slate-200"></canvas>
+                            <p class="text-xs text-slate-600 mt-2 font-sans">
+                                If any NP-Complete problem is solved in polynomial time, the circle of P expands to completely swallow NP!
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+
+            <!-- ==================================================================== -->
+            <!-- TAB 2: STEP-BY-STEP TRACES & VISUAL REDUCTIONS (§7 - §11)             -->
+            <!-- ==================================================================== -->
+            <div id="tab-reductions-traces" class="tab-pane hidden space-y-8">
+
+                <!-- Section Header -->
+                <div class="border-b-2 border-inkRed pb-2 flex justify-between items-baseline">
+                    <div>
+                        <h1 class="text-3xl sm:text-4xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                            2. Base Anchor Problem, Binary Tree Equivalence &amp; Reductions
+                        </h1>
+                        <p class="text-sm font-sans text-pencilGray mt-1">
+                            CNF-Satisfiability • Stripping problem labels to expose the identical 2<sup>n</sup> State-Space Tree • Polynomial Reductions
+                        </p>
+                    </div>
+                    <span class="text-xs sm:text-sm font-bold font-sans bg-amber-100 text-inkRed px-2.5 py-1 rounded border border-amber-300">
+                        Tab 2 • Visual Reductions
+                    </span>
+                </div>
+
+                <!-- 7. The Base Anchor: CNF-SAT -->
+                <section class="space-y-4 text-lg leading-relaxed">
+                    <h2 class="text-2xl font-bold text-inkRed flex items-center gap-2">
+                        <span>⚓</span> 7. The Canonical Base Problem: Boolean Satisfiability (CNF-SAT)
+                    </h2>
+
+                    <p>
+                        To link thousands of disparate problems together, the research framework required a <strong>base problem</strong> to act as the universal mathematical anchor. That base anchor is the <strong>Satisfiability (SAT) Problem</strong>.
+                    </p>
+
+                    <div class="pen-box space-y-2 font-sans text-base">
+                        <h3 class="text-xl font-bold text-inkBlue font-['Kalam']">What is a Conjunctive Normal Form (CNF) Formula?</h3>
+                        <p class="text-slate-800">
+                            A Boolean formula consisting of boolean variables <span class="font-mono font-bold text-indigo-900">x<sub>1</sub>, x<sub>2</sub>, ..., x<sub>n</sub> &isin; {0, 1}</span> (where 0 = False, 1 = True):
+                        </p>
+                        <ul class="list-disc pl-5 space-y-1 text-slate-700 text-sm">
+                            <li><strong>Literal:</strong> A variable (<span class="font-mono font-bold">x<sub>i</sub></span>) or its negation (<span class="font-mono font-bold">&not;x<sub>i</sub></span> or <span class="font-mono font-bold">x&#773;<sub>i</sub></span>).</li>
+                            <li><strong>Clause:</strong> A disjunction (OR &or;) of literals. For example: <span class="font-mono font-bold text-indigo-900">(x<sub>1</sub> &or; &not;x<sub>2</sub> &or; x<sub>3</sub>)</span>.</li>
+                            <li><strong>CNF Formula:</strong> A conjunction (AND &and;) of multiple clauses:</li>
+                        </ul>
+
+                        <div class="p-3 bg-white rounded-lg border border-indigo-300 font-mono font-bold text-center text-indigo-950 text-base">
+                            F = C<sub>1</sub> &and; C<sub>2</sub> = (x<sub>1</sub> &or; &not;x<sub>2</sub> &or; x<sub>3</sub>) &and; (&not;x<sub>1</sub> &or; x<sub>2</sub> &or; &not;x<sub>3</sub>)
+                        </div>
+                    </div>
+
+                    <p>
+                        <strong>The SAT Question:</strong> Does there exist at least one truth assignment for <span class="font-mono font-bold text-inkBlue">(x<sub>1</sub>, x<sub>2</sub>, ..., x<sub>n</sub>)</span> such that the entire formula evaluates to <span class="font-mono font-bold text-emerald-700">True (1)</span>?
+                    </p>
+
+                    <!-- Truth Table Exhaustion -->
+                    <div class="p-4 bg-white rounded-xl border border-slate-300 shadow-sm font-sans text-sm">
+                        <span class="text-xs uppercase font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded">Exhaustive Brute-Force Check</span>
+                        <p class="text-slate-800 mt-2">
+                            For <span class="font-mono font-bold">n = 3</span> variables, there are <span class="font-mono font-bold text-rose-800">2<sup>3</sup> = 8</span> combinations:
+                        </p>
+                        <div class="grid grid-cols-4 sm:grid-cols-8 gap-1.5 mt-2 text-center font-mono font-bold text-xs">
+                            <span class="p-1.5 bg-slate-100 rounded border">0 0 0</span>
+                            <span class="p-1.5 bg-slate-100 rounded border">0 0 1</span>
+                            <span class="p-1.5 bg-slate-100 rounded border">0 1 0</span>
+                            <span class="p-1.5 bg-slate-100 rounded border">0 1 1</span>
+                            <span class="p-1.5 bg-slate-100 rounded border">1 0 0</span>
+                            <span class="p-1.5 bg-slate-100 rounded border">1 0 1</span>
+                            <span class="p-1.5 bg-slate-100 rounded border">1 1 0</span>
+                            <span class="p-1.5 bg-slate-100 rounded border">1 1 1</span>
+                        </div>
+                        <p class="text-slate-700 mt-2">
+                            For general <span class="font-mono font-bold">n</span> variables, there are <span class="font-mono font-bold text-rose-700 text-base">2<sup>n</sup></span> possible truth assignments! Checking all of them deterministically takes exponential time <span class="font-mono font-bold text-rose-800">O(2<sup>n</sup>)</span>.
+                        </p>
+                    </div>
+                </section>
+
+                <!-- 8. The Identical Binary State-Space Tree -->
+                <section class="space-y-4 text-lg leading-relaxed pt-4 border-t border-amber-200">
+                    <h2 class="text-2xl font-bold text-inkRed flex items-center gap-2">
+                        <span>🌳</span> 8. The State-Space Tree Equivalence: SAT vs. 0/1 Knapsack
+                    </h2>
+
+                    <p>
+                        Now watch how the lecture masterfully shows the hidden relationship between two apparently unrelated problems: <strong>Satisfiability</strong> (symbolic logic) and <strong>0/1 Knapsack</strong> (bag packing optimization).
+                    </p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 font-sans text-sm">
+                        <div class="p-4 bg-white rounded-xl border border-indigo-300 shadow-sm">
+                            <span class="text-xs uppercase font-bold text-indigo-900 bg-indigo-100 px-2 py-0.5 rounded">Satisfiability Decision</span>
+                            <p class="text-slate-800 mt-2">
+                                We have 3 boolean variables <span class="font-mono font-bold">x<sub>1</sub>, x<sub>2</sub>, x<sub>3</sub></span>. Each variable must be assigned either <span class="font-mono font-bold text-indigo-800">0</span> or <span class="font-mono font-bold text-indigo-800">1</span>.
+                            </p>
+                            <div class="mt-2 text-xs font-mono bg-indigo-50 p-2 rounded text-indigo-900 font-bold">
+                                Decision Vector: X = (x₁, x₂, x₃) &isin; {0, 1}³ &rarr; 2³ = 8 leaves
+                            </div>
+                        </div>
+
+                        <div class="p-4 bg-white rounded-xl border border-amber-300 shadow-sm">
+                            <span class="text-xs uppercase font-bold text-amber-900 bg-amber-100 px-2 py-0.5 rounded">0/1 Knapsack Decision</span>
+                            <p class="text-slate-800 mt-2">
+                                We have 3 items with weights and profits. For each item <span class="font-mono font-bold">i</span>, we either exclude it (<span class="font-mono font-bold text-amber-800">x<sub>i</sub> = 0</span>) or include it (<span class="font-mono font-bold text-amber-800">x<sub>i</sub> = 1</span>).
+                            </p>
+                            <div class="mt-2 text-xs font-mono bg-amber-50 p-2 rounded text-amber-900 font-bold">
+                                Decision Vector: X = (x₁, x₂, x₃) &isin; {0, 1}³ &rarr; 2³ = 8 leaves
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Teacher's Crucial Insight -->
+                    <div class="teacher-quote text-xl">
+                        💡 <strong>The Teacher's "Aha!" Moment:</strong>
+                        <div class="text-2xl font-bold text-amber-900 mt-1 not-italic">
+                            “Suppose I draw the full binary decision tree of height 3 with 8 leaves. Now I erase the labels 'SAT Formula' and 'Knapsack Bag'. Can you tell me which problem this tree belongs to? IT BELONGS TO BOTH! Their underlying combinatorial search topology is identical!”
+                        </div>
+                    </div>
+
+                    <!-- Roomy Canvas for State-Space Tree Equivalence -->
+                    <div class="bg-white p-4 rounded-xl border border-slate-300 shadow-sm space-y-2">
+                        <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-2 border-b pb-2">
+                            <div>
+                                <h3 class="text-xl font-bold text-inkBlue font-['Kalam']">Dual State-Space Tree Topology (Height 3 &bull; 8 Leaves)</h3>
+                                <p class="text-xs text-pencilGray font-sans">Every path from Root to Leaf defines a complete decision vector X = (x₁, x₂, x₃)</p>
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="toggleTreeInterpretation('sat')" id="btn-tree-sat" class="px-3 py-1 rounded text-xs font-sans font-bold bg-indigo-700 text-white shadow-sm transition">Show SAT View</button>
+                                <button onclick="toggleTreeInterpretation('knapsack')" id="btn-tree-ks" class="px-3 py-1 rounded text-xs font-sans font-bold bg-slate-200 text-slate-800 hover:bg-amber-200 transition">Show Knapsack View</button>
+                            </div>
+                        </div>
+                        <div class="w-full overflow-x-auto">
+                            <canvas id="canvas-dual-tree" width="860" height="380" class="w-full min-w-[700px] bg-[#FAF6EE] rounded border border-slate-200"></canvas>
+                        </div>
+                        <p id="tree-interpretation-caption" class="text-xs font-sans text-slate-700 italic text-center">
+                            Viewing: <strong>SAT Interpretation</strong> &bull; Leaves show Truth Value evaluations for F = (x₁ &or; &not;x₂ &or; x₃) &and; (&not;x₁ &or; x₂ &or; &not;x₃).
+                        </p>
+                    </div>
+                </section>
+
+                <!-- 9. What is Polynomial Reduction? -->
+                <section class="space-y-4 text-lg leading-relaxed pt-4 border-t border-amber-200">
+                    <h2 class="text-2xl font-bold text-inkRed flex items-center gap-2">
+                        <span>🔄</span> 9. Polynomial-Time Reduction (L<sub>1</sub> &le;<sub>p</sub> L<sub>2</sub>)
+                    </h2>
+
+                    <p>
+                        Visual similarity alone is not formal mathematical proof. To formally prove that one problem can solve another, computer science uses <strong>Polynomial-Time Reduction</strong>.
+                    </p>
+
+                    <div class="pen-box space-y-2 font-sans text-base">
+                        <h3 class="text-xl font-bold text-inkBlue font-['Kalam']">Formal Mathematical Definition:</h3>
+                        <p class="text-slate-800">
+                            Let <span class="font-mono font-bold text-indigo-900">L<sub>1</sub></span> and <span class="font-mono font-bold text-indigo-900">L<sub>2</sub></span> be two languages/decision problems. We say <span class="font-mono font-bold text-rose-800">L<sub>1</sub> reduces to L<sub>2</sub> in polynomial time</span> (denoted <span class="font-mono font-bold text-rose-800">L<sub>1</sub> &le;<sub>p</sub> L<sub>2</sub></span>) if there exists a deterministic transformation function <span class="font-mono font-bold">f</span> such that:
+                        </p>
+                        <ol class="list-decimal pl-5 space-y-1 text-slate-700 text-sm">
+                            <li>For every instance <span class="font-mono font-bold">x</span> of <span class="font-mono font-bold">L<sub>1</sub></span>, <span class="font-mono font-bold">f(x)</span> can be computed in <strong>polynomial time</strong> <span class="font-mono font-bold text-emerald-700">O(n<sup>k</sup>)</span>.</li>
+                            <li><span class="font-mono font-bold">x &isin; L<sub>1</sub> &iff; f(x) &isin; L<sub>2</sub></span> (The answer for <span class="font-mono font-bold">x</span> is YES if and only if the answer for <span class="font-mono font-bold">f(x)</span> is YES).</li>
+                        </ol>
+                    </div>
+
+                    <!-- Pipeline Canvas Diagram -->
+                    <div class="bg-white p-4 rounded-xl border border-slate-300 shadow-sm space-y-2">
+                        <h3 class="text-xl font-bold text-inkBlue font-['Kalam']">The Reduction Pipeline Architecture</h3>
+                        <canvas id="canvas-reduction-pipeline" width="860" height="240" class="w-full bg-[#FAF6EE] rounded border border-slate-200"></canvas>
+                        <div class="teacher-quote text-base font-sans not-italic text-slate-800 mt-2">
+                            <strong>Why the transformation MUST be polynomial:</strong> If the converter itself took exponential time <span class="font-mono font-bold">O(2<sup>n</sup>)</span>, the reduction would be useless! A polynomial transformation ensures that any fast solver for <span class="font-mono font-bold">L<sub>2</sub></span> immediately translates into a fast solver for <span class="font-mono font-bold">L<sub>1</sub></span>.
+                        </div>
+                    </div>
+
+                    <!-- Consequence of Reduction -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 font-sans text-sm">
+                        <div class="p-3 bg-rose-50 border border-rose-300 rounded-lg">
+                            <span class="font-bold text-rose-900 block text-base">Direction of Hardness:</span>
+                            <p class="text-slate-800 mt-1">
+                                <span class="font-mono font-bold text-rose-800">L<sub>1</sub> &le;<sub>p</sub> L<sub>2</sub></span> means <strong>L<sub>2</sub> is at least as hard as L<sub>1</sub></strong>! Think of the <span class="font-mono font-bold">&le;</span> symbol like arithmetic: <span class="font-mono font-bold">Hardness(L<sub>1</sub>) &le; Hardness(L<sub>2</sub>)</span>.
+                            </p>
+                        </div>
+                        <div class="p-3 bg-emerald-50 border border-emerald-300 rounded-lg">
+                            <span class="font-bold text-emerald-900 block text-base">Direction of Solvability:</span>
+                            <p class="text-slate-800 mt-1">
+                                If we discover a polynomial time algorithm for <span class="font-mono font-bold text-emerald-800">L<sub>2</sub></span>, then <span class="font-mono font-bold text-emerald-800">L<sub>1</sub></span> is also immediately solved in polynomial time!
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 10. Transitivity & The Spanning Web -->
+                <section class="space-y-4 text-lg leading-relaxed pt-4 border-t border-amber-200">
+                    <h2 class="text-2xl font-bold text-inkRed flex items-center gap-2">
+                        <span>🔗</span> 10. Transitivity: Building the Spanning Web of NP-Hard Problems
+                    </h2>
+
+                    <p>
+                        A vital mathematical property of polynomial reductions is <strong>Transitivity</strong>:
+                    </p>
+
+                    <div class="p-3 bg-white rounded-lg border border-indigo-300 font-mono font-bold text-center text-indigo-950 text-base">
+                        If (A &le;<sub>p</sub> B) and (B &le;<sub>p</sub> C), then (A &le;<sub>p</sub> C)
+                    </div>
+
+                    <p>
+                        <strong>Why Transitivity revolutionized computer science research:</strong><br>
+                        You do NOT need to reduce SAT directly to every single new problem!
+                    </p>
+
+                    <!-- Reduction Web Visualization Canvas -->
+                    <div class="bg-white p-4 rounded-xl border border-slate-300 shadow-sm space-y-2">
+                        <h3 class="text-xl font-bold text-inkBlue font-['Kalam']">The Cascading Web of Reductions</h3>
+                        <canvas id="canvas-reduction-web" width="860" height="320" class="w-full bg-[#FAF6EE] rounded border border-slate-200"></canvas>
+                        <p class="text-xs font-sans text-pencilGray text-center mt-2">
+                            Once SAT was reduced to 3-SAT, 3-SAT reduced to Clique, Clique reduced to Vertex Cover, and Vertex Cover reduced to Hamiltonian Cycle &amp; TSP. Transitivity connects all of them back to SAT!
+                        </p>
+                    </div>
+                </section>
+
+                <!-- 11. The Golden Criteria for NP-Complete Research -->
+                <section class="space-y-4 text-lg leading-relaxed pt-4 border-t border-amber-200">
+                    <h2 class="text-2xl font-bold text-inkRed flex items-center gap-2">
+                        <span>🏆</span> 11. The Golden Research Protocol: Proving a Problem NP-Complete
+                    </h2>
+
+                    <p>
+                        If you are doing research and want to prove that your problem <span class="font-mono font-bold text-purple-900">X</span> is <strong>NP-Complete</strong>, the framework dictates a mandatory two-step proof protocol:
+                    </p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 font-sans text-sm sm:text-base">
+                        <div class="p-4 bg-indigo-50 border-2 border-indigo-300 rounded-xl">
+                            <span class="text-xs uppercase font-bold text-indigo-900 bg-indigo-200 px-2 py-0.5 rounded">Part 1: Membership in NP</span>
+                            <h3 class="text-xl font-bold text-inkBlue font-['Kalam'] mt-2">Show that X &isin; NP</h3>
+                            <p class="text-slate-800 mt-1">
+                                Write a non-deterministic polynomial time algorithm for X, OR provide a deterministic verification algorithm that takes a candidate solution ("certificate") and verifies its correctness in polynomial time <span class="font-mono font-bold text-indigo-900">O(n<sup>k</sup>)</span>.
+                            </p>
+                        </div>
+
+                        <div class="p-4 bg-rose-50 border-2 border-rose-300 rounded-xl">
+                            <span class="text-xs uppercase font-bold text-rose-900 bg-rose-200 px-2 py-0.5 rounded">Part 2: Hardness via Reduction</span>
+                            <h3 class="text-xl font-bold text-inkRed font-['Kalam'] mt-2">Show that X is NP-Hard</h3>
+                            <p class="text-slate-800 mt-1">
+                                Select an already established NP-Complete problem (like SAT, 3-SAT, or 0/1 Knapsack) and show that <span class="font-mono font-bold text-rose-800">Known_NPC &le;<sub>p</sub> X</span> via a polynomial time reduction function.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="teacher-quote text-xl">
+                        🎯 <strong>Research Milestone Completed:</strong>
+                        <div class="text-xl font-bold text-amber-900 mt-1 not-italic">
+                            “Once you complete Part 1 and Part 2, you have officially established that your problem is NP-Complete! You don't have to feel guilty that you couldn't find a polynomial solution; you have proven that your problem belongs to the hardest computational family on Earth!”
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+
+            <!-- ==================================================================== -->
+            <!-- TAB 3: C++ CODE, VERIFIERS & COOK'S THEOREM (§12 - §16)             -->
+            <!-- ==================================================================== -->
+            <div id="tab-algorithms-code" class="tab-pane hidden space-y-8">
+
+                <!-- Section Header -->
+                <div class="border-b-2 border-inkRed pb-2 flex justify-between items-baseline">
+                    <div>
+                        <h1 class="text-3xl sm:text-4xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                            3. Algorithms, C++ Verifiers &amp; Stephen Cook's Milestone
+                        </h1>
+                        <p class="text-sm font-sans text-pencilGray mt-1">
+                            Non-deterministic Search in O(1) • High-Fidelity C++ Verifiers • Cook-Levin Theorem • Asymptotic Reference Table
+                        </p>
+                    </div>
+                    <span class="text-xs sm:text-sm font-bold font-sans bg-amber-100 text-inkRed px-2.5 py-1 rounded border border-amber-300">
+                        Tab 3 • Implementation &amp; Proofs
+                    </span>
+                </div>
+
+                <!-- 12. Non-Deterministic Search Algorithm -->
+                <section class="space-y-4 text-lg leading-relaxed">
+                    <h2 class="text-2xl font-bold text-inkRed flex items-center gap-2">
+                        <span>🔍</span> 12. Non-Deterministic Search Algorithm: O(1) Constant Time
+                    </h2>
+
+                    <p>
+                        Let us examine the exact pedagogical example presented in the lecture: Searching for a target key in an unsorted array of size <span class="font-mono font-bold">n</span> using non-determinism.
+                    </p>
+
+                    <!-- VS Code Container 1: Non-Deterministic Search -->
+                    <div class="vscode-window">
+                        <!-- Titlebar -->
+                        <div class="bg-[#2d2d2d] px-4 py-2 flex items-center justify-between border-b border-[#1e1e1e] select-none">
+                            <div class="flex items-center gap-3">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="w-3 h-3 rounded-full bg-[#ff5f56] inline-block shadow-sm"></span>
+                                    <span class="w-3 h-3 rounded-full bg-[#ffbd2e] inline-block shadow-sm"></span>
+                                    <span class="w-3 h-3 rounded-full bg-[#27c93f] inline-block shadow-sm"></span>
+                                </div>
+                                <div class="flex items-center bg-[#1e1e1e] border-t-2 border-[#007acc] px-3.5 py-1 rounded-t text-xs font-mono text-[#e5e5e5] gap-2 shadow">
+                                    <span class="px-1.5 py-0.5 bg-[#00599c] text-white rounded text-[10px] font-bold">PSEUDO</span>
+                                    <span class="font-semibold text-slate-200">nondeterministic_search.algo</span>
+                                    <span class="text-[#858585] text-xs hover:text-white cursor-pointer ml-1">✕</span>
+                                </div>
+                            </div>
+                            <button onclick="copyCode('codeNonDetSearch', this)" class="px-2.5 py-1 rounded bg-[#2d2d2d] hover:bg-[#3e3e3e] active:scale-95 text-[#cccccc] hover:text-white border border-[#454545] text-xs font-mono flex items-center gap-1.5 transition-all shadow-sm">
+                                📋 <span>Copy Code</span>
+                            </button>
+                        </div>
+
+                        <!-- Breadcrumbs -->
+                        <div class="bg-[#1e1e1e] border-b border-[#2d2d2d] px-4 py-1 text-[11px] font-mono text-[#858585] flex items-center gap-1.5 select-none">
+                            <span>src</span>
+                            <span>›</span>
+                            <span>algorithms</span>
+                            <span>›</span>
+                            <span class="text-[#cccccc] font-semibold">nondeterministic_search.algo</span>
+                        </div>
+
+                        <!-- Editor Body -->
+                        <div class="flex text-xs sm:text-sm bg-[#1e1e1e] overflow-hidden">
+                            <div class="vscode-gutter py-3.5 px-3 select-none text-right font-mono leading-6">
+1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18
+                            </div>
+                            <pre id="codeNonDetSearch" class="vscode-code-pre flex-1 py-3.5 px-4 overflow-x-auto whitespace-pre"><code><span class="text-[#6A9955] italic">// Algorithm: NonDeterministicSearch(A, n, key)</span>
+<span class="text-[#6A9955] italic">// Input: Array A[0..n-1], size n, target key</span>
+<span class="text-[#6A9955] italic">// Time Complexity: O(1) Constant Time</span>
+<span class="text-[#569CD6]">Algorithm</span> <span class="text-[#DCDCAA]">NonDeterministicSearch</span>(<span class="text-[#9CDCFE]">A</span>, <span class="text-[#9CDCFE]">n</span>, <span class="text-[#9CDCFE]">key</span>) {
+    <span class="text-[#6A9955] italic">// 1. Non-deterministic Choice: Magically guesses the target index in O(1)</span>
+    <span class="text-[#569CD6]">int</span> <span class="text-[#9CDCFE]">j</span> = <span class="text-[#DCDCAA]">choice</span>(<span class="text-[#B5CEA8]">0</span>, <span class="text-[#9CDCFE]">n</span> - <span class="text-[#B5CEA8]">1</span>);
+
+    <span class="text-[#6A9955] italic">// 2. Deterministic Verification: Verify whether candidate holds the key</span>
+    <span class="text-[#C586C0]">if</span> (<span class="text-[#9CDCFE]">A</span>[<span class="text-[#9CDCFE]">j</span>] == <span class="text-[#9CDCFE]">key</span>) {
+        <span class="text-[#DCDCAA]">write</span>(<span class="text-[#CE9178]">"Found at index: "</span>, <span class="text-[#9CDCFE]">j</span>);
+        <span class="text-[#DCDCAA]">success</span>(); <span class="text-[#6A9955] italic">// Halts with success in O(1)</span>
+    }
+    <span class="text-[#C586C0]">else</span> {
+        <span class="text-[#DCDCAA]">failure</span>(); <span class="text-[#6A9955] italic">// Key does not exist in array</span>
+    }
+}</code></pre>
+                        </div>
+
+                        <!-- Status Bar -->
+                        <div class="bg-[#007acc] text-white px-3 py-0.5 text-[11px] font-mono flex justify-between items-center select-none">
+                            <div class="flex items-center gap-3">
+                                <span>main*</span>
+                                <span>0 errors</span>
+                                <span>UTF-8</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <span>Spaces: 4</span>
+                                <span>Pseudo</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step-by-Step Rationale for Search -->
+                    <div class="pen-box space-y-2 font-sans text-sm">
+                        <h4 class="font-bold text-inkBlue text-base">Step-by-Step Architectural Rationale:</h4>
+                        <ul class="list-disc pl-5 space-y-1.5 text-slate-800">
+                            <li>
+                                <strong>Why is this O(1)?</strong> Statement 1 (<code class="font-mono">choice</code>) executes in 1 unit of theoretical time. Statement 2 (<code class="font-mono">if</code> comparison) takes 1 unit of deterministic time. Statement 3 (<code class="font-mono">success</code>) takes 1 unit. Total = 3 units = <span class="font-mono font-bold text-emerald-700">O(1)</span>.
+                            </li>
+                            <li>
+                                <strong>Why can't we run this in C++ on standard hardware today?</strong> Because current silicon chips cannot magically pick the correct index out of <span class="font-mono font-bold">n</span> options without inspecting elements or hashing!
+                            </li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- 13. C++ Verifier for CNF-SAT -->
+                <section class="space-y-4 text-lg leading-relaxed pt-4 border-t border-amber-200">
+                    <h2 class="text-2xl font-bold text-inkRed flex items-center gap-2">
+                        <span>💻</span> 13. C++ Verification Engine for CNF-SAT: O(m &bull; k)
+                    </h2>
+
+                    <p>
+                        A decision problem is in <span class="font-mono font-bold text-indigo-900">NP</span> if any proposed candidate solution ("certificate") can be verified deterministically in polynomial time. Here is the concrete, production-ready C++ verifier:
+                    </p>
+
+                    <!-- VS Code Container 2: SAT Verifier -->
+                    <div class="vscode-window">
+                        <!-- Titlebar -->
+                        <div class="bg-[#2d2d2d] px-4 py-2 flex items-center justify-between border-b border-[#1e1e1e] select-none">
+                            <div class="flex items-center gap-3">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="w-3 h-3 rounded-full bg-[#ff5f56] inline-block shadow-sm"></span>
+                                    <span class="w-3 h-3 rounded-full bg-[#ffbd2e] inline-block shadow-sm"></span>
+                                    <span class="w-3 h-3 rounded-full bg-[#27c93f] inline-block shadow-sm"></span>
+                                </div>
+                                <div class="flex items-center bg-[#1e1e1e] border-t-2 border-[#007acc] px-3.5 py-1 rounded-t text-xs font-mono text-[#e5e5e5] gap-2 shadow">
+                                    <span class="px-1.5 py-0.5 bg-[#00599c] text-white rounded text-[10px] font-bold">C++</span>
+                                    <span class="font-semibold text-slate-200">sat_verifier.cpp</span>
+                                    <span class="text-[#858585] text-xs hover:text-white cursor-pointer ml-1">✕</span>
+                                </div>
+                            </div>
+                            <button onclick="copyCode('codeSatVerifier', this)" class="px-2.5 py-1 rounded bg-[#2d2d2d] hover:bg-[#3e3e3e] active:scale-95 text-[#cccccc] hover:text-white border border-[#454545] text-xs font-mono flex items-center gap-1.5 transition-all shadow-sm">
+                                📋 <span>Copy Code</span>
+                            </button>
+                        </div>
+
+                        <!-- Breadcrumbs -->
+                        <div class="bg-[#1e1e1e] border-b border-[#2d2d2d] px-4 py-1 text-[11px] font-mono text-[#858585] flex items-center gap-1.5 select-none">
+                            <span>src</span>
+                            <span>›</span>
+                            <span>complexity</span>
+                            <span>›</span>
+                            <span class="text-[#cccccc] font-semibold">sat_verifier.cpp</span>
+                        </div>
+
+                        <!-- Editor Body -->
+                        <div class="flex text-xs sm:text-sm bg-[#1e1e1e] overflow-hidden">
+                            <div class="vscode-gutter py-3.5 px-3 select-none text-right font-mono leading-6">
+1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>41<br>42<br>43
+                            </div>
+                            <pre id="codeSatVerifier" class="vscode-code-pre flex-1 py-3.5 px-4 overflow-x-auto whitespace-pre"><code><span class="text-[#C586C0]">#include</span> <span class="text-[#CE9178]">&lt;iostream&gt;</span>
+<span class="text-[#C586C0]">#include</span> <span class="text-[#CE9178]">&lt;vector&gt;</span>
+<span class="text-[#C586C0]">#include</span> <span class="text-[#CE9178]">&lt;cmath&gt;</span>
+
+<span class="text-[#6A9955] italic">// A Literal is represented as an integer:</span>
+<span class="text-[#6A9955] italic">// +1 means x1, -1 means NOT x1</span>
+<span class="text-[#569CD6]">using</span> <span class="text-[#4EC9B0]">Clause</span> = <span class="text-[#4EC9B0]">std::vector</span>&lt;<span class="text-[#569CD6]">int</span>&gt;;
+<span class="text-[#569CD6]">using</span> <span class="text-[#4EC9B0]">CNFFormula</span> = <span class="text-[#4EC9B0]">std::vector</span>&lt;<span class="text-[#4EC9B0]">Clause</span>&gt;;
+
+<span class="text-[#6A9955] italic">// Deterministic Polynomial-Time Verifier for SAT</span>
+<span class="text-[#6A9955] italic">// Time Complexity: O(m * k) where m = num clauses, k = max literals per clause</span>
+<span class="text-[#569CD6]">bool</span> <span class="text-[#DCDCAA]">verifySAT</span>(<span class="text-[#569CD6]">const</span> <span class="text-[#4EC9B0]">CNFFormula</span>&amp; <span class="text-[#9CDCFE]">formula</span>, <span class="text-[#569CD6]">const</span> <span class="text-[#4EC9B0]">std::vector</span>&lt;<span class="text-[#569CD6]">bool</span>&gt;&amp; <span class="text-[#9CDCFE]">certificate</span>) {
+    <span class="text-[#C586C0]">for</span> (<span class="text-[#569CD6]">const</span> <span class="text-[#4EC9B0]">Clause</span>&amp; <span class="text-[#9CDCFE]">clause</span> : <span class="text-[#9CDCFE]">formula</span>) {
+        <span class="text-[#569CD6]">bool</span> <span class="text-[#9CDCFE]">clauseSatisfied</span> = <span class="text-[#569CD6]">false</span>;
+        <span class="text-[#C586C0]">for</span> (<span class="text-[#569CD6]">int</span> <span class="text-[#9CDCFE]">lit</span> : <span class="text-[#9CDCFE]">clause</span>) {
+            <span class="text-[#569CD6]">int</span> <span class="text-[#9CDCFE]">varIndex</span> = <span class="text-[#DCDCAA]">std::abs</span>(<span class="text-[#9CDCFE]">lit</span>) - <span class="text-[#B5CEA8]">1</span>;
+            <span class="text-[#569CD6]">bool</span> <span class="text-[#9CDCFE]">val</span> = <span class="text-[#9CDCFE]">certificate</span>[<span class="text-[#9CDCFE]">varIndex</span>];
+            <span class="text-[#C586C0]">if</span> (<span class="text-[#9CDCFE]">lit</span> &lt; <span class="text-[#B5CEA8]">0</span>) <span class="text-[#9CDCFE]">val</span> = !<span class="text-[#9CDCFE]">val</span>; <span class="text-[#6A9955] italic">// Negation literal</span>
+
+            <span class="text-[#C586C0]">if</span> (<span class="text-[#9CDCFE]">val</span>) {
+                <span class="text-[#9CDCFE]">clauseSatisfied</span> = <span class="text-[#569CD6]">true</span>;
+                <span class="text-[#C586C0]">break</span>; <span class="text-[#6A9955] italic">// Clause is true, move to next clause</span>
+            }
+        }
+        <span class="text-[#C586C0]">if</span> (!<span class="text-[#9CDCFE]">clauseSatisfied</span>) <span class="text-[#C586C0]">return</span> <span class="text-[#569CD6]">false</span>; <span class="text-[#6A9955] italic">// One false clause breaks CNF formula</span>
+    }
+    <span class="text-[#C586C0]">return</span> <span class="text-[#569CD6]">true</span>; <span class="text-[#6A9955] italic">// All clauses satisfied &rarr; Valid Certificate!</span>
+}
+
+<span class="text-[#569CD6]">int</span> <span class="text-[#DCDCAA]">main</span>() {
+    <span class="text-[#6A9955] italic">// Formula: (x1 OR NOT x2 OR x3) AND (NOT x1 OR x2 OR NOT x3)</span>
+    <span class="text-[#4EC9B0]">CNFFormula</span> <span class="text-[#9CDCFE]">formula</span> = { {<span class="text-[#B5CEA8]">1</span>, -<span class="text-[#B5CEA8]">2</span>, <span class="text-[#B5CEA8]">3</span>}, {-<span class="text-[#B5CEA8]">1</span>, <span class="text-[#B5CEA8]">2</span>, -<span class="text-[#B5CEA8]">3</span>} };
+
+    <span class="text-[#6A9955] italic">// Non-deterministic Certificate: x1=1, x2=1, x3=1</span>
+    <span class="text-[#4EC9B0]">std::vector</span>&lt;<span class="text-[#569CD6]">bool</span>&gt; <span class="text-[#9CDCFE]">certificate</span> = {<span class="text-[#569CD6]">true</span>, <span class="text-[#569CD6]">true</span>, <span class="text-[#569CD6]">true</span>};
+
+    <span class="text-[#569CD6]">bool</span> <span class="text-[#9CDCFE]">isValid</span> = <span class="text-[#DCDCAA]">verifySAT</span>(<span class="text-[#9CDCFE]">formula</span>, <span class="text-[#9CDCFE]">certificate</span>);
+    <span class="text-[#4EC9B0]">std::cout</span> &lt;&lt; (<span class="text-[#9CDCFE]">isValid</span> ? <span class="text-[#CE9178]">"SATISFIED"</span> : <span class="text-[#CE9178]">"UNSATISFIED"</span>) &lt;&lt; <span class="text-[#4EC9B0]">std::endl</span>;
+    <span class="text-[#C586C0]">return</span> <span class="text-[#B5CEA8]">0</span>;
+}</code></pre>
+                        </div>
+
+                        <!-- Status Bar -->
+                        <div class="bg-[#007acc] text-white px-3 py-0.5 text-[11px] font-mono flex justify-between items-center select-none">
+                            <div class="flex items-center gap-3">
+                                <span>main*</span>
+                                <span>0 errors</span>
+                                <span>UTF-8</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <span>C++20</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 14. C++ Verifier for 0/1 Knapsack -->
+                <section class="space-y-4 text-lg leading-relaxed pt-4 border-t border-amber-200">
+                    <h2 class="text-2xl font-bold text-inkRed flex items-center gap-2">
+                        <span>🎒</span> 14. C++ Verification Engine for 0/1 Knapsack Decision: O(n)
+                    </h2>
+
+                    <p>
+                        In the decision version of 0/1 Knapsack: <em>"Can we achieve at least Profit P while keeping total weight &le; Capacity C?"</em>
+                    </p>
+
+                    <!-- VS Code Container 3: Knapsack Verifier -->
+                    <div class="vscode-window">
+                        <!-- Titlebar -->
+                        <div class="bg-[#2d2d2d] px-4 py-2 flex items-center justify-between border-b border-[#1e1e1e] select-none">
+                            <div class="flex items-center gap-3">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="w-3 h-3 rounded-full bg-[#ff5f56] inline-block shadow-sm"></span>
+                                    <span class="w-3 h-3 rounded-full bg-[#ffbd2e] inline-block shadow-sm"></span>
+                                    <span class="w-3 h-3 rounded-full bg-[#27c93f] inline-block shadow-sm"></span>
+                                </div>
+                                <div class="flex items-center bg-[#1e1e1e] border-t-2 border-[#007acc] px-3.5 py-1 rounded-t text-xs font-mono text-[#e5e5e5] gap-2 shadow">
+                                    <span class="px-1.5 py-0.5 bg-[#00599c] text-white rounded text-[10px] font-bold">C++</span>
+                                    <span class="font-semibold text-slate-200">knapsack_decision_verifier.cpp</span>
+                                    <span class="text-[#858585] text-xs hover:text-white cursor-pointer ml-1">✕</span>
+                                </div>
+                            </div>
+                            <button onclick="copyCode('codeKsVerifier', this)" class="px-2.5 py-1 rounded bg-[#2d2d2d] hover:bg-[#3e3e3e] active:scale-95 text-[#cccccc] hover:text-white border border-[#454545] text-xs font-mono flex items-center gap-1.5 transition-all shadow-sm">
+                                📋 <span>Copy Code</span>
+                            </button>
+                        </div>
+
+                        <!-- Breadcrumbs -->
+                        <div class="bg-[#1e1e1e] border-b border-[#2d2d2d] px-4 py-1 text-[11px] font-mono text-[#858585] flex items-center gap-1.5 select-none">
+                            <span>src</span>
+                            <span>›</span>
+                            <span>complexity</span>
+                            <span>›</span>
+                            <span class="text-[#cccccc] font-semibold">knapsack_decision_verifier.cpp</span>
+                        </div>
+
+                        <!-- Editor Body -->
+                        <div class="flex text-xs sm:text-sm bg-[#1e1e1e] overflow-hidden">
+                            <div class="vscode-gutter py-3.5 px-3 select-none text-right font-mono leading-6">
+1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28
+                            </div>
+                            <pre id="codeKsVerifier" class="vscode-code-pre flex-1 py-3.5 px-4 overflow-x-auto whitespace-pre"><code><span class="text-[#C586C0]">#include</span> <span class="text-[#CE9178]">&lt;iostream&gt;</span>
+<span class="text-[#C586C0]">#include</span> <span class="text-[#CE9178]">&lt;vector&gt;</span>
+
+<span class="text-[#6A9955] italic">// Deterministic Linear-Time Verifier for 0/1 Knapsack Decision</span>
+<span class="text-[#6A9955] italic">// Time Complexity: O(n)</span>
+<span class="text-[#569CD6]">bool</span> <span class="text-[#DCDCAA]">verifyKnapsack</span>(<span class="text-[#569CD6]">const</span> <span class="text-[#4EC9B0]">std::vector</span>&lt;<span class="text-[#569CD6]">int</span>&gt;&amp; <span class="text-[#9CDCFE]">weights</span>,
+                    <span class="text-[#569CD6]">const</span> <span class="text-[#4EC9B0]">std::vector</span>&lt;<span class="text-[#569CD6]">int</span>&gt;&amp; <span class="text-[#9CDCFE]">profits</span>,
+                    <span class="text-[#569CD6]">int</span> <span class="text-[#9CDCFE]">capacity</span>, <span class="text-[#569CD6]">int</span> <span class="text-[#9CDCFE]">targetProfit</span>,
+                    <span class="text-[#569CD6]">const</span> <span class="text-[#4EC9B0]">std::vector</span>&lt;<span class="text-[#569CD6]">int</span>&gt;&amp; <span class="text-[#9CDCFE]">certificate</span>) {
+    <span class="text-[#569CD6]">int</span> <span class="text-[#9CDCFE]">totalW</span> = <span class="text-[#B5CEA8]">0</span>;
+    <span class="text-[#569CD6]">int</span> <span class="text-[#9CDCFE]">totalP</span> = <span class="text-[#B5CEA8]">0</span>;
+    <span class="text-[#569CD6]">int</span> <span class="text-[#9CDCFE]">n</span> = <span class="text-[#9CDCFE]">weights</span>.<span class="text-[#DCDCAA]">size</span>();
+
+    <span class="text-[#C586C0]">for</span> (<span class="text-[#569CD6]">int</span> <span class="text-[#9CDCFE]">i</span> = <span class="text-[#B5CEA8]">0</span>; <span class="text-[#9CDCFE]">i</span> &lt; <span class="text-[#9CDCFE]">n</span>; ++<span class="text-[#9CDCFE]">i</span>) {
+        <span class="text-[#C586C0]">if</span> (<span class="text-[#9CDCFE]">certificate</span>[<span class="text-[#9CDCFE]">i</span>] == <span class="text-[#B5CEA8]">1</span>) {
+            <span class="text-[#9CDCFE]">totalW</span> += <span class="text-[#9CDCFE]">weights</span>[<span class="text-[#9CDCFE]">i</span>];
+            <span class="text-[#9CDCFE]">totalP</span> += <span class="text-[#9CDCFE]">profits</span>[<span class="text-[#9CDCFE]">i</span>];
+        }
+    }
+
+    <span class="text-[#6A9955] italic">// Valid if it satisfies capacity constraint AND reaches target profit</span>
+    <span class="text-[#C586C0]">return</span> (<span class="text-[#9CDCFE]">totalW</span> &lt;= <span class="text-[#9CDCFE]">capacity</span>) &amp;&amp; (<span class="text-[#9CDCFE]">totalP</span> &gt;= <span class="text-[#9CDCFE]">targetProfit</span>);
+}</code></pre>
+                        </div>
+
+                        <!-- Status Bar -->
+                        <div class="bg-[#007acc] text-white px-3 py-0.5 text-[11px] font-mono flex justify-between items-center select-none">
+                            <div class="flex items-center gap-3">
+                                <span>main*</span>
+                                <span>0 errors</span>
+                                <span>UTF-8</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <span>C++20</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 15. Stephen Cook's Milestone Theorem -->
+                <section class="space-y-4 text-lg leading-relaxed pt-4 border-t border-amber-200">
+                    <h2 class="text-2xl font-bold text-inkRed flex items-center gap-2">
+                        <span>📜</span> 15. Stephen Cook's Milestone Theorem (Cook-Levin 1971)
+                    </h2>
+
+                    <p>
+                        In 1971, computer scientist Stephen Cook published the paper that earned him the Turing Award. He proved that:
+                    </p>
+
+                    <div class="p-4 bg-indigo-50 border-2 border-indigo-400 rounded-xl text-center">
+                        <span class="text-xs uppercase font-bold text-indigo-900 bg-indigo-200 px-3 py-1 rounded font-sans">Cook's Theorem (1971)</span>
+                        <div class="text-2xl sm:text-3xl font-bold text-inkBlue font-['Kalam'] mt-2">
+                            Boolean Satisfiability (SAT) is NP-Complete!
+                        </div>
+                    </div>
+
+                    <div class="pen-box-amber space-y-2 font-sans text-base">
+                        <h3 class="text-xl font-bold text-amber-900 font-['Kalam']">How Did Cook Prove This Without Already Having an NP-Complete Problem?</h3>
+                        <p class="text-slate-800">
+                            Cook did something extraordinary: He went directly to the mathematical definition of a Non-Deterministic Turing Machine (NDTM).
+                        </p>
+                        <p class="text-slate-800">
+                            He proved that <em>any</em> problem solvable by an NDTM in polynomial time <span class="font-mono font-bold">p(n)</span> can have its state transitions, tape cells, and head positions mathematically encoded into a polynomial-sized Boolean CNF formula <span class="font-mono font-bold">&Phi;</span>!
+                        </p>
+                        <p class="text-slate-900 font-bold">
+                            Therefore: The NDTM accepts the input &iff; The constructed CNF formula &Phi; is Satisfiable!
+                        </p>
+                    </div>
+
+                    <!-- Cook's Theorem Core Corollary -->
+                    <div class="teacher-quote text-xl">
+                        🔑 <strong>Cook's Golden Corollary:</strong>
+                        <div class="text-2xl font-bold text-amber-900 mt-1 not-italic font-mono">
+                            SAT &isin; P &nbsp;&iff;&nbsp; P = NP
+                        </div>
+                        <p class="text-sm font-sans text-slate-700 mt-2 not-italic">
+                            “Stephen Cook did not prove whether P = NP or P &ne; NP. He proved that SAT is the linchpin of the universe: If anyone ever discovers a deterministic polynomial time algorithm for SAT, that single algorithm immediately unlocks polynomial time solutions for all NP problems!”
+                        </p>
+                    </div>
+                </section>
+
+                <!-- 16. Comprehensive Reference Table -->
+                <section class="space-y-4 text-lg leading-relaxed pt-4 border-t border-amber-200">
+                    <h2 class="text-2xl font-bold text-inkRed flex items-center gap-2">
+                        <span>📋</span> 16. Comprehensive Complexity Classification Reference
+                    </h2>
+
+                    <div class="overflow-x-auto bg-white p-3 rounded-xl border border-slate-300 shadow-sm font-sans text-xs sm:text-sm">
+                        <table class="w-full text-left border-collapse border border-slate-300">
+                            <thead>
+                                <tr class="bg-slate-900 text-white font-bold">
+                                    <th class="py-2.5 px-3 border border-slate-800">Problem</th>
+                                    <th class="py-2.5 px-3 border border-slate-800">Category</th>
+                                    <th class="py-2.5 px-3 border border-slate-800">In P?</th>
+                                    <th class="py-2.5 px-3 border border-slate-800">In NP?</th>
+                                    <th class="py-2.5 px-3 border border-slate-800">NP-Hard?</th>
+                                    <th class="py-2.5 px-3 border border-slate-800">NP-Complete?</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="hover:bg-slate-50 border-b">
+                                    <td class="py-2 px-3 font-bold text-emerald-800">Linear / Binary Search</td>
+                                    <td class="py-2 px-3">Searching</td>
+                                    <td class="py-2 px-3 font-bold text-emerald-700">YES (O(log n))</td>
+                                    <td class="py-2 px-3 font-bold text-emerald-700">YES</td>
+                                    <td class="py-2 px-3 text-slate-400">NO</td>
+                                    <td class="py-2 px-3 text-slate-400">NO</td>
+                                </tr>
+                                <tr class="hover:bg-slate-50 border-b">
+                                    <td class="py-2 px-3 font-bold text-emerald-800">Merge / Quick Sort</td>
+                                    <td class="py-2 px-3">Sorting</td>
+                                    <td class="py-2 px-3 font-bold text-emerald-700">YES (O(n log n))</td>
+                                    <td class="py-2 px-3 font-bold text-emerald-700">YES</td>
+                                    <td class="py-2 px-3 text-slate-400">NO</td>
+                                    <td class="py-2 px-3 text-slate-400">NO</td>
+                                </tr>
+                                <tr class="hover:bg-slate-50 border-b">
+                                    <td class="py-2 px-3 font-bold text-purple-900">Boolean SAT (CNF-SAT)</td>
+                                    <td class="py-2 px-3">Logic Decision</td>
+                                    <td class="py-2 px-3 font-bold text-rose-700">Unknown (No)</td>
+                                    <td class="py-2 px-3 font-bold text-emerald-700">YES</td>
+                                    <td class="py-2 px-3 font-bold text-purple-800">YES</td>
+                                    <td class="py-2 px-3 font-bold text-purple-900 bg-purple-100">YES (Cook 1971)</td>
+                                </tr>
+                                <tr class="hover:bg-slate-50 border-b">
+                                    <td class="py-2 px-3 font-bold text-purple-900">0/1 Knapsack (Decision)</td>
+                                    <td class="py-2 px-3">Subset Selection</td>
+                                    <td class="py-2 px-3 font-bold text-rose-700">Unknown (No)</td>
+                                    <td class="py-2 px-3 font-bold text-emerald-700">YES</td>
+                                    <td class="py-2 px-3 font-bold text-purple-800">YES</td>
+                                    <td class="py-2 px-3 font-bold text-purple-900 bg-purple-100">YES</td>
+                                </tr>
+                                <tr class="hover:bg-slate-50 border-b">
+                                    <td class="py-2 px-3 font-bold text-purple-900">TSP (Decision Version)</td>
+                                    <td class="py-2 px-3">Graph Tour</td>
+                                    <td class="py-2 px-3 font-bold text-rose-700">Unknown (No)</td>
+                                    <td class="py-2 px-3 font-bold text-emerald-700">YES</td>
+                                    <td class="py-2 px-3 font-bold text-purple-800">YES</td>
+                                    <td class="py-2 px-3 font-bold text-purple-900 bg-purple-100">YES</td>
+                                </tr>
+                                <tr class="hover:bg-slate-50 border-b">
+                                    <td class="py-2 px-3 font-bold text-rose-900">TSP (Optimization: Find Min Tour)</td>
+                                    <td class="py-2 px-3">Optimization</td>
+                                    <td class="py-2 px-3 font-bold text-rose-700">NO</td>
+                                    <td class="py-2 px-3 font-bold text-rose-700">NO (Not Decision)</td>
+                                    <td class="py-2 px-3 font-bold text-rose-800">YES</td>
+                                    <td class="py-2 px-3 text-slate-400">NO (Outside NP)</td>
+                                </tr>
+                                <tr class="hover:bg-slate-50">
+                                    <td class="py-2 px-3 font-bold text-rose-900">Halting Problem</td>
+                                    <td class="py-2 px-3">Computability</td>
+                                    <td class="py-2 px-3 font-bold text-rose-700">NO</td>
+                                    <td class="py-2 px-3 font-bold text-rose-700">NO (Undecidable)</td>
+                                    <td class="py-2 px-3 font-bold text-rose-800">YES</td>
+                                    <td class="py-2 px-3 text-slate-400">NO (Undecidable)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+            </div>
+
+            <!-- ==================================================================== -->
+            <!-- TAB 4: INTERACTIVE VISUALIZER & COMPLEXITY SANDBOX                    -->
+            <!-- ==================================================================== -->
+            <div id="tab-interactive-visualizer" class="tab-pane hidden space-y-8">
+
+                <!-- Section Header -->
+                <div class="border-b-2 border-inkRed pb-2 flex justify-between items-baseline">
+                    <div>
+                        <h1 class="text-3xl sm:text-4xl font-bold text-inkBlue underline decoration-2 underline-offset-4">
+                            4. Interactive Complexity Sandbox &amp; Tree Visualizer
+                        </h1>
+                        <p class="text-sm font-sans text-pencilGray mt-1">
+                            Interactive P vs NP Universe Explorer • Live 8-Leaf Binary Tree Evaluator • Step-by-Step Truth Evaluator
+                        </p>
+                    </div>
+                    <span class="text-xs sm:text-sm font-bold font-sans bg-amber-100 text-inkRed px-2.5 py-1 rounded border border-amber-300">
+                        Tab 4 • Live Simulator
+                    </span>
+                </div>
+
+                <!-- Simulator 1: The P vs NP Interactive Universe -->
+                <section class="space-y-4 text-lg leading-relaxed">
+                    <h2 class="text-2xl font-bold text-inkRed flex items-center gap-2">
+                        <span>🌌</span> Simulator 1: The P vs. NP Complexity Universe Explorer
+                    </h2>
+
+                    <p>
+                        Toggle between the two hypothetical world scenarios, click any complexity region, or test problem classifications:
+                    </p>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start font-sans">
+                        <!-- Controls Column (5 cols) -->
+                        <div class="lg:col-span-5 space-y-4 bg-amber-50/70 p-4 rounded-xl border border-amber-300 shadow-sm">
+                            <h3 class="text-2xl font-bold text-inkRed font-heading border-b border-amber-200 pb-1">Universe Controls</h3>
+
+                            <div>
+                                <label class="text-xs font-bold uppercase text-slate-700 block mb-1">Select Conjectured Universe State:</label>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <button onclick="setUniverseMode('neq')" id="btn-uni-neq" class="py-2 px-3 rounded-lg font-bold text-xs bg-indigo-900 text-white shadow transition">
+                                        P &ne; NP (Standard)
+                                    </button>
+                                    <button onclick="setUniverseMode('eq')" id="btn-uni-eq" class="py-2 px-3 rounded-lg font-bold text-xs bg-white text-slate-700 hover:bg-emerald-100 border transition">
+                                        P = NP (Cook's Dream)
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="text-xs font-bold uppercase text-slate-700 block mb-1">Select Problem to Classify:</label>
+                                <select id="sel-problem" onchange="classifyProblem(this.value)" class="w-full bg-white border border-slate-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-inkBlue">
+                                    <option value="binary_search">Binary Search (O(log n))</option>
+                                    <option value="merge_sort">Merge Sort (O(n log n))</option>
+                                    <option value="sat" selected>Boolean CNF-SAT</option>
+                                    <option value="knapsack_dec">0/1 Knapsack (Decision)</option>
+                                    <option value="tsp_opt">TSP (Optimization: Min Cost Tour)</option>
+                                    <option value="halting">Turing's Halting Problem</option>
+                                </select>
+                            </div>
+
+                            <!-- Live Feedback Card -->
+                            <div class="bg-white border border-slate-300 rounded-lg p-3.5 space-y-2 shadow-sm text-sm">
+                                <span id="uni-badge" class="px-2 py-0.5 rounded text-xs font-bold bg-purple-100 text-purple-900 uppercase">
+                                    NP-Complete
+                                </span>
+                                <h4 id="uni-title" class="font-bold text-inkBlue text-base">Boolean Satisfiability (SAT)</h4>
+                                <p id="uni-desc" class="text-slate-700 text-xs leading-relaxed">
+                                    SAT is the mother of all NP-Complete problems. Stephen Cook proved that every problem in NP reduces to SAT in polynomial time. If SAT &isin; P, then P = NP!
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Canvas Output Column (7 cols) -->
+                        <div class="lg:col-span-7 flex flex-col items-center">
+                            <div class="w-full bg-white border border-slate-300 rounded-lg shadow-md p-3 relative">
+                                <canvas id="simulator-universe-canvas" width="600" height="380" class="w-full h-auto bg-[#FAF6EE] rounded border border-slate-200"></canvas>
+                            </div>
+                            <span class="text-xs text-pencilGray mt-1.5 text-center block w-full italic">
+                                * Interactive visualization drawn in high-DPI vanilla HTML5 Canvas engine.
+                            </span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Simulator 2: Live State-Space Tree Evaluator -->
+                <section class="space-y-4 text-lg leading-relaxed pt-4 border-t border-amber-200">
+                    <h2 class="text-2xl font-bold text-inkRed flex items-center gap-2">
+                        <span>🧪</span> Simulator 2: Step-by-Step SAT &amp; Knapsack Tree Evaluator
+                    </h2>
+
+                    <p>
+                        Observe how the exact same binary assignment vector <span class="font-mono font-bold text-inkBlue">X = (x₁, x₂, x₃)</span> evaluates either the SAT Boolean clauses or Knapsack weight/profit bounds:
+                    </p>
+
+                    <div class="bg-amber-50/60 p-4 rounded-xl border border-amber-300 space-y-4 font-sans">
+                        <div class="flex flex-wrap items-center justify-between gap-3">
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs font-bold uppercase text-slate-700">Target Leaf:</span>
+                                <button onclick="stepTreeLeaf(-1)" class="px-3 py-1 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded font-bold text-xs">&larr; Prev</button>
+                                <span id="lbl-leaf-index" class="font-mono font-bold text-indigo-900 bg-white px-3 py-1 rounded border">Leaf 1 / 8 : (0, 0, 0)</span>
+                                <button onclick="stepTreeLeaf(1)" class="px-3 py-1 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded font-bold text-xs">Next &rarr;</button>
+                            </div>
+
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs font-bold uppercase text-slate-700">Problem Mode:</span>
+                                <button onclick="setTreeSimMode('sat')" id="btn-treesim-sat" class="px-3 py-1 bg-indigo-700 text-white rounded font-bold text-xs shadow">SAT Mode</button>
+                                <button onclick="setTreeSimMode('knapsack')" id="btn-treesim-ks" class="px-3 py-1 bg-white text-slate-800 hover:bg-amber-200 rounded font-bold text-xs border">Knapsack Mode</button>
+                            </div>
+                        </div>
+
+                        <!-- Live Interactive Canvas for Simulator 2 -->
+                        <div class="bg-white p-3 rounded-lg border border-slate-300 shadow-sm overflow-x-auto">
+                            <canvas id="simulator-tree-canvas" width="860" height="380" class="w-full min-w-[700px] bg-[#FAF6EE] rounded border border-slate-200"></canvas>
+                        </div>
+
+                        <!-- Dynamic Evaluation Outcome Box -->
+                        <div id="tree-eval-card" class="bg-white p-3.5 rounded-lg border border-slate-300 shadow-sm flex flex-col sm:flex-row justify-between sm:items-center gap-3">
+                            <div>
+                                <span id="eval-status-badge" class="px-2 py-0.5 rounded text-xs font-bold bg-rose-100 text-rose-800 uppercase">Evaluation: False</span>
+                                <h4 id="eval-heading" class="font-bold text-inkBlue text-base mt-1">Assignment: x₁=0, x₂=0, x₃=0</h4>
+                                <p id="eval-detail" class="text-xs text-slate-600">Clause C1: (0 &or; 1 &or; 0)=True &bull; Clause C2: (1 &or; 0 &or; 1)=True &rarr; Formula = True!</p>
+                            </div>
+                            <div class="text-right sm:text-right">
+                                <span class="text-[11px] text-slate-400 block font-mono">Theoretical Execution:</span>
+                                <span class="text-xs font-bold text-emerald-800 bg-emerald-50 px-2 py-1 rounded border border-emerald-200">Verified in O(1) by Oracle</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-center text-xs text-slate-600 py-8 font-sans no-print">
+        <p>Personal Computer Science Digital Notes &copy; 2026. Handcrafted with Tailwind CSS, Google Fonts, and Vanilla Canvas Engines.</p>
+        <p class="text-slate-400 mt-1">Conforms to Physical Student Notebook Theme &bull; All Visualizations High-DPI Responsive Canvas</p>
+    </footer>
+
+    <!-- JavaScript Controllers & Canvas Visualizer Engines -->
+    <script>
+        // --- 1. Font Switcher Controller ---
+        let isCleanFont = false;
+        function toggleFontMode() {
+            isCleanFont = !isCleanFont;
+            const body = document.body;
+            const btnText = document.getElementById('fontBtnText');
+            body.classList.toggle('font-clean');
+            btnText.textContent = isCleanFont ? "Notes Font" : "Clean Font";
+        }
+
+        // --- 2. Tab Navigation Controller ---
+        function switchTab(tabId) {
+            const panes = document.querySelectorAll('.tab-pane');
+            panes.forEach(pane => pane.classList.add('hidden'));
+
+            const targetPane = document.getElementById(tabId);
+            if (targetPane) targetPane.classList.remove('hidden');
+
+            const navTabs = document.querySelectorAll('.nav-tab');
+            navTabs.forEach(btn => {
+                btn.classList.remove('bg-amber-200', 'text-inkBlue', 'border-b-2', 'border-inkBlue');
+                btn.classList.add('text-slate-600');
+            });
+
+            const activeBtn = document.getElementById('nav-' + tabId);
+            if (activeBtn) {
+                activeBtn.classList.remove('text-slate-600');
+                activeBtn.classList.add('bg-amber-200', 'text-inkBlue', 'border-b-2', 'border-inkBlue');
+            }
+
+            // Trigger canvas redraws when switching tabs
+            setTimeout(() => {
+                drawAllCanvases();
+            }, 50);
+        }
+
+        // --- 3. Clean Clipboard Copy Controller ---
+        function copyCode(codeElementId, buttonElement) {
+            const codeEl = document.getElementById(codeElementId);
+            if (!codeEl) return;
+            const textToCopy = codeEl.innerText;
+
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                const originalHtml = buttonElement.innerHTML;
+                buttonElement.innerHTML = '✓ <span class="text-emerald-400 font-bold">Copied!</span>';
+                buttonElement.classList.add('border-emerald-500');
+                setTimeout(() => {
+                    buttonElement.innerHTML = originalHtml;
+                    buttonElement.classList.remove('border-emerald-500');
+                }, 2000);
+            }).catch(err => {
+                console.error("Failed to copy code: ", err);
+            });
+        }
+
+        // --- 4. High-DPI Canvas Helper (Rock-Solid Fixed Logical Dimensions) ---
+        function setupHighDpiCanvas(canvas) {
+            if (!canvas) return null;
+            const dpr = window.devicePixelRatio || 1;
+            
+            // Store logical width and height in dataset on first initialization so it never multiplies repeatedly
+            if (!canvas.dataset.logicalWidth) {
+                const initW = canvas.getAttribute('width') ? parseInt(canvas.getAttribute('width')) : 800;
+                const initH = canvas.getAttribute('height') ? parseInt(canvas.getAttribute('height')) : 380;
+                canvas.dataset.logicalWidth = initW;
+                canvas.dataset.logicalHeight = initH;
+            }
+
+            const logicalWidth = parseInt(canvas.dataset.logicalWidth);
+            const logicalHeight = parseInt(canvas.dataset.logicalHeight);
+
+            const targetPixelWidth = Math.round(logicalWidth * dpr);
+            const targetPixelHeight = Math.round(logicalHeight * dpr);
+
+            if (canvas.width !== targetPixelWidth || canvas.height !== targetPixelHeight) {
+                canvas.width = targetPixelWidth;
+                canvas.height = targetPixelHeight;
+            }
+
+            const ctx = canvas.getContext('2d');
+            // Reset transformation matrix before applying DPI scale so it never compounds
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.scale(dpr, dpr);
+
+            return { ctx, width: logicalWidth, height: logicalHeight };
+        }
+
+        // --- 5. Draw Static Venn Diagrams (Tab 1) ---
+        function drawVennDiagrams() {
+            // Venn Diagram 1: P != NP
+            const c1 = document.getElementById('canvas-venn-p-neq-np');
+            if (c1) {
+                const setup = setupHighDpiCanvas(c1);
+                if (setup) {
+                    const { ctx, width, height } = setup;
+                    ctx.clearRect(0, 0, width, height);
+
+                    // Outer Box: Decidable Problems
+                    ctx.strokeStyle = '#cbd5e1';
+                    ctx.lineWidth = 1.5;
+                    ctx.strokeRect(15, 15, width - 30, height - 30);
+                    ctx.fillStyle = '#64748b';
+                    ctx.font = '11px sans-serif';
+                    ctx.fillText('All Decision Problems', 25, 32);
+
+                    // NP Circle (Indigo)
+                    ctx.beginPath();
+                    ctx.arc(170, 175, 110, 0, Math.PI * 2);
+                    ctx.fillStyle = 'rgba(224, 231, 255, 0.6)';
+                    ctx.fill();
+                    ctx.strokeStyle = '#4338ca';
+                    ctx.lineWidth = 2.5;
+                    ctx.stroke();
+
+                    // P Circle inside NP (Emerald)
+                    ctx.beginPath();
+                    ctx.arc(140, 210, 50, 0, Math.PI * 2);
+                    ctx.fillStyle = 'rgba(209, 250, 229, 0.85)';
+                    ctx.fill();
+                    ctx.strokeStyle = '#047857';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                    ctx.fillStyle = '#065f46';
+                    ctx.font = 'bold 15px Kalam, cursive';
+                    ctx.fillText('Class P', 115, 215);
+
+                    // NP-Hard Region (Rose)
+                    ctx.beginPath();
+                    ctx.arc(310, 160, 115, 0, Math.PI * 2);
+                    ctx.fillStyle = 'rgba(255, 228, 230, 0.5)';
+                    ctx.fill();
+                    ctx.strokeStyle = '#e11d48';
+                    ctx.lineWidth = 2.5;
+                    ctx.stroke();
+
+                    // NP-Complete Intersection (Purple Highlight)
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.arc(170, 175, 110, 0, Math.PI * 2);
+                    ctx.clip();
+                    ctx.beginPath();
+                    ctx.arc(310, 160, 115, 0, Math.PI * 2);
+                    ctx.fillStyle = 'rgba(216, 180, 254, 0.75)';
+                    ctx.fill();
+                    ctx.restore();
+
+                    // Labels
+                    ctx.fillStyle = '#312e81';
+                    ctx.font = 'bold 16px Kalam, cursive';
+                    ctx.fillText('Class NP', 100, 115);
+
+                    ctx.fillStyle = '#881337';
+                    ctx.font = 'bold 16px Kalam, cursive';
+                    ctx.fillText('Class NP-Hard', 315, 105);
+
+                    ctx.fillStyle = '#581c87';
+                    ctx.font = 'bold 14px Kalam, cursive';
+                    ctx.fillText('NP-Complete', 205, 165);
+                    ctx.font = '10px sans-serif';
+                    ctx.fillText('(NP ∩ NP-Hard)', 205, 180);
+
+                    // Legend markers
+                    ctx.fillStyle = '#475569';
+                    ctx.font = '11px sans-serif';
+                    ctx.fillText('• Halting Problem (NP-Hard outside NP)', 240, 270);
+                    ctx.fillText('• SAT, Knapsack, TSP-Dec (NP-Complete)', 240, 285);
+                }
+            }
+
+            // Venn Diagram 2: P = NP
+            const c2 = document.getElementById('canvas-venn-p-eq-np');
+            if (c2) {
+                const setup = setupHighDpiCanvas(c2);
+                if (setup) {
+                    const { ctx, width, height } = setup;
+                    ctx.clearRect(0, 0, width, height);
+
+                    // Outer Box
+                    ctx.strokeStyle = '#cbd5e1';
+                    ctx.lineWidth = 1.5;
+                    ctx.strokeRect(15, 15, width - 30, height - 30);
+                    ctx.fillStyle = '#64748b';
+                    ctx.font = '11px sans-serif';
+                    ctx.fillText('All Decision Problems', 25, 32);
+
+                    // Combined P = NP = NP-Complete Circle
+                    ctx.beginPath();
+                    ctx.arc(170, 175, 100, 0, Math.PI * 2);
+                    ctx.fillStyle = 'rgba(209, 250, 229, 0.7)';
+                    ctx.fill();
+                    ctx.strokeStyle = '#059669';
+                    ctx.lineWidth = 3;
+                    ctx.stroke();
+
+                    // NP-Hard Enveloping Ring
+                    ctx.beginPath();
+                    ctx.arc(280, 175, 125, 0, Math.PI * 2);
+                    ctx.fillStyle = 'rgba(255, 228, 230, 0.4)';
+                    ctx.fill();
+                    ctx.strokeStyle = '#e11d48';
+                    ctx.lineWidth = 2.5;
+                    ctx.stroke();
+
+                    // Re-stroke P=NP on top
+                    ctx.beginPath();
+                    ctx.arc(170, 175, 100, 0, Math.PI * 2);
+                    ctx.strokeStyle = '#059669';
+                    ctx.lineWidth = 3;
+                    ctx.stroke();
+
+                    // Labels
+                    ctx.fillStyle = '#065f46';
+                    ctx.font = 'bold 18px Kalam, cursive';
+                    ctx.fillText('P = NP = NP-Complete', 80, 165);
+                    ctx.font = '12px sans-serif';
+                    ctx.fillText('All problems in NP are solvable', 90, 185);
+                    ctx.fillText('in deterministic polynomial time!', 90, 200);
+
+                    ctx.fillStyle = '#881337';
+                    ctx.font = 'bold 16px Kalam, cursive';
+                    ctx.fillText('NP-Hard', 310, 115);
+                    ctx.font = '11px sans-serif';
+                    ctx.fillText('(Includes undecidable like Halting)', 230, 275);
+                }
+            }
+        }
+
+        // --- 6. Draw Dual State-Space Tree (Tab 2) ---
+        let currentTreeMode = 'sat'; // 'sat' or 'knapsack'
+        function toggleTreeInterpretation(mode) {
+            currentTreeMode = mode;
+            const btnSat = document.getElementById('btn-tree-sat');
+            const btnKs = document.getElementById('btn-tree-ks');
+            const cap = document.getElementById('tree-interpretation-caption');
+
+            if (mode === 'sat') {
+                btnSat.className = "px-3 py-1 rounded text-xs font-sans font-bold bg-indigo-700 text-white shadow-sm transition";
+                btnKs.className = "px-3 py-1 rounded text-xs font-sans font-bold bg-slate-200 text-slate-800 hover:bg-amber-200 transition";
+                cap.innerHTML = "Viewing: <strong>SAT Interpretation</strong> &bull; Leaves show Truth Value evaluations for F = (x₁ &or; &not;x₂ &or; x₃) &and; (&not;x₁ &or; x₂ &or; &not;x₃).";
+            } else {
+                btnKs.className = "px-3 py-1 rounded text-xs font-sans font-bold bg-amber-700 text-white shadow-sm transition";
+                btnSat.className = "px-3 py-1 rounded text-xs font-sans font-bold bg-slate-200 text-slate-800 hover:bg-indigo-200 transition";
+                cap.innerHTML = "Viewing: <strong>Knapsack Interpretation</strong> &bull; Items (w₁=2, p₁=3), (w₂=3, p₂=4), (w₃=4, p₃=5), Capacity W=5. Leaves show Total Weight &amp; Profit.";
+            }
+            drawDualTree();
+        }
+
+        function drawDualTree() {
+            const canvas = document.getElementById('canvas-dual-tree');
+            if (!canvas) return;
+            const setup = setupHighDpiCanvas(canvas);
+            if (!setup) return;
+            const { ctx, width, height } = setup;
+            ctx.clearRect(0, 0, width, height);
+
+            // Coordinates for 3-level binary tree
+            // Root
+            const root = { x: width / 2, y: 40 };
+
+            // Level 1: x1 = 0 or 1
+            const l1_0 = { x: width * 0.28, y: 120 };
+            const l1_1 = { x: width * 0.72, y: 120 };
+
+            // Level 2: x2 = 0 or 1
+            const l2_00 = { x: width * 0.16, y: 200 };
+            const l2_01 = { x: width * 0.40, y: 200 };
+            const l2_10 = { x: width * 0.60, y: 200 };
+            const l2_11 = { x: width * 0.84, y: 200 };
+
+            // Level 3: 8 Leaves
+            const leaves = [
+                { x: width * 0.08, y: 280, val: [0, 0, 0] },
+                { x: width * 0.20, y: 280, val: [0, 0, 1] },
+                { x: width * 0.32, y: 280, val: [0, 1, 0] },
+                { x: width * 0.44, y: 280, val: [0, 1, 1] },
+                { x: width * 0.56, y: 280, val: [1, 0, 0] },
+                { x: width * 0.68, y: 280, val: [1, 0, 1] },
+                { x: width * 0.80, y: 280, val: [1, 1, 0] },
+                { x: width * 0.92, y: 280, val: [1, 1, 1] }
+            ];
+
+            // Helper to draw connecting line
+            function connect(p1, p2, label) {
+                ctx.beginPath();
+                ctx.moveTo(p1.x, p1.y);
+                ctx.lineTo(p2.x, p2.y);
+                ctx.strokeStyle = '#94a3b8';
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+
+                // Branch label
+                const mx = (p1.x + p2.x) / 2;
+                const my = (p1.y + p2.y) / 2;
+                ctx.fillStyle = '#1e293b';
+                ctx.font = 'bold 11px sans-serif';
+                ctx.fillText(label, mx + (p2.x > p1.x ? 6 : -14), my);
+            }
+
+            // Draw connections
+            connect(root, l1_0, 'x₁=0');
+            connect(root, l1_1, 'x₁=1');
+
+            connect(l1_0, l2_00, 'x₂=0');
+            connect(l1_0, l2_01, 'x₂=1');
+            connect(l1_1, l2_10, 'x₂=0');
+            connect(l1_1, l2_11, 'x₂=1');
+
+            connect(l2_00, leaves[0], 'x₃=0');
+            connect(l2_00, leaves[1], 'x₃=1');
+            connect(l2_01, leaves[2], 'x₃=0');
+            connect(l2_01, leaves[3], 'x₃=1');
+            connect(l2_10, leaves[4], 'x₃=0');
+            connect(l2_10, leaves[5], 'x₃=1');
+            connect(l2_11, leaves[6], 'x₃=0');
+            connect(l2_11, leaves[7], 'x₃=1');
+
+            // Draw interior nodes
+            function drawNode(pt, txt, fill = '#ffffff', stroke = '#1e293b') {
+                ctx.beginPath();
+                ctx.arc(pt.x, pt.y, 16, 0, Math.PI * 2);
+                ctx.fillStyle = fill;
+                ctx.fill();
+                ctx.strokeStyle = stroke;
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                ctx.fillStyle = stroke;
+                ctx.font = 'bold 11px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(txt, pt.x, pt.y);
+            }
+
+            drawNode(root, 'Root', '#fef3c7', '#b45309');
+            drawNode(l1_0, '1', '#f1f5f9');
+            drawNode(l1_1, '2', '#f1f5f9');
+            drawNode(l2_00, '3', '#f1f5f9');
+            drawNode(l2_01, '4', '#f1f5f9');
+            drawNode(l2_10, '5', '#f1f5f9');
+            drawNode(l2_11, '6', '#f1f5f9');
+
+            // Evaluate leaves depending on current mode
+            // SAT Formula: (x1 OR NOT x2 OR x3) AND (NOT x1 OR x2 OR NOT x3)
+            function evalSAT(v) {
+                const c1 = (v[0] === 1) || (v[1] === 0) || (v[2] === 1);
+                const c2 = (v[0] === 0) || (v[1] === 1) || (v[2] === 0);
+                return c1 && c2;
+            }
+
+            // Knapsack: w = [2, 3, 4], p = [3, 4, 5], Cap = 5
+            function evalKnapsack(v) {
+                const w = v[0] * 2 + v[1] * 3 + v[2] * 4;
+                const p = v[0] * 3 + v[1] * 4 + v[2] * 5;
+                const valid = w <= 5;
+                return { w, p, valid };
+            }
+
+            leaves.forEach((lf, idx) => {
+                const v = lf.val;
+                let isGood = false;
+                let bottomTxt = '';
+
+                if (currentTreeMode === 'sat') {
+                    isGood = evalSAT(v);
+                    bottomTxt = isGood ? 'TRUE ✓' : 'FALSE ✗';
+                } else {
+                    const ks = evalKnapsack(v);
+                    isGood = ks.valid;
+                    bottomTxt = `W:${ks.w}, P:${ks.p}`;
+                }
+
+                const nodeFill = isGood ? '#d1fae5' : '#fee2e2';
+                const nodeStroke = isGood ? '#059669' : '#dc2626';
+
+                drawNode(lf, `${v[0]}${v[1]}${v[2]}`, nodeFill, nodeStroke);
+
+                // Leaf text below
+                ctx.fillStyle = isGood ? '#065f46' : '#991b1b';
+                ctx.font = 'bold 11px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(bottomTxt, lf.x, lf.y + 28);
+            });
+        }
+
+        // --- 7. Draw Reduction Pipeline & Web (Tab 2) ---
+        function drawReductionDiagrams() {
+            // Pipeline Diagram
+            const cPipe = document.getElementById('canvas-reduction-pipeline');
+            if (cPipe) {
+                const setup = setupHighDpiCanvas(cPipe);
+                if (setup) {
+                    const { ctx, width, height } = setup;
+                    ctx.clearRect(0, 0, width, height);
+
+                    const boxW = 160;
+                    const boxH = 75;
+                    const y = height / 2 - boxH / 2;
+
+                    // Box 1: Instance I1
+                    ctx.fillStyle = '#e0e7ff';
+                    ctx.fillRect(40, y, boxW, boxH);
+                    ctx.strokeStyle = '#4338ca';
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(40, y, boxW, boxH);
+                    ctx.fillStyle = '#312e81';
+                    ctx.font = 'bold 14px Kalam, cursive';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('Problem L₁ Instance', 40 + boxW / 2, y + 25);
+                    ctx.font = '11px sans-serif';
+                    ctx.fillText('(e.g., CNF Formula)', 40 + boxW / 2, y + 45);
+
+                    // Arrow 1 -> Transform
+                    ctx.beginPath();
+                    ctx.moveTo(40 + boxW, height / 2);
+                    ctx.lineTo(260, height / 2);
+                    ctx.strokeStyle = '#d97706';
+                    ctx.lineWidth = 2.5;
+                    ctx.stroke();
+                    ctx.fillStyle = '#b45309';
+                    ctx.font = 'bold 11px sans-serif';
+                    ctx.fillText('f(x) in O(nᵏ)', 230, height / 2 - 8);
+
+                    // Box 2: Transformation Engine
+                    ctx.fillStyle = '#fef3c7';
+                    ctx.fillRect(260, y, boxW + 40, boxH);
+                    ctx.strokeStyle = '#d97706';
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(260, y, boxW + 40, boxH);
+                    ctx.fillStyle = '#92400e';
+                    ctx.font = 'bold 14px Kalam, cursive';
+                    ctx.fillText('Poly-Time Reduction f', 260 + (boxW + 40) / 2, y + 25);
+                    ctx.font = '11px sans-serif';
+                    ctx.fillText('Polynomial Conversion', 260 + (boxW + 40) / 2, y + 45);
+
+                    // Arrow 2 -> Instance I2
+                    ctx.beginPath();
+                    ctx.moveTo(260 + boxW + 40, height / 2);
+                    ctx.lineTo(520, height / 2);
+                    ctx.strokeStyle = '#059669';
+                    ctx.lineWidth = 2.5;
+                    ctx.stroke();
+
+                    // Box 3: Instance I2 in L2
+                    ctx.fillStyle = '#d1fae5';
+                    ctx.fillRect(520, y, boxW, boxH);
+                    ctx.strokeStyle = '#059669';
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(520, y, boxW, boxH);
+                    ctx.fillStyle = '#065f46';
+                    ctx.font = 'bold 14px Kalam, cursive';
+                    ctx.fillText('Problem L₂ Instance', 520 + boxW / 2, y + 25);
+                    ctx.font = '11px sans-serif';
+                    ctx.fillText('(e.g., 0/1 Knapsack)', 520 + boxW / 2, y + 45);
+
+                    // Bottom Decision Equivalence Text
+                    ctx.fillStyle = '#1e293b';
+                    ctx.font = 'bold 13px sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('Fundamental Guarantee: L₁(x) == YES  ⟺  L₂(f(x)) == YES', width / 2, height - 25);
+                }
+            }
+
+            // Reduction Web Diagram
+            const cWeb = document.getElementById('canvas-reduction-web');
+            if (cWeb) {
+                const setup = setupHighDpiCanvas(cWeb);
+                if (setup) {
+                    const { ctx, width, height } = setup;
+                    ctx.clearRect(0, 0, width, height);
+
+                    const nodes = [
+                        { id: 'SAT', x: 100, y: 160, color: '#fef3c7', stroke: '#b45309', label: 'Circuit-SAT / SAT', sub: 'Cook (1971)' },
+                        { id: '3SAT', x: 280, y: 160, color: '#e0e7ff', stroke: '#4338ca', label: '3-SAT', sub: 'Karp (1972)' },
+                        { id: 'CLIQUE', x: 480, y: 90, color: '#d1fae5', stroke: '#059669', label: 'Max Clique', sub: 'Graph Problem' },
+                        { id: 'VC', x: 680, y: 90, color: '#fee2e2', stroke: '#dc2626', label: 'Vertex Cover', sub: 'Graph Problem' },
+                        { id: '01KS', x: 480, y: 230, color: '#ede9fe', stroke: '#7c3aed', label: '0/1 Knapsack', sub: 'Subset Sum' },
+                        { id: 'TSP', x: 680, y: 230, color: '#ffedd5', stroke: '#ea580c', label: 'TSP (Decision)', sub: 'Hamiltonian Cycle' }
+                    ];
+
+                    function drawWebNode(n) {
+                        ctx.fillStyle = n.color;
+                        ctx.beginPath();
+                        ctx.roundRect(n.x - 65, n.y - 25, 130, 50, 8);
+                        ctx.fill();
+                        ctx.strokeStyle = n.stroke;
+                        ctx.lineWidth = 2;
+                        ctx.stroke();
+
+                        ctx.fillStyle = '#1e293b';
+                        ctx.font = 'bold 13px Kalam, cursive';
+                        ctx.textAlign = 'center';
+                        ctx.fillText(n.label, n.x, n.y - 3);
+
+                        ctx.fillStyle = '#64748b';
+                        ctx.font = '10px sans-serif';
+                        ctx.fillText(n.sub, n.x, n.y + 13);
+                    }
+
+                    function drawArrow(n1, n2) {
+                        ctx.beginPath();
+                        ctx.moveTo(n1.x + 65, n1.y);
+                        ctx.lineTo(n2.x - 65, n2.y);
+                        ctx.strokeStyle = '#475569';
+                        ctx.lineWidth = 2;
+                        ctx.stroke();
+
+                        // Arrow head
+                        const angle = Math.atan2(n2.y - n1.y, (n2.x - 65) - (n1.x + 65));
+                        const targetX = n2.x - 65;
+                        const targetY = n2.y;
+                        ctx.fillStyle = '#475569';
+                        ctx.beginPath();
+                        ctx.moveTo(targetX, targetY);
+                        ctx.lineTo(targetX - 8 * Math.cos(angle - Math.PI / 6), targetY - 8 * Math.sin(angle - Math.PI / 6));
+                        ctx.lineTo(targetX - 8 * Math.cos(angle + Math.PI / 6), targetY - 8 * Math.sin(angle + Math.PI / 6));
+                        ctx.fill();
+                    }
+
+                    drawArrow(nodes[0], nodes[1]); // SAT -> 3SAT
+                    drawArrow(nodes[1], nodes[2]); // 3SAT -> Clique
+                    drawArrow(nodes[1], nodes[4]); // 3SAT -> 0/1 Knapsack
+                    drawArrow(nodes[2], nodes[3]); // Clique -> Vertex Cover
+                    drawArrow(nodes[4], nodes[5]); // Knapsack -> TSP
+
+                    nodes.forEach(drawWebNode);
+
+                    ctx.fillStyle = '#94a3b8';
+                    ctx.font = 'italic 11px sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('Transitivity ensures all connected nodes are proven NP-Hard and NP-Complete!', width / 2, height - 15);
+                }
+            }
+        }
+
+        // --- 8. Interactive Simulator 1: P vs NP Universe (Tab 4) ---
+        let universeMode = 'neq'; // 'neq' (P != NP) or 'eq' (P = NP)
+
+        function setUniverseMode(mode) {
+            universeMode = mode;
+            const btnNeq = document.getElementById('btn-uni-neq');
+            const btnEq = document.getElementById('btn-uni-eq');
+
+            if (mode === 'neq') {
+                btnNeq.className = "py-2 px-3 rounded-lg font-bold text-xs bg-indigo-900 text-white shadow transition";
+                btnEq.className = "py-2 px-3 rounded-lg font-bold text-xs bg-white text-slate-700 hover:bg-emerald-100 border transition";
+            } else {
+                btnEq.className = "py-2 px-3 rounded-lg font-bold text-xs bg-emerald-700 text-white shadow transition";
+                btnNeq.className = "py-2 px-3 rounded-lg font-bold text-xs bg-white text-slate-700 hover:bg-indigo-100 border transition";
+            }
+            drawUniverseCanvas();
+            classifyProblem(document.getElementById('sel-problem').value);
+        }
+
+        const problemData = {
+            binary_search: {
+                title: "Binary Search",
+                badge: "Class P",
+                desc: "Solvable deterministically in O(log n) time. Sits comfortably in Class P (and by definition, also inside NP).",
+                class: "P",
+                posNeq: { x: 130, y: 220 },
+                posEq: { x: 160, y: 200 }
+            },
+            merge_sort: {
+                title: "Merge Sort",
+                badge: "Class P",
+                desc: "Solvable deterministically in O(n log n) time. Sits in Class P. In ancient days it was unknown, but once discovered it became deterministic.",
+                class: "P",
+                posNeq: { x: 155, y: 200 },
+                posEq: { x: 190, y: 175 }
+            },
+            sat: {
+                title: "Boolean CNF-SAT",
+                badge: "NP-Complete",
+                desc: "Cook (1971) proved SAT is NP-Complete. It sits right at the intersection of NP and NP-Hard. In a P=NP universe, SAT collapses into P!",
+                class: "NPC",
+                posNeq: { x: 235, y: 175 },
+                posEq: { x: 220, y: 175 }
+            },
+            knapsack_dec: {
+                title: "0/1 Knapsack (Decision)",
+                badge: "NP-Complete",
+                desc: "Verifiable in O(n) polynomial time. Proven NP-Complete via reduction from SAT. If anyone solves Knapsack in polynomial time, SAT is also solved!",
+                class: "NPC",
+                posNeq: { x: 245, y: 145 },
+                posEq: { x: 230, y: 150 }
+            },
+            tsp_opt: {
+                title: "Traveling Salesperson (Optimization)",
+                badge: "NP-Hard (Outside NP)",
+                desc: "Finding the absolute minimum cost Hamiltonian tour is an optimization problem, not a YES/NO decision. Therefore, it is strictly NP-Hard outside NP.",
+                class: "NPH_OUT",
+                posNeq: { x: 420, y: 120 },
+                posEq: { x: 400, y: 120 }
+            },
+            halting: {
+                title: "Turing's Halting Problem",
+                badge: "NP-Hard (Undecidable)",
+                desc: "Alan Turing proved the Halting Problem is mathematically undecidable. It reduces from all NP problems, making it strictly NP-Hard outside NP forever.",
+                class: "NPH_OUT",
+                posNeq: { x: 430, y: 240 },
+                posEq: { x: 420, y: 230 }
+            }
+        };
+
+        function classifyProblem(key) {
+            const data = problemData[key];
+            if (!data) return;
+
+            const badge = document.getElementById('uni-badge');
+            const title = document.getElementById('uni-title');
+            const desc = document.getElementById('uni-desc');
+
+            title.textContent = data.title;
+            if (universeMode === 'eq') {
+                if (data.class === 'P' || data.class === 'NPC') {
+                    badge.textContent = "Class P (Since P = NP)";
+                    badge.className = "px-2 py-0.5 rounded text-xs font-bold bg-emerald-100 text-emerald-900 uppercase";
+                    desc.textContent = data.title + " is now proven to be deterministically solvable in polynomial time because P = NP!";
+                } else {
+                    badge.textContent = data.badge;
+                    badge.className = "px-2 py-0.5 rounded text-xs font-bold bg-rose-100 text-rose-900 uppercase";
+                    desc.textContent = data.desc;
+                }
+            } else {
+                badge.textContent = data.badge;
+                if (data.class === 'P') badge.className = "px-2 py-0.5 rounded text-xs font-bold bg-emerald-100 text-emerald-900 uppercase";
+                else if (data.class === 'NPC') badge.className = "px-2 py-0.5 rounded text-xs font-bold bg-purple-100 text-purple-900 uppercase";
+                else badge.className = "px-2 py-0.5 rounded text-xs font-bold bg-rose-100 text-rose-900 uppercase";
+                desc.textContent = data.desc;
+            }
+
+            drawUniverseCanvas(key);
+        }
+
+        function drawUniverseCanvas(activeKey = 'sat') {
+            const canvas = document.getElementById('simulator-universe-canvas');
+            if (!canvas) return;
+            const setup = setupHighDpiCanvas(canvas);
+            if (!setup) return;
+            const { ctx, width, height } = setup;
+            ctx.clearRect(0, 0, width, height);
+
+            if (universeMode === 'neq') {
+                // Outer Universe Box
+                ctx.strokeStyle = '#cbd5e1';
+                ctx.strokeRect(10, 10, width - 20, height - 20);
+
+                // NP Circle
+                ctx.beginPath();
+                ctx.arc(190, 190, 140, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(224, 231, 255, 0.55)';
+                ctx.fill();
+                ctx.strokeStyle = '#4338ca';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                // P Circle inside NP
+                ctx.beginPath();
+                ctx.arc(140, 220, 65, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(209, 250, 229, 0.85)';
+                ctx.fill();
+                ctx.strokeStyle = '#047857';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                // NP-Hard Circle
+                ctx.beginPath();
+                ctx.arc(360, 180, 145, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(255, 228, 230, 0.45)';
+                ctx.fill();
+                ctx.strokeStyle = '#e11d48';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                // Intersection: NP-Complete
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(190, 190, 140, 0, Math.PI * 2);
+                ctx.clip();
+                ctx.beginPath();
+                ctx.arc(360, 180, 145, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(216, 180, 254, 0.75)';
+                ctx.fill();
+                ctx.restore();
+
+                // Labels
+                ctx.fillStyle = '#065f46';
+                ctx.font = 'bold 15px Kalam, cursive';
+                ctx.fillText('Class P', 120, 220);
+
+                ctx.fillStyle = '#312e81';
+                ctx.font = 'bold 16px Kalam, cursive';
+                ctx.fillText('Class NP', 120, 100);
+
+                ctx.fillStyle = '#581c87';
+                ctx.font = 'bold 15px Kalam, cursive';
+                ctx.fillText('NP-Complete', 225, 185);
+
+                ctx.fillStyle = '#881337';
+                ctx.font = 'bold 16px Kalam, cursive';
+                ctx.fillText('NP-Hard (Outside NP)', 375, 80);
+
+            } else {
+                // P = NP Universe
+                ctx.strokeStyle = '#cbd5e1';
+                ctx.strokeRect(10, 10, width - 20, height - 20);
+
+                // Merged P = NP Circle
+                ctx.beginPath();
+                ctx.arc(200, 190, 135, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(209, 250, 229, 0.75)';
+                ctx.fill();
+                ctx.strokeStyle = '#059669';
+                ctx.lineWidth = 3;
+                ctx.stroke();
+
+                // NP-Hard Outer Region
+                ctx.beginPath();
+                ctx.arc(330, 190, 155, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(255, 228, 230, 0.4)';
+                ctx.fill();
+                ctx.strokeStyle = '#e11d48';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                // Re-stroke P=NP
+                ctx.beginPath();
+                ctx.arc(200, 190, 135, 0, Math.PI * 2);
+                ctx.strokeStyle = '#059669';
+                ctx.lineWidth = 3;
+                ctx.stroke();
+
+                ctx.fillStyle = '#065f46';
+                ctx.font = 'bold 20px Kalam, cursive';
+                ctx.fillText('P = NP = NP-Complete', 90, 175);
+                ctx.font = '12px sans-serif';
+                ctx.fillText('The Universe Collapses into Tractability!', 95, 200);
+
+                ctx.fillStyle = '#881337';
+                ctx.font = 'bold 16px Kalam, cursive';
+                ctx.fillText('NP-Hard (Undecidable / Opt)', 340, 80);
+            }
+
+            // Draw Target Problem Marker Pin
+            const cur = problemData[activeKey];
+            if (cur) {
+                const pos = (universeMode === 'neq') ? cur.posNeq : cur.posEq;
+                ctx.beginPath();
+                ctx.arc(pos.x, pos.y, 8, 0, Math.PI * 2);
+                ctx.fillStyle = '#f59e0b';
+                ctx.fill();
+                ctx.strokeStyle = '#78350f';
+                ctx.lineWidth = 2.5;
+                ctx.stroke();
+
+                // Pin pulse effect
+                ctx.beginPath();
+                ctx.arc(pos.x, pos.y, 14, 0, Math.PI * 2);
+                ctx.strokeStyle = 'rgba(245, 158, 11, 0.6)';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                // Label
+                ctx.fillStyle = '#1e293b';
+                ctx.font = 'bold 12px sans-serif';
+                ctx.fillText('📍 ' + cur.title, pos.x + 12, pos.y + 4);
+            }
+        }
+
+        // --- 9. Interactive Simulator 2: Step-by-Step Tree Evaluator (Tab 4) ---
+        let currentLeafIdx = 0; // 0 to 7
+        let treeSimMode = 'sat'; // 'sat' or 'knapsack'
+
+        const leafCombos = [
+            [0, 0, 0], [0, 0, 1], [0, 1, 0], [0, 1, 1],
+            [1, 0, 0], [1, 0, 1], [1, 1, 0], [1, 1, 1]
+        ];
+
+        function stepTreeLeaf(delta) {
+            currentLeafIdx = (currentLeafIdx + delta + 8) % 8;
+            updateTreeSimUI();
+        }
+
+        function setTreeSimMode(mode) {
+            treeSimMode = mode;
+            const btnSat = document.getElementById('btn-treesim-sat');
+            const btnKs = document.getElementById('btn-treesim-ks');
+
+            if (mode === 'sat') {
+                btnSat.className = "px-3 py-1 bg-indigo-700 text-white rounded font-bold text-xs shadow";
+                btnKs.className = "px-3 py-1 bg-white text-slate-800 hover:bg-amber-200 rounded font-bold text-xs border";
+            } else {
+                btnKs.className = "px-3 py-1 bg-amber-700 text-white rounded font-bold text-xs shadow";
+                btnSat.className = "px-3 py-1 bg-white text-slate-800 hover:bg-indigo-200 rounded font-bold text-xs border";
+            }
+            updateTreeSimUI();
+        }
+
+        function updateTreeSimUI() {
+            const v = leafCombos[currentLeafIdx];
+            document.getElementById('lbl-leaf-index').textContent = `Leaf ${currentLeafIdx + 1} / 8 : (${v[0]}, ${v[1]}, ${v[2]})`;
+
+            const badge = document.getElementById('eval-status-badge');
+            const heading = document.getElementById('eval-heading');
+            const detail = document.getElementById('eval-detail');
+
+            heading.textContent = `Decision Vector: x₁=${v[0]}, x₂=${v[1]}, x₃=${v[2]}`;
+
+            if (treeSimMode === 'sat') {
+                const c1 = (v[0] === 1) || (v[1] === 0) || (v[2] === 1);
+                const c2 = (v[0] === 0) || (v[1] === 1) || (v[2] === 0);
+                const isSat = c1 && c2;
+
+                if (isSat) {
+                    badge.className = "px-2 py-0.5 rounded text-xs font-bold bg-emerald-100 text-emerald-800 uppercase";
+                    badge.textContent = "Evaluation: SATISFIED ✓";
+                } else {
+                    badge.className = "px-2 py-0.5 rounded text-xs font-bold bg-rose-100 text-rose-800 uppercase";
+                    badge.textContent = "Evaluation: UNSATISFIED ✗";
+                }
+                detail.textContent = `Clause 1 (x₁ ∨ ¬x₂ ∨ x₃) = ${c1 ? 'True' : 'False'} • Clause 2 (¬x₁ ∨ x₂ ∨ ¬x₃) = ${c2 ? 'True' : 'False'} → Formula = ${isSat ? 'TRUE' : 'FALSE'}`;
+            } else {
+                const w = v[0] * 2 + v[1] * 3 + v[2] * 4;
+                const p = v[0] * 3 + v[1] * 4 + v[2] * 5;
+                const valid = w <= 5;
+
+                if (valid) {
+                    badge.className = "px-2 py-0.5 rounded text-xs font-bold bg-emerald-100 text-emerald-800 uppercase";
+                    badge.textContent = `Feasible Solution (W=${w} ≤ 5)`;
+                } else {
+                    badge.className = "px-2 py-0.5 rounded text-xs font-bold bg-rose-100 text-rose-800 uppercase";
+                    badge.textContent = `Capacity Exceeded (W=${w} > 5)`;
+                }
+                detail.textContent = `Items: [${v[0]}, ${v[1]}, ${v[2]}] • Accumulated Weight: ${w} kg / 5 kg Capacity • Total Profit: $${p}`;
+            }
+
+            drawSimulatorTreeCanvas();
+        }
+
+        function drawSimulatorTreeCanvas() {
+            const canvas = document.getElementById('simulator-tree-canvas');
+            if (!canvas) return;
+            const setup = setupHighDpiCanvas(canvas);
+            if (!setup) return;
+            const { ctx, width, height } = setup;
+            ctx.clearRect(0, 0, width, height);
+
+            const root = { x: width / 2, y: 40 };
+            const l1_0 = { x: width * 0.28, y: 120 };
+            const l1_1 = { x: width * 0.72, y: 120 };
+
+            const l2_00 = { x: width * 0.16, y: 200 };
+            const l2_01 = { x: width * 0.40, y: 200 };
+            const l2_10 = { x: width * 0.60, y: 200 };
+            const l2_11 = { x: width * 0.84, y: 200 };
+
+            const leaves = [
+                { x: width * 0.08, y: 280, val: [0, 0, 0] },
+                { x: width * 0.20, y: 280, val: [0, 0, 1] },
+                { x: width * 0.32, y: 280, val: [0, 1, 0] },
+                { x: width * 0.44, y: 280, val: [0, 1, 1] },
+                { x: width * 0.56, y: 280, val: [1, 0, 0] },
+                { x: width * 0.68, y: 280, val: [1, 0, 1] },
+                { x: width * 0.80, y: 280, val: [1, 1, 0] },
+                { x: width * 0.92, y: 280, val: [1, 1, 1] }
+            ];
+
+            const activeLeaf = leaves[currentLeafIdx];
+            const v = activeLeaf.val;
+
+            // Determine active path nodes
+            const pathNode1 = (v[0] === 0) ? l1_0 : l1_1;
+            let pathNode2 = null;
+            if (v[0] === 0 && v[1] === 0) pathNode2 = l2_00;
+            else if (v[0] === 0 && v[1] === 1) pathNode2 = l2_01;
+            else if (v[0] === 1 && v[1] === 0) pathNode2 = l2_10;
+            else pathNode2 = l2_11;
+
+            function drawLine(p1, p2, isHighlighted) {
+                ctx.beginPath();
+                ctx.moveTo(p1.x, p1.y);
+                ctx.lineTo(p2.x, p2.y);
+                ctx.strokeStyle = isHighlighted ? '#f59e0b' : '#cbd5e1';
+                ctx.lineWidth = isHighlighted ? 3.5 : 1.5;
+                ctx.stroke();
+            }
+
+            // Draw all lines
+            drawLine(root, l1_0, pathNode1 === l1_0);
+            drawLine(root, l1_1, pathNode1 === l1_1);
+
+            drawLine(l1_0, l2_00, pathNode1 === l1_0 && pathNode2 === l2_00);
+            drawLine(l1_0, l2_01, pathNode1 === l1_0 && pathNode2 === l2_01);
+            drawLine(l1_1, l2_10, pathNode1 === l1_1 && pathNode2 === l2_10);
+            drawLine(l1_1, l2_11, pathNode1 === l1_1 && pathNode2 === l2_11);
+
+            leaves.forEach((lf, idx) => {
+                let parentNode = null;
+                if (idx < 2) parentNode = l2_00;
+                else if (idx < 4) parentNode = l2_01;
+                else if (idx < 6) parentNode = l2_10;
+                else parentNode = l2_11;
+                drawLine(parentNode, lf, idx === currentLeafIdx);
+            });
+
+            // Draw node circles
+            function drawSimNode(pt, txt, isSelected = false) {
+                ctx.beginPath();
+                ctx.arc(pt.x, pt.y, isSelected ? 18 : 14, 0, Math.PI * 2);
+                ctx.fillStyle = isSelected ? '#fef3c7' : '#ffffff';
+                ctx.fill();
+                ctx.strokeStyle = isSelected ? '#b45309' : '#64748b';
+                ctx.lineWidth = isSelected ? 2.5 : 1.5;
+                ctx.stroke();
+
+                ctx.fillStyle = isSelected ? '#92400e' : '#334155';
+                ctx.font = isSelected ? 'bold 12px sans-serif' : '10px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(txt, pt.x, pt.y);
+            }
+
+            drawSimNode(root, 'R', true);
+            drawSimNode(l1_0, '0', pathNode1 === l1_0);
+            drawSimNode(l1_1, '1', pathNode1 === l1_1);
+            drawSimNode(l2_00, '0', pathNode2 === l2_00);
+            drawSimNode(l2_01, '1', pathNode2 === l2_01);
+            drawSimNode(l2_10, '0', pathNode2 === l2_10);
+            drawSimNode(l2_11, '1', pathNode2 === l2_11);
+
+            leaves.forEach((lf, idx) => {
+                const isCur = (idx === currentLeafIdx);
+                drawSimNode(lf, `${lf.val[0]}${lf.val[1]}${lf.val[2]}`, isCur);
+            });
+        }
+
+        // --- 10. Master Initialization ---
+        function drawAllCanvases() {
+            drawVennDiagrams();
+            drawDualTree();
+            drawReductionDiagrams();
+            drawUniverseCanvas('sat');
+            drawSimulatorTreeCanvas();
+        }
+
+        window.addEventListener('load', () => {
+            drawAllCanvases();
+            updateTreeSimUI();
+        });
+
+        window.addEventListener('resize', () => {
+            drawAllCanvases();
+        });
+    </script>
+</body>
+</html>

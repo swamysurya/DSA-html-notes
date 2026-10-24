@@ -169,7 +169,7 @@
             <div class="flex flex-wrap gap-1">
                 <button onclick="showCategory('all')" id="btn-cat-all"
                     class="cat-nav-btn px-2.5 py-1 rounded-md font-bold bg-amber-300 text-inkBlue border border-amber-400 transition">
-                    All (32)
+                    All (33)
                 </button>
                 <button onclick="showCategory('stl')" id="btn-cat-stl"
                     class="cat-nav-btn px-2.5 py-1 rounded-md font-bold text-slate-700 hover:bg-amber-100 transition">
@@ -206,6 +206,10 @@
                 <button onclick="showCategory('pattern_matching')" id="btn-cat-pattern_matching"
                     class="cat-nav-btn px-2.5 py-1 rounded-md font-bold text-slate-700 hover:bg-amber-100 transition">
                     9. Pattern Matching (1)
+                </button>
+                <button onclick="showCategory('complexity')" id="btn-cat-complexity"
+                    class="cat-nav-btn px-2.5 py-1 rounded-md font-bold text-slate-700 hover:bg-amber-100 transition">
+                    10. Complexity (1)
                 </button>
             </div>
 
@@ -927,6 +931,41 @@
                 </div>
             </section>
 
+            <!-- ======================================================================
+                 UNIT 10: COMPLEXITY THEORY & INTRACTABILITY
+                 ====================================================================== -->
+            <section id="sec-complexity" class="note-section space-y-4">
+                <div class="flex items-baseline justify-between border-b-2 border-inkBlue/30 pb-1">
+                    <h3 class="text-2xl sm:text-3xl font-bold text-rose-800 font-['Kalam'] flex items-center gap-2">
+                        <span>⚡</span> Unit 10 – Complexity Theory &amp; Intractability
+                    </h3>
+                    <span
+                        class="font-sans text-xs font-bold text-rose-800 bg-rose-100 px-2.5 py-0.5 rounded-full border border-rose-300">
+                        1 Notebook
+                    </span>
+                </div>
+                <p class="text-base sm:text-lg text-pencilGray font-sans leading-relaxed">
+                    Theoretical computer science research framework: Deterministic vs. non-deterministic algorithms, the P vs NP question, Cook-Levin theorem, polynomial reductions, and the NP-Complete frontier.
+                </p>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pl-1 sm:pl-2">
+                    
+                    <!-- NP-Hard & NP-Complete -->
+                    <div class="personal-card border-rose-600 note-item sm:col-span-2" data-search="np hard np complete complexity theory p vs np polynomial exponential nondeterministic deterministic choice sat satisfiability cnf cooks theorem reductions knapsack tsp halting problem">
+                        <div class="flex justify-between items-start gap-2">
+                            <div>
+                                <span class="text-[11px] font-sans font-bold uppercase text-rose-800 bg-rose-100 px-1.5 py-0.5 rounded border border-rose-300">Complexity Theory</span>
+                                <h4 class="text-xl font-bold text-inkBlue font-['Kalam'] mt-0.5">NP-Hard &amp; NP-Complete (Research Framework)</h4>
+                            </div>
+                            <a href="np_hard_and_np_complete.html" class="note-badge bg-rose-700 hover:bg-rose-800 text-white">Open ↗</a>
+                        </div>
+                        <p class="text-sm font-sans text-slate-600 mt-1">Foundational research framework: Deterministic vs. Non-deterministic $O(1)$ search, Base CNF-SAT anchor, identical binary state-space trees, polynomial reductions $L_1 \le_p L_2$, Cook's Theorem, C++ verifiers &amp; interactive P vs NP universe.</p>
+                        <span class="text-xs font-sans font-bold text-slate-500 mt-2 block">4 Tabs • Dual Tree Canvases &amp; P vs NP Interactive Sandbox</span>
+                    </div>
+
+                </div>
+            </section>
+
         </div>
     </main>
 
@@ -986,9 +1025,10 @@
                 'backtracking': document.getElementById('sec-backtracking'),
                 'branch_and_bound': document.getElementById('sec-branch_and_bound'),
                 'pattern_matching': document.getElementById('sec-pattern_matching'),
+                'complexity': document.getElementById('sec-complexity'),
             };
 
-            const buttons = ['all', 'stl', 'searching', 'sorting', 'trees', 'greedy', 'dp', 'backtracking', 'branch_and_bound', 'pattern_matching'];
+            const buttons = ['all', 'stl', 'searching', 'sorting', 'trees', 'greedy', 'dp', 'backtracking', 'branch_and_bound', 'pattern_matching', 'complexity'];
             buttons.forEach(b => {
                 const el = document.getElementById('btn-cat-' + b);
                 if (b === cat) {
@@ -1002,16 +1042,20 @@
 
             if (cat === 'all') {
                 Object.values(sections).forEach(sec => {
-                    sec.style.display = 'block';
-                    sec.style.opacity = '1';
+                    if (sec) {
+                        sec.style.display = 'block';
+                        sec.style.opacity = '1';
+                    }
                 });
             } else {
                 Object.entries(sections).forEach(([k, sec]) => {
-                    if (k === cat) {
-                        sec.style.display = 'block';
-                        sec.style.opacity = '1';
-                    } else {
-                        sec.style.display = 'none';
+                    if (sec) {
+                        if (k === cat) {
+                            sec.style.display = 'block';
+                            sec.style.opacity = '1';
+                        } else {
+                            sec.style.display = 'none';
+                        }
                     }
                 });
             }
